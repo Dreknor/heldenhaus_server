@@ -1,0 +1,39 @@
+# 4. Neu: Home-Assistant-Integration
+
+## 4.1 Grundproblem und Lösung
+Home Assistant läuft zu Hause hinter NAT, der Laravel-Server im Internet. Deshalb geht der Datenfluss **primär von HA zum Server** (HA fragt ab und sendet Ereignisse). Der Rückweg vom Server zu HA ist optional per Webhook, wenn HA erreichbar ist (Nabu Casa oder eigener Reverse Proxy).
+
+## 4.2 Bausteine (in dieser Reihenfolge)
+1. **REST-API + YAML-Vorlagen** (schnell nutzbar): `rest`-Sensoren und `rest_command`, dokumentiert mit Kopiervorlagen im Web („Integration einrichten“)
+2. **Eigene HA-Integration `heldenhaus`** (Python, über HACS installierbar, eigenes Repo):
+   - Config Flow: Server-URL + Familien-Token
+   - `DataUpdateCoordinator`, Abfrage alle 60 s (bei Webhook-Empfang sofort)
+   - **Entitäten pro Familienmitglied**: `sensor` (Level, XP, Gold, Sterne, HP, offene Aufgaben, Streak), `binary_sensor` (alle Dailies erledigt, Freigaben ausstehend), **`todo`-Entität** (HA-Aufgabenliste ↔ To-Dos/Dailies, auch in der HA-App abhakbar), `image` (Avatar)
+   - **Familien-Entitäten**: Boss-HP, Wochenfortschritt, offene Freigaben
+   - **Dienste**: `heldenhaus.complete_task`, `create_task`, `score_habit`, `trigger_event`, `approve`, `grant_stars`
+   - **HA-Ereignisse**: `heldenhaus_task_completed`, `_reward_redeemed`, `_level_up`, `_all_dailies_done`, `_boss_defeated`
+3. **Ausgehende Webhooks** (Laravel → HA): HMAC-signiert, Wiederholung bei Fehlern über die Queue
+
+## 4.3 Ereignis-Zuordnung (Kernidee)
+HA sendet nur **Ereignis-Schlüssel** (`dishwasher_done`, `laundry_finished`, `nfc_feed_cat`). Was daraus wird, legen die Eltern **in der Web-Oberfläche** fest:
+- „Aufgabe erzeugen“ (aus Vorlage, Zuweisung über Ämterplan)
+- „Aufgabe X von Person Y als erledigt (verifiziert) markieren“
+- „Gewohnheit +1“
+
+Belohnungen können ebenfalls einen **Aktions-Schlüssel** tragen (`screen_time_30`). Beim Einlösen geht ein Webhook an HA, und eine HA-Automation schaltet dann z. B. für 30 Minuten die Konsolensteckdose oder das WLAN-Profil frei.
+
+## 4.4 Beispiel-Anwendungen
+- Waschmaschine fertig (Stromsensor) → Aufgabe „Wäsche aufhängen“ für die Person, die laut Ämterplan dran ist
+- NFC-Tag am Katzenfutter/an der Spülmaschine → Aufgabe abgehakt (verifiziert, keine Freigabe nötig)
+- Alle Dailies erledigt → Zimmerlicht leuchtet kurz grün, TTS „Gut gemacht, Lea!“
+- Hausaufgaben-Daily nicht erledigt → Konsolensteckdose bleibt aus (von Eltern einstellbar)
+- Wandtablet mit Lovelace-Karte (Familienstatus, Boss-HP); später eventuell eine eigene Lovelace-Karte
+- Level-up → Sprachansage im Wohnzimmer
+- Abschlüsse über HA zählen mit `source = ha` und verstärken die Klasse **Tüftler** (Smart-Connect, Überlastung, §2.4)
+
+## 4.5 Sicherheit
+- **Familien-Integrationstoken** (Sanctum, Fähigkeiten `ha:read`, `ha:write`, `ha:approve`), in der Web-Oberfläche widerrufbar
+- Ratenbegrenzung pro Token, Prüfprotokoll aller HA-Aktionen
+- Ausgehende Webhooks mit `X-Heldenhaus-Signature` (HMAC-SHA256) und Zeitstempel gegen Replay-Angriffe
+
+
