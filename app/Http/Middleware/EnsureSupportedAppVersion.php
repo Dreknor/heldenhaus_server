@@ -30,7 +30,7 @@ class EnsureSupportedAppVersion
             }
 
             $token = $request->user('sanctum')?->currentAccessToken();
-            if ($token instanceof PersonalAccessToken && $token->app_build !== (int) $build) {
+            if ($token instanceof PersonalAccessToken && $token->exists && $token->app_build !== (int) $build) {
                 $token->forceFill(['app_build' => (int) $build])->save();
             }
         }
