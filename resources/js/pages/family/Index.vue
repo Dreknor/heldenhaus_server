@@ -1,0 +1,187 @@
+<script setup lang="ts">
+import InputError from '@/components/InputError.vue';
+import StatBar from '@/components/game/StatBar.vue';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import AppLayout from '@/layouts/AppLayout.vue';
+import type { Member } from '@/types';
+import { Head, router, useForm } from '@inertiajs/vue3';
+import { Coins, Copy, Star, Trash2, UserPlus } from 'lucide-vue-next';
+
+const props = defineProps<{
+    family: {
+        id: number;
+        name: string;
+        login_code: string | null;
+        settings: { auto_approve_hours: number; ko_gold_loss: number; damage_factor_child: number; damage_factor_teen: number } | null;
+    };
+    members: Member[];
+    invites: { id: number; code: string; role: string; role_label: string; email: string | null; expires_at: string }[];
+    isParent: boolean;
+}>();
+
+const child = useForm({ name: '', birth_year: new Date().getFullYear() - 10, pin: '' });
+const invite = useForm({ role: 'parent', email: '' });
+const settings = useForm({
+    name: props.family.name,
+    auto_approve_hours: props.family.settings?.auto_approve_hours ?? 24,
+    ko_gold_loss: props.family.settings?.ko_gold_loss ?? 0,
+    damage_factor_child: props.family.settings?.damage_factor_child ?? 0.5,
+    damage_factor_teen: props.family.settings?.damage_factor_teen ?? 0.75,
+});
+
+const ageLabel = { child: '9–12', teen: '13–16', adult: 'Erwachsen' } as const;
+
+function copy(text: string) {
+    navigator.clipboard?.writeText(text);
+}
+
+const familyLoginUrl = () => `${window.location.origin}/family-login?code=${props.family.login_code}`;
+</script>
+
+<template>
+    <Head title="Familie" />
+
+    <AppLayout :breadcrumbs="[{ title: 'Familie', href: '/family' }]">
+        <div class="flex flex-1 flex-col gap-6 p-4 md:p-6">
+            <h1 class="text-2xl font-extrabold tracking-tight">{{ family.name }}</h1>
+
+            <!-- Mitglieder -->
+            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                <Card v-for="m in members" :key="m.id">
+                    <CardContent class="flex gap-4 pt-6">
+                        <div class="flex size-14 shrink-0 items-center justify-center rounded-2xl text-2xl font-extrabold text-white" :style="{ background: m.avatar_color }">
+                            {{ m.name.charAt(0) }}
+                        </div>
+                        <div class="min-w-0 flex-1 space-y-1.5">
+                            <div class="flex items-baseline justify-between gap-2">
+                                <p class="truncate text-lg font-bold">{{ m.name }}</p>
+                                <span class="text-xs text-muted-foreground">{{ m.role_label }} · {{ ageLabel[m.age_group] }}</span>
+                            </div>
+                            <template v-if="m.stats">
+                                <p class="text-xs font-bold text-orange-600">Level {{ m.stats.level }}</p>
+                                <StatBar label="Leben" :value="m.stats.hp" :max="m.stats.max_hp" color="hp" />
+                                <StatBar label="Erfahrung" :value="m.stats.xp" :max="m.stats.xp_to_next" color="xp" />
+                                <div class="flex gap-3 pt-1 text-sm font-bold">
+                                    <span class="flex items-center gap-1 text-amber-600"><Coins class="size-4" />{{ m.stats.gold.toFixed(0) }}</span>
+                                    <span class="flex items-center gap-1 text-violet-600"><Star class="size-4 fill-current" />{{ m.stats.stars }}</span>
+                                </div>
+                            </template>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div v-if="isParent" class="grid gap-6 lg:grid-cols-2">
+                <!-- Kind hinzufügen -->
+                <Card>
+                    <CardHeader>
+                        <CardTitle class="flex items-center gap-2"><UserPlus class="size-5" /> Kinderprofil anlegen</CardTitle>
+                        <CardDescription>Kinder brauchen keine E-Mail. Sie melden sich mit dem Familiencode und ihrer PIN an.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form class="grid gap-3" @submit.prevent="child.post(route('family.children.store'), { onSuccess: () => child.reset() })">
+                            <div class="grid gap-1.5">
+                                <Label for="child-name">Name</Label>
+                                <Input id="child-name" v-model="child.name" required />
+                                <InputError :message="child.errors.name" />
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="grid gap-1.5">
+                                    <Label for="birth">Geburtsjahr</Label>
+                                    <Input id="birth" v-model.number="child.birth_year" type="number" required />
+                                    <InputError :message="child.errors.birth_year" />
+                                </div>
+                                <div class="grid gap-1.5">
+                                    <Label for="pin">PIN (4–6 Ziffern)</Label>
+                                    <Input id="pin" v-model="child.pin" inputmode="numeric" required />
+                                    <InputError :message="child.errors.pin" />
+                                </div>
+                            </div>
+                            <Button type="submit" :disabled="child.processing">Anlegen</Button>
+                        </form>
+                    </CardContent>
+                </Card>
+
+                <!-- Zugang & Einladungen -->
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Zugang für die Familie</CardTitle>
+                        <CardDescription>Kinder-Login (z. B. auf dem Familien-Tablet) und Einladungen für weitere Erwachsene.</CardDescription>
+                    </CardHeader>
+                    <CardContent class="grid gap-4">
+                        <div class="rounded-xl bg-muted p-3">
+                            <p class="text-xs font-semibold text-muted-foreground">Familiencode</p>
+                            <div class="flex items-center gap-2">
+                                <span class="font-mono text-2xl font-extrabold tracking-widest">{{ family.login_code }}</span>
+                                <button class="ml-auto rounded-md p-1.5 hover:bg-background" title="Link kopieren" @click="copy(familyLoginUrl())"><Copy class="size-4" /></button>
+                            </div>
+                        </div>
+
+                        <form class="flex flex-wrap items-end gap-2" @submit.prevent="invite.post(route('family.invites.store'), { onSuccess: () => invite.reset() })">
+                            <div class="grid gap-1.5">
+                                <Label for="role">Rolle</Label>
+                                <select id="role" v-model="invite.role" class="h-9 rounded-md border border-input bg-background px-3 text-sm">
+                                    <option value="parent">Elternteil</option>
+                                    <option value="guest">Gast (z. B. Großeltern)</option>
+                                    <option value="child">Kind/Teen mit E-Mail</option>
+                                </select>
+                            </div>
+                            <div class="grid min-w-40 flex-1 gap-1.5">
+                                <Label for="email">E-Mail (optional)</Label>
+                                <Input id="email" v-model="invite.email" type="email" />
+                            </div>
+                            <Button type="submit" :disabled="invite.processing">Einladen</Button>
+                        </form>
+
+                        <ul v-if="invites.length" class="divide-y rounded-xl border">
+                            <li v-for="i in invites" :key="i.id" class="flex items-center gap-3 p-3 text-sm">
+                                <span class="font-mono font-bold">{{ i.code }}</span>
+                                <span class="text-muted-foreground">{{ i.role_label }}<template v-if="i.email"> · {{ i.email }}</template> · bis {{ i.expires_at }}</span>
+                                <button class="ml-auto rounded-md p-1 hover:bg-muted" title="Kopieren" @click="copy(i.code)"><Copy class="size-4" /></button>
+                                <button class="rounded-md p-1 text-rose-600 hover:bg-muted" title="Löschen" @click="router.delete(route('family.invites.destroy', { invite: i.id }))"><Trash2 class="size-4" /></button>
+                            </li>
+                        </ul>
+                    </CardContent>
+                </Card>
+
+                <!-- Einstellungen -->
+                <Card class="lg:col-span-2">
+                    <CardHeader>
+                        <CardTitle>Spielregeln der Familie</CardTitle>
+                        <CardDescription>Wie streng ist das Spiel? Schaden wird für Kinder standardmäßig gedämpft.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5" @submit.prevent="settings.put(route('family.settings.update'))">
+                            <div class="grid gap-1.5">
+                                <Label for="fname">Familienname</Label>
+                                <Input id="fname" v-model="settings.name" />
+                            </div>
+                            <div class="grid gap-1.5">
+                                <Label for="aah">Auto-Freigabe nach (Std., 0 = nie)</Label>
+                                <Input id="aah" v-model.number="settings.auto_approve_hours" type="number" min="0" max="168" />
+                            </div>
+                            <div class="grid gap-1.5">
+                                <Label for="dfc">Schaden 9–12 (0–1)</Label>
+                                <Input id="dfc" v-model.number="settings.damage_factor_child" type="number" step="0.05" min="0" max="1" />
+                            </div>
+                            <div class="grid gap-1.5">
+                                <Label for="dft">Schaden 13–16 (0–1)</Label>
+                                <Input id="dft" v-model.number="settings.damage_factor_teen" type="number" step="0.05" min="0" max="1" />
+                            </div>
+                            <div class="grid gap-1.5">
+                                <Label for="ko">Goldverlust bei K.O. (0–1)</Label>
+                                <Input id="ko" v-model.number="settings.ko_gold_loss" type="number" step="0.05" min="0" max="1" />
+                            </div>
+                            <div class="sm:col-span-2 lg:col-span-5">
+                                <Button type="submit" :disabled="settings.processing">Speichern</Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    </AppLayout>
+</template>

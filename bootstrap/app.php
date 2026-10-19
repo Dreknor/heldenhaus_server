@@ -1,10 +1,15 @@
 <?php
 
+use App\Domain\Gameplay\GameException;
+use App\Http\Middleware\EnsureFamily;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\RunDayCronIfDue;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,7 +23,21 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
+
+        $middleware->encryptCookies(except: ['appearance']);
+
+        $middleware->alias([
+            'family' => EnsureFamily::class,
+            'day-cron' => RunDayCronIfDue::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // Fachliche Spielfehler: JSON 422 für API, Validierungsfehler „game“ für Inertia
+        $exceptions->render(function (GameException $e, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $e->getMessage()], 422);
+            }
+
+            return back()->withErrors(['game' => $e->getMessage()]);
+        });
     })->create();

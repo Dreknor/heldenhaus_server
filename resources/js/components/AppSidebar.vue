@@ -1,33 +1,28 @@
 <script setup lang="ts">
-import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
+import StatsPanel from '@/components/game/StatsPanel.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-vue-next';
+import { type NavItem, type SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/vue3';
+import { Gift, Inbox, ListChecks, Swords, Users } from 'lucide-vue-next';
+import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutGrid,
-    },
-];
+const page = usePage<SharedData>();
+const isParent = computed(() => page.props.auth.user?.family_role === 'parent');
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Github Repo',
-        href: 'https://github.com/laravel/vue-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits',
-        icon: BookOpen,
-    },
-];
+const mainNavItems = computed<NavItem[]>(() => [
+    { title: 'Mein Held', href: '/dashboard', icon: Swords },
+    { title: 'Familie', href: '/family', icon: Users },
+    { title: 'Belohnungsshop', href: '/shop', icon: Gift },
+    ...(isParent.value
+        ? [
+              { title: 'Familienaufgaben', href: '/family/tasks', icon: ListChecks },
+              { title: 'Freigaben', href: '/approvals', icon: Inbox, badge: page.props.counts?.approvals ?? 0 },
+          ]
+        : []),
+]);
 </script>
 
 <template>
@@ -46,10 +41,10 @@ const footerNavItems: NavItem[] = [
 
         <SidebarContent>
             <NavMain :items="mainNavItems" />
+            <StatsPanel v-if="page.props.auth.stats" :stats="page.props.auth.stats" class="mx-2 mt-2 group-data-[collapsible=icon]:hidden" />
         </SidebarContent>
 
         <SidebarFooter>
-            <NavFooter :items="footerNavItems" />
             <NavUser />
         </SidebarFooter>
     </Sidebar>

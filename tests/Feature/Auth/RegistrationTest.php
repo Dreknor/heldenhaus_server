@@ -1,31 +1,37 @@
 <?php
 
-namespace Tests\Feature\Auth;
+use App\Enums\FamilyRole;
+use App\Models\User;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+test('registration screen can be rendered', function () {
+    $this->get('/register')->assertOk();
+});
 
-class RegistrationTest extends TestCase
-{
-    use RefreshDatabase;
+test('registrierung ohne einladungscode ist nicht möglich', function () {
+    $this->post('/register', [
+        'name' => 'Test User',
+        'email' => 'test@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ])->assertSessionHasErrors('invite');
 
-    public function test_registration_screen_can_be_rendered()
-    {
-        $response = $this->get('/register');
+    $this->assertGuest();
+});
 
-        $response->assertStatus(200);
-    }
+test('mit einladungscode tritt man direkt der familie bei', function () {
+    [$family, $parent] = makeFamily();
+    $invite = $family->invites()->create(['created_by' => $parent->id, 'role' => FamilyRole::Parent]);
 
-    public function test_new_users_can_register()
-    {
-        $response = $this->post('/register', [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
-        ]);
+    $this->post('/register', [
+        'invite' => strtolower($invite->code),
+        'name' => 'Zweites Elternteil',
+        'email' => 'test@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ])->assertRedirect(route('dashboard', absolute: false));
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
-    }
-}
+    $user = User::where('email', 'test@example.com')->first();
+    expect($user->family_id)->toBe($family->id)
+        ->and($user->family_role)->toBe(FamilyRole::Parent)
+        ->and($invite->refresh()->used_at)->not->toBeNull();
+});
