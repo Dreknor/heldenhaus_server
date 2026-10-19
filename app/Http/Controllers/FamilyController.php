@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Family\FamilyService;
+use App\Domain\Social\FeedService;
 use App\Enums\FamilyRole;
 use App\Http\Presenters\CharacterSheet;
 use App\Http\Presenters\GamePresenter;
@@ -49,6 +50,7 @@ class FamilyController extends Controller
                 : [],
             'isParent' => $isParent,
             'familyQuest' => CharacterSheet::quests($user)['family'],
+            'feed' => FeedService::present($family->id, $user->id),
             'haToken' => $request->session()->get('haToken'),
             'haConnected' => $isParent && $user->tokens()->where('name', 'home-assistant')->exists(),
             'apiUrl' => url('/api/v1'),

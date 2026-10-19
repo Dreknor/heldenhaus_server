@@ -5,7 +5,7 @@ import StatsPanel from '@/components/game/StatsPanel.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Backpack, Dices, Download, Gift, Inbox, ListChecks, ScrollText, Sparkles, Swords, Users } from 'lucide-vue-next';
+import { Backpack, ChartColumn, Dices, Download, Gift, Inbox, ListChecks, PiggyBank, ScrollText, Sparkles, Swords, Users } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
@@ -19,10 +19,12 @@ const mainNavItems = computed<NavItem[]>(() => [
     { title: 'Inventar', href: '/inventory', icon: Backpack },
     { title: 'Familie', href: '/family', icon: Users },
     { title: 'Belohnungsshop', href: '/shop', icon: Gift },
+    { title: 'Taschengeld', href: '/allowance', icon: PiggyBank },
     ...(isParent.value
         ? [
               { title: 'Familienaufgaben', href: '/family/tasks', icon: ListChecks },
               { title: 'Freigaben', href: '/approvals', icon: Inbox, badge: page.props.counts?.approvals ?? 0 },
+              { title: 'Wochenbericht', href: '/family/report', icon: ChartColumn },
           ]
         : []),
     ...(page.props.auth.user?.is_admin

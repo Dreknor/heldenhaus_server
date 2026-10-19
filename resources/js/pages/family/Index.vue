@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
+import FeedList, { type FeedEntryView } from '@/components/game/FeedList.vue';
 import QuestCard, { type ActiveQuest } from '@/components/game/QuestCard.vue';
 import StatBar from '@/components/game/StatBar.vue';
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,7 @@ const props = defineProps<{
     invites: { id: number; code: string; role: string; role_label: string; email: string | null; expires_at: string }[];
     isParent: boolean;
     familyQuest: ActiveQuest | null;
+    feed: FeedEntryView[];
     haToken: string | null;
     haConnected: boolean;
     apiUrl: string;
@@ -100,6 +102,11 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
                     </CardContent>
                 </Card>
             </div>
+
+            <section class="grid gap-3">
+                <h2 class="text-lg font-extrabold">Was in der Familie passiert</h2>
+                <FeedList :entries="feed" />
+            </section>
 
             <div v-if="isParent" class="grid gap-6 lg:grid-cols-2">
                 <!-- Kind hinzufügen -->

@@ -49,7 +49,9 @@ function initial() {
         gold_cost: t?.gold_cost ?? 10,
         approval_mode: t?.approval_mode ?? 'none',
         assignment_mode: t?.assignment_mode ?? 'assigned',
-        assignees: t?.assignees ?? [],
+        assignees: t?.assignment_mode === 'rotation' ? (t.rotation?.members ?? []) : (t?.assignees ?? []),
+        rotation_interval: t?.rotation?.interval ?? 'daily',
+        team_bonus_gold: t?.team_bonus_gold ?? 5,
         star_reward: t?.star_reward ?? 1,
         ha_event_key: t?.ha_event_key ?? '',
     };
@@ -89,7 +91,9 @@ function payload() {
         Object.assign(data, {
             approval_mode: d.approval_mode,
             assignment_mode: d.assignment_mode,
-            assignees: d.assignment_mode === 'assigned' ? d.assignees : [],
+            assignees: d.assignment_mode === 'pool' ? [] : d.assignees,
+            rotation_interval: d.assignment_mode === 'rotation' ? d.rotation_interval : null,
+            team_bonus_gold: d.assignment_mode === 'team' ? d.team_bonus_gold : 0,
             star_reward: d.star_reward,
             ha_event_key: d.ha_event_key || null,
         });
@@ -219,6 +223,12 @@ const chip = (active: boolean) =>
                         <Label>Wer?</Label>
                         <div class="flex gap-2">
                             <button type="button" :class="chip(form.assignment_mode === 'assigned')" @click="form.assignment_mode = 'assigned'">Zuweisen</button>
+                            <button v-if="currentType === 'daily'" type="button" :class="chip(form.assignment_mode === 'rotation')" @click="form.assignment_mode = 'rotation'">
+                                Ämterplan
+                            </button>
+                            <button v-if="currentType === 'todo'" type="button" :class="chip(form.assignment_mode === 'team')" @click="form.assignment_mode = 'team'">
+                                Team
+                            </button>
                             <button
                                 v-if="currentType === 'todo'"
                                 type="button"
@@ -228,12 +238,21 @@ const chip = (active: boolean) =>
                                 Aufgabenbörse
                             </button>
                         </div>
-                        <div v-if="form.assignment_mode === 'assigned'" class="flex flex-wrap gap-1.5">
+                        <div v-if="form.assignment_mode !== 'pool'" class="flex flex-wrap gap-1.5">
                             <button v-for="m in members" :key="m.id" type="button" :class="chip(form.assignees.includes(m.id))" @click="toggleAssignee(m.id)">
-                                {{ m.name }}
+                                <template v-if="form.assignment_mode === 'rotation' && form.assignees.includes(m.id)">{{ form.assignees.indexOf(m.id) + 1 }}. </template>{{ m.name }}
                             </button>
                         </div>
-                        <p v-else class="text-xs text-muted-foreground">Wer zuerst zugreift, bekommt die Aufgabe.</p>
+                        <p v-if="form.assignment_mode === 'pool'" class="text-xs text-muted-foreground">Wer zuerst zugreift, bekommt die Aufgabe.</p>
+                        <div v-if="form.assignment_mode === 'rotation'" class="flex flex-wrap items-center gap-2 text-sm">
+                            <span class="text-xs text-muted-foreground">Reihenfolge = Reihenfolge beim Antippen. Wechsel</span>
+                            <button type="button" :class="chip(form.rotation_interval === 'daily')" @click="form.rotation_interval = 'daily'">täglich</button>
+                            <button type="button" :class="chip(form.rotation_interval === 'weekly')" @click="form.rotation_interval = 'weekly'">wöchentlich</button>
+                        </div>
+                        <div v-if="form.assignment_mode === 'team'" class="flex items-center gap-2 text-sm">
+                            <span class="text-xs text-muted-foreground">Alle müssen ihren Teil abhaken. Team-Bonus für jeden:</span>
+                            <Input v-model.number="form.team_bonus_gold" type="number" min="0" class="w-20" /> Gold
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">

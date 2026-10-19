@@ -82,6 +82,10 @@ function toggle() {
                 <span v-if="task.star_reward" class="flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
                     <Star class="size-3 fill-current" /> {{ task.star_reward }}
                 </span>
+                <span v-if="task.on_duty === false" class="rounded-full bg-slate-100 px-2 py-0.5 text-slate-600 dark:bg-slate-800 dark:text-slate-300">heute nicht dran</span>
+                <span v-if="task.team" class="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                    🤝 {{ task.team.done }}/{{ task.team.total }}
+                </span>
                 <span v-if="task.pending_approval" class="flex items-center gap-1 rounded-full bg-sky-100 px-2 py-0.5 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300">
                     <Clock class="size-3" /> wartet auf Freigabe
                 </span>

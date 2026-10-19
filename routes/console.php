@@ -2,6 +2,7 @@
 
 use App\Domain\Classes\ClassService;
 use App\Domain\Family\FamilyService;
+use App\Domain\Family\WeeklyReport;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\RunDayCron;
 use App\Domain\Tasks\ReviewCompletion;
@@ -9,12 +10,15 @@ use App\Domain\Updater\ManifestVerifier;
 use App\Domain\Updater\ReleaseSource;
 use App\Domain\Updater\UpdateRunner;
 use App\Domain\Updater\Version;
+use App\Mail\WeeklyReportMail;
+use App\Models\Family;
 use App\Models\Item;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schedule;
 
 /*
@@ -66,6 +70,16 @@ Artisan::command('heldenhaus:day-cron', function (RunDayCron $cron) {
 Artisan::command('heldenhaus:community-rhythm', function (ClassService $classes) {
     $this->info($classes->evaluateCommunityRhythm().' Familien haben den Gemeinschafts-Rhythmus geschafft.');
 })->purpose('Barden-Passive: Familien-Tag auswerten');
+
+Artisan::command('heldenhaus:weekly-reports', function () {
+    foreach (Family::all() as $family) {
+        $report = WeeklyReport::for($family);
+        foreach ($family->parents()->whereNotNull('email')->get() as $parent) {
+            Mail::to($parent->email)->queue(new WeeklyReportMail($report));
+        }
+    }
+    $this->info('Wochenberichte verschickt.');
+})->purpose('Wochenbericht an Eltern senden');
 
 Artisan::command('heldenhaus:auto-approve', function (ReviewCompletion $review) {
     $this->info($review->autoApproveExpired().' Freigaben automatisch bestätigt.');
@@ -169,6 +183,7 @@ Schedule::command('queue:work --stop-when-empty --max-time=50 --tries=3')
 Schedule::command('heldenhaus:day-cron')->everyFifteenMinutes()->withoutOverlapping();
 Schedule::command('heldenhaus:auto-approve')->everyFifteenMinutes()->withoutOverlapping();
 Schedule::command('heldenhaus:community-rhythm')->hourly()->withoutOverlapping();
+Schedule::command('heldenhaus:weekly-reports')->weeklyOn(0, '18:00')->timezone('Europe/Berlin');
 Schedule::command('heldenhaus:update --auto')->dailyAt('03:00')->withoutOverlapping();
 Schedule::command('model:prune')->daily();
 Schedule::command('queue:prune-failed --hours=168')->daily();

@@ -91,7 +91,9 @@ export interface Task {
     checklist: string[];
     is_private: boolean;
     approval_mode: 'none' | 'required' | 'photo';
-    assignment_mode: 'assigned' | 'pool' | null;
+    assignment_mode: 'assigned' | 'pool' | 'rotation' | 'team' | null;
+    rotation: { members: number[]; interval: 'daily' | 'weekly' } | null;
+    team_bonus_gold: number;
     star_reward: number;
     gold_cost: number;
     ha_event_key: string | null;
@@ -107,6 +109,8 @@ export interface AssignedTask extends Task {
     counter_down: number;
     due_today: boolean | null;
     pending_approval: boolean;
+    on_duty: boolean | null;
+    team: { done: number; total: number } | null;
 }
 
 export interface Member {
