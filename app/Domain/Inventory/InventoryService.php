@@ -6,6 +6,7 @@ use App\Domain\Gameplay\Attributes;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
+use App\Domain\Social\FeedService;
 use App\Models\Item;
 use App\Models\User;
 use App\Models\UserEquipment;
@@ -101,6 +102,8 @@ class InventoryService
 
             $this->take($user, $egg);
             $this->take($user, $potion);
+
+            app(FeedService::class)->post($user->family_id, $user, 'pet_hatched', '🐣', "{$user->name} hat ein Haustier ausgebrütet: ".self::petName($egg, $potion));
 
             return UserPet::create([
                 'user_id' => $user->id,

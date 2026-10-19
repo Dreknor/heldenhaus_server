@@ -61,7 +61,11 @@ class GamePresenter
             'completed' => $a->completed,
             'counter_up' => $a->counter_up,
             'counter_down' => $a->counter_down,
-            'due_today' => $task->type === TaskType::Daily ? $task->isDueOn($today ?? now()) : null,
+            'due_today' => $task->type === TaskType::Daily ? $task->isDueFor($today ?? now(), $a->user_id) : null,
+            'on_duty' => $task->assignment_mode === 'rotation' ? $task->isOnDuty($a->user_id, $today ?? now()) : null,
+            'team' => $task->assignment_mode === 'team' && $task->relationLoaded('assignments')
+                ? ['done' => $task->assignments->where('completed', true)->count(), 'total' => $task->assignments->count()]
+                : null,
             'pending_approval' => $pending,
         ];
     }
@@ -85,6 +89,8 @@ class GamePresenter
             'is_private' => $task->is_private,
             'approval_mode' => $task->approval_mode->value,
             'assignment_mode' => $task->assignment_mode,
+            'rotation' => $task->rotation,
+            'team_bonus_gold' => $task->team_bonus_gold,
             'star_reward' => $task->star_reward,
             'gold_cost' => $task->gold_cost,
             'ha_event_key' => $task->ha_event_key,

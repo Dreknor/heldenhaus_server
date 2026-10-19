@@ -4,6 +4,7 @@ namespace App\Domain\Tasks;
 
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\ScoreTask;
+use App\Domain\Social\FeedService;
 use App\Enums\CompletionStatus;
 use App\Models\TaskAssignment;
 use App\Models\TaskCompletion;
@@ -29,6 +30,9 @@ class ReviewCompletion
             if ($completion->stars > 0) {
                 UserStats::whereKey($completion->user_id)->increment('stars', $completion->stars);
             }
+
+            $completion->loadMissing('task', 'user');
+            app(FeedService::class)->post($completion->task->family_id, $completion->user, 'task_done', '✅', "{$completion->user->name} hat „{$completion->task->title}“ erledigt");
 
             return $completion;
         });

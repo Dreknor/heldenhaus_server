@@ -4,7 +4,9 @@ namespace App\Domain\Rewards;
 
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
+use App\Domain\Social\FeedService;
 use App\Enums\TaskType;
+use App\Models\AllowanceEntry;
 use App\Models\RewardItem;
 use App\Models\RewardRedemption;
 use App\Models\Task;
@@ -69,12 +71,18 @@ class RewardService
 
             $stats->decrement('stars', $item->star_cost);
 
-            return $item->redemptions()->create([
+            $redemption = $item->redemptions()->create([
                 'user_id' => $user->id,
                 'stars' => $item->star_cost,
                 'status' => $item->requires_approval ? 'pending' : 'approved',
                 'reviewed_at' => $item->requires_approval ? null : now(),
             ]);
+
+            if (! $item->requires_approval) {
+                $this->afterApproval($redemption->load('rewardItem', 'user'));
+            }
+
+            return $redemption;
         });
     }
 
@@ -91,6 +99,11 @@ class RewardService
                 UserStats::whereKey($redemption->user_id)->increment('stars', $redemption->stars);
             }
 
+            if ($approve) {
+                $redemption->loadMissing('rewardItem', 'user');
+                $this->afterApproval($redemption);
+            }
+
             $redemption->update([
                 'status' => $approve ? 'approved' : 'rejected',
                 'reviewed_by' => $reviewer->id,
@@ -100,5 +113,24 @@ class RewardService
 
             return $redemption;
         });
+    }
+
+    /** Feed-Eintrag und ggf. Buchung auf dem Taschengeld-Konto. */
+    private function afterApproval(RewardRedemption $redemption): void
+    {
+        $item = $redemption->rewardItem;
+        $user = $redemption->user;
+
+        if ($item->allowance_cents) {
+            AllowanceEntry::create([
+                'family_id' => $item->family_id,
+                'user_id' => $user->id,
+                'amount_cents' => $item->allowance_cents,
+                'description' => "Belohnung: {$item->title}",
+                'reward_redemption_id' => $redemption->id,
+            ]);
+        }
+
+        app(FeedService::class)->post($item->family_id, $user, 'reward_redeemed', '🎁', "{$user->name} hat „{$item->title}“ eingelöst");
     }
 }

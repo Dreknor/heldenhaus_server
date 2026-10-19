@@ -5,6 +5,7 @@ namespace App\Domain\Classes;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
+use App\Domain\Social\FeedService;
 use App\Enums\FamilyRole;
 use App\Models\ActiveBuff;
 use App\Models\DayLog;
@@ -75,6 +76,8 @@ class ClassService
             $stats->hp = min($stats->hp, Formulas::maxHp($stats));
             $stats->mp = min($stats->mp, Formulas::maxMp($stats));
             $stats->save();
+
+            app(FeedService::class)->post($user->family_id, $user, 'class_chosen', ClassCatalog::get($classKey)['icon'], "{$user->name} ist jetzt ".ClassCatalog::get($classKey)['name'].'!');
 
             // Scharfe Buffs der alten Klasse verfallen
             ActiveBuff::where('user_id', $user->id)->where('armed', true)->delete();

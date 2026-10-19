@@ -30,7 +30,7 @@ class HomeAssistantController extends Controller
                 $dailies = TaskAssignment::with('task')->where('user_id', $m->id)
                     ->whereHas('task', fn ($q) => $q->where('type', TaskType::Daily)->whereNull('archived_at'))
                     ->get()
-                    ->filter(fn (TaskAssignment $a) => $a->task->isDueOn($today));
+                    ->filter(fn (TaskAssignment $a) => $a->task->isDueFor($today, $a->user_id));
                 $openTodos = TaskAssignment::where('user_id', $m->id)->where('completed', false)
                     ->whereHas('task', fn ($q) => $q->where('type', TaskType::Todo)->whereNull('archived_at'))
                     ->count();
@@ -69,7 +69,8 @@ class HomeAssistantController extends Controller
         foreach ($tasks as $task) {
             $assignment = $task->assignments
                 ->when($data['user_id'] ?? null, fn ($c, $id) => $c->where('user_id', $id))
-                ->first(fn (TaskAssignment $a) => $task->type === TaskType::Habit || ! $a->completed);
+                ->first(fn (TaskAssignment $a) => ($task->type === TaskType::Habit || ! $a->completed)
+                    && $task->isOnDuty($a->user_id, $a->user->gameDate()));
 
             if ($assignment === null) {
                 continue;

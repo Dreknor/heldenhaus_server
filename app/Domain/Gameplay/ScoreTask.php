@@ -6,13 +6,16 @@ use App\Domain\Classes\ModifierChain;
 use App\Domain\Classes\ScoreContext;
 use App\Domain\Inventory\DropService;
 use App\Domain\Quests\BossService;
+use App\Domain\Social\FeedService;
 use App\Enums\ApprovalMode;
 use App\Enums\CompletionStatus;
 use App\Enums\TaskType;
 use App\Events\LevelUp;
 use App\Events\TaskScored;
+use App\Models\Task;
 use App\Models\TaskAssignment;
 use App\Models\TaskCompletion;
+use App\Models\User;
 use App\Models\UserStats;
 use Illuminate\Support\Facades\DB;
 use Random\Randomizer;
@@ -26,6 +29,7 @@ class ScoreTask
     public function __construct(
         private readonly DropService $drops,
         private readonly BossService $boss,
+        private readonly FeedService $feed,
         private readonly Randomizer $random = new Randomizer,
     ) {}
 
@@ -124,6 +128,13 @@ class ScoreTask
             throw new GameException('Schon erledigt – super!');
         }
 
+        // Ämterplan: nur wer dran ist, kann die Aufgabe abhaken
+        $today = $a->user->gameDate();
+        if (! $task->isOnDuty($a->user_id, $today)) {
+            $duty = User::find($task->dutyUserId($today));
+            throw new GameException("Heute ist {$duty?->name} mit „{$task->title}“ dran.");
+        }
+
         $valueBefore = $a->value;
         $streakBefore = $a->streak;
         $delta = Formulas::delta($valueBefore);
@@ -151,7 +162,32 @@ class ScoreTask
         $this->afterPositive($completion, $a, $stats, $delta, $context);
         $drop = $this->drops->roll($completion, $task, $stats);
 
+        if ($task->isFamilyTask()) {
+            if ($completion->status === CompletionStatus::Auto) {
+                $this->feed->post($task->family_id, $a->user, 'task_done', '✅', "{$a->user->name} hat „{$task->title}“ erledigt");
+            }
+            $this->completeTeamIfDone($task);
+        }
+
         return new ScoreResult($completion, $stats->refresh(), $levelUps, drop: $drop);
+    }
+
+    /** Teamaufgabe: Haben alle ihren Teil erledigt, gibt es einen Team-Bonus für alle. */
+    private function completeTeamIfDone(Task $task): void
+    {
+        if ($task->assignment_mode !== 'team') {
+            return;
+        }
+
+        $assignments = $task->assignments()->get();
+        if ($assignments->isEmpty() || $assignments->contains('completed', false)) {
+            return;
+        }
+
+        if ($task->team_bonus_gold > 0) {
+            UserStats::whereIn('user_id', $assignments->pluck('user_id'))->increment('gold', $task->team_bonus_gold);
+        }
+        $this->feed->post($task->family_id, null, 'team_done', '🤝', "Teamarbeit! „{$task->title}“ ist komplett geschafft".($task->team_bonus_gold ? " – +{$task->team_bonus_gold} Gold für alle" : ''));
     }
 
     /**

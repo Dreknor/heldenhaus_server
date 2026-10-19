@@ -10,7 +10,7 @@ class RewardItem extends Model
 {
     protected $attributes = ['active' => true, 'requires_approval' => true, 'icon' => 'gift'];
 
-    protected $fillable = ['family_id', 'title', 'description', 'icon', 'star_cost', 'limit_per_week', 'requires_approval', 'ha_action_key', 'active'];
+    protected $fillable = ['family_id', 'title', 'description', 'icon', 'star_cost', 'allowance_cents', 'limit_per_week', 'requires_approval', 'ha_action_key', 'active'];
 
     protected function casts(): array
     {

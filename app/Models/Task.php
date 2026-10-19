@@ -15,7 +15,7 @@ class Task extends Model
     protected $fillable = [
         'family_id', 'owner_id', 'created_by', 'scope', 'type', 'title', 'notes', 'category', 'difficulty',
         'up', 'down', 'repeat', 'start_date', 'due_date', 'checklist', 'is_private', 'approval_mode',
-        'assignment_mode', 'star_reward', 'gold_cost', 'ha_event_key', 'sort', 'archived_at',
+        'assignment_mode', 'rotation', 'star_reward', 'team_bonus_gold', 'gold_cost', 'ha_event_key', 'sort', 'archived_at',
     ];
 
     protected function casts(): array
@@ -27,6 +27,8 @@ class Task extends Model
             'up' => 'boolean',
             'down' => 'boolean',
             'repeat' => 'array',
+            'rotation' => 'array',
+            'team_bonus_gold' => 'integer',
             'checklist' => 'array',
             'start_date' => 'date',
             'due_date' => 'date',
@@ -94,6 +96,39 @@ class Task extends Model
             'monthly' => $day->day === (int) ($repeat['day_of_month'] ?? 1),
             default => $this->isDueEveryXDays($day, $start, max(1, (int) ($repeat['every'] ?? 1))),
         };
+    }
+
+    /** Ist die Aufgabe an diesem Tag für genau diese Person fällig (Ämterplan beachtet)? */
+    public function isDueFor(\DateTimeInterface $date, int $userId): bool
+    {
+        return $this->isDueOn($date) && $this->isOnDuty($userId, $date);
+    }
+
+    /**
+     * Ämterplan: Wer dran ist, ergibt sich rein aus dem Datum – (Perioden seit Start) mod Anzahl.
+     * Ohne Rotation ist jede zugewiesene Person dran.
+     */
+    public function isOnDuty(int $userId, \DateTimeInterface $date): bool
+    {
+        return $this->dutyUserId($date) === null || $this->dutyUserId($date) === $userId;
+    }
+
+    public function dutyUserId(\DateTimeInterface $date): ?int
+    {
+        $members = array_values(array_map('intval', $this->rotation['members'] ?? []));
+        if ($this->assignment_mode !== 'rotation' || $members === []) {
+            return null;
+        }
+
+        $day = CarbonImmutable::parse($date->format('Y-m-d'));
+        $start = CarbonImmutable::parse(($this->start_date ?? $this->created_at)->format('Y-m-d'));
+        $periods = ($this->rotation['interval'] ?? 'daily') === 'weekly'
+            ? intdiv((int) $start->startOfWeek()->diffInDays($day->startOfWeek(), false), 7)
+            : (int) $start->diffInDays($day, false);
+
+        $count = count($members);
+
+        return $members[(($periods % $count) + $count) % $count];
     }
 
     private function isDueEveryXDays(CarbonImmutable $day, ?CarbonImmutable $start, int $every): bool

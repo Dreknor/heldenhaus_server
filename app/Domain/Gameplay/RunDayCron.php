@@ -42,7 +42,7 @@ class RunDayCron
         $evalDay = CarbonImmutable::parse($user->stats->last_cron_on->format('Y-m-d'));
 
         return self::dailyAssignments($user)
-            ->filter(fn (TaskAssignment $a) => ! $a->completed && $a->task->isDueOn($evalDay))
+            ->filter(fn (TaskAssignment $a) => ! $a->completed && $a->task->isDueFor($evalDay, $a->user_id))
             ->values();
     }
 
@@ -94,7 +94,7 @@ class RunDayCron
             $missed = [];
 
             foreach (self::dailyAssignments($user) as $a) {
-                if ($a->task->isDueOn($evalDay)) {
+                if ($a->task->isDueFor($evalDay, $a->user_id)) {
                     $due++;
 
                     if ($a->completed) {

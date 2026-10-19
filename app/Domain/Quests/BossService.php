@@ -3,6 +3,7 @@
 namespace App\Domain\Quests;
 
 use App\Domain\Gameplay\GameException;
+use App\Domain\Social\FeedService;
 use App\Enums\FamilyRole;
 use App\Models\Family;
 use App\Models\FamilyQuest;
@@ -117,6 +118,7 @@ class BossService
 
     private function defeat(FamilyQuest $quest): void
     {
+        app(FeedService::class)->post($quest->family_id, null, 'boss_defeated', $quest->icon, "Sieg! Die Familie hat {$quest->name} besiegt".($quest->reward_text ? " – {$quest->reward_text}!" : '!'));
         $quest->status = 'defeated';
         $quest->defeated_at = now();
         $quest->hp = 0;

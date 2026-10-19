@@ -17,7 +17,7 @@ class HeroBoard
         $today = $user->gameDate();
 
         $assignments = TaskAssignment::with([
-            'task',
+            'task.assignments',
             'completions' => fn ($q) => $q->where('direction', 'up')->latest('id')->limit(1),
         ])
             ->where('user_id', $user->id)

@@ -7,6 +7,7 @@ use App\Domain\Gameplay\RunDayCron;
 use App\Domain\Gameplay\ScoreTask;
 use App\Domain\Inventory\DropService;
 use App\Domain\Quests\BossService;
+use App\Domain\Social\FeedService;
 use App\Domain\Tasks\TaskService;
 use App\Models\ActiveBuff;
 use App\Models\FamilyDay;
@@ -28,7 +29,7 @@ function fixedScoreRandom(int $byte): void
             return str_repeat(chr($this->byte), 8);
         }
     };
-    app()->instance(ScoreTask::class, new ScoreTask(app(DropService::class), app(BossService::class), new Randomizer($engine)));
+    app()->instance(ScoreTask::class, new ScoreTask(app(DropService::class), app(BossService::class), app(FeedService::class), new Randomizer($engine)));
 }
 
 function giveClass(User $user, string $class, int $level = 10, float $mp = 50): void

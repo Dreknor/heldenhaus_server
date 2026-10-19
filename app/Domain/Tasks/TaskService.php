@@ -88,6 +88,13 @@ class TaskService
         foreach ($valid as $userId) {
             $task->assignments()->firstOrCreate(['user_id' => $userId]);
         }
+
+        if ($task->assignment_mode === 'rotation') {
+            $task->update(['rotation' => [
+                'members' => array_values(array_filter($task->rotation['members'] ?? [], fn ($id) => $valid->contains($id))),
+                'interval' => $task->rotation['interval'] ?? 'daily',
+            ]]);
+        }
     }
 
     /** @param array<string, mixed> $data */
@@ -95,8 +102,18 @@ class TaskService
     {
         $attributes = Arr::only($data, [
             'title', 'notes', 'category', 'difficulty', 'up', 'down', 'repeat', 'start_date', 'due_date',
-            'checklist', 'is_private', 'approval_mode', 'assignment_mode', 'star_reward', 'gold_cost', 'ha_event_key',
+            'checklist', 'is_private', 'approval_mode', 'assignment_mode', 'star_reward', 'team_bonus_gold', 'gold_cost', 'ha_event_key',
         ]);
+
+        // Ämterplan: Reihenfolge der Zuweisung = Reihenfolge im Plan
+        if (($data['assignment_mode'] ?? null) === 'rotation') {
+            $attributes['rotation'] = [
+                'members' => array_values(array_map('intval', $data['assignees'] ?? [])),
+                'interval' => $data['rotation_interval'] ?? 'daily',
+            ];
+        } elseif (isset($data['assignment_mode'])) {
+            $attributes['rotation'] = null;
+        }
 
         // Familienaufgaben sind nie privat (Konzept §3.7)
         if (($data['scope'] ?? null) === 'family' || isset($data['assignment_mode'])) {

@@ -49,7 +49,9 @@ class TaskRequest extends FormRequest
             'gold_cost' => ['nullable', 'integer', 'min:0', 'max:100000'],
             // nur Familienaufgaben
             'approval_mode' => [$isFamily ? 'required' : 'prohibited', Rule::enum(ApprovalMode::class)],
-            'assignment_mode' => [$isFamily ? 'required' : 'prohibited', Rule::in(['assigned', 'pool'])],
+            'assignment_mode' => [$isFamily ? 'required' : 'prohibited', Rule::in(['assigned', 'pool', 'rotation', 'team'])],
+            'rotation_interval' => ['nullable', Rule::in(['daily', 'weekly'])],
+            'team_bonus_gold' => ['nullable', 'integer', 'min:0', 'max:1000'],
             'assignees' => ['nullable', 'array'],
             'assignees.*' => ['integer'],
             'star_reward' => ['nullable', 'integer', 'min:0', 'max:1000'],
