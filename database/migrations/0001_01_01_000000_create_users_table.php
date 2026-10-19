@@ -14,9 +14,18 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('email')->unique();
+            $table->string('email')->nullable()->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
+            $table->string('pin')->nullable();
+            $table->unsignedBigInteger('family_id')->nullable()->index();
+            $table->string('family_role')->nullable();
+            $table->unsignedSmallInteger('birth_year')->nullable();
+            $table->string('timezone')->default('Europe/Berlin');
+            $table->unsignedTinyInteger('day_start')->default(4);
+            $table->string('theme')->default('kids');
+            $table->string('avatar_color')->default('#6366f1');
+            $table->boolean('is_admin')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });

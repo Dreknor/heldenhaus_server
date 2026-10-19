@@ -6,7 +6,7 @@
 - **Housing-Editor** mit der **Flame**-Engine: Raster, Möbel per Drag & Drop, Kollisionsprüfung, Drehen. Gespeichert wird das ganze Layout. Crafting-Warteschlange mit Countdown und lokaler Benachrichtigung, wenn ein Auftrag fertig ist.
 - **Modi**: Kinder-Ansicht (große Kacheln, wenig Text), Teen-Ansicht (kompakter, Themes), **Eltern-Ansicht** (Freigabe-Inbox, Familienverwaltung, Belohnungsshop, Statistik), Familiengerät-Modus
 - **Android-Extras**: Home-Screen-Widget (`home_widget`) mit den Dailies des Tages und einem Abhak-Button, FCM-Push mit Aktionsbuttons („Bestätigen“ direkt aus der Benachrichtigung), Kamera für Foto-Nachweise, QR-Scanner zum Koppeln
-- **Builds**: Flavors `dev`/`staging`/`prod`, Verteilung über einen **geschlossenen Play-Store-Test** (Familie + Bekannte, bis 100 Tester) oder eine signierte APK. Eine öffentliche Store-Veröffentlichung (Families Policy) ist nicht nötig.
+- **Builds**: Flavors `dev`/`staging`/`prod`, Verteilung über einen **geschlossenen Play-Store-Test** (Familie + Bekannte, bis 100 Tester) oder eine signierte APK. Eine öffentliche Store-Veröffentlichung (Families Policy) ist nicht nötig. Updates laufen über den eingebauten **Online-Updater** (§11).
 
 
 

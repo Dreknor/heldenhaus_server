@@ -1,0 +1,112 @@
+<?php
+
+namespace App\Domain\Tasks;
+
+use App\Domain\Gameplay\GameException;
+use App\Enums\TaskType;
+use App\Models\Task;
+use App\Models\TaskAssignment;
+use App\Models\User;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+
+class TaskService
+{
+    /** @param array<string, mixed> $data validierte Daten aus TaskRequest */
+    public function create(User $actor, array $data): Task
+    {
+        return DB::transaction(function () use ($actor, $data) {
+            $isFamily = ($data['scope'] ?? 'personal') === 'family';
+
+            $task = Task::create([
+                ...$this->attributes($data),
+                'scope' => $isFamily ? 'family' : 'personal',
+                'family_id' => $isFamily ? $actor->family_id : null,
+                'owner_id' => $isFamily ? null : $actor->id,
+                'created_by' => $actor->id,
+                'type' => $data['type'],
+            ]);
+
+            if ($isFamily) {
+                $this->syncAssignees($task, $data['assignees'] ?? []);
+            } else {
+                $task->assignments()->create(['user_id' => $actor->id]);
+            }
+
+            return $task;
+        });
+    }
+
+    /** @param array<string, mixed> $data */
+    public function update(Task $task, array $data): Task
+    {
+        return DB::transaction(function () use ($task, $data) {
+            $task->update($this->attributes($data));
+
+            if ($task->isFamilyTask() && array_key_exists('assignees', $data)) {
+                $this->syncAssignees($task, $data['assignees'] ?? []);
+            }
+
+            return $task;
+        });
+    }
+
+    public function archive(Task $task): void
+    {
+        $task->update(['archived_at' => now()]);
+    }
+
+    /** Aufgabe aus der Börse übernehmen – wer zuerst kommt, bekommt sie. */
+    public function claim(Task $task, User $user): TaskAssignment
+    {
+        if (! $task->isPool() || $task->family_id !== $user->family_id) {
+            throw new GameException('Diese Aufgabe ist nicht in der Aufgabenbörse.');
+        }
+
+        return DB::transaction(function () use ($task, $user) {
+            $locked = Task::lockForUpdate()->findOrFail($task->id);
+
+            if ($locked->assignments()->exists()) {
+                throw new GameException('Zu langsam – jemand anderes hat die Aufgabe schon übernommen.');
+            }
+
+            return $locked->assignments()->create(['user_id' => $user->id]);
+        });
+    }
+
+    /** @param list<int> $userIds */
+    private function syncAssignees(Task $task, array $userIds): void
+    {
+        if ($task->assignment_mode === 'pool') {
+            return;
+        }
+
+        $valid = User::where('family_id', $task->family_id)->whereIn('id', $userIds)->pluck('id');
+
+        $task->assignments()->whereNotIn('user_id', $valid)->delete();
+
+        foreach ($valid as $userId) {
+            $task->assignments()->firstOrCreate(['user_id' => $userId]);
+        }
+    }
+
+    /** @param array<string, mixed> $data */
+    private function attributes(array $data): array
+    {
+        $attributes = Arr::only($data, [
+            'title', 'notes', 'category', 'difficulty', 'up', 'down', 'repeat', 'start_date', 'due_date',
+            'checklist', 'is_private', 'approval_mode', 'assignment_mode', 'star_reward', 'gold_cost', 'ha_event_key',
+        ]);
+
+        // Familienaufgaben sind nie privat (Konzept §3.7)
+        if (($data['scope'] ?? null) === 'family' || isset($data['assignment_mode'])) {
+            $attributes['is_private'] = false;
+        }
+
+        if (($data['type'] ?? null) === TaskType::Daily->value && empty($attributes['start_date'])) {
+            $attributes['start_date'] = now()->toDateString();
+        }
+
+        return $attributes;
+    }
+}

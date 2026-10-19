@@ -1,47 +1,48 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Test Case
-|--------------------------------------------------------------------------
-|
-| The closure you provide to your test functions is always bound to a specific PHPUnit test
-| case class. By default, that class is "PHPUnit\Framework\TestCase". Of course, you may
-| need to change it using the "pest()" function to bind a different classes or traits.
-|
-*/
+use App\Domain\Family\FamilyService;
+use App\Domain\Tasks\TaskService;
+use App\Enums\FamilyRole;
+use App\Models\Family;
+use App\Models\Task;
+use App\Models\TaskAssignment;
+use App\Models\User;
 
 pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature');
 
-/*
-|--------------------------------------------------------------------------
-| Expectations
-|--------------------------------------------------------------------------
-|
-| When you're writing tests, you often need to check that values meet certain conditions. The
-| "expect()" function gives you access to a set of "expectations" methods that you can use
-| to assert different things. Of course, you may extend the Expectation API at any time.
-|
-*/
+pest()->extend(Tests\TestCase::class)->in('Unit');
 
-expect()->extend('toBeOne', function () {
-    return $this->toBe(1);
-});
-
-/*
-|--------------------------------------------------------------------------
-| Functions
-|--------------------------------------------------------------------------
-|
-| While Pest is very powerful out-of-the-box, you may have some testing code specific to your
-| project that you don't want to repeat in every file. Here you can also expose helpers as
-| global functions to help you to reduce the number of lines of code in your test files.
-|
-*/
-
-function something()
+/**
+ * Familie mit einem Elternteil und einem Kind (10 Jahre) anlegen.
+ *
+ * @return array{0: Family, 1: User, 2: User}
+ */
+function makeFamily(): array
 {
-    // ..
+    $parent = User::factory()->create(['timezone' => 'Europe/Berlin', 'day_start' => 0]);
+    $family = app(FamilyService::class)->createFamily($parent, 'Familie Test');
+    $child = app(FamilyService::class)->addChild($parent->refresh(), 'Lea', (int) now()->year - 10, '1234');
+
+    return [$family, $parent->refresh(), $child->refresh()];
+}
+
+function makeTask(User $user, array $attributes = []): Task
+{
+    return app(TaskService::class)->create($user, array_merge([
+        'type' => 'todo',
+        'title' => 'Testaufgabe',
+        'difficulty' => 1,
+    ], $attributes));
+}
+
+function assignmentOf(Task $task, User $user): TaskAssignment
+{
+    return TaskAssignment::where('task_id', $task->id)->where('user_id', $user->id)->firstOrFail();
+}
+
+function joinFamily(Family $family, FamilyRole $role = FamilyRole::Child, array $attributes = []): User
+{
+    return User::factory()->create(array_merge(['family_id' => $family->id, 'family_role' => $role], $attributes));
 }

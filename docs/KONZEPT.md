@@ -26,3 +26,4 @@ Festgelegte Rahmenbedingungen:
 | 7 | [Datenschutz](konzept/07-datenschutz.md) | DSGVO, Datensparsamkeit bei Kindern, Sicherheit |
 | 8 | [Roadmap](konzept/08-roadmap.md) | Phasen 0–8, Repositories |
 | 9 | [Tests](konzept/09-tests.md) | Teststrategie und Abnahme |
+| 10 | [Online-Updater](konzept/10-online-updater.md) | Server-Selbst-Update mit Signatur und Rollback, APK-Updater in der App, Inhalts-Updates |

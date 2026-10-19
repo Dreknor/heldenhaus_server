@@ -2,9 +2,9 @@
 
 | Phase | Inhalt | Ergebnis |
 |---|---|---|
-| **0 – Fundament** | Laravel-Projekt, Inertia/Vue/Tailwind, Pest, CI, Deployment auf Hetzner (Staging + Prod), Cron/Queue-Setup, Auth, Familien + Einladungen + Kopplung | Einloggen, Familie anlegen, live auf Hetzner |
-| **1 – Spielkern (MVP)** | 4 Aufgabentypen, Scoring-Engine, Tageswechsel, Stats/Level, Familienaufgaben (zugewiesen/Börse), Freigaben, Sterne + Familien-Belohnungsshop, Web-Oberfläche | Familie kann im Browser spielen |
-| **2 – Flutter-App** | API v1, Kopplung per QR, Offline-Abgleich, Aufgaben/Stats/Freigaben, FCM-Push, Widget | App im geschlossenen Test |
+| **0 – Fundament** | Laravel-Projekt, Inertia/Vue/Tailwind, Pest, CI, Deployment auf Hetzner (Staging + Prod, Release-Struktur kompatibel zum Online-Updater), Cron/Queue-Setup, Auth, Familien + Einladungen + Kopplung | Einloggen, Familie anlegen, live auf Hetzner |
+| **1 – Spielkern (MVP)** | **Server-Updater** (signierte Release-Pakete, Zustandsautomat, Rollback), 4 Aufgabentypen, Scoring-Engine, Tageswechsel, Stats/Level, Familienaufgaben (zugewiesen/Börse), Freigaben, Sterne + Familien-Belohnungsshop, Web-Oberfläche | Familie kann im Browser spielen |
+| **2 – Flutter-App** | **App-Updater** (APK-Kanäle, Pflicht-Update per 426, Play In-App Updates für den Store-Flavor), API v1, Kopplung per QR, Offline-Abgleich, Aufgaben/Stats/Freigaben, FCM-Push, Widget | App im geschlossenen Test |
 | **3 – Spieltiefe** | **Asset-Pipeline** (Palette, Blender-Render-Skript, `credits.json` + CI-Check, Credits-Bildschirm), Avatar + Ausrüstung + Shop, Drops/Haustiere/Reittiere, Erfolge, 6 Klassen (Krieger, Magier, Schurke, Heiler, Tüftler, Barde) mit Modifikator-Kette für Passiv- und Aktiv-Fähigkeiten, Inhalte als JSON | „Spielgefühl“ |
 | **4 – Familie+** | Ämterplan-Rotation, Teamaufgaben, Familien-Boss, Feed/Reaktionen, Wochenbericht, Familienbündnisse, Challenges, Taschengeld-Konto | Vollständige Familienfunktionen |
 | **5 – Home Assistant** | HA-API + Ereignis-Zuordnung + YAML-Vorlagen → HACS-Integration (Sensoren, todo, Dienste) → ausgehende Webhooks + Belohnungsaktionen | Smart-Home-Kopplung |
