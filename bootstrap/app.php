@@ -26,6 +26,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->encryptCookies(except: ['appearance']);
 
+        // Der Online-Updater muss auch im Wartungsmodus weiterlaufen
+        $middleware->preventRequestsDuringMaintenance(except: ['admin/updates/*']);
+
         $middleware->alias([
             'family' => EnsureFamily::class,
             'day-cron' => RunDayCronIfDue::class,

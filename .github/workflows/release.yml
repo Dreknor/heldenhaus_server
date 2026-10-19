@@ -1,0 +1,66 @@
+name: release
+
+# Baut bei jedem Tag vX.Y.Z ein signiertes Paket für den Online-Updater
+# und hängt es an das GitHub-Release (Vorabversion bei Tags mit "-", z. B. v1.3.0-beta.1).
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: sodium, zip, intl, pdo_mysql
+          tools: composer:v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Tests
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          cp .env.example .env
+          php artisan key:generate
+          npm ci
+          npm run build
+          ./vendor/bin/pest
+
+      - name: Produktions-Abhängigkeiten
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress
+
+      - name: Vorherigen Tag ermitteln
+        id: previous
+        run: echo "tag=$(git describe --tags --abbrev=0 ${GITHUB_REF_NAME}^ 2>/dev/null || echo '')" >> "$GITHUB_OUTPUT"
+
+      - name: Paket bauen und signieren
+        env:
+          UPDATER_SECRET_KEY: ${{ secrets.UPDATER_SECRET_KEY }}
+        run: |
+          ARGS=""
+          if [ -n "${{ steps.previous.outputs.tag }}" ]; then ARGS="--previous=${{ steps.previous.outputs.tag }}"; fi
+          php tools/build-release.php "${GITHUB_REF_NAME}" dist $ARGS
+
+      - name: GitHub-Release anlegen
+        uses: softprops/action-gh-release@v2
+        with:
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          generate_release_notes: true
+          files: |
+            dist/heldenhaus-*.zip
+            dist/manifest.json
+            dist/manifest.sig

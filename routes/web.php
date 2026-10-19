@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\UpdateController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\FamilyLoginController;
@@ -54,6 +55,14 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
     Route::put('shop/items/{item}', [RewardShopController::class, 'update'])->name('shop.items.update');
     Route::delete('shop/items/{item}', [RewardShopController::class, 'destroy'])->name('shop.items.destroy');
     Route::post('shop/items/{item}/redeem', [RewardShopController::class, 'redeem'])->name('shop.items.redeem');
+});
+
+Route::middleware(['auth', 'can:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('updates', [UpdateController::class, 'index'])->name('updates.index');
+    Route::post('updates/check', [UpdateController::class, 'check'])->name('updates.check');
+    Route::post('updates/start', [UpdateController::class, 'start'])->name('updates.start');
+    Route::post('updates/{update}/step', [UpdateController::class, 'step'])->name('updates.step');
+    Route::post('updates/rollback', [UpdateController::class, 'rollback'])->name('updates.rollback');
 });
 
 require __DIR__.'/settings.php';
