@@ -47,6 +47,9 @@ class FamilyController extends Controller
                     ])
                 : [],
             'isParent' => $isParent,
+            'haToken' => $request->session()->get('haToken'),
+            'haConnected' => $isParent && $user->tokens()->where('name', 'home-assistant')->exists(),
+            'apiUrl' => url('/api/v1'),
         ]);
     }
 
@@ -117,6 +120,17 @@ class FamilyController extends Controller
         $invite->delete();
 
         return back();
+    }
+
+    /** Token für die Home-Assistant-Integration (Fähigkeit „ha“). Wird nur einmal angezeigt. */
+    public function createHaToken(Request $request): RedirectResponse
+    {
+        $this->authorize('manage', $request->user()->family);
+
+        $request->user()->tokens()->where('name', 'home-assistant')->delete();
+        $token = $request->user()->createToken('home-assistant', ['ha'])->plainTextToken;
+
+        return back()->with('haToken', $token);
     }
 
     public function updateSettings(Request $request): RedirectResponse

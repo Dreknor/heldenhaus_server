@@ -2,6 +2,7 @@
 
 use App\Domain\Gameplay\GameException;
 use App\Http\Middleware\EnsureFamily;
+use App\Http\Middleware\EnsureSupportedAppVersion;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\RunDayCronIfDue;
 use Illuminate\Foundation\Application;
@@ -9,7 +10,8 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
+use Laravel\Sanctum\Http\Middleware\CheckAbilities;
+use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -32,6 +34,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'family' => EnsureFamily::class,
             'day-cron' => RunDayCronIfDue::class,
+            'app-version' => EnsureSupportedAppVersion::class,
+            'abilities' => CheckAbilities::class,
+            'ability' => CheckForAnyAbility::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

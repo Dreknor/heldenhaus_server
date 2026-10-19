@@ -20,7 +20,30 @@ const props = defineProps<{
     members: Member[];
     invites: { id: number; code: string; role: string; role_label: string; email: string | null; expires_at: string }[];
     isParent: boolean;
+    haToken: string | null;
+    haConnected: boolean;
+    apiUrl: string;
 }>();
+
+const haYaml = () => `rest:
+  - resource: ${props.apiUrl}/ha/state
+    headers:
+      Authorization: "Bearer ${props.haToken ?? '<TOKEN>'}"
+    scan_interval: 60
+    sensor:
+      - name: "Heldenhaus Familie"
+        value_template: "{{ value_json.members | selectattr('all_dailies_done') | list | count }}"
+        json_attributes: [members]
+
+rest_command:
+  heldenhaus_event:
+    url: ${props.apiUrl}/ha/events
+    method: POST
+    headers:
+      Authorization: "Bearer ${props.haToken ?? '<TOKEN>'}"
+      Accept: application/json
+    content_type: application/json
+    payload: '{"event": "{{ event }}"}'`;
 
 const child = useForm({ name: '', birth_year: new Date().getFullYear() - 10, pin: '' });
 const invite = useForm({ role: 'parent', email: '' });
@@ -144,6 +167,34 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
                                 <button class="rounded-md p-1 text-rose-600 hover:bg-muted" title="Löschen" @click="router.delete(route('family.invites.destroy', { invite: i.id }))"><Trash2 class="size-4" /></button>
                             </li>
                         </ul>
+                    </CardContent>
+                </Card>
+
+                <!-- Home Assistant -->
+                <Card class="lg:col-span-2">
+                    <CardHeader>
+                        <CardTitle>Home Assistant</CardTitle>
+                        <CardDescription>
+                            Home Assistant fragt den Familienstatus ab und meldet Ereignisse (z. B. NFC-Tag „nfc_feed_cat“). Aufgaben mit passendem
+                            Ereignis-Schlüssel werden dann automatisch und verifiziert erledigt.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent class="grid gap-3">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <span class="text-sm" :class="haConnected ? 'text-emerald-600' : 'text-muted-foreground'">{{ haConnected ? 'Token vorhanden' : 'Noch nicht verbunden' }}</span>
+                            <Button variant="outline" @click="router.post(route('family.ha-token'))">{{ haConnected ? 'Neues Token erzeugen' : 'Token erzeugen' }}</Button>
+                        </div>
+                        <div v-if="haToken" class="rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm dark:bg-amber-950/30">
+                            <p class="font-semibold">Dein Token – wird nur jetzt angezeigt:</p>
+                            <div class="mt-1 flex items-center gap-2">
+                                <code class="break-all">{{ haToken }}</code>
+                                <button class="rounded-md p-1.5 hover:bg-background" title="Kopieren" @click="copy(haToken)"><Copy class="size-4" /></button>
+                            </div>
+                        </div>
+                        <details class="text-sm">
+                            <summary class="cursor-pointer font-semibold">Vorlage für configuration.yaml</summary>
+                            <pre class="mt-2 overflow-x-auto rounded-lg bg-muted p-3 text-xs">{{ haYaml() }}</pre>
+                        </details>
                     </CardContent>
                 </Card>
 

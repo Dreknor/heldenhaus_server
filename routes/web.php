@@ -42,6 +42,7 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
     Route::put('family/members/{member}', [FamilyController::class, 'updateMember'])->name('family.members.update');
     Route::post('family/invites', [FamilyController::class, 'storeInvite'])->name('family.invites.store');
     Route::delete('family/invites/{invite}', [FamilyController::class, 'destroyInvite'])->name('family.invites.destroy');
+    Route::post('family/ha-token', [FamilyController::class, 'createHaToken'])->name('family.ha-token');
     Route::put('family/settings', [FamilyController::class, 'updateSettings'])->name('family.settings.update');
 
     Route::get('approvals', [ApprovalController::class, 'index'])->name('approvals.index');
