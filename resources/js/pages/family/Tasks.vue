@@ -17,7 +17,7 @@ const props = defineProps<{
 
 const typeMeta: Record<string, { label: string; icon: unknown }> = {
     habit: { label: 'Gewohnheit', icon: Repeat },
-    daily: { label: 'Täglich', icon: CalendarCheck },
+    daily: { label: 'Tägliche Aufgabe', icon: CalendarCheck },
     todo: { label: 'To-do', icon: ListTodo },
 };
 

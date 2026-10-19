@@ -60,6 +60,13 @@ it('läuft pro Tag nur einmal', function () {
         ->and($this->user->stats()->first()->hp)->toBe(48.0);
 });
 
+it('sieht neue Dailies am selben Tag als fällig an, auch abends in Berlin', function () {
+    $this->travelTo(CarbonImmutable::parse('2026-10-19 23:30', 'Europe/Berlin'));
+    $task = makeTask($this->user, ['type' => 'daily']);
+
+    expect($task->isDueOn($this->user->gameDate()))->toBeTrue();
+});
+
 it('ignoriert Dailies, die an dem Wochentag nicht fällig waren', function () {
     // 19.10.2026 ist ein Montag
     makeTask($this->user, ['type' => 'daily', 'repeat' => ['type' => 'weekly', 'days' => [2, 3]]]);

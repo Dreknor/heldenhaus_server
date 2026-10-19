@@ -136,7 +136,7 @@ const chip = (active: boolean) =>
         <DialogContent class="max-h-[90vh] overflow-y-auto sm:max-w-lg">
             <DialogHeader>
                 <DialogTitle>
-                    {{ editing ? 'Bearbeiten' : 'Neu' }}: {{ isFamily ? 'Familien-' : '' }}{{ typeLabels[currentType] }}
+                    {{ editing ? 'Bearbeiten' : 'Neu' }}: {{ typeLabels[currentType] }}{{ isFamily ? ' für die Familie' : '' }}
                 </DialogTitle>
             </DialogHeader>
 

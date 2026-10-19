@@ -79,7 +79,8 @@ class Task extends Model
             return false;
         }
 
-        $day = CarbonImmutable::instance($date)->startOfDay();
+        // Reine Kalenderdaten vergleichen – der Spieltag liegt in der Zeitzone der Person, start_date ist zeitzonenlos.
+        $day = CarbonImmutable::parse($date->format('Y-m-d'));
         $start = $this->start_date ? CarbonImmutable::parse($this->start_date->format('Y-m-d')) : null;
 
         if ($start && $day->lt($start)) {
