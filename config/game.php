@@ -46,6 +46,13 @@ return [
     // Nach so vielen Stunden nach Tagesbeginn läuft der Tageswechsel auch ohne App-Aufruf
     'batch_cron_after_hours' => 12,
 
+    // Zufallsfunde – im Admin-Backend unter „Items & Drops“ änderbar
+    'drops' => [
+        'base_chance' => 0.25,        // Grundchance pro erledigter Aufgabe (leicht)
+        'daily_limit' => 5,           // max. Funde pro Person und Tag
+        'per_bonus_per_point' => 0.02, // +2 % relative Chance je Spürsinn-Punkt
+    ],
+
     'categories' => [
         'household' => 'Haushalt',
         'school' => 'Schule & Lernen',

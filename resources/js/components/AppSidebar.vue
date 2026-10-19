@@ -5,7 +5,7 @@ import StatsPanel from '@/components/game/StatsPanel.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Download, Gift, Inbox, ListChecks, Swords, Users } from 'lucide-vue-next';
+import { Backpack, Dices, Download, Gift, Inbox, ListChecks, Swords, Users } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
@@ -14,6 +14,7 @@ const isParent = computed(() => page.props.auth.user?.family_role === 'parent');
 
 const mainNavItems = computed<NavItem[]>(() => [
     { title: 'Mein Held', href: '/dashboard', icon: Swords },
+    { title: 'Inventar', href: '/inventory', icon: Backpack },
     { title: 'Familie', href: '/family', icon: Users },
     { title: 'Belohnungsshop', href: '/shop', icon: Gift },
     ...(isParent.value
@@ -22,7 +23,12 @@ const mainNavItems = computed<NavItem[]>(() => [
               { title: 'Freigaben', href: '/approvals', icon: Inbox, badge: page.props.counts?.approvals ?? 0 },
           ]
         : []),
-    ...(page.props.auth.user?.is_admin ? [{ title: 'System-Updates', href: '/admin/updates', icon: Download }] : []),
+    ...(page.props.auth.user?.is_admin
+        ? [
+              { title: 'Items & Drops', href: '/admin/items', icon: Dices },
+              { title: 'System-Updates', href: '/admin/updates', icon: Download },
+          ]
+        : []),
 ]);
 </script>
 

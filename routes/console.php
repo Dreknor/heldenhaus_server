@@ -5,8 +5,10 @@ use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\RunDayCron;
 use App\Domain\Tasks\ReviewCompletion;
 use App\Domain\Updater\ManifestVerifier;
+use App\Domain\Updater\ReleaseSource;
 use App\Domain\Updater\UpdateRunner;
 use App\Domain\Updater\Version;
+use App\Models\Item;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Artisan;
@@ -65,6 +67,28 @@ Artisan::command('heldenhaus:auto-approve', function (ReviewCompletion $review) 
 })->purpose('Offene Freigaben nach Ablauf der Frist bestätigen');
 
 /*
+ * Spielinhalte aus database/content/*.json übernehmen. Bestehende Items bleiben unverändert
+ * (Admins pflegen sie im Backend), außer mit --force.
+ */
+Artisan::command('game:content-sync {--force : Bestehende Items mit den Dateiwerten überschreiben}', function () {
+    $items = json_decode(file_get_contents(database_path('content/items.json')), true, flags: JSON_THROW_ON_ERROR);
+    $created = $updated = 0;
+
+    foreach ($items as $data) {
+        $item = Item::firstWhere('key', $data['key']);
+        if ($item === null) {
+            Item::create($data);
+            $created++;
+        } elseif ($this->option('force')) {
+            $item->update($data);
+            $updated++;
+        }
+    }
+
+    $this->info("{$created} Items angelegt, {$updated} aktualisiert.");
+})->purpose('Spielinhalte (Items) aus JSON übernehmen');
+
+/*
  * Online-Updater
  */
 Artisan::command('heldenhaus:smoke', function () {
@@ -83,7 +107,7 @@ Artisan::command('heldenhaus:updater-keygen', function () {
     $this->warn($pair['secret']);
 })->purpose('Schlüsselpaar für signierte Release-Pakete erzeugen');
 
-Artisan::command('heldenhaus:update {--check : Nur prüfen} {--version= : Bestimmte Version} {--channel=} {--auto : Nur Patch-Versionen ohne Migrationen}', function (UpdateRunner $runner, \App\Domain\Updater\ReleaseSource $source) {
+Artisan::command('heldenhaus:update {--check : Nur prüfen} {--version= : Bestimmte Version} {--channel=} {--auto : Nur Patch-Versionen ohne Migrationen}', function (UpdateRunner $runner, ReleaseSource $source) {
     if ($this->option('auto') && ! config('updater.auto_patch')) {
         return;
     }

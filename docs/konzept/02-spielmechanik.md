@@ -23,6 +23,7 @@
 - **Drops**: Eier + Schlüsselpulver → Haustiere → füttern → Reittiere. Die Drop-Chance ist begrenzt (Tageslimit).
 - **Erfolge/Abzeichen**, saisonale Events (Ferien, Weihnachten, Ostern)
 - **Spielinhalte als versionierte JSON-Dateien** (`database/content/*.json`) mit dem Import-Befehl `php artisan game:content-sync`. Neue Items brauchen keine Code-Änderung.
+- **Admin-Backend „Items & Drops“**: Admins legen Items an, ändern sie (Typ, Slot, Seltenheit, Attribut-Boni, Shop-Preis, Mindest-Level, Kategorien) und stellen die Fund-Wahrscheinlichkeiten ein. Pro Item gibt es ein Drop-Gewicht, global die Grundchance, das Tageslimit und den Spürsinn-Bonus. Die Oberfläche rechnet die resultierende Chance pro Item live vor. Die JSON-Dateien liefern nur den Startbestand, Änderungen im Backend überschreibt `game:content-sync` nicht (außer mit `--force`).
 
 ## 2.4 Spielklassen
 

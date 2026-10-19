@@ -2,6 +2,7 @@
 
 namespace App\Domain\Gameplay;
 
+use App\Models\Item;
 use App\Models\TaskCompletion;
 use App\Models\UserStats;
 
@@ -13,6 +14,7 @@ final class ScoreResult
         public readonly int $levelUps = 0,
         public readonly bool $knockedOut = false,
         public readonly bool $replayed = false,
+        public readonly ?Item $drop = null,
     ) {}
 
     public function toArray(): array
@@ -26,6 +28,7 @@ final class ScoreResult
             'stars' => $this->completion->stars,
             'level_ups' => $this->levelUps,
             'knocked_out' => $this->knockedOut,
+            'drop' => $this->drop?->only(['id', 'key', 'name', 'icon', 'rarity', 'type']),
             'stats' => $this->stats->only(['hp', 'mp', 'xp', 'gold', 'stars', 'level']),
         ];
     }

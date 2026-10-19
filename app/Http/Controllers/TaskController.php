@@ -48,6 +48,10 @@ class TaskController extends Controller
             $redirect->with('levelUp', $result->stats->level);
         }
 
+        if ($result->drop) {
+            $redirect->with('drop', $result->drop->only(['name', 'icon', 'rarity']));
+        }
+
         if ($result->knockedOut) {
             $redirect->with('success', 'K.O.! Dein Held ruht sich kurz aus und ist wieder fit.');
         }

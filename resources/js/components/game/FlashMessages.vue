@@ -8,11 +8,13 @@ const page = usePage<SharedData>();
 const message = ref<string | null>(null);
 const error = ref<string | null>(null);
 const levelUp = ref<number | null>(null);
+const drop = ref<{ name: string; icon: string; rarity: string } | null>(null);
 let timer: ReturnType<typeof setTimeout> | undefined;
 
 watch(
-    () => [page.props.flash?.success, page.props.errors?.game, page.props.flash?.levelUp],
-    ([success, gameError, level]) => {
+    () => [page.props.flash?.success, page.props.errors?.game, page.props.flash?.levelUp, page.props.flash?.drop],
+    ([success, gameError, level, found]) => {
+        drop.value = (found as typeof drop.value) ?? null;
         message.value = (success as string) ?? null;
         error.value = (gameError as string) ?? null;
         if (level) levelUp.value = level as number;
@@ -20,6 +22,7 @@ watch(
         timer = setTimeout(() => {
             message.value = null;
             error.value = null;
+            drop.value = null;
         }, 4500);
     },
     { immediate: true },
@@ -32,6 +35,12 @@ watch(
             <div v-if="message" class="pointer-events-auto flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 font-semibold text-white shadow-lg">
                 {{ message }}
                 <button aria-label="Schließen" @click="message = null"><X class="size-4" /></button>
+            </div>
+        </Transition>
+        <Transition enter-from-class="translate-y-4 scale-90 opacity-0" leave-to-class="opacity-0" enter-active-class="transition duration-300" leave-active-class="transition">
+            <div v-if="drop" class="pointer-events-auto flex items-center gap-3 rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-500 px-5 py-3 font-bold text-white shadow-xl">
+                <span class="text-3xl">{{ drop.icon }}</span>
+                <span>Fund! Du hast <span class="underline decoration-2">{{ drop.name }}</span> gefunden.</span>
             </div>
         </Transition>
         <Transition enter-from-class="translate-y-4 opacity-0" leave-to-class="opacity-0" enter-active-class="transition" leave-active-class="transition">

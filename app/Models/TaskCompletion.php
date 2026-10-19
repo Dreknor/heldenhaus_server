@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class TaskCompletion extends Model
 {
     protected $fillable = [
-        'task_id', 'assignment_id', 'user_id', 'direction', 'value_before', 'delta', 'xp', 'gold', 'hp', 'stars',
+        'task_id', 'assignment_id', 'user_id', 'direction', 'value_before', 'delta', 'xp', 'gold', 'hp', 'stars', 'drop_item_id',
         'streak_before', 'status', 'source', 'proof_path', 'reviewed_by', 'reviewed_at', 'review_comment', 'client_uuid',
     ];
 
@@ -41,6 +41,11 @@ class TaskCompletion extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function dropItem(): BelongsTo
+    {
+        return $this->belongsTo(Item::class, 'drop_item_id');
     }
 
     public function reviewer(): BelongsTo

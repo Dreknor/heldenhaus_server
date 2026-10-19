@@ -39,7 +39,7 @@ export interface SharedData {
     name: string;
     auth: Auth;
     counts: { approvals: number };
-    flash: { success: string | null; levelUp: number | null };
+    flash: { success: string | null; levelUp: number | null; drop: { name: string; icon: string; rarity: string } | null };
     errors: Record<string, string>;
     ziggy: {
         location: string;

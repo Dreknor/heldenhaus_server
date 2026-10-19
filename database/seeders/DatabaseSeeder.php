@@ -6,6 +6,7 @@ use App\Domain\Family\FamilyService;
 use App\Domain\Tasks\TaskService;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Artisan;
 
 /**
  * Demo-Familie für die lokale Entwicklung:
@@ -16,6 +17,8 @@ class DatabaseSeeder extends Seeder
 {
     public function run(FamilyService $families, TaskService $tasks): void
     {
+        Artisan::call('game:content-sync');
+
         $mama = User::create([
             'name' => 'Mama',
             'email' => 'mama@heldenhaus.test',

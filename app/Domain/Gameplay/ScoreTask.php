@@ -2,6 +2,7 @@
 
 namespace App\Domain\Gameplay;
 
+use App\Domain\Inventory\DropService;
 use App\Enums\ApprovalMode;
 use App\Enums\CompletionStatus;
 use App\Enums\TaskType;
@@ -18,6 +19,8 @@ use Illuminate\Support\Facades\DB;
  */
 class ScoreTask
 {
+    public function __construct(private readonly DropService $drops) {}
+
     public function __invoke(
         TaskAssignment $assignment,
         string $direction,
@@ -97,7 +100,9 @@ class ScoreTask
 
         $completion = $this->record($a, $direction, $valueBefore, $delta, $xp, $gold, -$hp, $source, $uuid, $direction === 'up');
 
-        return new ScoreResult($completion, $stats, $levelUps, $knockedOut);
+        $drop = $direction === 'up' ? $this->drops->roll($completion, $task, $stats) : null;
+
+        return new ScoreResult($completion, $stats, $levelUps, $knockedOut, drop: $drop);
     }
 
     private function complete(TaskAssignment $a, UserStats $stats, string $source, ?string $uuid): ScoreResult
@@ -133,7 +138,9 @@ class ScoreTask
             $stats->increment('stars', $completion->stars);
         }
 
-        return new ScoreResult($completion, $stats->refresh(), $levelUps);
+        $drop = $this->drops->roll($completion, $task, $stats);
+
+        return new ScoreResult($completion, $stats->refresh(), $levelUps, drop: $drop);
     }
 
     /** Letzten Abschluss zurücknehmen (Kind hat sich verklickt). */
@@ -161,6 +168,8 @@ class ScoreTask
     /** Effekte eines Abschlusses umkehren – für Rückgängig und Ablehnung durch Eltern. */
     public static function reverse(TaskAssignment $a, UserStats $stats, TaskCompletion $completion, CompletionStatus $newStatus, ?string $comment = null, ?int $reviewerId = null): void
     {
+        DropService::revoke($completion);
+
         $starsGranted = in_array($completion->status, [CompletionStatus::Approved, CompletionStatus::Auto], true) ? $completion->stars : 0;
 
         $a->value = $completion->value_before;

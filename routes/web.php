@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\Admin\ItemController;
 use App\Http\Controllers\Admin\UpdateController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\FamilyLoginController;
 use App\Http\Controllers\HeroController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\RewardShopController;
 use App\Http\Controllers\TaskController;
@@ -51,6 +53,7 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
     Route::post('redemptions/{redemption}/{decision}', [ApprovalController::class, 'reviewRedemption'])
         ->whereIn('decision', ['approve', 'reject'])->name('redemptions.review');
 
+    Route::get('inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::get('shop', [RewardShopController::class, 'index'])->name('shop.index');
     Route::post('shop/items', [RewardShopController::class, 'store'])->name('shop.items.store');
     Route::put('shop/items/{item}', [RewardShopController::class, 'update'])->name('shop.items.update');
@@ -64,6 +67,12 @@ Route::middleware(['auth', 'can:admin'])->prefix('admin')->name('admin.')->group
     Route::post('updates/start', [UpdateController::class, 'start'])->name('updates.start');
     Route::post('updates/{update}/step', [UpdateController::class, 'step'])->name('updates.step');
     Route::post('updates/rollback', [UpdateController::class, 'rollback'])->name('updates.rollback');
+
+    Route::get('items', [ItemController::class, 'index'])->name('items.index');
+    Route::post('items', [ItemController::class, 'store'])->name('items.store');
+    Route::put('items/{item}', [ItemController::class, 'update'])->name('items.update');
+    Route::delete('items/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
+    Route::put('drop-settings', [ItemController::class, 'updateSettings'])->name('drop-settings.update');
 });
 
 require __DIR__.'/settings.php';
