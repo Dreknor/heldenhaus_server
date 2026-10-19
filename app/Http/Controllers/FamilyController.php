@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Family\FamilyService;
-use App\Domain\Quests\BossService;
 use App\Enums\FamilyRole;
 use App\Http\Presenters\CharacterSheet;
 use App\Http\Presenters\GamePresenter;
@@ -49,8 +48,7 @@ class FamilyController extends Controller
                     ])
                 : [],
             'isParent' => $isParent,
-            'boss' => CharacterSheet::boss($user),
-            'bossCatalog' => $isParent ? array_values(BossService::catalog()) : [],
+            'familyQuest' => CharacterSheet::quests($user)['family'],
             'haToken' => $request->session()->get('haToken'),
             'haConnected' => $isParent && $user->tokens()->where('name', 'home-assistant')->exists(),
             'apiUrl' => url('/api/v1'),

@@ -5,7 +5,7 @@ namespace App\Http\Presenters;
 use App\Domain\Classes\ClassCatalog;
 use App\Domain\Classes\ClassService;
 use App\Domain\Gameplay\Attributes;
-use App\Domain\Quests\BossService;
+use App\Domain\Quests\QuestService;
 use App\Models\ActiveBuff;
 use App\Models\DayLog;
 use App\Models\Item;
@@ -82,9 +82,15 @@ class CharacterSheet
         ];
     }
 
-    public static function boss(User $user): ?array
+    /** Laufende Familien- und Solo-Quest der Person. */
+    public static function quests(User $user): array
     {
-        return BossService::present(app(BossService::class)->active($user->family_id));
+        $service = app(QuestService::class);
+
+        return [
+            'family' => QuestService::present($service->activeFamily($user->family_id)),
+            'solo' => QuestService::present($service->activeSolo($user)),
+        ];
     }
 
     public static function item(?Item $item): ?array

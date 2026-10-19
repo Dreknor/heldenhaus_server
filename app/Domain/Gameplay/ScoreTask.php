@@ -5,7 +5,7 @@ namespace App\Domain\Gameplay;
 use App\Domain\Classes\ModifierChain;
 use App\Domain\Classes\ScoreContext;
 use App\Domain\Inventory\DropService;
-use App\Domain\Quests\BossService;
+use App\Domain\Quests\QuestService;
 use App\Domain\Social\FeedService;
 use App\Enums\ApprovalMode;
 use App\Enums\CompletionStatus;
@@ -28,7 +28,7 @@ class ScoreTask
 {
     public function __construct(
         private readonly DropService $drops,
-        private readonly BossService $boss,
+        private readonly QuestService $quests,
         private readonly FeedService $feed,
         private readonly Randomizer $random = new Randomizer,
     ) {}
@@ -220,8 +220,7 @@ class ScoreTask
             $completion->forceFill(['effects' => array_values(array_unique($context->effects))])->save();
         }
 
-        $damage = Formulas::bossDamage($delta, $a->task->difficulty, Attributes::for($stats)['str']) * $context->bossMultiplier;
-        $this->boss->hit($completion, $a->user, $damage);
+        $this->quests->progress($completion, $a->user, $a->task, $delta, $context->bossMultiplier, Attributes::for($stats)['str']);
     }
 
     /** Letzten Abschluss zurücknehmen (Kind hat sich verklickt). */
@@ -250,7 +249,7 @@ class ScoreTask
     public static function reverse(TaskAssignment $a, UserStats $stats, TaskCompletion $completion, CompletionStatus $newStatus, ?string $comment = null, ?int $reviewerId = null): void
     {
         DropService::revoke($completion);
-        app(BossService::class)->revert($completion);
+        app(QuestService::class)->revert($completion);
 
         $starsGranted = in_array($completion->status, [CompletionStatus::Approved, CompletionStatus::Auto], true) ? $completion->stars : 0;
 

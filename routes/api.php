@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\CharacterController;
 use App\Http\Controllers\Api\V1\FamilyController;
 use App\Http\Controllers\Api\V1\GameController;
 use App\Http\Controllers\Api\V1\HomeAssistantController;
+use App\Http\Controllers\QuestController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -56,8 +57,9 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
             Route::post('inventory/{item}/use', [CharacterController::class, 'use'])->name('inventory.use');
             Route::post('pets/hatch', [CharacterController::class, 'hatch'])->name('pets.hatch');
             Route::post('pets/{pet}/feed', [CharacterController::class, 'feed'])->name('pets.feed');
-            Route::get('boss', [CharacterController::class, 'boss'])->name('boss');
-            Route::post('boss', [CharacterController::class, 'startBoss'])->name('boss.start');
+            Route::get('quests', [QuestController::class, 'index'])->name('quests');
+            Route::post('quests', [QuestController::class, 'start'])->name('quests.start');
+            Route::post('quests/{quest}/abandon', [QuestController::class, 'abandon'])->name('quests.abandon');
 
             Route::get('shop', [FamilyController::class, 'shop'])->name('shop');
             Route::post('shop/items/{item}/redeem', [FamilyController::class, 'redeem'])->name('shop.redeem');

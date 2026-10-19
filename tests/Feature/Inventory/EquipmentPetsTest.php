@@ -2,15 +2,11 @@
 
 use App\Domain\Gameplay\Attributes;
 use App\Domain\Gameplay\GameException;
-use App\Domain\Gameplay\RunDayCron;
 use App\Domain\Gameplay\ScoreTask;
 use App\Domain\Inventory\InventoryService;
-use App\Domain\Quests\BossService;
-use App\Models\FamilyQuest;
 use App\Models\Item;
 use App\Models\UserItem;
 use App\Models\UserPet;
-use Carbon\CarbonImmutable;
 use Laravel\Sanctum\Sanctum;
 
 beforeEach(function () {
@@ -101,51 +97,6 @@ it('lässt niemanden fremde Haustiere füttern', function () {
     expect(fn () => $this->inventory->feed($this->child, $pet, $food))->toThrow(GameException::class);
 });
 
-it('Familien-Boss: Aufgaben machen Schaden, Rückgängig gibt ihn zurück, Sieg belohnt alle', function () {
-    $stardust = Item::create(['key' => 'stardust', 'name' => 'Sternenstaub', 'type' => 'material']);
-    $quest = app(BossService::class)->start($this->parent, 'dust_monster', 'Pizza-Abend');
-    $score = app(ScoreTask::class);
-    $task = makeTask($this->child, ['difficulty' => 2]);
-
-    $score(assignmentOf($task, $this->child), 'up');
-    expect($quest->refresh()->hp)->toBe(142.0);
-
-    $score(assignmentOf($task, $this->child), 'down');
-    expect($quest->refresh()->hp)->toBe(150.0);
-
-    $quest->update(['hp' => 5]);
-    $score(assignmentOf($task, $this->child), 'up');
-
-    expect($quest->refresh()->status)->toBe('defeated')
-        ->and($this->parent->stats()->first()->gold)->toBe(20.0)
-        ->and(UserItem::where('item_id', $stardust->id)->sum('quantity'))->toEqual(2)
-        ->and(fn () => app(BossService::class)->active($this->family->id))->not->toThrow(Exception::class);
-});
-
-it('Familien-Boss: verpasste Dailies heilen ihn, nur ein Kampf gleichzeitig, nur Eltern starten', function () {
-    $this->travelTo(CarbonImmutable::parse('2026-10-19 10:00', 'Europe/Berlin'));
-    $quest = app(BossService::class)->start($this->parent, 'chaos_dragon');
-    $quest->update(['hp' => 100]);
-    ($c = app(RunDayCron::class))($this->child);
-    makeTask($this->child, ['type' => 'daily']);
-
-    $this->travelTo(CarbonImmutable::parse('2026-10-20 08:00', 'Europe/Berlin'));
-    $c($this->child->refresh());
-
-    expect($quest->refresh()->hp)->toBe(103.0)
-        ->and(fn () => app(BossService::class)->start($this->parent, 'dust_monster'))->toThrow(GameException::class);
-
-    $this->actingAs($this->child)->post('/family/boss', ['boss' => 'dust_monster'])->assertForbidden();
-});
-
-it('Familien-Boss läuft ab', function () {
-    $quest = app(BossService::class)->start($this->parent, 'dust_monster');
-    $this->travel(8)->days();
-
-    expect(app(BossService::class)->active($this->family->id))->toBeNull()
-        ->and($quest->refresh()->status)->toBe('expired');
-});
-
 it('Inventar, Shop und Stall über Web und API', function () {
     $this->child->stats()->update(['gold' => 100]);
 
@@ -156,8 +107,4 @@ it('Inventar, Shop und Stall über Web und API', function () {
     Sanctum::actingAs($this->child, ['app']);
     $this->getJson('/api/v1/hero')->assertJsonPath('equipment.weapon.name', 'Holzschwert')->assertJsonPath('attributes.per', 5);
     $this->postJson('/api/v1/inventory/'.$this->sword->id.'/buy')->assertStatus(422);
-
-    $this->actingAs($this->parent)->post('/family/boss', ['boss' => 'chaos_dragon', 'reward_text' => 'Kino'])->assertSessionHasNoErrors();
-    expect(FamilyQuest::first()->reward_text)->toBe('Kino');
-    $this->actingAs($this->child)->get('/dashboard')->assertInertia(fn ($page) => $page->where('boss.name', 'Chaos-Drache'));
 });

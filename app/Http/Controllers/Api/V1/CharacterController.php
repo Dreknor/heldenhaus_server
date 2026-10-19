@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Domain\Classes\ClassService;
 use App\Domain\Inventory\InventoryService;
-use App\Domain\Quests\BossService;
 use App\Http\Controllers\Controller;
 use App\Http\Presenters\CharacterSheet;
 use App\Http\Presenters\GamePresenter;
@@ -30,11 +29,6 @@ class CharacterController extends Controller
     public function inventory(Request $request): JsonResponse
     {
         return response()->json(CharacterSheet::inventory($request->user()));
-    }
-
-    public function boss(Request $request): JsonResponse
-    {
-        return response()->json(['boss' => CharacterSheet::boss($request->user())]);
     }
 
     public function allocate(Request $request): JsonResponse
@@ -104,13 +98,5 @@ class CharacterController extends Controller
         $pet = $this->inventory->feed($request->user(), $pet, Item::findOrFail($data['food_id']));
 
         return response()->json(['id' => $pet->id, 'growth' => $pet->growth, 'is_mount' => $pet->is_mount]);
-    }
-
-    public function startBoss(Request $request, BossService $boss): JsonResponse
-    {
-        abort_unless($request->user()->isParent(), 403);
-        $data = $request->validate(['boss' => ['required', 'string'], 'reward_text' => ['nullable', 'string', 'max:120']]);
-
-        return response()->json(['boss' => BossService::present($boss->start($request->user(), $data['boss'], $data['reward_text'] ?? null))], 201);
     }
 }

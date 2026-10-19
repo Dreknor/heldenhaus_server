@@ -5,15 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class FamilyQuestContribution extends Model
+class QuestContribution extends Model
 {
-    protected $table = 'family_quest_contributions';
-
-    protected $fillable = ['family_quest_id', 'user_id', 'task_completion_id', 'damage'];
+    protected $fillable = ['quest_id', 'user_id', 'task_completion_id', 'amount'];
 
     protected function casts(): array
     {
-        return ['damage' => 'float'];
+        return ['amount' => 'float'];
     }
 
     public function user(): BelongsTo

@@ -1,0 +1,80 @@
+[
+  {
+    "key": "dust_monster", "type": "boss", "name": "Staubmonster", "icon": "👾", "scopes": ["family", "solo"],
+    "description": "Wächst in jeder vergessenen Ecke. Putzen tut ihm besonders weh!",
+    "hp": 150, "days": 7, "min_level": 1, "weakness": "household",
+    "rewards": { "gold": 20, "xp": 30, "item": "food_cake" }
+  },
+  {
+    "key": "chaos_dragon", "type": "boss", "name": "Chaos-Drache", "icon": "🐲", "scopes": ["family"],
+    "description": "Hinterlässt überall Unordnung. Jede erledigte Aufgabe trifft ihn!",
+    "hp": 300, "days": 7, "min_level": 1,
+    "rewards": { "gold": 30, "xp": 50, "item": "egg_dragon" }
+  },
+  {
+    "key": "laundry_hydra", "type": "boss", "name": "Wäsche-Hydra", "icon": "🐍", "scopes": ["family"],
+    "description": "Für jede vergessene Socke wachsen zwei nach – verpasste Dailies heilen sie doppelt.",
+    "hp": 450, "days": 14, "min_level": 3, "weakness": "household", "rage": 2,
+    "rewards": { "gold": 50, "xp": 80, "item": "potion_ice" }
+  },
+  {
+    "key": "procrastination_troll", "type": "boss", "name": "Aufschieberitis-Troll", "icon": "🧌", "scopes": ["family", "solo"],
+    "description": "Flüstert ständig „Mach ich morgen“. Lernen ist sein Schwachpunkt.",
+    "hp": 220, "days": 10, "min_level": 2, "weakness": "school", "resist": "creative",
+    "rewards": { "gold": 30, "xp": 60, "item": "crystal_shard" }
+  },
+  {
+    "key": "couch_golem", "type": "boss", "name": "Sofa-Golem", "icon": "🛋️", "scopes": ["family", "solo"],
+    "description": "Will, dass alle liegen bleiben. Bewegung macht ihn wackelig.",
+    "hp": 180, "days": 7, "min_level": 1, "weakness": "sport",
+    "rewards": { "gold": 25, "xp": 40, "item": "herbs" }
+  },
+  {
+    "key": "boredom_ghost", "type": "boss", "name": "Langeweile-Gespenst", "icon": "👻", "scopes": ["solo"],
+    "description": "Macht alles grau. Kreative Aufgaben vertreiben es.",
+    "hp": 100, "days": 7, "min_level": 1, "weakness": "creative",
+    "rewards": { "gold": 15, "xp": 25, "item": "paint" }
+  },
+  {
+    "key": "screen_kraken", "type": "boss", "name": "Bildschirm-Krake", "icon": "🐙", "scopes": ["family", "solo"],
+    "description": "Saugt Zeit ein. Draußen sein und Tiere versorgen schwächen ihn.",
+    "hp": 260, "days": 10, "min_level": 5, "weakness": "nature", "rage": 1.5,
+    "rewards": { "gold": 40, "xp": 70, "item": "egg_owl" }
+  },
+  {
+    "key": "shadow_king", "type": "boss", "name": "Schattenkönig", "icon": "👑", "scopes": ["family"],
+    "description": "Ein uralter Gegner für erfahrene Heldenfamilien. Keine Schwäche, viel Wut.",
+    "hp": 700, "days": 21, "min_level": 10, "rage": 2,
+    "rewards": { "gold": 100, "xp": 150, "item": "stardust" }
+  },
+  {
+    "key": "collect_feathers", "type": "collect", "name": "Federn für das Nest", "icon": "🪶", "scopes": ["family", "solo"],
+    "description": "Ein Vogelpaar braucht ein weiches Nest. Jede Tier- oder Natur-Aufgabe bringt Federn.",
+    "item_name": "Federn", "item_icon": "🪶", "goal": 15, "days": 7, "min_level": 1, "categories": ["nature"],
+    "rewards": { "gold": 20, "xp": 30, "item": "egg_cat" }
+  },
+  {
+    "key": "collect_books", "type": "collect", "name": "Die verlorene Bibliothek", "icon": "📚", "scopes": ["family", "solo"],
+    "description": "Sammelt die verstreuten Bücher wieder ein – jede Lern-Aufgabe findet eins.",
+    "item_name": "Bücher", "item_icon": "📕", "goal": 20, "days": 10, "min_level": 1, "categories": ["school"],
+    "rewards": { "gold": 25, "xp": 40, "item": "ink" }
+  },
+  {
+    "key": "collect_stars", "type": "collect", "name": "Sternschnuppen-Nacht", "icon": "🌠", "scopes": ["family", "solo"],
+    "description": "Heute fallen Sterne – jede erledigte Aufgabe fängt welche ein.",
+    "item_name": "Sternschnuppen", "item_icon": "⭐", "goal": 30, "days": 5, "min_level": 1,
+    "rewards": { "gold": 30, "xp": 40, "item": "potion_rainbow" }
+  },
+  {
+    "key": "collect_wood", "type": "collect", "name": "Holz für die Hütte", "icon": "🪵", "scopes": ["family"],
+    "description": "Für eine gemütliche Familienhütte braucht ihr Holz aus jeder Haushalts-Aufgabe.",
+    "item_name": "Holzscheite", "item_icon": "🪵", "goal": 40, "days": 14, "min_level": 2, "categories": ["household"],
+    "rewards": { "gold": 40, "xp": 60, "item": "wood" }
+  },
+  {
+    "key": "collect_herbs", "type": "collect", "name": "Kräuter für den Heiltrank", "icon": "🌿", "scopes": ["solo"],
+    "description": "Die Kräuterhexe braucht Zutaten – Sport und Bewegung bringen Kräuter.",
+    "item_name": "Kräuter", "item_icon": "🌿", "goal": 10, "days": 7, "min_level": 1, "categories": ["sport", "nature"],
+    "rewards": { "gold": 15, "xp": 25, "item": "potion_health" }
+  }
+]

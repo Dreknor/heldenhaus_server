@@ -3,7 +3,7 @@
 namespace App\Domain\Gameplay;
 
 use App\Domain\Classes\ModifierChain;
-use App\Domain\Quests\BossService;
+use App\Domain\Quests\QuestService;
 use App\Enums\TaskType;
 use App\Models\DayLog;
 use App\Models\TaskAssignment;
@@ -133,7 +133,7 @@ class RunDayCron
             $knockedOut = $damage > 0 && Progression::takeDamage($stats, $damage, $family);
 
             // Verpasste Dailies heilen den Familien-Boss
-            app(BossService::class)->heal($user->family_id, count($missed) * config('game.boss_heal_per_missed_daily'));
+            app(QuestService::class)->healOnMissed($user, count($missed));
 
             $ratio = $due > 0 ? $done / $due : 1;
             $stats->mp = min(Formulas::maxMp($stats), $stats->mp + Formulas::maxMp($stats) * config('game.cron_mp_regen') * $ratio);

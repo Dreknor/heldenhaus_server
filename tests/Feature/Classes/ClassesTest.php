@@ -6,7 +6,7 @@ use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\RunDayCron;
 use App\Domain\Gameplay\ScoreTask;
 use App\Domain\Inventory\DropService;
-use App\Domain\Quests\BossService;
+use App\Domain\Quests\QuestService;
 use App\Domain\Social\FeedService;
 use App\Domain\Tasks\TaskService;
 use App\Models\ActiveBuff;
@@ -29,7 +29,7 @@ function fixedScoreRandom(int $byte): void
             return str_repeat(chr($this->byte), 8);
         }
     };
-    app()->instance(ScoreTask::class, new ScoreTask(app(DropService::class), app(BossService::class), app(FeedService::class), new Randomizer($engine)));
+    app()->instance(ScoreTask::class, new ScoreTask(app(DropService::class), app(QuestService::class), app(FeedService::class), new Randomizer($engine)));
 }
 
 function giveClass(User $user, string $class, int $level = 10, float $mp = 50): void
@@ -102,7 +102,7 @@ it('Schildwall: −25 % Schaden beim Tageswechsel für die ganze Familie, ohne z
 });
 
 it('Mächtiger Hieb: nächste schwere Aufgabe macht dreifachen Boss-Schaden, dann verbraucht', function () {
-    app(BossService::class)->start($this->parent, 'chaos_dragon');
+    app(QuestService::class)->start($this->parent, 'chaos_dragon', 'family');
     giveClass($this->child, 'warrior');
     $this->classes->cast($this->child, 'mighty_blow');
 
@@ -113,8 +113,8 @@ it('Mächtiger Hieb: nächste schwere Aufgabe macht dreifachen Boss-Schaden, dan
     $easyResult = $score(assignmentOf($easy, $this->child), 'up');
     $hardResult = $score(assignmentOf($hard, $this->child), 'up');
 
-    expect($easyResult->completion->boss_damage)->toBe(4.0)
-        ->and($hardResult->completion->boss_damage)->toBe(24.0)
+    expect($easyResult->completion->quest_progress)->toBe(4.0)
+        ->and($hardResult->completion->quest_progress)->toBe(24.0)
         ->and($hardResult->completion->effects)->toBe(['mighty_blow'])
         ->and(ActiveBuff::where('key', 'mighty_blow')->exists())->toBeFalse()
         ->and($this->child->stats()->first()->mp)->toBe(40.0);
@@ -238,13 +238,13 @@ it('Smart-Connect hat ein Tageslimit', function () {
 // ---------- Barde ----------
 
 it('Anfeuern: +15 % Boss-Schaden für alle', function () {
-    app(BossService::class)->start($this->parent, 'chaos_dragon');
+    app(QuestService::class)->start($this->parent, 'chaos_dragon', 'family');
     giveClass($this->parent, 'bard');
     $this->classes->cast($this->parent, 'cheer');
 
     $result = app(ScoreTask::class)(assignmentOf(makeTask($this->child, ['difficulty' => 1]), $this->child), 'up');
 
-    expect($result->completion->boss_damage)->toBe(4.6);
+    expect($result->completion->quest_progress)->toBe(4.6);
 });
 
 it('Gemeinschafts-Rhythmus: Gold für alle, wenn alle aktiven Mitglieder 100 % schaffen – nur einmal', function () {

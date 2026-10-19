@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BossCard, { type Boss } from '@/components/game/BossCard.vue';
+import QuestCard, { type ActiveQuest } from '@/components/game/QuestCard.vue';
 import CronDialog from '@/components/game/CronDialog.vue';
 import StatsPanel from '@/components/game/StatsPanel.vue';
 import TaskCard from '@/components/game/TaskCard.vue';
@@ -18,7 +18,7 @@ const props = defineProps<{
     rewards: Task[];
     pool: Task[];
     cronPending: { assignment_id: number; title: string }[];
-    boss: Boss | null;
+    quests: { family: ActiveQuest | null; solo: ActiveQuest | null };
     categories: Record<string, string>;
     difficulties: Record<string, number>;
 }>();
@@ -114,7 +114,8 @@ const greeting = computed(() => {
                 <StatsPanel v-if="stats" :stats="stats" class="w-full lg:hidden" />
             </div>
 
-            <BossCard v-if="boss" :boss="boss" />
+            <QuestCard v-if="quests.family" :quest="quests.family" compact />
+            <QuestCard v-if="quests.solo" :quest="quests.solo" compact />
 
             <!-- Aufgabenbörse -->
             <section v-if="pool.length" class="rounded-2xl border-2 border-dashed border-violet-300 bg-violet-50/60 p-4 dark:border-violet-800 dark:bg-violet-950/20">

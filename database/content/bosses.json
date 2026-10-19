@@ -1,6 +1,0 @@
-[
-  { "key": "chaos_dragon", "name": "Chaos-Drache", "icon": "🐲", "hp": 300, "days": 7, "description": "Hinterlässt überall Unordnung. Jede erledigte Aufgabe trifft ihn!" },
-  { "key": "dust_monster", "name": "Staubmonster", "icon": "👾", "hp": 150, "days": 7, "description": "Wächst in jeder vergessenen Ecke." },
-  { "key": "laundry_hydra", "name": "Wäsche-Hydra", "icon": "🐍", "hp": 450, "days": 14, "description": "Für jede Socke wachsen zwei nach." },
-  { "key": "procrastination_troll", "name": "Aufschieberitis-Troll", "icon": "🧌", "hp": 600, "days": 14, "description": "Flüstert ständig „Mach ich morgen“." }
-]

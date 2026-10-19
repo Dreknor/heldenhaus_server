@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Domain\Classes\ClassCatalog;
 use App\Domain\Classes\ClassService;
 use App\Domain\Inventory\InventoryService;
-use App\Domain\Quests\BossService;
 use App\Http\Presenters\CharacterSheet;
 use App\Models\Item;
 use App\Models\User;
@@ -103,14 +102,5 @@ class CharacterController extends Controller
         $pet = $this->inventory->feed($request->user(), $pet, Item::findOrFail($data['food_id']));
 
         return back()->with('success', $pet->is_mount ? "{$pet->name} ist ausgewachsen – jetzt ein Reittier!" : "{$pet->name} hat es geschmeckt.");
-    }
-
-    public function startBoss(Request $request, BossService $boss): RedirectResponse
-    {
-        abort_unless($request->user()->isParent(), 403);
-        $data = $request->validate(['boss' => ['required', 'string'], 'reward_text' => ['nullable', 'string', 'max:120']]);
-        $quest = $boss->start($request->user(), $data['boss'], $data['reward_text'] ?? null);
-
-        return back()->with('success', "{$quest->name} greift an! Jede erledigte Aufgabe trifft ihn.");
     }
 }

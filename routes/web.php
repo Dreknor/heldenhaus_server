@@ -8,6 +8,7 @@ use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\FamilyLoginController;
 use App\Http\Controllers\HeroController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\QuestController;
 use App\Http\Controllers\RewardShopController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
@@ -66,7 +67,9 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
     Route::post('inventory/{item}/use', [CharacterController::class, 'use'])->name('inventory.use');
     Route::post('pets/hatch', [CharacterController::class, 'hatch'])->name('pets.hatch');
     Route::post('pets/{pet}/feed', [CharacterController::class, 'feed'])->name('pets.feed');
-    Route::post('family/boss', [CharacterController::class, 'startBoss'])->name('family.boss');
+    Route::get('quests', [QuestController::class, 'index'])->name('quests.index');
+    Route::post('quests', [QuestController::class, 'start'])->name('quests.start');
+    Route::post('quests/{quest}/abandon', [QuestController::class, 'abandon'])->name('quests.abandon');
     Route::get('shop', [RewardShopController::class, 'index'])->name('shop.index');
     Route::post('shop/items', [RewardShopController::class, 'store'])->name('shop.items.store');
     Route::put('shop/items/{item}', [RewardShopController::class, 'update'])->name('shop.items.update');

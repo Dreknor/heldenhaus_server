@@ -28,10 +28,14 @@
 - Einlösen → Eltern bestätigen → optional wird eine **Smart-Home-Aktion** ausgelöst (§4).
 - Eltern können für Belohnungen Limits setzen (z. B. pro Woche) und **Taschengeld-Konten** führen (nur Buchhaltung, kein echter Zahlungsverkehr).
 
-## 3.5 Familien-Quest (gemeinsamer Boss)
-- Bis Phase 7 ist der Boss eine Lebensleiste. Ab Phase 7 sitzt er am Ende des wöchentlichen **Familien-Dungeons** (§2.7).
-- Ein Boss pro Woche oder Monat (z. B. „Chaos-Drache“). **Alle** erledigten Aufgaben aller Familienmitglieder fügen ihm Schaden zu. Verpasste Dailies heilen ihn (statt die anderen zu verletzen – kindgerecht).
-- Belohnung beim Sieg: ein Familienziel, das Eltern festlegen (z. B. Pizza-Abend), plus seltene Items für alle
+## 3.5 Quest-System (gemeinsam und solo)
+- **Zwei Arten von Quests**:
+  - **Boss-Quests**: Ein Gegner mit Lebensleiste. Erledigte Aufgaben machen Schaden, verpasste Dailies heilen ihn (statt andere zu verletzen – kindgerecht). Bosse haben **Eigenschaften**, damit nicht jeder Kampf gleich ist: eine **Schwäche** (Aufgaben einer Kategorie machen 50 % mehr Schaden, z. B. Sofa-Golem → Sport), eine **Resistenz** (halber Schaden) und **Wut** (heilt bei verpassten Dailies stärker).
+  - **Sammel-Quests**: Gegenstände sammeln (z. B. 15 Federn für ein Vogelnest). Nur Aufgaben passender Kategorien zählen, schwere Aufgaben bringen doppelt.
+- **Gemeinsam oder solo**: Gleichzeitig laufen höchstens eine **Familien-Quest** (starten die Eltern, alle tragen bei, Ziel wächst mit der Familiengröße) und je Person eine **Solo-Quest** (startet jede Person selbst, nur die eigenen Aufgaben zählen). Jede Aufgabe zählt für beide.
+- **Quest-Tafel mit Abwechslung**: Pro Woche werden je drei Quests für Familie und Solo angeboten, passend zum Level. Die zuletzt gespielten Quests werden nicht erneut angeboten. Der Katalog liegt in `database/content/quests.json` und lässt sich ohne Code-Änderung erweitern.
+- **Belohnung**: Gold, XP und ein Item für alle Beteiligten, bei Familien-Quests zusätzlich ein reales Familienziel, das die Eltern festlegen (z. B. Pizza-Abend).
+- Ab Phase 7 werden Boss-Quests zu Mini-Dungeons (§2.7), deren Endgegner dann ein solcher Boss ist.
 - **Familien-Feed**: wer hat was geschafft, Lob/Reaktionen (👍🔥⭐), Level-ups
 - **Wochenbericht** (Sonntag, Push und E-Mail an Eltern): Verteilung der Aufgaben (Fairness-Diagramm), Streaks, offene Freigaben
 
