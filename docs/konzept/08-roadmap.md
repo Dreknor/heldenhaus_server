@@ -20,3 +20,15 @@ Die REST-Endpunkte für HA (`ha/state`, `ha/events`) entstehen bereits in Phase 
 - später eigenes Repo `heldenhaus-homeassistant` (HACS verlangt `custom_components/heldenhaus/` im Repo-Stamm)
 
 
+
+## Umsetzungsstand (20.10.2026)
+
+| Phase | Stand |
+|---|---|
+| 0 – Fundament | ✅ fertig (Deployment auf Hetzner noch nicht live erprobt) |
+| 1 – Spielkern | ✅ fertig, inkl. Server-Updater |
+| 2 – Flutter-App | ✅ Grundversion (Login, Board, Offline-Sync, Freigaben, Shop, App-Updater); Push und Widget fehlen noch |
+| 3 – Spieltiefe | ✅ Items & Drops (Admin), Inventar, Gold-Shop, Ausrüstung, Attribute, Haustiere/Reittiere, 6 Klassen mit Modifikator-Kette · offen: Avatar-Editor, Erfolge, Asset-Pipeline |
+| 4 – Familie+ | 🟡 Familien-Boss (Lebensleiste) vorgezogen · offen: Ämterplan-Rotation, Teamaufgaben, Feed, Wochenbericht, Bündnisse, Challenges, Taschengeld |
+| 5 – Home Assistant | 🟡 REST-API + YAML-Vorlage · offen: HACS-Integration, ausgehende Webhooks |
+| 6–8 | offen |

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
+import BossCard, { type Boss } from '@/components/game/BossCard.vue';
 import StatBar from '@/components/game/StatBar.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,6 +21,8 @@ const props = defineProps<{
     members: Member[];
     invites: { id: number; code: string; role: string; role_label: string; email: string | null; expires_at: string }[];
     isParent: boolean;
+    boss: Boss | null;
+    bossCatalog: { key: string; name: string; icon: string; hp: number; days: number; description: string }[];
     haToken: string | null;
     haConnected: boolean;
     apiUrl: string;
@@ -44,6 +47,8 @@ rest_command:
       Accept: application/json
     content_type: application/json
     payload: '{"event": "{{ event }}"}'`;
+
+const bossForm = useForm({ boss: '', reward_text: '' });
 
 const child = useForm({ name: '', birth_year: new Date().getFullYear() - 10, pin: '' });
 const invite = useForm({ role: 'parent', email: '' });
@@ -70,6 +75,32 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
     <AppLayout :breadcrumbs="[{ title: 'Familie', href: '/family' }]">
         <div class="flex flex-1 flex-col gap-6 p-4 md:p-6">
             <h1 class="text-2xl font-extrabold tracking-tight">{{ family.name }}</h1>
+
+            <BossCard v-if="boss" :boss="boss" />
+            <section v-else-if="isParent && bossCatalog.length" class="grid gap-3 rounded-2xl border-2 border-dashed border-rose-200 p-4 dark:border-rose-900">
+                <h2 class="font-extrabold">Familien-Boss starten</h2>
+                <p class="text-sm text-muted-foreground">Alle erledigten Aufgaben der Familie machen Schaden, verpasste Dailies heilen den Boss. Legt eine gemeinsame Belohnung fest!</p>
+                <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                    <button
+                        v-for="b in bossCatalog"
+                        :key="b.key"
+                        type="button"
+                        class="flex items-center gap-3 rounded-xl border p-3 text-left transition"
+                        :class="bossForm.boss === b.key ? 'border-rose-500 bg-rose-50 dark:bg-rose-950/30' : 'hover:bg-muted'"
+                        @click="bossForm.boss = b.key"
+                    >
+                        <span class="text-4xl">{{ b.icon }}</span>
+                        <span><span class="block font-bold">{{ b.name }}</span><span class="text-xs text-muted-foreground">{{ b.days }} Tage · {{ b.description }}</span></span>
+                    </button>
+                </div>
+                <form class="flex flex-wrap items-end gap-2" @submit.prevent="bossForm.post(route('family.boss'), { preserveScroll: true })">
+                    <div class="grid min-w-60 flex-1 gap-1.5">
+                        <Label for="reward">Gemeinsame Belohnung bei Sieg</Label>
+                        <Input id="reward" v-model="bossForm.reward_text" placeholder="z. B. Pizza-Abend" />
+                    </div>
+                    <Button type="submit" :disabled="!bossForm.boss || bossForm.processing">Kampf starten</Button>
+                </form>
+            </section>
 
             <!-- Mitglieder -->
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

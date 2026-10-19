@@ -95,7 +95,7 @@ class ItemController extends Controller
             'active' => ['boolean'],
         ], [], ['key' => 'Schlüssel', 'drop_weight' => 'Drop-Gewicht', 'slot' => 'Slot']);
 
-        $data['stats'] = array_filter($data['stats'] ?? [], fn ($v, $k) => in_array($k, ['str', 'int', 'con', 'per'], true) && $v > 0, ARRAY_FILTER_USE_BOTH) ?: null;
+        $data['stats'] = array_filter($data['stats'] ?? [], fn ($v, $k) => in_array($k, ['str', 'int', 'con', 'per', 'heal', 'mana'], true) && $v > 0, ARRAY_FILTER_USE_BOTH) ?: null;
         $data['drop_categories'] = ($data['drop_categories'] ?? []) ?: null;
         $data['slot'] = $data['type'] === 'equipment' ? $data['slot'] : null;
 

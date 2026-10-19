@@ -48,6 +48,17 @@ class TaskController extends Controller
             $redirect->with('levelUp', $result->stats->level);
         }
 
+        $effects = collect($result->completion->effects ?? [])->map(fn ($key) => match ($key) {
+            'lucky_strike' => 'Glückstreffer – dreifaches Gold!',
+            'mighty_blow' => 'Mächtiger Hieb – der Boss wankt!',
+            'loot_run' => 'Beutezug erfolgreich!',
+            'overload' => 'Überlastung – doppelter Effekt!',
+            default => null,
+        })->filter();
+        if ($effects->isNotEmpty()) {
+            $redirect->with('success', $effects->implode(' '));
+        }
+
         if ($result->drop) {
             $redirect->with('drop', $result->drop->only(['name', 'icon', 'rarity']));
         }

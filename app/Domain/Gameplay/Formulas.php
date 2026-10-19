@@ -2,6 +2,7 @@
 
 namespace App\Domain\Gameplay;
 
+use App\Domain\Classes\ClassCatalog;
 use App\Enums\AgeGroup;
 use App\Models\Family;
 use App\Models\UserStats;
@@ -62,13 +63,23 @@ class Formulas
         return round($delta * $difficulty * config('game.damage_factor') * (1 - $conReduction) * $ageFactor, 2);
     }
 
+    /** Krieger haben 60 statt 50 HP (Klassenwerte aus classes.json). */
     public static function maxHp(UserStats $stats): float
     {
-        return (float) config('game.max_hp');
+        return (float) (ClassCatalog::get($stats->class_key)['max_hp'] ?? config('game.max_hp'));
     }
 
+    /** Magier haben 50 % mehr Mana. */
     public static function maxMp(UserStats $stats): float
     {
-        return (float) (config('game.max_mp_base') + $stats->int * 2 + ($stats->level - 1));
+        $multiplier = (float) (ClassCatalog::get($stats->class_key)['mp_multiplier'] ?? 1.0);
+
+        return round((config('game.max_mp_base') + $stats->int * 2 + ($stats->level - 1)) * $multiplier, 1);
+    }
+
+    /** Grundschaden einer Aufgabe am Familien-Boss. */
+    public static function bossDamage(float $delta, float $difficulty, int $strPoints = 0): float
+    {
+        return round($delta * $difficulty * config('game.boss_damage_factor') * (1 + $strPoints * config('game.str_bonus_per_point')), 2);
     }
 }

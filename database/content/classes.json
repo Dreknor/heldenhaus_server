@@ -1,0 +1,50 @@
+[
+  {
+    "key": "warrior", "name": "Krieger", "role": "Der Durchbeißer", "icon": "⚔️",
+    "description": "Übernimmt die schweren Aufgaben und schützt die Familie.",
+    "focus": "Große Einzellasten: Garten, Keller ausmisten, schwere Einkäufe",
+    "max_hp": 60, "mp_multiplier": 1.0,
+    "passive": { "key": "shield_wall", "name": "Schildwall", "description": "−25 % HP-Schaden für die ganze Familie, wenn jemand eine Daily verpasst (stapelt nicht)." },
+    "active": { "key": "mighty_blow", "name": "Mächtiger Hieb", "mana": 10, "hours": 24, "description": "Die nächste schwere Aufgabe macht dreifachen Schaden am Familien-Boss." }
+  },
+  {
+    "key": "mage", "name": "Magier", "role": "Der Stratege", "icon": "🔮",
+    "description": "Levelt schnell und versorgt die Familie mit Buffs.",
+    "focus": "Denk-, Planungs- und Lernaufgaben",
+    "max_hp": 50, "mp_multiplier": 1.5,
+    "passive": { "key": "focus_shield", "name": "Fokus-Schild", "description": "+2 Mana für jede Daily, die vor der Fokus-Uhrzeit (Standard 12 Uhr) erledigt wird." },
+    "active": { "key": "ancestral_wisdom", "name": "Weisheit der Ahnen", "mana": 20, "hours": 24, "description": "+20 % XP für alle Familienmitglieder für 24 Stunden." }
+  },
+  {
+    "key": "rogue", "name": "Schurke", "role": "Der Beutejäger", "icon": "🗡️",
+    "description": "Holt das Maximum an Belohnungen heraus.",
+    "focus": "Schnelle Helfer, die freie Aufgaben aus der Börse greifen",
+    "max_hp": 50, "mp_multiplier": 1.0,
+    "passive": { "key": "lucky_strike", "name": "Glückstreffer", "description": "15 % Chance auf dreifaches Gold bei jeder Aufgabe." },
+    "active": { "key": "loot_run", "name": "Beutezug", "mana": 10, "hours": 24, "description": "Die nächste Aufgabe aus der Aufgabenbörse bringt doppeltes Gold plus 10 Gold." }
+  },
+  {
+    "key": "healer", "name": "Heiler", "role": "Der Supporter", "icon": "💚",
+    "description": "Fängt Patzer auf und hält die Motivation hoch.",
+    "focus": "Oft Eltern: Missgeschicke der Kinder abfedern",
+    "max_hp": 50, "mp_multiplier": 1.0,
+    "passive": { "key": "second_chance", "name": "Zweite Chance", "description": "Einmal pro Woche eine verpasste Daily bis 24 h nach dem Tageswechsel ohne HP-Abzug glätten." },
+    "active": { "key": "healing_wave", "name": "Heilende Welle", "mana": 15, "hours": 0, "description": "+15 HP für dich oder ein gewähltes Familienmitglied." }
+  },
+  {
+    "key": "tinkerer", "name": "Tüftler", "role": "Der Automatisierer", "icon": "🔧",
+    "description": "Nutzt Smart-Home-Sensoren und NFC-Tags für maximale Effizienz.",
+    "focus": "Taster am Bett, NFC am Terrarium oder an der Waschmaschine",
+    "max_hp": 50, "mp_multiplier": 1.0, "requires_home_assistant": true,
+    "passive": { "key": "smart_connect", "name": "Smart-Connect", "description": "+25 % XP und Gold für Aufgaben, die über Home Assistant ausgelöst werden (max. 10 pro Tag)." },
+    "active": { "key": "overload", "name": "Überlastung", "mana": 10, "hours": 24, "description": "Verdoppelt den Effekt der nächsten über Home Assistant ausgelösten Aufgabe." }
+  },
+  {
+    "key": "bard", "name": "Barde", "role": "Der Motivator", "icon": "🎵",
+    "description": "Zieht seine Stärke aus der Gemeinschaft.",
+    "focus": "Gemeinsame Aufgaben und Familien-Quests",
+    "max_hp": 50, "mp_multiplier": 1.0,
+    "passive": { "key": "community_rhythm", "name": "Gemeinschafts-Rhythmus", "description": "Schaffen alle aktiven Familienmitglieder (mind. 2) einen Tag lang 100 % ihrer Dailies, bekommt jedes Mitglied 15 Gold." },
+    "active": { "key": "cheer", "name": "Anfeuern", "mana": 15, "hours": 12, "description": "+15 % Boss-Schaden für alle Familienmitglieder für 12 Stunden." }
+  }
+]

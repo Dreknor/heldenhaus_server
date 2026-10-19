@@ -102,7 +102,7 @@ const empty = () => ({
     slot: '' as string,
     rarity: 'common',
     icon: '📦',
-    stats: { str: 0, int: 0, con: 0, per: 0 } as Record<string, number>,
+    stats: { str: 0, int: 0, con: 0, per: 0, heal: 0, mana: 0 } as Record<string, number>,
     price_gold: '' as number | '',
     drop_weight: 10,
     drop_categories: [] as string[],
@@ -357,6 +357,17 @@ const chip = (active: boolean) =>
                                 <span class="text-xs text-muted-foreground">{{ label }}</span>
                                 <Input v-model.number="form.stats[key]" type="number" min="0" max="50" />
                             </div>
+                        </div>
+                    </div>
+
+                    <div v-if="form.type === 'potion'" class="grid grid-cols-2 gap-2">
+                        <div class="grid gap-1">
+                            <Label for="i-heal">Heilt HP</Label>
+                            <Input id="i-heal" v-model.number="form.stats.heal" type="number" min="0" max="50" />
+                        </div>
+                        <div class="grid gap-1">
+                            <Label for="i-mana">Gibt Mana</Label>
+                            <Input id="i-mana" v-model.number="form.stats.mana" type="number" min="0" max="50" />
                         </div>
                     </div>
 

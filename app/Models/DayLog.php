@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DayLog extends Model
 {
-    protected $fillable = ['user_id', 'date', 'dailies_due', 'dailies_done', 'damage', 'knocked_out', 'sleeping'];
+    protected $fillable = ['user_id', 'date', 'dailies_due', 'dailies_done', 'damage', 'knocked_out', 'sleeping', 'missed'];
 
     protected function casts(): array
     {
@@ -15,6 +15,7 @@ class DayLog extends Model
             'damage' => 'float',
             'knocked_out' => 'boolean',
             'sleeping' => 'boolean',
+            'missed' => 'array',
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Domain\Inventory;
 
+use App\Domain\Gameplay\Attributes;
 use App\Models\GameSetting;
 use App\Models\Item;
 use App\Models\Task;
@@ -57,7 +58,7 @@ class DropService
             return null;
         }
 
-        if ($this->random->nextFloat() >= self::chanceFor($task->difficulty, $stats->per, $settings)) {
+        if ($this->random->nextFloat() >= self::chanceFor($task->difficulty, Attributes::for($stats)['per'], $settings)) {
             return null;
         }
 

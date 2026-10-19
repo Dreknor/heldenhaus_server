@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AppReleaseController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\CharacterController;
 use App\Http\Controllers\Api\V1\FamilyController;
 use App\Http\Controllers\Api\V1\GameController;
 use App\Http\Controllers\Api\V1\HomeAssistantController;
@@ -43,6 +44,21 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
                 ->whereIn('decision', ['approve', 'reject'])->name('completions.review');
             Route::post('redemptions/{redemption}/{decision}', [FamilyController::class, 'reviewRedemption'])
                 ->whereIn('decision', ['approve', 'reject'])->name('redemptions.review');
+            Route::get('hero', [CharacterController::class, 'hero'])->name('hero');
+            Route::post('hero/allocate', [CharacterController::class, 'allocate'])->name('hero.allocate');
+            Route::post('hero/class', [CharacterController::class, 'chooseClass'])->name('hero.class');
+            Route::post('hero/cast', [CharacterController::class, 'cast'])->name('hero.cast');
+            Route::post('hero/second-chance', [CharacterController::class, 'secondChance'])->name('hero.second-chance');
+            Route::post('hero/unequip', [CharacterController::class, 'unequip'])->name('hero.unequip');
+            Route::get('inventory', [CharacterController::class, 'inventory'])->name('inventory');
+            Route::post('inventory/{item}/buy', [CharacterController::class, 'buy'])->name('inventory.buy');
+            Route::post('inventory/{item}/equip', [CharacterController::class, 'equip'])->name('inventory.equip');
+            Route::post('inventory/{item}/use', [CharacterController::class, 'use'])->name('inventory.use');
+            Route::post('pets/hatch', [CharacterController::class, 'hatch'])->name('pets.hatch');
+            Route::post('pets/{pet}/feed', [CharacterController::class, 'feed'])->name('pets.feed');
+            Route::get('boss', [CharacterController::class, 'boss'])->name('boss');
+            Route::post('boss', [CharacterController::class, 'startBoss'])->name('boss.start');
+
             Route::get('shop', [FamilyController::class, 'shop'])->name('shop');
             Route::post('shop/items/{item}/redeem', [FamilyController::class, 'redeem'])->name('shop.redeem');
         });

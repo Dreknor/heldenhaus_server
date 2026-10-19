@@ -44,6 +44,7 @@ class HeroBoard
             'cronPending' => RunDayCron::openFromLastDay($user)
                 ->map(fn (TaskAssignment $a) => ['assignment_id' => $a->id, 'title' => $a->task->title])
                 ->values(),
+            'boss' => CharacterSheet::boss($user),
             'recentPending' => $user->completions()->where('status', CompletionStatus::Pending)->count(),
         ];
     }

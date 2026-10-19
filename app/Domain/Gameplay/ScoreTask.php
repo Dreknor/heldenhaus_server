@@ -2,7 +2,10 @@
 
 namespace App\Domain\Gameplay;
 
+use App\Domain\Classes\ModifierChain;
+use App\Domain\Classes\ScoreContext;
 use App\Domain\Inventory\DropService;
+use App\Domain\Quests\BossService;
 use App\Enums\ApprovalMode;
 use App\Enums\CompletionStatus;
 use App\Enums\TaskType;
@@ -12,6 +15,7 @@ use App\Models\TaskAssignment;
 use App\Models\TaskCompletion;
 use App\Models\UserStats;
 use Illuminate\Support\Facades\DB;
+use Random\Randomizer;
 
 /**
  * Aufgabe abhaken (up), negative Gewohnheit / Rückgängig (down).
@@ -19,7 +23,11 @@ use Illuminate\Support\Facades\DB;
  */
 class ScoreTask
 {
-    public function __construct(private readonly DropService $drops) {}
+    public function __construct(
+        private readonly DropService $drops,
+        private readonly BossService $boss,
+        private readonly Randomizer $random = new Randomizer,
+    ) {}
 
     public function __invoke(
         TaskAssignment $assignment,
@@ -82,15 +90,14 @@ class ScoreTask
         if ($direction === 'up') {
             $a->value = Formulas::clampValue($valueBefore + $delta);
             $a->counter_up++;
-            $xp = Formulas::xp($delta, $task->difficulty, $stats->int);
-            $gold = Formulas::gold($delta, $task->difficulty, $stats->per);
+            [$xp, $gold, $context] = $this->rewards($a, $stats, $delta, $source, 0);
             $levelUps = Progression::gainXp($stats, $xp);
             Progression::changeGold($stats, $gold);
         } else {
             $a->value = Formulas::clampValue($valueBefore - $delta);
             $a->counter_down++;
             $user = $a->user;
-            $hp = Formulas::damage($delta, $task->difficulty, $stats->con, Formulas::ageDamageFactor($user->ageGroup(), $task->family ?? $user->family));
+            $hp = Formulas::damage($delta, $task->difficulty, Attributes::for($stats)['con'], Formulas::ageDamageFactor($user->ageGroup(), $task->family ?? $user->family));
             $knockedOut = $stats->sleeping ? false : Progression::takeDamage($stats, $hp, $user->family);
             $hp = $stats->sleeping ? 0.0 : $hp;
         }
@@ -100,7 +107,11 @@ class ScoreTask
 
         $completion = $this->record($a, $direction, $valueBefore, $delta, $xp, $gold, -$hp, $source, $uuid, $direction === 'up');
 
-        $drop = $direction === 'up' ? $this->drops->roll($completion, $task, $stats) : null;
+        $drop = null;
+        if ($direction === 'up') {
+            $this->afterPositive($completion, $a, $stats, $delta, $context);
+            $drop = $this->drops->roll($completion, $task, $stats);
+        }
 
         return new ScoreResult($completion, $stats, $levelUps, $knockedOut, drop: $drop);
     }
@@ -124,8 +135,7 @@ class ScoreTask
             $a->streak++;
         }
 
-        $xp = Formulas::xp($delta, $task->difficulty, $stats->int);
-        $gold = Formulas::gold($delta, $task->difficulty, $stats->per, $task->type === TaskType::Daily ? $streakBefore : 0);
+        [$xp, $gold, $context] = $this->rewards($a, $stats, $delta, $source, $task->type === TaskType::Daily ? $streakBefore : 0);
         $levelUps = Progression::gainXp($stats, $xp);
         Progression::changeGold($stats, $gold);
 
@@ -138,9 +148,44 @@ class ScoreTask
             $stats->increment('stars', $completion->stars);
         }
 
+        $this->afterPositive($completion, $a, $stats, $delta, $context);
         $drop = $this->drops->roll($completion, $task, $stats);
 
         return new ScoreResult($completion, $stats->refresh(), $levelUps, drop: $drop);
+    }
+
+    /**
+     * XP und Gold eines positiven Abschlusses – mit wirksamen Attributen (inkl. Ausrüstung)
+     * und der Modifikator-Kette aus Klassen-Passiven und Buffs.
+     *
+     * @return array{0: int, 1: float, 2: ScoreContext}
+     */
+    private function rewards(TaskAssignment $a, UserStats $stats, float $delta, string $source, int $streak): array
+    {
+        $attributes = Attributes::for($stats);
+        $context = ModifierChain::applyScore(new ScoreContext($a->user, $stats, $a->task, $source, $this->random));
+
+        $xp = (int) round(Formulas::xp($delta, $a->task->difficulty, $attributes['int']) * $context->xpMultiplier);
+        $gold = round(Formulas::gold($delta, $a->task->difficulty, $attributes['per'], $streak) * $context->goldMultiplier + $context->goldFlat, 2);
+
+        if ($context->mpGain > 0) {
+            $stats->mp = min(Formulas::maxMp($stats), $stats->mp + $context->mpGain);
+        }
+
+        return [$xp, $gold, $context];
+    }
+
+    /** Boss-Schaden und Effekt-Protokoll nach einem positiven Abschluss. */
+    private function afterPositive(TaskCompletion $completion, TaskAssignment $a, UserStats $stats, float $delta, ScoreContext $context): void
+    {
+        $stats->save();
+
+        if ($context->effects) {
+            $completion->forceFill(['effects' => array_values(array_unique($context->effects))])->save();
+        }
+
+        $damage = Formulas::bossDamage($delta, $a->task->difficulty, Attributes::for($stats)['str']) * $context->bossMultiplier;
+        $this->boss->hit($completion, $a->user, $damage);
     }
 
     /** Letzten Abschluss zurücknehmen (Kind hat sich verklickt). */
@@ -169,6 +214,7 @@ class ScoreTask
     public static function reverse(TaskAssignment $a, UserStats $stats, TaskCompletion $completion, CompletionStatus $newStatus, ?string $comment = null, ?int $reviewerId = null): void
     {
         DropService::revoke($completion);
+        app(BossService::class)->revert($completion);
 
         $starsGranted = in_array($completion->status, [CompletionStatus::Approved, CompletionStatus::Auto], true) ? $completion->stars : 0;
 

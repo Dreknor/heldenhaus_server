@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Classes\ClassService;
 use App\Domain\Family\FamilyService;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\RunDayCron;
@@ -61,6 +62,10 @@ Artisan::command('heldenhaus:day-cron', function (RunDayCron $cron) {
 
     $this->info("Tageswechsel für {$count} Personen ausgeführt.");
 })->purpose('Ausstehende Tageswechsel nachholen');
+
+Artisan::command('heldenhaus:community-rhythm', function (ClassService $classes) {
+    $this->info($classes->evaluateCommunityRhythm().' Familien haben den Gemeinschafts-Rhythmus geschafft.');
+})->purpose('Barden-Passive: Familien-Tag auswerten');
 
 Artisan::command('heldenhaus:auto-approve', function (ReviewCompletion $review) {
     $this->info($review->autoApproveExpired().' Freigaben automatisch bestätigt.');
@@ -163,6 +168,7 @@ Schedule::command('queue:work --stop-when-empty --max-time=50 --tries=3')
 
 Schedule::command('heldenhaus:day-cron')->everyFifteenMinutes()->withoutOverlapping();
 Schedule::command('heldenhaus:auto-approve')->everyFifteenMinutes()->withoutOverlapping();
+Schedule::command('heldenhaus:community-rhythm')->hourly()->withoutOverlapping();
 Schedule::command('heldenhaus:update --auto')->dailyAt('03:00')->withoutOverlapping();
 Schedule::command('model:prune')->daily();
 Schedule::command('queue:prune-failed --hours=168')->daily();

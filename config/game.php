@@ -25,6 +25,11 @@ return [
     'per_bonus_per_point' => 0.02,
     'con_bonus_per_point' => 0.01,
     'con_bonus_max' => 0.5,
+    'str_bonus_per_point' => 0.03,
+
+    // Familien-Boss: Schaden je erledigter Aufgabe (× delta × Schwierigkeit), Heilung je verpasster Daily
+    'boss_damage_factor' => 4,
+    'boss_heal_per_missed_daily' => 3,
 
     // Dämpfung des Schadens nach Altersgruppe (Eltern können je Familie überschreiben)
     'age_damage_factor' => [
@@ -52,6 +57,17 @@ return [
         'daily_limit' => 5,           // max. Funde pro Person und Tag
         'per_bonus_per_point' => 0.02, // +2 % relative Chance je Spürsinn-Punkt
     ],
+
+    // Klassen
+    'class_change_days' => 30,
+    'skill_casts_per_day' => 3,
+    'smart_connect_daily_limit' => 10,
+    'community_rhythm_gold' => 15,
+    'focus_hour' => 12,
+
+    // Haustiere
+    'pet_growth_per_food' => 10,
+    'pet_growth_mount' => 50,
 
     'categories' => [
         'household' => 'Haushalt',

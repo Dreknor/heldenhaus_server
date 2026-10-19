@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import BossCard, { type Boss } from '@/components/game/BossCard.vue';
 import CronDialog from '@/components/game/CronDialog.vue';
 import StatsPanel from '@/components/game/StatsPanel.vue';
 import TaskCard from '@/components/game/TaskCard.vue';
@@ -17,6 +18,7 @@ const props = defineProps<{
     rewards: Task[];
     pool: Task[];
     cronPending: { assignment_id: number; title: string }[];
+    boss: Boss | null;
     categories: Record<string, string>;
     difficulties: Record<string, number>;
 }>();
@@ -111,6 +113,8 @@ const greeting = computed(() => {
                 </div>
                 <StatsPanel v-if="stats" :stats="stats" class="w-full lg:hidden" />
             </div>
+
+            <BossCard v-if="boss" :boss="boss" />
 
             <!-- Aufgabenbörse -->
             <section v-if="pool.length" class="rounded-2xl border-2 border-dashed border-violet-300 bg-violet-50/60 p-4 dark:border-violet-800 dark:bg-violet-950/20">

@@ -2,6 +2,8 @@
 
 namespace App\Domain\Gameplay;
 
+use App\Domain\Classes\ModifierChain;
+use App\Domain\Quests\BossService;
 use App\Enums\TaskType;
 use App\Models\DayLog;
 use App\Models\TaskAssignment;
@@ -82,10 +84,14 @@ class RunDayCron
             $evalDay = CarbonImmutable::parse($stats->last_cron_on->format('Y-m-d'));
             $family = $user->family;
             $ageFactor = Formulas::ageDamageFactor($user->ageGroup(), $family);
+            $con = Attributes::for($stats)['con'];
+            // Schildwall (Krieger in der Familie) & Co. – als Faktor auf jeden einzelnen Schaden
+            $damageFactor = ModifierChain::applyCronDamage($user, $stats, 1.0);
 
             $due = 0;
             $done = 0;
             $damage = 0.0;
+            $missed = [];
 
             foreach (self::dailyAssignments($user) as $a) {
                 if ($a->task->isDueOn($evalDay)) {
@@ -95,10 +101,14 @@ class RunDayCron
                         $done++;
                     } else {
                         $delta = Formulas::delta($a->value);
+                        $valueBefore = $a->value;
                         $a->value = Formulas::clampValue($a->value - $delta);
 
                         if (! $stats->sleeping) {
-                            $damage += Formulas::damage($delta, $a->task->difficulty, $stats->con, $ageFactor);
+                            $hit = round(Formulas::damage($delta, $a->task->difficulty, $con, $ageFactor) * $damageFactor, 2);
+                            $damage += $hit;
+                            // Für „Zweite Chance“ (Heiler) merken
+                            $missed[] = ['assignment_id' => $a->id, 'damage' => $hit, 'streak' => $a->streak, 'value' => $valueBefore];
 
                             if ($stats->streak_shields > 0 && $a->streak > 0) {
                                 $stats->streak_shields--;
@@ -122,6 +132,9 @@ class RunDayCron
 
             $knockedOut = $damage > 0 && Progression::takeDamage($stats, $damage, $family);
 
+            // Verpasste Dailies heilen den Familien-Boss
+            app(BossService::class)->heal($user->family_id, count($missed) * config('game.boss_heal_per_missed_daily'));
+
             $ratio = $due > 0 ? $done / $due : 1;
             $stats->mp = min(Formulas::maxMp($stats), $stats->mp + Formulas::maxMp($stats) * config('game.cron_mp_regen') * $ratio);
             $stats->last_cron_on = $today->toDateString();
@@ -135,6 +148,7 @@ class RunDayCron
                     'damage' => round($damage, 2),
                     'knocked_out' => $knockedOut,
                     'sleeping' => $stats->sleeping,
+                    'missed' => $missed,
                 ],
             );
         });
