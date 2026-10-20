@@ -32,6 +32,7 @@ class User extends Authenticatable
         'theme',
         'avatar_color',
         'avatar',
+        'chat_allowed',
     ];
 
     protected $hidden = [
@@ -53,6 +54,7 @@ class User extends Authenticatable
             'day_start' => 'integer',
             'is_admin' => 'boolean',
             'avatar' => 'array',
+            'chat_allowed' => 'boolean',
         ];
     }
 
@@ -89,6 +91,21 @@ class User extends Authenticatable
     public function achievements(): HasMany
     {
         return $this->hasMany(UserAchievement::class);
+    }
+
+    public function deviceTokens(): HasMany
+    {
+        return $this->hasMany(DeviceToken::class);
+    }
+
+    public function supportSetting(): HasOne
+    {
+        return $this->hasOne(SupportSetting::class);
+    }
+
+    public function notificationSetting(): HasOne
+    {
+        return $this->hasOne(NotificationSetting::class);
     }
 
     public function getAgeGroupAttribute(): string

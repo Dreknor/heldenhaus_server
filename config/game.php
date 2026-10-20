@@ -69,6 +69,19 @@ return [
     'pet_growth_per_food' => 10,
     'pet_growth_mount' => 50,
 
+    // Fokus & Alltagshilfen (Konzept §11)
+    'recovery' => ['needed' => 2, 'days' => 4],   // Erholungs-Quest: 2 der nächsten 4 Tage
+    'low_energy_bonus_gold' => 2,                // „Trotzdem geschafft“ am Energiespar-Tag
+    'surprise' => [
+        'base_chance' => 0.04,
+        'pity_step' => 0.02,                     // steigt mit jeder Erledigung ohne Überraschung
+        'max_chance' => 0.35,
+        'daily_limit' => 3,
+        'gold' => [3, 12],
+    ],
+    'focus' => ['shared_bonus_gold' => 3, 'max_minutes' => 120],
+    'ai' => ['monthly_budget_usd' => 1.0, 'requests_per_hour' => 10],
+
     'categories' => [
         'household' => 'Haushalt',
         'school' => 'Schule & Lernen',

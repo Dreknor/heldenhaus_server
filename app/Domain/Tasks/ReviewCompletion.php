@@ -8,6 +8,7 @@ use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\ScoreTask;
 use App\Domain\Social\FeedService;
 use App\Enums\CompletionStatus;
+use App\Events\CompletionReviewed;
 use App\Models\TaskAssignment;
 use App\Models\TaskCompletion;
 use App\Models\User;
@@ -41,13 +42,14 @@ class ReviewCompletion
 
         // Familienaufgaben mit Freigabe zählen erst ab der Bestätigung
         app(AchievementService::class)->evaluate($completion->user, AchievementMetrics::TASKS);
+        event(new CompletionReviewed($completion, true));
 
         return $completion;
     }
 
     public function reject(TaskCompletion $completion, User $reviewer, ?string $comment = null): TaskCompletion
     {
-        return DB::transaction(function () use ($completion, $reviewer, $comment) {
+        $completion = DB::transaction(function () use ($completion, $reviewer, $comment) {
             $completion = TaskCompletion::lockForUpdate()->findOrFail($completion->id);
             $this->ensurePending($completion);
 
@@ -58,6 +60,10 @@ class ReviewCompletion
 
             return $completion;
         });
+
+        event(new CompletionReviewed($completion, false));
+
+        return $completion;
     }
 
     /** Offene Freigaben nach Ablauf der Frist automatisch bestätigen. */

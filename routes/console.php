@@ -6,6 +6,8 @@ use App\Domain\Family\FamilyService;
 use App\Domain\Family\WeeklyReport;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\RunDayCron;
+use App\Domain\Notifications\PushNotifier;
+use App\Domain\Social\ChallengeService;
 use App\Domain\Tasks\ReviewCompletion;
 use App\Domain\Updater\UpdaterException;
 use App\Domain\Updater\UpdateService;
@@ -70,15 +72,20 @@ Artisan::command('heldenhaus:community-rhythm', function (ClassService $classes)
     $this->info($classes->evaluateCommunityRhythm().' Familien haben den Gemeinschafts-Rhythmus geschafft.');
 })->purpose('Barden-Passive: Familien-Tag auswerten');
 
-Artisan::command('heldenhaus:weekly-reports', function () {
+Artisan::command('heldenhaus:weekly-reports', function (PushNotifier $push) {
     foreach (Family::all() as $family) {
         $report = WeeklyReport::for($family);
         foreach ($family->parents()->whereNotNull('email')->get() as $parent) {
             Mail::to($parent->email)->queue(new WeeklyReportMail($report));
         }
+        $push->notify($family->parents()->get(), 'weekly_report');
     }
     $this->info('Wochenberichte verschickt.');
 })->purpose('Wochenbericht an Eltern senden');
+
+Artisan::command('heldenhaus:challenges-close', function (ChallengeService $challenges) {
+    $this->info($challenges->closeExpired().' Challenges abgeschlossen.');
+})->purpose('Abgelaufene Challenges schließen und ihre Aufgaben archivieren');
 
 Artisan::command('heldenhaus:auto-approve', function (ReviewCompletion $review) {
     $this->info($review->autoApproveExpired().' Freigaben automatisch bestätigt.');
@@ -203,6 +210,7 @@ Schedule::command('heldenhaus:day-cron')->everyFifteenMinutes()->withoutOverlapp
 Schedule::command('heldenhaus:auto-approve')->everyFifteenMinutes()->withoutOverlapping();
 Schedule::command('heldenhaus:community-rhythm')->hourly()->withoutOverlapping();
 Schedule::command('heldenhaus:weekly-reports')->weeklyOn(0, '18:00')->timezone('Europe/Berlin');
+Schedule::command('heldenhaus:challenges-close')->dailyAt('03:30')->withoutOverlapping();
 Schedule::command('model:prune')->daily();
 Schedule::command('queue:prune-failed --hours=168')->daily();
 

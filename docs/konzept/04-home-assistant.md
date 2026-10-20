@@ -11,7 +11,7 @@ Home Assistant läuft zu Hause hinter NAT, der Laravel-Server im Internet. Desha
    - **Entitäten pro Familienmitglied**: `sensor` (Level, XP, Gold, Sterne, HP, offene Aufgaben, Streak), `binary_sensor` (alle Dailies erledigt, Freigaben ausstehend), **`todo`-Entität** (HA-Aufgabenliste ↔ To-Dos/Dailies, auch in der HA-App abhakbar), `image` (Avatar)
    - **Familien-Entitäten**: Boss-HP, Wochenfortschritt, offene Freigaben
    - **Dienste**: `heldenhaus.complete_task`, `create_task`, `score_habit`, `trigger_event`, `approve`, `grant_stars`
-   - **HA-Ereignisse**: `heldenhaus_task_completed`, `_reward_redeemed`, `_level_up`, `_all_dailies_done`, `_boss_defeated`
+   - **HA-Ereignisse**: `heldenhaus_task_completed`, `_reward_redeemed`, `_level_up`, `_all_dailies_done`, `_boss_defeated`, für die Fokus-Hilfen (§11.5) außerdem `_step_completed`, `_focus_started`, `_focus_ended`, `_low_energy_day` und ein Sensor „Fokus-Zeit“ je Mitglied
 3. **Ausgehende Webhooks** (Laravel → HA): HMAC-signiert, Wiederholung bei Fehlern über die Queue
 
 ## 4.3 Ereignis-Zuordnung (Kernidee)
@@ -29,6 +29,7 @@ Belohnungen können ebenfalls einen **Aktions-Schlüssel** tragen (`screen_time_
 - Hausaufgaben-Daily nicht erledigt → Konsolensteckdose bleibt aus (von Eltern einstellbar)
 - Wandtablet mit Lovelace-Karte (Familienstatus, Boss-HP); später eventuell eine eigene Lovelace-Karte
 - Level-up → Sprachansage im Wohnzimmer
+- Fokus-Zeit läuft → Schreibtischlampe wechselt langsam von Grün nach Orange, am Ende ein sanftes Signal; offene Hausaufgaben-Daily → Lampe statt Handy erinnert (§11.4)
 - Abschlüsse über HA zählen mit `source = ha` und verstärken die Klasse **Tüftler** (Smart-Connect, Überlastung, §2.4)
 
 ## 4.5 Sicherheit
@@ -36,4 +37,25 @@ Belohnungen können ebenfalls einen **Aktions-Schlüssel** tragen (`screen_time_
 - Ratenbegrenzung pro Token, Prüfprotokoll aller HA-Aktionen
 - Ausgehende Webhooks mit `X-Heldenhaus-Signature` (HMAC-SHA256) und Zeitstempel gegen Replay-Angriffe
 
+## 4.6 Webhook-Format (Server → HA)
+Eltern tragen unter **Familie → Home Assistant** die Webhook-URL ein (z. B. `https://…ui.nabu.casa/api/webhook/heldenhaus`) und wählen die Ereignisse. Das Secret wird einmal angezeigt.
+
+```http
+POST <webhook-url>
+Content-Type: application/json
+X-Heldenhaus-Event: reward_redeemed
+X-Heldenhaus-Delivery: <uuid>
+X-Heldenhaus-Timestamp: 1760950000
+X-Heldenhaus-Signature: sha256=<HMAC-SHA256(secret, "<timestamp>.<body>")>
+
+{"id": "<uuid>", "event": "reward_redeemed", "family_id": 1, "occurred_at": "…",
+ "data": {"member_id": 3, "member_name": "Lea", "reward_title": "30 Minuten Konsole", "stars": 5, "action_key": "screen_time_30"}}
+```
+
+- Ereignisse: `task_completed`, `approval_requested`, `all_dailies_done` (einmal pro Tag), `level_up`, `reward_redeemed`, `boss_defeated`, `quest_completed`, `ping` (Test-Knopf)
+- Fokus & Alltagshilfen (§11.5): `step_completed`, `focus_started`, `focus_ended` (mit `remaining_minutes` und `result`), `low_energy_day`
+- Private Aufgaben werden ohne Titel und Kategorie gemeldet (§3.7)
+- Empfänger prüfen die Signatur und verwerfen Zeitstempel, die mehr als 5 Minuten abweichen
+- Fehler (Timeout, kein 2xx) → bis zu 5 Versuche über die Queue (30 s, 2 min, 10 min, 30 min), Ergebnis im Prüfprotokoll
+- Eltern-Dienste über HA (`approvals`, `completions/{id}/approve|reject`, `redemptions/{id}/approve|reject`, `stars/{member}`) brauchen ein Token mit der Fähigkeit `ha:approve`
 

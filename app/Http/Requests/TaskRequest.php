@@ -46,6 +46,7 @@ class TaskRequest extends FormRequest
             'checklist' => ['nullable', 'array', 'max:30'],
             'checklist.*' => ['string', 'max:120'],
             'is_private' => ['boolean'],
+            'is_core' => ['boolean'],
             'gold_cost' => ['nullable', 'integer', 'min:0', 'max:100000'],
             // nur Familienaufgaben
             'approval_mode' => [$isFamily ? 'required' : 'prohibited', Rule::enum(ApprovalMode::class)],

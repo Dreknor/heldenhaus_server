@@ -4,11 +4,14 @@ use App\Http\Controllers\AchievementController;
 use App\Http\Controllers\Api\V1\AppReleaseController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CharacterController;
+use App\Http\Controllers\Api\V1\DeviceController;
 use App\Http\Controllers\Api\V1\FamilyController;
 use App\Http\Controllers\Api\V1\GameController;
 use App\Http\Controllers\Api\V1\HomeAssistantController;
 use App\Http\Controllers\FamilyHubController;
 use App\Http\Controllers\QuestController;
+use App\Http\Controllers\SocialController;
+use App\Http\Controllers\SupportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,6 +30,10 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
         Route::post('auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
         Route::get('me', [AuthController::class, 'me'])->name('me');
         Route::post('admin/app-releases', [AppReleaseController::class, 'store'])->name('admin.app-releases.store');
+        Route::post('devices', [DeviceController::class, 'store'])->name('devices.store');
+        Route::delete('devices', [DeviceController::class, 'destroy'])->name('devices.destroy');
+        Route::get('notifications/settings', [DeviceController::class, 'settings'])->name('notifications.settings');
+        Route::put('notifications/settings', [DeviceController::class, 'updateSettings'])->name('notifications.settings.update');
 
         Route::middleware(['family', 'day-cron'])->group(function () {
             Route::get('board', [GameController::class, 'board'])->name('board');
@@ -73,13 +80,55 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
 
             Route::get('shop', [FamilyController::class, 'shop'])->name('shop');
             Route::post('shop/items/{item}/redeem', [FamilyController::class, 'redeem'])->name('shop.redeem');
+
+            Route::get('social', [SocialController::class, 'index'])->name('social');
+            Route::post('alliances', [SocialController::class, 'invite'])->name('alliances.invite');
+            Route::post('alliances/join', [SocialController::class, 'join'])->middleware('throttle:10,1')->name('alliances.join');
+            Route::delete('alliances/{alliance}', [SocialController::class, 'endAlliance'])->name('alliances.destroy');
+            Route::post('challenges', [SocialController::class, 'storeChallenge'])->name('challenges.store');
+            Route::post('challenges/{challenge}/join', [SocialController::class, 'joinChallenge'])->name('challenges.join');
+            Route::post('challenges/{challenge}/leave', [SocialController::class, 'leaveChallenge'])->name('challenges.leave');
+            Route::delete('challenges/{challenge}', [SocialController::class, 'destroyChallenge'])->name('challenges.destroy');
+            Route::get('messages', [SocialController::class, 'messages'])->name('messages');
+            Route::post('messages', [SocialController::class, 'sendMessage'])->middleware('throttle:30,1')->name('messages.store');
+
+            // Fokus & Alltagshilfen (Konzept §11)
+            Route::get('me/support-settings', [SupportController::class, 'settings'])->name('support.settings');
+            Route::put('me/support-settings', [SupportController::class, 'updateSettings'])->name('support.settings.update');
+            Route::get('members/{member}/support-settings', [SupportController::class, 'settings'])->name('members.support.settings');
+            Route::put('members/{member}/support-settings', [SupportController::class, 'updateSettings'])->name('members.support.settings.update');
+            Route::put('family/support', [SupportController::class, 'updateFamilySettings'])->name('family.support');
+            Route::post('me/low-energy', [SupportController::class, 'startLowEnergy'])->name('low-energy.start');
+            Route::delete('me/low-energy', [SupportController::class, 'cancelLowEnergy'])->name('low-energy.cancel');
+            Route::post('members/{member}/low-energy', [SupportController::class, 'startLowEnergy'])->name('members.low-energy.start');
+            Route::delete('members/{member}/low-energy', [SupportController::class, 'cancelLowEnergy'])->name('members.low-energy.cancel');
+            Route::post('inbox', [SupportController::class, 'inbox'])->name('inbox.store');
+            Route::post('inbox/{task}/sort', [SupportController::class, 'sortInbox'])->name('inbox.sort');
+            Route::post('assignments/{assignment}/steps/{step}/score', [SupportController::class, 'scoreStep'])->whereNumber('step')->name('steps.score');
+            Route::post('tasks/{task}/steps/suggest', [SupportController::class, 'suggestSteps'])->middleware('throttle:20,1')->name('steps.suggest');
+            Route::put('tasks/{task}/steps', [SupportController::class, 'saveSteps'])->name('steps.save');
+            Route::post('focus-sessions', [SupportController::class, 'startFocus'])->name('focus.start');
+            Route::post('focus-sessions/{session}/{action}', [SupportController::class, 'focusAction'])
+                ->whereIn('action', ['finish', 'extend', 'abort', 'invite'])->name('focus.action');
         });
     });
 
-    Route::middleware(['auth:sanctum', 'abilities:ha', 'family', 'throttle:120,1'])->prefix('ha')->name('ha.')->group(function () {
+    Route::middleware(['auth:sanctum', 'abilities:ha', 'family', 'throttle:120,1', 'ha-audit'])->prefix('ha')->name('ha.')->group(function () {
         Route::get('state', [HomeAssistantController::class, 'state'])->name('state');
         Route::post('events', [HomeAssistantController::class, 'event'])->name('events');
         Route::get('quest.svg', [HomeAssistantController::class, 'questImage'])->name('quest.image');
+        Route::post('tasks', [HomeAssistantController::class, 'createTask'])->name('tasks.store');
+        Route::post('tasks/{task}/complete', [HomeAssistantController::class, 'completeTask'])->name('tasks.complete');
+
+        // Eltern-Funktionen nur mit Token-Fähigkeit „ha:approve“ (beim Erzeugen des Tokens wählbar)
+        Route::middleware('abilities:ha:approve')->group(function () {
+            Route::get('approvals', [FamilyController::class, 'approvals'])->name('approvals');
+            Route::post('completions/{completion}/{decision}', [FamilyController::class, 'reviewCompletion'])
+                ->whereIn('decision', ['approve', 'reject'])->name('completions.review');
+            Route::post('redemptions/{redemption}/{decision}', [FamilyController::class, 'reviewRedemption'])
+                ->whereIn('decision', ['approve', 'reject'])->name('redemptions.review');
+            Route::post('stars/{member}', [HomeAssistantController::class, 'grantStars'])->whereNumber('member')->name('stars');
+        });
 
         // Spielen über Home Assistant: dieselben Aktionen wie in der App, stellvertretend für ein
         // Familienmitglied. Eltern-Funktionen (Freigaben, Aufgabenverwaltung, Taschengeld) fehlen bewusst.

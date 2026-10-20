@@ -7,9 +7,11 @@ use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\RunDayCron;
 use App\Domain\Gameplay\ScoreTask;
 use App\Domain\Rewards\RewardService;
+use App\Domain\Support\StepService;
 use App\Domain\Tasks\TaskService;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\HeroController;
+use App\Http\Presenters\CharacterSheet;
 use App\Http\Presenters\GamePresenter;
 use App\Http\Presenters\HeroBoard;
 use App\Http\Requests\TaskRequest;
@@ -30,7 +32,7 @@ class GameController extends Controller
         return response()->json([
             ...HeroBoard::for($user),
             'stats' => GamePresenter::stats($user->stats()->first()),
-            'appearance' => \App\Http\Presenters\CharacterSheet::appearance($user),
+            'appearance' => CharacterSheet::appearance($user),
             'achievements_new' => AchievementService::unseen($user),
             'server_time' => now()->toIso8601String(),
         ]);
@@ -70,9 +72,10 @@ class GameController extends Controller
         $data = $request->validate([
             'actions' => ['required', 'array', 'max:200'],
             'actions.*.client_uuid' => ['required', 'uuid'],
-            'actions.*.type' => ['required', 'in:score'],
+            'actions.*.type' => ['required', 'in:score,step'],
             'actions.*.assignment_id' => ['required', 'integer'],
-            'actions.*.direction' => ['required', 'in:up,down'],
+            'actions.*.direction' => ['required_if:actions.*.type,score', 'in:up,down'],
+            'actions.*.step' => ['required_if:actions.*.type,step', 'integer', 'min:0'],
         ]);
 
         $results = [];
@@ -86,6 +89,13 @@ class GameController extends Controller
             }
 
             try {
+                if ($action['type'] === 'step') {
+                    $step = app(StepService::class)->score($assignment, (int) $action['step'], 'app', $action['client_uuid']);
+                    $results[] = ['client_uuid' => $action['client_uuid'], 'ok' => true] + $step;
+
+                    continue;
+                }
+
                 $result = $score($assignment, $action['direction'], 'app', $action['client_uuid']);
                 $results[] = ['client_uuid' => $action['client_uuid'], 'ok' => true, 'replayed' => $result->replayed] + $result->toArray();
             } catch (GameException $e) {

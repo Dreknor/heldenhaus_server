@@ -1,4 +1,4 @@
-# 11. Online-Updater
+# 10. Online-Updater
 
 Heldenhaus läuft auf einem Hetzner-Webhosting, und die App wird außerhalb des öffentlichen Play Stores verteilt. Deshalb braucht es eigene Update-Wege: Server und App sollen sich **ohne SSH-Sitzung und ohne manuelles APK-Kopieren** aktualisieren lassen.
 
@@ -11,7 +11,7 @@ Heldenhaus läuft auf einem Hetzner-Webhosting, und die App wird außerhalb des 
 
 ---
 
-## 11.1 Server-Updater (Selbst-Update aus dem Git-Repository)
+## 10.1 Server-Updater (Selbst-Update aus dem Git-Repository)
 
 Der Server-Updater arbeitet wie der des Elterninfoboards: Die Installation ist ein **Git-Checkout** des Server-Repositorys, und ein Update zieht neue Commits per `git pull --ff-only`. Auf dem Server müssen deshalb **Git, Composer und Node/npm** verfügbar sein (`public/build` und `vendor/` sind nicht versioniert).
 
@@ -42,7 +42,7 @@ Der Server-Updater arbeitet wie der des Elterninfoboards: Die Installation ist e
 
 ---
 
-## 11.2 App-Updater (Android)
+## 10.2 App-Updater (Android)
 
 Es gibt zwei Wege, abhängig von der Verteilung (Build-Flavor):
 
@@ -64,7 +64,7 @@ Es gibt zwei Wege, abhängig von der Verteilung (Build-Flavor):
 
 ---
 
-## 11.3 Datenmodell & API
+## 10.3 Datenmodell & API
 
 - Server-Updater: keine Tabelle – Status, Prüfergebnis, Protokolle und Sicherungen liegen als Dateien unter `storage/app/updater` (lesbar auch während Migrationen)
 - `app_releases`: `version_name`, `version_code`, Kanal, `apk_path`, `sha256`, Größe, Changelog, `min_supported_code`, `published_at`
@@ -72,7 +72,7 @@ Es gibt zwei Wege, abhängig von der Verteilung (Build-Flavor):
 - Admin-Web: `GET admin/updates`, `GET admin/updates/status`, `POST admin/updates/check`, `POST admin/updates/start` (`full` = alle Schritte), `POST admin/updates/cancel`, `POST admin/updates/up`
 - App-API: `GET app/version`, `GET app/download/{release}` (signiert), Admin: `POST admin/app-releases`
 
-## 11.4 Tests
+## 10.4 Tests
 
 - Server-Updater: nur Admins, Anfordern/Zurücknehmen, Bypass-Cookie passt zum Geheimnis, Geheimnis nicht im Status, abgestürzte Läufe gelten als fehlgeschlagen, `updater:run --if-requested` tut ohne Anforderung nichts
 - Versionslogik der App: Kanäle, `min_supported` → `426`

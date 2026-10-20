@@ -42,6 +42,8 @@ class WeeklyReport
                 'xp' => (int) $completions->sum('xp'),
                 'quest_progress' => round((float) $completions->sum('quest_progress'), 1),
                 'knocked_out' => $logs->where('knocked_out', true)->count(),
+                // Energiespar-Tage nur als Anzahl, nie als Fehler (Konzept §11.2)
+                'low_energy_days' => $logs->where('low_energy', true)->count(),
             ];
         });
 

@@ -102,7 +102,7 @@ class TaskService
     {
         $attributes = Arr::only($data, [
             'title', 'notes', 'category', 'difficulty', 'up', 'down', 'repeat', 'start_date', 'due_date',
-            'checklist', 'is_private', 'approval_mode', 'assignment_mode', 'star_reward', 'team_bonus_gold', 'gold_cost', 'ha_event_key',
+            'checklist', 'is_private', 'is_core', 'approval_mode', 'assignment_mode', 'star_reward', 'team_bonus_gold', 'gold_cost', 'ha_event_key',
         ]);
 
         // Ämterplan: Reihenfolge der Zuweisung = Reihenfolge im Plan
