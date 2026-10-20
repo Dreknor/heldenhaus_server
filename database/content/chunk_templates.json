@@ -1,0 +1,13 @@
+[
+    {"key": "room", "match": ["zimmer", "aufräumen", "aufraeumen"], "steps": ["Wäsche aufheben", "Stifte und Spielsachen einsammeln", "Bett machen", "Boden frei machen", "Schreibtisch frei räumen"]},
+    {"key": "homework", "match": ["hausaufgaben", "hausi", "lernen", "üben"], "steps": ["Tisch frei machen", "Heft und Buch raus", "Erste Aufgabe lesen", "Erste Aufgabe lösen", "Rest erledigen", "Tasche für morgen packen"]},
+    {"key": "school_bag", "match": ["schultasche", "ranzen", "rucksack packen"], "steps": ["Stundenplan anschauen", "Bücher und Hefte rein", "Federmappe prüfen", "Brotdose und Flasche rein"]},
+    {"key": "dishwasher", "match": ["spülmaschine", "geschirrspüler", "spuelmaschine"], "steps": ["Unterer Korb ausräumen", "Oberer Korb ausräumen", "Besteck einsortieren"]},
+    {"key": "laundry", "match": ["wäsche", "waesche"], "steps": ["Wäsche holen", "Socken paaren", "Falten", "In den Schrank legen"]},
+    {"key": "table", "match": ["tisch decken", "tischdecken"], "steps": ["Teller hinstellen", "Besteck dazulegen", "Gläser holen", "Getränke auf den Tisch"]},
+    {"key": "morning", "match": ["morgenroutine", "fertig machen", "anziehen"], "steps": ["Anziehen", "Zähne putzen", "Haare kämmen", "Frühstücken", "Schuhe an"]},
+    {"key": "evening", "match": ["abendroutine", "bett gehen", "schlafen"], "steps": ["Schlafanzug an", "Zähne putzen", "Kleidung für morgen hinlegen", "Licht aus"]},
+    {"key": "pets", "match": ["füttern", "katze", "hund", "terrarium", "käfig"], "steps": ["Futter holen", "Napf füllen", "Wasser frisch machen"]},
+    {"key": "trash", "match": ["müll", "muell", "mülleimer"], "steps": ["Beutel zubinden", "Rausbringen", "Neuen Beutel einlegen"]},
+    {"key": "tax", "match": ["steuer", "formular", "antrag"], "steps": ["Unterlagen zusammensuchen", "Formular öffnen", "Erste Seite ausfüllen", "Rest ausfüllen", "Absenden oder abheften"]}
+]

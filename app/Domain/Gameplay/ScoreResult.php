@@ -29,6 +29,7 @@ final class ScoreResult
             'level_ups' => $this->levelUps,
             'knocked_out' => $this->knockedOut,
             'drop' => $this->drop?->only(['id', 'key', 'name', 'icon', 'rarity', 'type']),
+            'surprise' => $this->completion->surprise,
             'stats' => $this->stats->only(['hp', 'mp', 'xp', 'gold', 'stars', 'level']),
         ];
     }

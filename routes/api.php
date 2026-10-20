@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\HomeAssistantController;
 use App\Http\Controllers\FamilyHubController;
 use App\Http\Controllers\QuestController;
 use App\Http\Controllers\SocialController;
+use App\Http\Controllers\SupportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -90,6 +91,25 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
             Route::delete('challenges/{challenge}', [SocialController::class, 'destroyChallenge'])->name('challenges.destroy');
             Route::get('messages', [SocialController::class, 'messages'])->name('messages');
             Route::post('messages', [SocialController::class, 'sendMessage'])->middleware('throttle:30,1')->name('messages.store');
+
+            // Fokus & Alltagshilfen (Konzept §11)
+            Route::get('me/support-settings', [SupportController::class, 'settings'])->name('support.settings');
+            Route::put('me/support-settings', [SupportController::class, 'updateSettings'])->name('support.settings.update');
+            Route::get('members/{member}/support-settings', [SupportController::class, 'settings'])->name('members.support.settings');
+            Route::put('members/{member}/support-settings', [SupportController::class, 'updateSettings'])->name('members.support.settings.update');
+            Route::put('family/support', [SupportController::class, 'updateFamilySettings'])->name('family.support');
+            Route::post('me/low-energy', [SupportController::class, 'startLowEnergy'])->name('low-energy.start');
+            Route::delete('me/low-energy', [SupportController::class, 'cancelLowEnergy'])->name('low-energy.cancel');
+            Route::post('members/{member}/low-energy', [SupportController::class, 'startLowEnergy'])->name('members.low-energy.start');
+            Route::delete('members/{member}/low-energy', [SupportController::class, 'cancelLowEnergy'])->name('members.low-energy.cancel');
+            Route::post('inbox', [SupportController::class, 'inbox'])->name('inbox.store');
+            Route::post('inbox/{task}/sort', [SupportController::class, 'sortInbox'])->name('inbox.sort');
+            Route::post('assignments/{assignment}/steps/{step}/score', [SupportController::class, 'scoreStep'])->whereNumber('step')->name('steps.score');
+            Route::post('tasks/{task}/steps/suggest', [SupportController::class, 'suggestSteps'])->middleware('throttle:20,1')->name('steps.suggest');
+            Route::put('tasks/{task}/steps', [SupportController::class, 'saveSteps'])->name('steps.save');
+            Route::post('focus-sessions', [SupportController::class, 'startFocus'])->name('focus.start');
+            Route::post('focus-sessions/{session}/{action}', [SupportController::class, 'focusAction'])
+                ->whereIn('action', ['finish', 'extend', 'abort', 'invite'])->name('focus.action');
         });
     });
 

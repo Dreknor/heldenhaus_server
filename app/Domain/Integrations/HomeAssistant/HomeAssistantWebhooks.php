@@ -24,6 +24,10 @@ class HomeAssistantWebhooks
         'reward_redeemed' => 'Belohnung eingelöst (mit Aktions-Schlüssel)',
         'boss_defeated' => 'Boss besiegt',
         'quest_completed' => 'Sammel-Quest geschafft',
+        'step_completed' => 'Teilschritt erledigt',
+        'focus_started' => 'Fokus-Zeit gestartet',
+        'focus_ended' => 'Fokus-Zeit beendet',
+        'low_energy_day' => 'Energiespar-Tag',
     ];
 
     /** Zeitfenster, in dem HA eine Signatur akzeptieren sollte (gegen Replay). */

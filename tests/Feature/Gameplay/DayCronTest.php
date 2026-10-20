@@ -13,7 +13,7 @@ beforeEach(function () {
     ($this->cron)($this->user); // erster Lauf setzt nur das Datum
 });
 
-it('verursacht Schaden für verpasste Dailies und setzt die Streak zurück', function () {
+it('verursacht Schaden für verpasste Dailies und pausiert die Streak (Konzept §11.3)', function () {
     $task = makeTask($this->user, ['type' => 'daily', 'difficulty' => 1]);
     assignmentOf($task, $this->user)->update(['streak' => 5]);
 
@@ -24,7 +24,8 @@ it('verursacht Schaden für verpasste Dailies und setzt die Streak zurück', fun
     expect($log->dailies_due)->toBe(1)
         ->and($log->dailies_done)->toBe(0)
         ->and($stats->hp)->toBe(48.0)
-        ->and(assignmentOf($task, $this->user)->streak)->toBe(0)
+        ->and(assignmentOf($task, $this->user)->streak)->toBe(5)
+        ->and(assignmentOf($task, $this->user)->streak_paused_at)->not->toBeNull()
         ->and(assignmentOf($task, $this->user)->value)->toBe(-1.0);
 });
 

@@ -7,6 +7,9 @@ use App\Domain\Classes\ScoreContext;
 use App\Domain\Inventory\DropService;
 use App\Domain\Quests\QuestService;
 use App\Domain\Social\FeedService;
+use App\Domain\Support\StepService;
+use App\Domain\Support\SupportService;
+use App\Domain\Support\SurpriseService;
 use App\Enums\ApprovalMode;
 use App\Enums\CompletionStatus;
 use App\Enums\TaskType;
@@ -31,7 +34,10 @@ class ScoreTask
         private readonly QuestService $quests,
         private readonly FeedService $feed,
         private readonly Randomizer $random = new Randomizer,
-    ) {}
+        private ?SurpriseService $surprises = null,
+    ) {
+        $this->surprises ??= app(SurpriseService::class);
+    }
 
     public function __invoke(
         TaskAssignment $assignment,
@@ -115,6 +121,7 @@ class ScoreTask
         if ($direction === 'up') {
             $this->afterPositive($completion, $a, $stats, $delta, $context);
             $drop = $this->drops->roll($completion, $task, $stats);
+            $this->surprises->roll($completion, $task, $stats);
         }
 
         return new ScoreResult($completion, $stats, $levelUps, $knockedOut, drop: $drop);
@@ -142,11 +149,29 @@ class ScoreTask
         $a->value = Formulas::clampValue($valueBefore + $delta);
         $a->completed = true;
         $a->completed_at = now();
-        if ($task->type === TaskType::Daily) {
+
+        // Pausierte Serie (§11.3): Serienbonus ruht, die Erledigung zählt für die Erholungs-Quest
+        $paused = $task->type === TaskType::Daily && $a->streak_paused_at !== null;
+        if ($paused) {
+            SupportService::recoveryProgress($a);
+        } elseif ($task->type === TaskType::Daily) {
             $a->streak++;
         }
+        $a->streak_best = max($a->streak_best, $a->streak);
 
-        [$xp, $gold, $context] = $this->rewards($a, $stats, $delta, $source, $task->type === TaskType::Daily ? $streakBefore : 0);
+        [$xp, $gold, $context] = $this->rewards($a, $stats, $delta, $source, $task->type === TaskType::Daily && ! $paused ? $streakBefore : 0);
+
+        // Schritt-Belohnung (§11.2): Was die Teilschritte schon gebracht haben, zieht der Abschluss ab
+        [$stepXp, $stepGold, $stepShare] = StepService::paid($a);
+        $xp = max(0, $xp - $stepXp);
+        $gold = max(0.0, round($gold - $stepGold, 2));
+
+        // Energiespar-Tag: Wer trotzdem eine Nicht-Kern-Daily schafft, bekommt einen kleinen Bonus
+        if (SupportService::isExtraOnLowEnergy($a)) {
+            $gold += (float) config('game.low_energy_bonus_gold');
+            $context->effects[] = 'low_energy_bonus';
+        }
+
         $levelUps = Progression::gainXp($stats, $xp);
         Progression::changeGold($stats, $gold);
 
@@ -159,8 +184,12 @@ class ScoreTask
             $stats->increment('stars', $completion->stars);
         }
 
-        $this->afterPositive($completion, $a, $stats, $delta, $context);
-        $drop = $this->drops->roll($completion, $task, $stats);
+        $this->afterPositive($completion, $a, $stats, $delta * (1 - $stepShare), $context);
+        // Unsortierte Einträge der Kopf-Ablage geben keine Funde (§11.2)
+        $drop = $task->status === 'inbox' ? null : $this->drops->roll($completion, $task, $stats);
+        if ($task->type === TaskType::Daily) {
+            $this->surprises->roll($completion, $task, $stats);
+        }
 
         if ($task->isFamilyTask()) {
             if ($completion->status === CompletionStatus::Auto) {
@@ -249,7 +278,11 @@ class ScoreTask
     public static function reverse(TaskAssignment $a, UserStats $stats, TaskCompletion $completion, CompletionStatus $newStatus, ?string $comment = null, ?int $reviewerId = null): void
     {
         DropService::revoke($completion);
+        SurpriseService::revoke($completion);
         app(QuestService::class)->revert($completion);
+        if ($completion->streak_before === $a->streak && $a->streak_paused_at !== null) {
+            SupportService::recoveryProgress($a, -1);
+        }
 
         $starsGranted = in_array($completion->status, [CompletionStatus::Approved, CompletionStatus::Auto], true) ? $completion->stars : 0;
 

@@ -5,6 +5,7 @@ namespace App\Domain\Gameplay;
 use App\Domain\Achievements\AchievementService;
 use App\Domain\Classes\ModifierChain;
 use App\Domain\Quests\QuestService;
+use App\Domain\Support\SupportService;
 use App\Enums\TaskType;
 use App\Models\DayLog;
 use App\Models\TaskAssignment;
@@ -89,13 +90,22 @@ class RunDayCron
             // Schildwall (Krieger in der Familie) & Co. – als Faktor auf jeden einzelnen Schaden
             $damageFactor = ModifierChain::applyCronDamage($user, $stats, 1.0);
 
+            // Fokus & Alltagshilfen (§11): sanfter Modus ohne HP-Schaden, am Energiespar-Tag zählen nur Kern-Dailies
+            $gentle = SupportService::gentle($user);
+            $lowEnergy = SupportService::isLowEnergy($user, $evalDay);
+            SupportService::expireRecoveries($user, $today);
+
+            $assignments = self::dailyAssignments($user);
+            $dueToday = $assignments->filter(fn (TaskAssignment $a) => $a->task->isDueFor($evalDay, $a->user_id));
+            $counted = $lowEnergy ? SupportService::coreIds($dueToday) : $dueToday->pluck('id');
+
             $due = 0;
             $done = 0;
             $damage = 0.0;
             $missed = [];
 
-            foreach (self::dailyAssignments($user) as $a) {
-                if ($a->task->isDueFor($evalDay, $a->user_id)) {
+            foreach ($assignments as $a) {
+                if ($counted->contains($a->id)) {
                     $due++;
 
                     if ($a->completed) {
@@ -106,15 +116,16 @@ class RunDayCron
                         $a->value = Formulas::clampValue($a->value - $delta);
 
                         if (! $stats->sleeping) {
-                            $hit = round(Formulas::damage($delta, $a->task->difficulty, $con, $ageFactor) * $damageFactor, 2);
+                            $hit = $gentle ? 0.0 : round(Formulas::damage($delta, $a->task->difficulty, $con, $ageFactor) * $damageFactor, 2);
                             $damage += $hit;
                             // Für „Zweite Chance“ (Heiler) merken
                             $missed[] = ['assignment_id' => $a->id, 'damage' => $hit, 'streak' => $a->streak, 'value' => $valueBefore];
 
-                            if ($stats->streak_shields > 0 && $a->streak > 0) {
+                            // Serie: erst Streak-Schutz, sonst pausieren statt auf 0 (Erholungs-Quest repariert sie)
+                            if ($stats->streak_shields > 0 && $a->streak > 0 && $a->streak_paused_at === null) {
                                 $stats->streak_shields--;
                             } else {
-                                $a->streak = 0;
+                                SupportService::pauseStreak($a, $evalDay);
                             }
                         }
                     }
@@ -133,8 +144,8 @@ class RunDayCron
 
             $knockedOut = $damage > 0 && Progression::takeDamage($stats, $damage, $family);
 
-            // Verpasste Dailies heilen den Familien-Boss
-            app(QuestService::class)->healOnMissed($user, count($missed));
+            // Verpasste Dailies heilen den Familien-Boss. Im sanften Modus wirken Schutz-Fähigkeiten (Schildwall) auf die Heilung.
+            app(QuestService::class)->healOnMissed($user, $gentle ? (int) round(count($missed) * $damageFactor) : count($missed));
 
             $ratio = $due > 0 ? $done / $due : 1;
             $stats->mp = min(Formulas::maxMp($stats), $stats->mp + Formulas::maxMp($stats) * config('game.cron_mp_regen') * $ratio);
@@ -150,6 +161,8 @@ class RunDayCron
                     'knocked_out' => $knockedOut,
                     'sleeping' => $stats->sleeping,
                     'missed' => $missed,
+                    'low_energy' => $lowEnergy,
+                    'gentle' => $gentle,
                 ],
             );
         });
