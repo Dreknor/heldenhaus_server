@@ -3,6 +3,7 @@
 namespace App\Domain\Family;
 
 use App\Domain\Gameplay\GameException;
+use App\Domain\Rewards\RewardTemplates;
 use App\Enums\FamilyRole;
 use App\Events\MemberJoined;
 use App\Models\Family;
@@ -18,6 +19,8 @@ class FamilyService
         return DB::transaction(function () use ($founder, $name) {
             $family = Family::create(['name' => $name, 'timezone' => $founder->timezone ?: 'Europe/Berlin']);
             $founder->update(['family_id' => $family->id, 'family_role' => FamilyRole::Parent]);
+            // Ein paar Belohnungen zum Start, damit der Shop nicht leer ist (Eltern passen sie an)
+            RewardTemplates::seedStarter($family);
 
             return $family;
         });

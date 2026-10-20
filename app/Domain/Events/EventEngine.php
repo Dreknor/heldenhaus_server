@@ -16,14 +16,16 @@ use App\Models\EventParticipation;
 use App\Models\EventTriggerLog;
 use App\Models\FamilyEvent;
 use App\Models\Item;
-use App\Models\Quest;
 use App\Models\TaskCompletion;
 use App\Models\User;
+use App\Models\UserItem;
 use App\Models\UserRecipe;
 use App\Models\UserStats;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Random\Engine\Mt19937;
+use Random\Randomizer;
 
 /**
  * Ablauf einer Event-Instanz (§12.2): geplant → aktiv → endet bald → beendet.
@@ -288,7 +290,7 @@ class EventEngine
         if (isset($progress['goal']) && ($def['personal'] ?? false) === false) {
             $reached = count($progress['tiers'] ?? []);
             $this->feed->post($done->family_id, null, 'event_ended', $def['icon'],
-                "Rückblick {$def['name']}: ".round($progress['points'] ?? 0)." Event-Punkte".($reached ? ", {$reached} Stufe(n) geschafft. Danke an alle!" : '. Schön, dass ihr dabei wart!'),
+                "Rückblick {$def['name']}: ".round($progress['points'] ?? 0).' Event-Punkte'.($reached ? ", {$reached} Stufe(n) geschafft. Danke an alle!" : '. Schön, dass ihr dabei wart!'),
                 ['event_key' => $done->event_key, 'event_id' => $done->id]);
         }
         $this->webhooks->send($done->family_id, 'event_ended', self::webhookData($done));
@@ -408,7 +410,7 @@ class EventEngine
         }
 
         if ($completion->event_drop_item_id) {
-            \App\Models\UserItem::where('user_id', $completion->user_id)->where('item_id', $completion->event_drop_item_id)
+            UserItem::where('user_id', $completion->user_id)->where('item_id', $completion->event_drop_item_id)
                 ->where('quantity', '>', 0)->decrement('quantity');
         }
 
@@ -505,7 +507,7 @@ class EventEngine
             return null;
         }
 
-        $rng = new \Random\Randomizer(new \Random\Engine\Mt19937(crc32('event-drop|'.$completion->id)));
+        $rng = new Randomizer(new Mt19937(crc32('event-drop|'.$completion->id)));
         if ($rng->nextFloat() >= (float) config('game.events.drop_chance')) {
             return null;
         }

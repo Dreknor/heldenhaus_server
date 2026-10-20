@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Domain\Events\ActiveEvents;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -10,7 +11,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         // Laufende Events je Familie, einmal pro Anfrage bzw. Job gelesen
-        $this->app->scoped(\App\Domain\Events\ActiveEvents::class);
+        $this->app->scoped(ActiveEvents::class);
     }
 
     public function boot(): void

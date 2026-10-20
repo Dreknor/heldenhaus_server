@@ -4,6 +4,7 @@ namespace App\Domain\Quests;
 
 use App\Domain\Achievements\AchievementService;
 use App\Domain\Events\EventEngine;
+use App\Domain\Features\Features;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
@@ -109,6 +110,10 @@ class QuestService
         if ($scope === 'family' && ! $user->isParent()) {
             throw new GameException('Familien-Quests starten die Eltern.');
         }
+        // Solo-Quests kommen mit der Freischaltung „Quests“ (§13); Familien-Quests starten Eltern immer
+        if ($scope === 'solo') {
+            Features::ensure($user, 'quests');
+        }
 
         $level = $scope === 'family' ? $this->familyLevel($user) : (int) $user->stats()->value('level');
         if (isset($definition['event_key']) && ! EventEngine::isRunning($user->family_id, $definition['event_key'])) {
@@ -125,6 +130,9 @@ class QuestService
 
         $quest = $this->create($definition, $scope, $user->family_id, $scope === 'solo' ? $user->id : null, $user, $rewardText);
 
+        if ($scope === 'solo') {
+            Features::starterDone($user, 'quests');
+        }
         $who = $scope === 'family' ? 'Die Familie' : $user->name;
         $this->feed->post($user->family_id, $user, 'quest_started', $quest->icon, "{$who} startet die Quest „{$quest->name}“");
 

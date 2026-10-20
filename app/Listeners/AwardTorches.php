@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Domain\Dungeons\Torches;
 use App\Domain\Events\EventEngine;
+use App\Domain\Features\Features;
 use App\Domain\Integrations\HomeAssistant\HomeAssistantWebhooks;
 use App\Enums\CompletionStatus;
 use App\Enums\TaskType;
@@ -18,7 +19,9 @@ class AwardTorches
     public function handleTaskScored(TaskScored $event): void
     {
         $completion = $event->result->completion;
-        if ($event->result->replayed || $completion->direction !== 'up' || $completion->status === CompletionStatus::Pending) {
+        // Beim Rückgängigmachen kommt der ursprüngliche Abschluss noch einmal an – dann keine Fackeln
+        if ($event->result->replayed || $completion->direction !== 'up'
+            || in_array($completion->status, [CompletionStatus::Pending, CompletionStatus::Undone, CompletionStatus::Rejected], true)) {
             return;
         }
         $this->award($completion);
@@ -40,6 +43,10 @@ class AwardTorches
             return;
         }
 
+        // Fackeln erst ab der Dungeon-Freischaltung, sonst wäre der Vorrat beim Start voll (§13.4)
+        if (! Features::has($user, 'dungeons')) {
+            return;
+        }
         $amount = Torches::forDifficulty((float) $task->difficulty);
 
         if ($task->type === TaskType::Daily) {

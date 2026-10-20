@@ -35,5 +35,29 @@
             "public/images/scene/tree.webp",
             "public/images/scene/tulip.webp"
         ]
+    },
+    {
+        "title": "Haustiere: Fluent Emoji (3D)",
+        "author": "Microsoft Corporation",
+        "author_url": "https://github.com/microsoft/fluentui-emoji",
+        "source_url": "https://github.com/microsoft/fluentui-emoji",
+        "license": "MIT",
+        "license_url": "https://github.com/microsoft/fluentui-emoji/blob/main/LICENSE",
+        "changes": "3D-Tiermotive auf 256 Pixel verkleinert und als WebP gespeichert (tools/pets/build_pets.py).",
+        "files": [
+            "public/images/pets"
+        ]
+    },
+    {
+        "title": "Dungeon-Bausteine: Isometric Miniature Dungeon",
+        "author": "Kenney",
+        "author_url": "https://kenney.nl",
+        "source_url": "https://kenney.nl/assets/isometric-miniature-dungeon",
+        "license": "CC0 1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "changes": "Einzelteile zu Tiled-Raumbausteinen (5×5), Tileset und Sprites zusammengesetzt (tools/dungeon/build_blocks.py).",
+        "files": [
+            "public/dungeon"
+        ]
     }
 ]

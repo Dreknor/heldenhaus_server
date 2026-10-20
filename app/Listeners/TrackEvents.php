@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Domain\Events\EventCatalog;
 use App\Domain\Events\EventEngine;
 use App\Domain\Events\EventTrigger;
 use App\Domain\Events\FunEventService;
@@ -27,7 +28,9 @@ class TrackEvents
     public function handleTaskScored(TaskScored $event): void
     {
         $completion = $event->result->completion;
-        if ($event->result->replayed || $completion->direction !== 'up' || $completion->status === CompletionStatus::Pending) {
+        // Auch beim Rückgängigmachen kommt der ursprüngliche Abschluss hier an – dann nichts neu werten
+        if ($event->result->replayed || $completion->direction !== 'up'
+            || in_array($completion->status, [CompletionStatus::Pending, CompletionStatus::Undone, CompletionStatus::Rejected], true)) {
             return;
         }
         $event->result->event = $this->engine->score($completion);
@@ -60,7 +63,7 @@ class TrackEvents
 
         if ($quest->scope === 'family' && $quest->isBoss()) {
             // Drei Familien-Bosse in Folge besiegt → der Drachenfürst kommt
-            $count = (int) (\App\Domain\Events\EventCatalog::get('dragon_lord')['trigger']['count'] ?? 3);
+            $count = (int) (EventCatalog::get('dragon_lord')['trigger']['count'] ?? 3);
             $last = Quest::where('family_id', $quest->family_id)->where('scope', 'family')->where('type', 'boss')
                 ->whereIn('status', ['completed', 'expired', 'abandoned'])->latest('id')->limit($count)->pluck('status');
             if ($last->count() >= $count && $last->every(fn ($s) => $s === 'completed') && $quest->quest_key !== 'dragon_lord') {

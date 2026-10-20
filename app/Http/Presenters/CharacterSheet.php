@@ -2,6 +2,7 @@
 
 namespace App\Http\Presenters;
 
+use App\Domain\Art\PetArt;
 use App\Domain\Classes\ClassCatalog;
 use App\Domain\Classes\ClassService;
 use App\Domain\Gameplay\Attributes;
@@ -76,6 +77,8 @@ class CharacterSheet
                     'egg_key' => $p->egg->key,
                     'potion_key' => $p->potion->key,
                     'potion_icon' => $p->potion->icon,
+                    'art_url' => PetArt::url($p->egg->key),
+                    'palette' => PetArt::palette($p->potion),
                     'growth' => $p->growth,
                     'growth_max' => (int) config('game.pet_growth_mount'),
                     'is_mount' => $p->is_mount,

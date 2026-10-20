@@ -1,0 +1,377 @@
+[
+    {
+        "key": "attributes",
+        "level": 2,
+        "family_relevant": false,
+        "parent_can_defer": true,
+        "depends_on": null,
+        "intro": {
+            "title": "Attribute",
+            "text": {
+                "child": "Du bist stärker geworden! Verteile deinen ersten Punkt: Kraft, Köpfchen, Ausdauer oder Spürsinn.",
+                "teen": "Level 2: Verteile deinen ersten Attributpunkt.",
+                "adult": "Verteile Attributpunkte: Kraft, Intelligenz, Ausdauer, Spürsinn."
+            }
+        },
+        "tour": [
+            {
+                "anchor": "hero.attributes",
+                "text": "Hier verteilst du Punkte."
+            }
+        ],
+        "starter_task": {
+            "goal": "Ersten Attributpunkt verteilen",
+            "rewards": {
+                "gold": 5,
+                "xp": 10
+            }
+        },
+        "preview_image": "/images/features/attributes.svg"
+    },
+    {
+        "key": "shop",
+        "level": 3,
+        "family_relevant": false,
+        "parent_can_defer": true,
+        "depends_on": null,
+        "intro": {
+            "title": "Gold-Shop und Ausrüstung",
+            "text": {
+                "child": "Im Laden kannst du Gold gegen Ausrüstung tauschen. Jedes Teil macht dich ein bisschen besser.",
+                "teen": "Im Shop gibt's Ausrüstung für Gold.",
+                "adult": "Gold-Shop und Ausrüstung sind jetzt verfügbar."
+            }
+        },
+        "tour": [
+            {
+                "anchor": "shop",
+                "text": "Der Gold-Shop."
+            },
+            {
+                "anchor": "inventory.equip",
+                "text": "Anlegen macht dich stärker."
+            }
+        ],
+        "starter_task": {
+            "goal": "Ein Ausrüstungsteil anlegen",
+            "rewards": {
+                "gold": 5,
+                "xp": 10
+            }
+        },
+        "preview_image": "/images/features/shop.svg"
+    },
+    {
+        "key": "pets",
+        "level": 4,
+        "family_relevant": false,
+        "parent_can_defer": true,
+        "depends_on": null,
+        "intro": {
+            "title": "Funde und Haustiere",
+            "text": {
+                "child": "Manchmal findest du ein Ei. Mit Schlüpfpulver schlüpft daraus ein Haustier, und wenn du es fütterst, wird es zum Reittier.",
+                "teen": "Eier, Schlüpfpulver, Haustiere und Reittiere.",
+                "adult": "Funde, Eier und der Stall sind freigeschaltet."
+            }
+        },
+        "tour": [
+            {
+                "anchor": "stable",
+                "text": "Dein Stall."
+            }
+        ],
+        "starter_task": {
+            "goal": "Erstes Ei ausbrüten",
+            "rewards": {
+                "gold": 5,
+                "xp": 10
+            }
+        },
+        "preview_image": "/images/features/pets.svg",
+        "starter_items": {
+            "egg_cat": 1,
+            "potion_forest": 1
+        }
+    },
+    {
+        "key": "quests",
+        "level": 5,
+        "family_relevant": false,
+        "parent_can_defer": true,
+        "depends_on": null,
+        "intro": {
+            "title": "Quests",
+            "text": {
+                "child": "Monster und Sammelaufträge! Such dir auf der Quest-Tafel eine Solo-Quest aus. Jede Aufgabe trifft das Monster.",
+                "teen": "Die Quest-Tafel: Solo-Quests gegen Monster.",
+                "adult": "Quests: Solo-Quests, Quest-Tafel und Monster-Lexikon."
+            }
+        },
+        "tour": [
+            {
+                "anchor": "quests.board",
+                "text": "Die Quest-Tafel."
+            }
+        ],
+        "starter_task": {
+            "goal": "Eine Solo-Quest starten",
+            "rewards": {
+                "gold": 5,
+                "xp": 10
+            }
+        },
+        "preview_image": "/images/features/quests.svg"
+    },
+    {
+        "key": "classes",
+        "level": 5,
+        "family_relevant": false,
+        "parent_can_defer": true,
+        "depends_on": null,
+        "intro": {
+            "title": "Klassen",
+            "text": {
+                "child": "Zeit für deine Klasse! Krieger, Magier, Schurke, Heiler, Tüftler oder Barde. Du kannst einmal im Monat wechseln.",
+                "teen": "Wähle eine Klasse. Wechsel einmal im Monat.",
+                "adult": "Klassen mit Fähigkeiten sind freigeschaltet."
+            }
+        },
+        "tour": [
+            {
+                "anchor": "hero.class",
+                "text": "Klasse wählen."
+            }
+        ],
+        "starter_task": {
+            "goal": "Klasse wählen und Fähigkeit einmal wirken",
+            "rewards": {
+                "gold": 5,
+                "xp": 10
+            }
+        },
+        "preview_image": "/images/features/classes.svg",
+        "level_by_age": {
+            "child": 5,
+            "teen": 8,
+            "adult": 5
+        }
+    },
+    {
+        "key": "home",
+        "level": 6,
+        "family_relevant": false,
+        "parent_can_defer": true,
+        "depends_on": null,
+        "intro": {
+            "title": "Familienhaus und eigenes Zimmer",
+            "text": {
+                "child": "Das ist euer Familienhaus, und hier ist dein Zimmer. Richte es ein, wie du willst.",
+                "teen": "Euer Familienhaus und dein eigenes Zimmer.",
+                "adult": "Familienhaus und eigenes Zimmer sind freigeschaltet."
+            }
+        },
+        "tour": [
+            {
+                "anchor": "home",
+                "text": "Das Familienhaus."
+            },
+            {
+                "anchor": "room.own",
+                "text": "Dein Zimmer."
+            }
+        ],
+        "starter_task": {
+            "goal": "Erstes Möbelstück platzieren",
+            "rewards": {
+                "gold": 5,
+                "xp": 10
+            }
+        },
+        "preview_image": "/images/features/home.svg",
+        "starter_items": {
+            "furn_bed": 1
+        }
+    },
+    {
+        "key": "garden",
+        "level": 7,
+        "family_relevant": false,
+        "parent_can_defer": true,
+        "depends_on": "home",
+        "intro": {
+            "title": "Garten",
+            "text": {
+                "child": "Im Garten wächst etwas, wenn du es gießt.",
+                "teen": "Säen, gießen, ernten.",
+                "adult": "Der Garten ist freigeschaltet."
+            }
+        },
+        "tour": [
+            {
+                "anchor": "garden",
+                "text": "Die Beete."
+            }
+        ],
+        "starter_task": {
+            "goal": "Erstes Beet säen",
+            "rewards": {
+                "gold": 5,
+                "xp": 10
+            }
+        },
+        "preview_image": "/images/features/garden.svg",
+        "starter_items": {
+            "seeds": 3
+        }
+    },
+    {
+        "key": "crafting",
+        "level": 8,
+        "family_relevant": false,
+        "parent_can_defer": true,
+        "depends_on": "home",
+        "intro": {
+            "title": "Werkstatt",
+            "text": {
+                "child": "Deine Aufgaben haben dir Material eingebracht! In der Werkstatt baust du daraus Tränke, Ausrüstung und Möbel.",
+                "teen": "Die Werkstatt: Aus Material wird Ausrüstung.",
+                "adult": "Werkstatt und Crafting sind freigeschaltet."
+            }
+        },
+        "tour": [
+            {
+                "anchor": "workshop",
+                "text": "Die Werkstatt."
+            },
+            {
+                "anchor": "materials",
+                "text": "Deine Materialtasche."
+            }
+        ],
+        "starter_task": {
+            "goal": "Erstes Rezept herstellen",
+            "rewards": {
+                "gold": 5,
+                "xp": 10
+            }
+        },
+        "preview_image": "/images/features/crafting.svg"
+    },
+    {
+        "key": "building",
+        "level": 9,
+        "family_relevant": false,
+        "parent_can_defer": true,
+        "depends_on": "crafting",
+        "intro": {
+            "title": "Bauprojekte",
+            "text": {
+                "child": "Gemeinsam baut ihr das Haus aus. Bring Material ins Familienlager oder direkt zum Bauprojekt.",
+                "teen": "Bauprojekte und Familienlager.",
+                "adult": "Bauprojekte und das Familienlager sind freigeschaltet."
+            }
+        },
+        "tour": [
+            {
+                "anchor": "build",
+                "text": "Bauprojekte."
+            }
+        ],
+        "starter_task": {
+            "goal": "Einmal zu einem Bauprojekt beitragen",
+            "rewards": {
+                "gold": 5,
+                "xp": 10
+            }
+        },
+        "preview_image": "/images/features/building.svg"
+    },
+    {
+        "key": "dungeons",
+        "level": 10,
+        "family_relevant": false,
+        "parent_can_defer": true,
+        "depends_on": null,
+        "intro": {
+            "title": "Dungeons",
+            "text": {
+                "child": "Jede erledigte Aufgabe gibt Fackeln. Damit erkundest du Gewölbe, Raum für Raum.",
+                "teen": "Solo-Gewölbe mit Fackeln aus Aufgaben.",
+                "adult": "Dungeons: tägliches Solo-Gewölbe und Fackeln."
+            }
+        },
+        "tour": [
+            {
+                "anchor": "dungeon.solo",
+                "text": "Das Solo-Gewölbe."
+            }
+        ],
+        "starter_task": {
+            "goal": "Ersten Raum im Solo-Gewölbe betreten",
+            "rewards": {
+                "gold": 5,
+                "xp": 10
+            }
+        },
+        "preview_image": "/images/features/dungeons.svg"
+    },
+    {
+        "key": "family_dungeon",
+        "level": 12,
+        "family_relevant": false,
+        "parent_can_defer": true,
+        "depends_on": "dungeons",
+        "intro": {
+            "title": "Familien-Dungeon",
+            "text": {
+                "child": "Diesmal geht ihr gemeinsam rein. Der Endboss ist euer Familien-Boss.",
+                "teen": "Der Familien-Dungeon der Woche.",
+                "adult": "Der wöchentliche Familien-Dungeon ist freigeschaltet."
+            }
+        },
+        "tour": [
+            {
+                "anchor": "dungeon.family",
+                "text": "Gemeinsam in den Dungeon."
+            }
+        ],
+        "starter_task": {
+            "goal": "Einen Zug im Familien-Dungeon machen",
+            "rewards": {
+                "gold": 5,
+                "xp": 10
+            }
+        },
+        "preview_image": "/images/features/family_dungeon.svg"
+    },
+    {
+        "key": "alliances",
+        "level": 14,
+        "family_relevant": false,
+        "parent_can_defer": true,
+        "depends_on": null,
+        "intro": {
+            "title": "Bündnisse",
+            "text": {
+                "child": "Ihr seid mit anderen Familien verbündet. Besucht euch, macht bei Challenges mit oder tauscht Material.",
+                "teen": "Challenges, Besuche, Gästebuch und Tausch mit Bündnis-Familien.",
+                "adult": "Bündnis-Funktionen sind freigeschaltet."
+            }
+        },
+        "tour": [
+            {
+                "anchor": "alliances",
+                "text": "Eure Bündnisse."
+            }
+        ],
+        "starter_task": {
+            "goal": "Ein Gästebuch besuchen",
+            "rewards": {
+                "gold": 5,
+                "xp": 10
+            }
+        },
+        "preview_image": "/images/features/alliances.svg"
+    }
+]

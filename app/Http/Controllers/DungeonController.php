@@ -6,6 +6,7 @@ use App\Domain\Achievements\AchievementService;
 use App\Domain\Art\MonsterSvg;
 use App\Domain\Dungeons\DungeonCatalog;
 use App\Domain\Dungeons\DungeonService;
+use App\Domain\Features\Features;
 use App\Models\Dungeon;
 use App\Models\DungeonPosition;
 use App\Models\User;
@@ -45,7 +46,13 @@ class DungeonController extends Controller
             'buy' => ['sometimes', 'string', 'max:40'],
             'item_id' => ['sometimes', 'integer'],
         ]);
+        // Freischaltung (§13): Solo-Gewölbe ab „dungeons“, Familien-Dungeon ab „family_dungeon“
+        $feature = $dungeon->kind === 'family' ? 'family_dungeon' : 'dungeons';
+        if (! Features::has($request->user(), $feature)) {
+            return response()->json(['error' => 'feature_locked', 'feature' => $feature, 'unlocks_at_level' => Features::levelFor($feature, $request->user())], 403);
+        }
         $outcome = $this->dungeons->act($request->user(), $dungeon, $action, $input, $input['client_uuid'] ?? null);
+        Features::starterDone($request->user(), $feature);
 
         // Erfolge nach dem Zug (außerhalb der Zug-Transaktion)
         $dungeon->refresh();

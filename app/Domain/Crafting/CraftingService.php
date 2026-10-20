@@ -3,6 +3,7 @@
 namespace App\Domain\Crafting;
 
 use App\Domain\Achievements\AchievementService;
+use App\Domain\Features\Features;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
 use App\Domain\Housing\HomeService;
@@ -119,6 +120,8 @@ class CraftingService
 
             $quality = $this->rollQuality($crafting->level);
             $consumable = ! in_array($item->type, ['equipment', 'furniture'], true);
+
+            Features::starterDone($user, 'crafting');
 
             return CraftJob::create([
                 'user_id' => $user->id,

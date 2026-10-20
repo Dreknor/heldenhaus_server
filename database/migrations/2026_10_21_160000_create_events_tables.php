@@ -121,7 +121,7 @@ return new class extends Migration
             $table->primary(['user_id', 'key']);
         });
 
-        Schema::table('support_settings', function (Blueprint $table) {
+        Schema::table('user_support_settings', function (Blueprint $table) {
             $table->string('theme', 24)->nullable();
             $table->boolean('high_contrast')->default(false);
             $table->decimal('text_scale', 3, 2)->default(1);
@@ -152,7 +152,7 @@ return new class extends Migration
             $table->dropConstrainedForeignId('event_drop_item_id');
             $table->dropColumn('event_progress');
         });
-        Schema::table('support_settings', function (Blueprint $table) {
+        Schema::table('user_support_settings', function (Blueprint $table) {
             $table->dropColumn(['theme', 'high_contrast', 'text_scale', 'dyslexia_font', 'color_vision']);
         });
         foreach (['user_counters', 'fun_event_instances', 'event_trigger_log', 'event_participations', 'family_events', 'holiday_periods', 'member_dates', 'family_event_settings'] as $table) {

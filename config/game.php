@@ -159,9 +159,15 @@ return [
     ],
 
     'fun_events' => [
+        'enabled' => env('FUN_EVENTS', true),
         'per_user_daily' => 2,
         'per_family_daily' => 4,
         'reward_daily_limit' => 3,   // so oft am Tag gibt es eine winzige Belohnung
         'echo_minutes' => 10,
+    ],
+
+    // Freischaltung von Funktionen nach Level (§13)
+    'features' => [
+        'enforce' => env('FEATURE_UNLOCKS', true),
     ],
 ];

@@ -3,6 +3,7 @@
 namespace App\Domain\Inventory;
 
 use App\Domain\Achievements\AchievementService;
+use App\Domain\Features\Features;
 use App\Domain\Gameplay\Attributes;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\GameException;
@@ -71,6 +72,7 @@ class InventoryService
         UserEquipment::updateOrCreate(['user_id' => $user->id, 'slot' => $item->slot], ['item_id' => $item->id]);
         $this->clampToMax($user);
         app(AchievementService::class)->evaluate($user, ['equipped_slots']);
+        Features::starterDone($user, 'shop');
     }
 
     public function unequip(User $user, string $slot): void
@@ -166,6 +168,8 @@ class InventoryService
             ]);
             app(AchievementService::class)->evaluate($user, ['pets']);
 
+            Features::starterDone($user, 'pets');
+
             return $pet;
         });
     }
@@ -217,6 +221,8 @@ class InventoryService
             $stats->unspent_points--;
             $stats->{$attribute}++;
             $stats->save();
+
+            Features::starterDone($user, 'attributes');
 
             return $stats;
         });

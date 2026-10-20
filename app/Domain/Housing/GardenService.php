@@ -5,6 +5,7 @@ namespace App\Domain\Housing;
 use App\Domain\Achievements\AchievementService;
 use App\Domain\Crafting\Catalog;
 use App\Domain\Events\EventEngine;
+use App\Domain\Features\Features;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Inventory\Stock;
 use App\Domain\Stats\Counters;
@@ -55,6 +56,8 @@ class GardenService
                 // Frühlingserwachen: Der Garten wächst doppelt so schnell (§12.4)
                 'ready_at' => now()->addMinutes((int) round($plant['hours'] * 60 / max(1, EventEngine::modifier($user->family_id, 'garden_speed')))),
             ]);
+
+            Features::starterDone($user, 'garden');
 
             return $plot;
         });

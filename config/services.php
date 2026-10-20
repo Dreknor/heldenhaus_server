@@ -46,6 +46,13 @@ return [
     'fcm' => [
         'credentials' => env('FCM_CREDENTIALS', storage_path('app/private/firebase.json')),
         'channel' => env('FCM_ANDROID_CHANNEL', 'heldenhaus'),
+        // Öffentliche Client-Werte für die App (GET /api/v1/app/config), keine Geheimnisse
+        'client' => [
+            'api_key' => env('FCM_API_KEY'),
+            'app_id' => env('FCM_APP_ID'),
+            'project_id' => env('FCM_PROJECT_ID'),
+            'sender_id' => env('FCM_SENDER_ID'),
+        ],
     ],
 
 ];

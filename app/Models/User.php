@@ -55,6 +55,8 @@ class User extends Authenticatable
             'is_admin' => 'boolean',
             'avatar' => 'array',
             'chat_allowed' => 'boolean',
+            'show_all_features' => 'boolean',
+            'fast_start_at' => 'datetime',
         ];
     }
 

@@ -129,7 +129,7 @@ class FunEventService
      */
     public function roll(User $user, array $contexts, array $extra = []): ?array
     {
-        if (! $user->family_id || $this->blocked($user)) {
+        if (! config('game.fun_events.enabled') || ! $user->family_id || $this->blocked($user)) {
             return null;
         }
         $settings = FamilyEventSetting::for($user->family_id);

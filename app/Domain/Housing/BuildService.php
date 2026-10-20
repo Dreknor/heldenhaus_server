@@ -5,6 +5,7 @@ namespace App\Domain\Housing;
 use App\Domain\Crafting\Catalog;
 use App\Domain\Crafting\StorageService;
 use App\Domain\Events\EventEngine;
+use App\Domain\Features\Features;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
 use App\Domain\Inventory\Stock;
@@ -163,6 +164,8 @@ class BuildService
                 $this->feed->post($user->family_id, null, 'build_building', '🏗️', "Alles da! „{$project['name']}“ wird jetzt gebaut.");
             }
             $build->save();
+
+            Features::starterDone($user, 'building');
 
             return $build;
         });

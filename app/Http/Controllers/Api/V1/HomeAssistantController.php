@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Domain\Events\EventTrigger;
-use App\Domain\Events\FunEventService;
 use App\Domain\Art\AvatarSvg;
 use App\Domain\Art\MonsterSvg;
 use App\Domain\Dungeons\DungeonService;
+use App\Domain\Events\EventTrigger;
+use App\Domain\Events\FunEventService;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\ScoreTask;
 use App\Domain\Housing\GardenService;

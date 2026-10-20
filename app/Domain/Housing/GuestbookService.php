@@ -4,6 +4,7 @@ namespace App\Domain\Housing;
 
 use App\Domain\Achievements\AchievementService;
 use App\Domain\Events\EventEngine;
+use App\Domain\Features\Features;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Social\MessageService;
 use App\Models\FamilyAlliance;
@@ -43,6 +44,7 @@ class GuestbookService
         $entry = GuestbookEntry::create(['family_id' => $familyId, 'user_id' => $user->id, 'kind' => $kind, 'body' => $body]);
         app(AchievementService::class)->evaluate($user, ['guestbook']);
         if ($user->family_id !== $familyId) {
+            Features::starterDone($user, 'alliances');
             app(EventEngine::class)->guestbook($user, $familyId);
         }
 

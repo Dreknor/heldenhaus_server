@@ -173,6 +173,10 @@ Artisan::command('game:content-sync {--force : Bestehende Items mit den Dateiwer
         } elseif ($this->option('force')) {
             $item->update($data);
             $updated++;
+        } elseif ($item->stats === null && isset($data['stats'])) {
+            // Neue Werte (Farben der Schlüpfpulver, Lieblingsfutter) ergänzen, Änderungen aus dem Admin-Backend bleiben
+            $item->update(['stats' => $data['stats']]);
+            $updated++;
         }
     }
 

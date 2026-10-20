@@ -4,6 +4,7 @@ namespace App\Domain\Gameplay;
 
 use App\Domain\Achievements\AchievementService;
 use App\Domain\Classes\ModifierChain;
+use App\Domain\Features\Features;
 use App\Domain\Housing\HomeService;
 use App\Domain\Quests\QuestService;
 use App\Domain\Support\SupportService;
@@ -175,6 +176,10 @@ class RunDayCron
 
         if ($log !== null) {
             app(AchievementService::class)->evaluate($user, ['perfect_days']);
+            // Schnellstart (§13.2): eine Freischaltung pro Tag
+            if ($user->fast_start_at && Features::enforced()) {
+                Features::sync($user->fresh('stats'), 'fast_start');
+            }
         }
 
         return $log;

@@ -46,8 +46,8 @@ it('importiert Hintergründe ohne Innenräume und nennt sie in den Credits', fun
         ->where('sceneBackground', fn ($url) => str_contains($url, '/storage/scenes/') && str_ends_with($url, '.webp')));
 
     $this->get('/credits')->assertInertia(fn ($page) => $page
-        ->where('credits.2.title', 'Szenen-Hintergründe: Fantasy Forest Backgrounds')
-        ->where('credits.2.author', 'Lornn'));
+        ->where('credits.4.title', 'Szenen-Hintergründe: Fantasy Forest Backgrounds')
+        ->where('credits.4.author', 'Lornn'));
 });
 
 it('nimmt das ZIP im Online-Updater in Stücken an und entpackt es in Portionen', function () {
