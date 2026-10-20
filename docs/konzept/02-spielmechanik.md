@@ -21,7 +21,8 @@
 - **Eigene Spielklassen** statt Krieger/Magier/Heiler/Schurke, siehe §2.4
 - **Avatar-Editor**: Körper, Haare, Hautfarbe, Hintergründe; Ausrüstung pro Slot (Kopf, Rüstung, Waffe, Schild, Accessoire)
 - **Drops**: Eier + Schlüsselpulver → Haustiere → füttern → Reittiere. Die Drop-Chance ist begrenzt (Tageslimit).
-- **Erfolge/Abzeichen**, saisonale Events (Ferien, Weihnachten, Ostern)
+- **Erfolge/Abzeichen** in Stufen (z. B. „Fleißige Hände I–VII“, „Feuer und Flamme“ für Serien, „Monsterjäger“, „Tierfreund“). Sie werden aus vorhandenen Spieldaten berechnet, bringen je Stufe etwas Gold, erscheinen im Familien-Feed und bleiben erhalten, auch wenn ein Abschluss später zurückgenommen wird. Familienaufgaben mit Freigabe zählen erst nach der Bestätigung. Der Katalog liegt in `database/content/achievements.json`; neue Stufen vergibt `php artisan heldenhaus:achievements-sync` nachträglich (ohne Feier).
+- Saisonale Events (Ferien, Weihnachten, Ostern)
 - **Spielinhalte als versionierte JSON-Dateien** (`database/content/*.json`) mit dem Import-Befehl `php artisan game:content-sync`. Neue Items brauchen keine Code-Änderung.
 - **Admin-Backend „Items & Drops“**: Admins legen Items an, ändern sie (Typ, Slot, Seltenheit, Attribut-Boni, Shop-Preis, Mindest-Level, Kategorien) und stellen die Fund-Wahrscheinlichkeiten ein. Pro Item gibt es ein Drop-Gewicht, global die Grundchance, das Tageslimit und den Spürsinn-Bonus. Die Oberfläche rechnet die resultierende Chance pro Item live vor. Die JSON-Dateien liefern nur den Startbestand, Änderungen im Backend überschreibt `game:content-sync` nicht (außer mit `--force`).
 

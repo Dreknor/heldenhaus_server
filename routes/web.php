@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AchievementController;
 use App\Http\Controllers\Admin\ItemController;
 use App\Http\Controllers\Admin\UpdateController;
 use App\Http\Controllers\ApprovalController;
@@ -73,6 +74,9 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
     Route::get('allowance', [FamilyHubController::class, 'allowance'])->name('allowance.index');
     Route::post('allowance', [FamilyHubController::class, 'storeAllowance'])->name('allowance.store');
     Route::get('family/report', [FamilyHubController::class, 'report'])->name('family.report');
+
+    Route::get('achievements', [AchievementController::class, 'index'])->name('achievements.index');
+    Route::post('achievements/seen', [AchievementController::class, 'seen'])->name('achievements.seen');
 
     Route::get('quests', [QuestController::class, 'index'])->name('quests.index');
     Route::post('quests', [QuestController::class, 'start'])->name('quests.start');

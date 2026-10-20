@@ -1,0 +1,159 @@
+[
+    {
+        "key": "hard_worker",
+        "group": "Fleiß",
+        "name": "Fleißige Hände",
+        "description": "Erledige {n} Aufgaben.",
+        "description_one": "Erledige deine erste Aufgabe.",
+        "motif": "check",
+        "metric": "tasks_done",
+        "tiers": [1, 10, 50, 100, 250, 500, 1000],
+        "gold": [2, 5, 10, 15, 25, 40, 60]
+    },
+    {
+        "key": "good_habits",
+        "group": "Fleiß",
+        "name": "Gute Gewohnheiten",
+        "description": "Zähle {n}-mal eine gute Gewohnheit.",
+        "motif": "leaf",
+        "metric": "habits_up",
+        "tiers": [10, 50, 200, 500],
+        "gold": [5, 10, 20, 35]
+    },
+    {
+        "key": "streak",
+        "group": "Ausdauer",
+        "name": "Feuer und Flamme",
+        "description": "Schaffe eine tägliche Aufgabe {n} Tage am Stück.",
+        "motif": "flame",
+        "metric": "best_streak",
+        "tiers": [3, 7, 21, 50, 100, 365],
+        "gold": [5, 10, 20, 35, 60, 100]
+    },
+    {
+        "key": "perfect_day",
+        "group": "Ausdauer",
+        "name": "Perfekter Tag",
+        "description": "Erledige an {n} Tagen alle täglichen Aufgaben.",
+        "description_one": "Erledige an einem Tag alle täglichen Aufgaben.",
+        "motif": "sun",
+        "metric": "perfect_days",
+        "tiers": [1, 7, 30, 100],
+        "gold": [5, 15, 30, 60]
+    },
+    {
+        "key": "family_helper",
+        "group": "Familie",
+        "name": "Familienheld",
+        "description": "Erledige {n} Familienaufgaben.",
+        "motif": "house",
+        "metric": "family_tasks",
+        "tiers": [5, 25, 100, 250],
+        "gold": [5, 15, 30, 50]
+    },
+    {
+        "key": "team_player",
+        "group": "Familie",
+        "name": "Teamgeist",
+        "description": "Erledige deinen Teil von {n} Teamaufgaben.",
+        "description_one": "Erledige deinen Teil einer Teamaufgabe.",
+        "motif": "team",
+        "metric": "team_tasks",
+        "tiers": [1, 10, 50],
+        "gold": [5, 15, 30]
+    },
+    {
+        "key": "star_collector",
+        "group": "Familie",
+        "name": "Sternensammler",
+        "description": "Verdiene insgesamt {n} Sterne.",
+        "motif": "star",
+        "metric": "stars_earned",
+        "tiers": [10, 50, 200, 500],
+        "gold": [5, 15, 30, 50]
+    },
+    {
+        "key": "cheerleader",
+        "group": "Familie",
+        "name": "Daumen hoch",
+        "description": "Reagiere {n}-mal im Familien-Feed.",
+        "motif": "heart",
+        "metric": "reactions_given",
+        "tiers": [10, 50, 200],
+        "gold": [3, 10, 20]
+    },
+    {
+        "key": "monster_hunter",
+        "group": "Abenteuer",
+        "name": "Monsterjäger",
+        "description": "Besiege {n} Bosse.",
+        "description_one": "Besiege deinen ersten Boss.",
+        "motif": "sword",
+        "metric": "bosses_defeated",
+        "tiers": [1, 5, 15, 30],
+        "gold": [10, 20, 40, 70]
+    },
+    {
+        "key": "gatherer",
+        "group": "Abenteuer",
+        "name": "Sammelprofi",
+        "description": "Schaffe {n} Sammel-Quests.",
+        "description_one": "Schaffe deine erste Sammel-Quest.",
+        "motif": "basket",
+        "metric": "collect_quests",
+        "tiers": [1, 5, 15],
+        "gold": [10, 20, 40]
+    },
+    {
+        "key": "pet_friend",
+        "group": "Sammeln",
+        "name": "Tierfreund",
+        "description": "Brüte {n} Haustiere aus.",
+        "description_one": "Brüte dein erstes Haustier aus.",
+        "motif": "paw",
+        "metric": "pets",
+        "tiers": [1, 5, 10, 20],
+        "gold": [5, 15, 30, 50]
+    },
+    {
+        "key": "rider",
+        "group": "Sammeln",
+        "name": "Reitmeister",
+        "description": "Ziehe {n} Haustiere zu Reittieren groß.",
+        "description_one": "Ziehe ein Haustier zum Reittier groß.",
+        "motif": "horseshoe",
+        "metric": "mounts",
+        "tiers": [1, 3, 10],
+        "gold": [10, 25, 50]
+    },
+    {
+        "key": "level",
+        "group": "Held",
+        "name": "Aufsteiger",
+        "description": "Erreiche Level {n}.",
+        "motif": "crown",
+        "metric": "level",
+        "tiers": [5, 10, 20, 30, 50],
+        "gold": [5, 15, 30, 50, 80]
+    },
+    {
+        "key": "calling",
+        "group": "Held",
+        "name": "Berufung",
+        "description": "Wähle eine Klasse.",
+        "motif": "sparkle",
+        "metric": "class_chosen",
+        "tiers": [1],
+        "gold": [5]
+    },
+    {
+        "key": "fully_equipped",
+        "group": "Held",
+        "name": "Bis an die Zähne",
+        "description": "Lege in allen {n} Plätzen Ausrüstung an.",
+        "motif": "shield",
+        "metric": "equipped_slots",
+        "tiers": [5],
+        "gold": [15]
+    }
+]

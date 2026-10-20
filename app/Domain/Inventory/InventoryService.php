@@ -2,6 +2,7 @@
 
 namespace App\Domain\Inventory;
 
+use App\Domain\Achievements\AchievementService;
 use App\Domain\Gameplay\Attributes;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\GameException;
@@ -60,6 +61,7 @@ class InventoryService
 
         UserEquipment::updateOrCreate(['user_id' => $user->id, 'slot' => $item->slot], ['item_id' => $item->id]);
         $this->clampToMax($user);
+        app(AchievementService::class)->evaluate($user, ['equipped_slots']);
     }
 
     public function unequip(User $user, string $slot): void
@@ -105,12 +107,15 @@ class InventoryService
 
             app(FeedService::class)->post($user->family_id, $user, 'pet_hatched', '🐣', "{$user->name} hat ein Haustier ausgebrütet: ".self::petName($egg, $potion));
 
-            return UserPet::create([
+            $pet = UserPet::create([
                 'user_id' => $user->id,
                 'egg_item_id' => $egg->id,
                 'potion_item_id' => $potion->id,
                 'name' => self::petName($egg, $potion),
             ]);
+            app(AchievementService::class)->evaluate($user, ['pets']);
+
+            return $pet;
         });
     }
 
@@ -131,6 +136,9 @@ class InventoryService
             $pet->growth = min(config('game.pet_growth_mount'), $pet->growth + config('game.pet_growth_per_food'));
             $pet->is_mount = $pet->growth >= config('game.pet_growth_mount');
             $pet->save();
+            if ($pet->is_mount) {
+                app(AchievementService::class)->evaluate($user, ['mounts']);
+            }
 
             return $pet;
         });

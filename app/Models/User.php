@@ -86,6 +86,11 @@ class User extends Authenticatable
         return $this->hasMany(TaskCompletion::class);
     }
 
+    public function achievements(): HasMany
+    {
+        return $this->hasMany(UserAchievement::class);
+    }
+
     public function getAgeGroupAttribute(): string
     {
         return $this->ageGroup()->value;

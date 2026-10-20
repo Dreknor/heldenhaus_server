@@ -260,13 +260,13 @@ it('Gemeinschafts-Rhythmus: Gold für alle, wenn alle aktiven Mitglieder 100 % s
 
     $this->travelTo(CarbonImmutable::parse('2026-10-20 08:00', 'Europe/Berlin'));
     $c($this->parent->refresh());
-    $goldBefore = $this->child->stats()->first()->gold;
+    $goldBefore = goldWithoutAchievements($this->child);
 
     expect($this->classes->evaluateCommunityRhythm())->toBe(0); // Kind hatte noch keinen Tageswechsel
 
     $c($this->child->refresh());
     expect($this->classes->evaluateCommunityRhythm())->toBe(1)
-        ->and($this->child->stats()->first()->gold)->toBe($goldBefore + 15)
+        ->and(goldWithoutAchievements($this->child))->toBe($goldBefore + 15)
         ->and($this->classes->evaluateCommunityRhythm())->toBe(0)
         ->and(FamilyDay::first()->all_done)->toBeTrue();
 });

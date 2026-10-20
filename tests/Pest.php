@@ -42,6 +42,12 @@ function assignmentOf(Task $task, User $user): TaskAssignment
     return TaskAssignment::where('task_id', $task->id)->where('user_id', $user->id)->firstOrFail();
 }
 
+/** Gold ohne die Belohnungen aus Erfolgen – für Tests, die eine andere Mechanik nachrechnen. */
+function goldWithoutAchievements(User $user): float
+{
+    return round($user->stats()->first()->gold - $user->achievements()->sum('reward_gold'), 2);
+}
+
 function joinFamily(Family $family, FamilyRole $role = FamilyRole::Child, array $attributes = []): User
 {
     return User::factory()->create(array_merge(['family_id' => $family->id, 'family_role' => $role], $attributes));

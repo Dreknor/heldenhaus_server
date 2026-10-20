@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Domain\Achievements\AchievementService;
 use App\Enums\CompletionStatus;
 use App\Http\Presenters\CharacterSheet;
 use App\Http\Presenters\GamePresenter;
@@ -50,6 +51,8 @@ class HandleInertiaRequests extends Middleware
                     + RewardRedemption::where('status', 'pending')
                         ->whereHas('user', fn ($q) => $q->where('family_id', $user->family_id))->count(),
             ] : ['approvals' => 0],
+            // Neu erreichte Erfolge, deren Feier noch aussteht (auch wenn sie z. B. durch eine Freigabe entstanden sind)
+            'newAchievements' => fn () => $user?->family_id ? AchievementService::unseen($user) : [],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'levelUp' => fn () => $request->session()->get('levelUp'),

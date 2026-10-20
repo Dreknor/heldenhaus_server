@@ -2,6 +2,7 @@
 
 namespace App\Domain\Quests;
 
+use App\Domain\Achievements\AchievementService;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
@@ -293,6 +294,10 @@ class QuestService
                 UserItem::firstOrCreate(['user_id' => $userId, 'item_id' => $item->id])->increment('quantity');
             }
         }
+
+        $quest->save();
+        User::whereIn('id', $participants)->get()
+            ->each(fn (User $u) => app(AchievementService::class)->evaluate($u, ['bosses_defeated', 'collect_quests', 'level']));
 
         $winner = $quest->scope === 'solo' ? $quest->user?->name : 'Die Familie';
         $verb = $quest->isBoss() ? "hat {$quest->name} besiegt" : "hat die Quest „{$quest->name}“ geschafft";

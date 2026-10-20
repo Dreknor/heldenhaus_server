@@ -33,7 +33,7 @@ it('macht Boss-Schaden, nimmt ihn beim Rückgängigmachen zurück und belohnt al
     $this->score->__invoke(assignmentOf($task, $this->child), 'up');
 
     expect($quest->refresh()->status)->toBe('completed')
-        ->and($this->parent->stats()->first()->gold)->toBe(20.0)
+        ->and(goldWithoutAchievements($this->parent))->toBe(20.0)
         ->and($this->parent->stats()->first()->xp)->toBe(30)
         ->and(UserItem::where('item_id', $cake->id)->sum('quantity'))->toEqual(2)
         ->and(FeedEntry::where('type', 'quest_completed')->value('text'))->toContain('Pizza-Abend');

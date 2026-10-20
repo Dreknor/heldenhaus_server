@@ -2,6 +2,8 @@
 
 namespace App\Domain\Tasks;
 
+use App\Domain\Achievements\AchievementMetrics;
+use App\Domain\Achievements\AchievementService;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\ScoreTask;
 use App\Domain\Social\FeedService;
@@ -17,7 +19,7 @@ class ReviewCompletion
 {
     public function approve(TaskCompletion $completion, ?User $reviewer, CompletionStatus $status = CompletionStatus::Approved): TaskCompletion
     {
-        return DB::transaction(function () use ($completion, $reviewer, $status) {
+        $completion = DB::transaction(function () use ($completion, $reviewer, $status) {
             $completion = TaskCompletion::lockForUpdate()->findOrFail($completion->id);
             $this->ensurePending($completion);
 
@@ -36,6 +38,11 @@ class ReviewCompletion
 
             return $completion;
         });
+
+        // Familienaufgaben mit Freigabe zählen erst ab der Bestätigung
+        app(AchievementService::class)->evaluate($completion->user, AchievementMetrics::TASKS);
+
+        return $completion;
     }
 
     public function reject(TaskCompletion $completion, User $reviewer, ?string $comment = null): TaskCompletion

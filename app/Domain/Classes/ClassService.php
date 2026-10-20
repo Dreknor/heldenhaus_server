@@ -2,6 +2,7 @@
 
 namespace App\Domain\Classes;
 
+use App\Domain\Achievements\AchievementService;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
@@ -81,6 +82,7 @@ class ClassService
 
             // Scharfe Buffs der alten Klasse verfallen
             ActiveBuff::where('user_id', $user->id)->where('armed', true)->delete();
+            app(AchievementService::class)->evaluate($user, ['class_chosen']);
 
             return $stats;
         });

@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Achievements\AchievementService;
 use App\Domain\Classes\ClassService;
 use App\Domain\Family\FamilyService;
 use App\Domain\Family\WeeklyReport;
@@ -104,6 +105,20 @@ Artisan::command('game:content-sync {--force : Bestehende Items mit den Dateiwer
 
     $this->info("{$created} Items angelegt, {$updated} aktualisiert.");
 })->purpose('Spielinhalte (Items) aus JSON übernehmen');
+
+/*
+ * Erfolge nachträglich vergeben (z. B. nach dem Update, das Erfolge einführt, oder neuen Stufen im Katalog).
+ * Ohne Feier und Feed-Eintrag, damit niemand mit Altlasten überschüttet wird – das Gold gibt es trotzdem.
+ */
+Artisan::command('heldenhaus:achievements-sync', function (AchievementService $achievements) {
+    $count = 0;
+    User::whereNotNull('family_id')->whereHas('stats')->chunkById(200, function ($users) use ($achievements, &$count) {
+        foreach ($users as $user) {
+            $count += $achievements->evaluate($user, announce: false)->count();
+        }
+    });
+    $this->info("{$count} Erfolgsstufen vergeben.");
+})->purpose('Erfolge für alle nachträglich berechnen');
 
 /*
  * Online-Updater

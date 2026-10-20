@@ -43,10 +43,22 @@ export interface NavItem {
     badge?: number;
 }
 
+export interface NewAchievement {
+    id: number;
+    key: string;
+    title: string;
+    description: string;
+    motif: string;
+    tier: number;
+    tiers: number;
+    gold: number;
+}
+
 export interface SharedData {
     name: string;
     auth: Auth;
     counts: { approvals: number };
+    newAchievements: NewAchievement[];
     flash: { success: string | null; levelUp: number | null; drop: { name: string; icon: string; rarity: string; key: string; type: string } | null };
     errors: Record<string, string>;
     ziggy: {

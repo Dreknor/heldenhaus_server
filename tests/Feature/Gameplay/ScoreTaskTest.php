@@ -41,7 +41,7 @@ it('nimmt einen Abschluss vollständig zurück', function () {
         ->and($assignment->streak)->toBe(0)
         ->and($assignment->value)->toBe(0.0)
         ->and($stats->xp)->toBe(0)
-        ->and($stats->gold)->toBe(0.0)
+        ->and(goldWithoutAchievements($this->user))->toBe(0.0) // erreichte Erfolge bleiben
         ->and(TaskCompletion::first()->status)->toBe(CompletionStatus::Undone);
 });
 

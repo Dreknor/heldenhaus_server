@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AchievementController;
 use App\Http\Controllers\Api\V1\AppReleaseController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CharacterController;
@@ -64,6 +65,8 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
             Route::get('allowance', [FamilyHubController::class, 'allowance'])->name('allowance');
             Route::post('allowance', [FamilyHubController::class, 'storeAllowance'])->name('allowance.store');
             Route::get('family/report', [FamilyHubController::class, 'report'])->name('family.report');
+            Route::get('achievements', [AchievementController::class, 'index'])->name('achievements');
+            Route::post('achievements/seen', [AchievementController::class, 'seen'])->name('achievements.seen');
             Route::get('quests', [QuestController::class, 'index'])->name('quests');
             Route::post('quests', [QuestController::class, 'start'])->name('quests.start');
             Route::post('quests/{quest}/abandon', [QuestController::class, 'abandon'])->name('quests.abandon');

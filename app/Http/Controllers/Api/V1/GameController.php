@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Domain\Achievements\AchievementService;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\RunDayCron;
 use App\Domain\Gameplay\ScoreTask;
@@ -30,6 +31,7 @@ class GameController extends Controller
             ...HeroBoard::for($user),
             'stats' => GamePresenter::stats($user->stats()->first()),
             'appearance' => \App\Http\Presenters\CharacterSheet::appearance($user),
+            'achievements_new' => AchievementService::unseen($user),
             'server_time' => now()->toIso8601String(),
         ]);
     }
@@ -51,7 +53,12 @@ class GameController extends Controller
         abort_unless($assignment->user_id === $request->user()->id, 403);
         $data = $request->validate(['client_uuid' => ['nullable', 'uuid']]);
 
-        return response()->json($score($assignment, $direction, 'app', $data['client_uuid'] ?? null)->toArray());
+        $result = $score($assignment, $direction, 'app', $data['client_uuid'] ?? null)->toArray();
+        $result['achievements_new'] = AchievementService::unseen($request->user());
+        // Erfolge können Gold gebracht haben
+        $result['stats'] = $request->user()->stats()->first()->only(['hp', 'mp', 'xp', 'gold', 'stars', 'level']);
+
+        return response()->json($result);
     }
 
     /**

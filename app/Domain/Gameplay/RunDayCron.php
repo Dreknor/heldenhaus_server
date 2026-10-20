@@ -2,6 +2,7 @@
 
 namespace App\Domain\Gameplay;
 
+use App\Domain\Achievements\AchievementService;
 use App\Domain\Classes\ModifierChain;
 use App\Domain\Quests\QuestService;
 use App\Enums\TaskType;
@@ -72,7 +73,7 @@ class RunDayCron
             }
         }
 
-        return DB::transaction(function () use ($user, $today) {
+        $log = DB::transaction(function () use ($user, $today) {
             $stats = UserStats::lockForUpdate()->findOrFail($user->id);
 
             // Doppelte Ausführung (Web + Scheduler gleichzeitig) verhindern
@@ -152,6 +153,12 @@ class RunDayCron
                 ],
             );
         });
+
+        if ($log !== null) {
+            app(AchievementService::class)->evaluate($user, ['perfect_days']);
+        }
+
+        return $log;
     }
 
     /** @return Collection<int, TaskAssignment> */

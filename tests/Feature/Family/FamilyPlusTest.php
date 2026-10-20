@@ -79,11 +79,11 @@ it('Teamaufgabe: Bonus für alle, sobald alle ihren Teil erledigt haben', functi
     ]);
 
     ($this->score)(assignmentOf($task, $this->child), 'up');
-    expect($this->child->stats()->first()->gold)->toBe(1.0);
+    expect(goldWithoutAchievements($this->child))->toBe(1.0);
 
     ($this->score)(assignmentOf($task, $this->sibling), 'up');
-    expect($this->child->stats()->first()->gold)->toBe(6.0)
-        ->and($this->sibling->stats()->first()->gold)->toBe(6.0)
+    expect(goldWithoutAchievements($this->child))->toBe(6.0)
+        ->and(goldWithoutAchievements($this->sibling))->toBe(6.0)
         ->and(FeedEntry::where('type', 'team_done')->exists())->toBeTrue();
 });
 
@@ -92,7 +92,7 @@ it('Feed: Familienaufgaben ja, persönliche Aufgaben nie', function () {
     $family = makeTask($this->parent, ['scope' => 'family', 'type' => 'todo', 'title' => 'Müll', 'assignment_mode' => 'assigned', 'assignees' => [$this->child->id], 'approval_mode' => 'none']);
     ($this->score)(assignmentOf($family, $this->child), 'up');
 
-    expect(FeedEntry::pluck('text')->all())->toBe(['Lea hat „Müll“ erledigt']);
+    expect(FeedEntry::where('type', '!=', 'achievement')->pluck('text')->all())->toBe(['Lea hat „Müll“ erledigt']);
 });
 
 it('Feed: Freigabepflichtige Aufgaben erscheinen erst nach Bestätigung', function () {
@@ -101,7 +101,7 @@ it('Feed: Freigabepflichtige Aufgaben erscheinen erst nach Bestätigung', functi
     expect(FeedEntry::count())->toBe(0);
 
     app(ReviewCompletion::class)->approve($result->completion, $this->parent);
-    expect(FeedEntry::count())->toBe(1);
+    expect(FeedEntry::where('type', 'task_done')->count())->toBe(1);
 });
 
 it('Feed: Reaktionen umschalten, nur bekannte Emojis, nur eigene Familie', function () {

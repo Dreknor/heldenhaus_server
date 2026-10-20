@@ -2,6 +2,7 @@
 
 namespace App\Domain\Social;
 
+use App\Domain\Achievements\AchievementService;
 use App\Domain\Gameplay\GameException;
 use App\Models\FeedEntry;
 use App\Models\FeedReaction;
@@ -49,6 +50,7 @@ class FeedService
         }
 
         FeedReaction::create(['feed_entry_id' => $entry->id, 'user_id' => $user->id, 'emoji' => $emoji]);
+        app(AchievementService::class)->evaluate($user, ['reactions_given']);
 
         return true;
     }
