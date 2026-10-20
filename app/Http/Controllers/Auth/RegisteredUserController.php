@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
 use App\Domain\Family\FamilyService;
+use App\Http\Controllers\Controller;
 use App\Models\FamilyInvite;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -32,7 +32,7 @@ class RegisteredUserController extends Controller
     /**
      * Handle an incoming registration request.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function store(Request $request): RedirectResponse
     {

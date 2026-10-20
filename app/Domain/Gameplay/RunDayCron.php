@@ -4,6 +4,7 @@ namespace App\Domain\Gameplay;
 
 use App\Domain\Achievements\AchievementService;
 use App\Domain\Classes\ModifierChain;
+use App\Domain\Housing\HomeService;
 use App\Domain\Quests\QuestService;
 use App\Domain\Support\SupportService;
 use App\Enums\TaskType;
@@ -146,6 +147,11 @@ class RunDayCron
 
             // Verpasste Dailies heilen den Familien-Boss. Im sanften Modus wirken Schutz-Fähigkeiten (Schildwall) auf die Heilung.
             app(QuestService::class)->healOnMissed($user, $gentle ? (int) round(count($missed) * $damageFactor) : count($missed));
+
+            // Ein Bett im eigenen Zimmer (§2.6) lässt über Nacht etwas HP regenerieren
+            if (! $knockedOut && HomeService::hasBed($user)) {
+                Progression::heal($stats, config('game.housing.bed_heal'));
+            }
 
             $ratio = $due > 0 ? $done / $due : 1;
             $stats->mp = min(Formulas::maxMp($stats), $stats->mp + Formulas::maxMp($stats) * config('game.cron_mp_regen') * $ratio);

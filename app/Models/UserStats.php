@@ -14,7 +14,7 @@ class UserStats extends Model
     protected $fillable = [
         'user_id', 'hp', 'mp', 'xp', 'gold', 'stars', 'level', 'class_key', 'class_changed_at',
         'str', 'int', 'con', 'per', 'unspent_points', 'streak_shields', 'sleeping', 'last_cron_on',
-        'surprise_pity', 'surprises_today', 'surprises_on',
+        'surprise_pity', 'surprises_today', 'surprises_on', 'torches', 'torches_today', 'torches_on',
     ];
 
     protected function casts(): array
@@ -34,6 +34,9 @@ class UserStats extends Model
             'streak_shields' => 'integer',
             'sleeping' => 'boolean',
             'last_cron_on' => 'date',
+            'torches' => 'integer',
+            'torches_today' => 'integer',
+            'torches_on' => 'date',
             'surprises_on' => 'date',
             'surprise_pity' => 'integer',
             'surprises_today' => 'integer',

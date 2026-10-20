@@ -7,8 +7,11 @@ use App\Domain\Gameplay\Attributes;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
+use App\Domain\Quests\QuestService;
 use App\Domain\Social\FeedService;
 use App\Models\Item;
+use App\Models\Room;
+use App\Models\SkillCast;
 use App\Models\User;
 use App\Models\UserEquipment;
 use App\Models\UserItem;
@@ -70,14 +73,28 @@ class InventoryService
         $this->clampToMax($user);
     }
 
-    /** Trank benutzen: stats.heal (HP) bzw. stats.mana (Mana). */
+    /**
+     * Trank benutzen: stats.heal (HP), stats.mana (Mana). Familien-Gegenstände (§2.5): stats.boss_damage
+     * (Boss-Falle gegen den Familien-Boss), stats.fireworks (Feed-Effekt für alle), stats.streak_shield (Amulett, 1× pro Woche).
+     */
     public function use(User $user, Item $item): string
     {
         if ($item->type !== 'potion') {
             throw new GameException('Das kann man nicht benutzen.');
         }
 
-        return DB::transaction(function () use ($user, $item) {
+        $bossDamage = (float) ($item->stats['boss_damage'] ?? 0);
+        $quest = $bossDamage > 0 ? app(QuestService::class)->activeFamily($user->family_id) : null;
+        if ($bossDamage > 0 && ! $quest?->isBoss()) {
+            throw new GameException('Gerade kämpft eure Familie gegen keinen Boss.');
+        }
+
+        $shield = (int) ($item->stats['streak_shield'] ?? 0);
+        if ($shield > 0 && SkillCast::where('user_id', $user->id)->where('skill_key', "item:{$item->key}")->where('created_at', '>=', now()->startOfWeek())->exists()) {
+            throw new GameException('Ein Amulett wirkt nur einmal pro Woche.');
+        }
+
+        return DB::transaction(function () use ($user, $item, $bossDamage, $quest, $shield) {
             $this->take($user, $item);
             $stats = UserStats::lockForUpdate()->findOrFail($user->id);
 
@@ -85,9 +102,26 @@ class InventoryService
             $mana = (float) ($item->stats['mana'] ?? 0);
             Progression::heal($stats, $heal);
             $stats->mp = min(Formulas::maxMp($stats), $stats->mp + $mana);
+            $messages = [$heal ? "+{$heal} HP" : null, $mana ? "+{$mana} Mana" : null];
+
+            if ($shield > 0) {
+                $stats->streak_shields = min(config('game.max_streak_shields', 3), $stats->streak_shields + $shield);
+                SkillCast::create(['user_id' => $user->id, 'skill_key' => "item:{$item->key}", 'mana_cost' => 0]);
+                $messages[] = 'Deine Serien sind geschützt.';
+            }
             $stats->save();
 
-            return trim(($heal ? "+{$heal} HP " : '').($mana ? "+{$mana} Mana" : '')) ?: 'Benutzt.';
+            if ($bossDamage > 0) {
+                $dealt = app(QuestService::class)->damage($quest, $user, $bossDamage);
+                app(FeedService::class)->post($user->family_id, $user, 'boss_trap', $item->icon, "{$user->name} hat eine {$item->name} gestellt: {$dealt} Schaden an {$quest->name}!");
+                $messages[] = "{$dealt} Schaden am Boss";
+            }
+            if (! empty($item->stats['fireworks'])) {
+                app(FeedService::class)->post($user->family_id, $user, 'fireworks', '🎆', "{$user->name} zündet ein Feuerwerk für alle!", ['effect' => 'fireworks']);
+                $messages[] = 'Feuerwerk!';
+            }
+
+            return implode(' ', array_filter($messages)) ?: 'Benutzt.';
         });
     }
 
@@ -133,7 +167,10 @@ class InventoryService
 
         return DB::transaction(function () use ($user, $pet, $food) {
             $this->take($user, $food);
-            $pet->growth = min(config('game.pet_growth_mount'), $pet->growth + config('game.pet_growth_per_food'));
+            // Mit Stall im Familienhaus (§2.6) wächst das Tier etwas schneller
+            $stable = $user->family_id && Room::where('type', 'stable')->whereHas('home', fn ($q) => $q->where('family_id', $user->family_id))->exists();
+            $growth = config('game.pet_growth_per_food') + ($stable ? config('game.housing.stable_feed_bonus') : 0);
+            $pet->growth = min(config('game.pet_growth_mount'), $pet->growth + $growth);
             $pet->is_mount = $pet->growth >= config('game.pet_growth_mount');
             $pet->save();
             if ($pet->is_mount) {
@@ -185,7 +222,7 @@ class InventoryService
 
     private function take(User $user, Item $item): void
     {
-        $taken = UserItem::where('user_id', $user->id)->where('item_id', $item->id)->where('quantity', '>', 0)->decrement('quantity');
+        $taken = UserItem::where('user_id', $user->id)->where('item_id', $item->id)->whereColumn('quantity', '>', 'master_quantity')->decrement('quantity');
 
         if ($taken === 0) {
             throw new GameException("Du hast kein „{$item->name}“ mehr.");

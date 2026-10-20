@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Dungeons\DungeonService;
 use App\Http\Controllers\AchievementController;
 use App\Http\Controllers\Api\V1\AppReleaseController;
 use App\Http\Controllers\Api\V1\AuthController;
@@ -8,7 +9,10 @@ use App\Http\Controllers\Api\V1\DeviceController;
 use App\Http\Controllers\Api\V1\FamilyController;
 use App\Http\Controllers\Api\V1\GameController;
 use App\Http\Controllers\Api\V1\HomeAssistantController;
+use App\Http\Controllers\CraftingController;
+use App\Http\Controllers\DungeonController;
 use App\Http\Controllers\FamilyHubController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\QuestController;
 use App\Http\Controllers\SocialController;
 use App\Http\Controllers\SupportController;
@@ -92,6 +96,39 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
             Route::get('messages', [SocialController::class, 'messages'])->name('messages');
             Route::post('messages', [SocialController::class, 'sendMessage'])->middleware('throttle:30,1')->name('messages.store');
 
+            // Crafting & Housing (Konzept §2.5, §2.6)
+            Route::get('recipes', [CraftingController::class, 'recipes'])->name('recipes');
+            Route::post('craft', [CraftingController::class, 'craft'])->name('craft');
+            Route::post('craft/{job}/collect', [CraftingController::class, 'collect'])->name('craft.collect');
+            Route::post('recipes/learn', [CraftingController::class, 'learn'])->name('recipes.learn');
+            Route::get('storage', [CraftingController::class, 'storage'])->name('storage');
+            Route::post('storage/deposit', [CraftingController::class, 'deposit'])->name('storage.deposit');
+            Route::post('storage/withdraw', [CraftingController::class, 'withdraw'])->name('storage.withdraw');
+            Route::post('gifts', [CraftingController::class, 'gift'])->name('gifts');
+            Route::get('trade-offers', [CraftingController::class, 'trades'])->name('trades');
+            Route::post('trade-offers', [CraftingController::class, 'storeTrade'])->middleware('throttle:20,1')->name('trades.store');
+            Route::post('trade-offers/{trade}/{action}', [CraftingController::class, 'tradeAction'])
+                ->whereIn('action', ['accept', 'approve', 'reject', 'cancel'])->name('trades.action');
+            Route::get('home', [HomeController::class, 'show'])->name('home');
+            Route::get('families/{family}/home', [HomeController::class, 'visit'])->name('home.visit');
+            Route::get('rooms/{room}', [HomeController::class, 'room'])->name('rooms.show');
+            Route::put('rooms/{room}/layout', [HomeController::class, 'layout'])->name('rooms.layout');
+            Route::post('build-projects', [HomeController::class, 'startProject'])->name('build.start');
+            Route::post('build-projects/{project}/contribute', [HomeController::class, 'contribute'])->name('build.contribute');
+            Route::delete('build-projects/{project}', [HomeController::class, 'cancelProject'])->name('build.cancel');
+            Route::post('garden/{slot}/{action}', [HomeController::class, 'gardenAction'])->whereNumber('slot')
+                ->whereIn('action', ['sow', 'water', 'harvest'])->name('garden.action');
+            Route::post('families/{family}/guestbook', [HomeController::class, 'writeGuestbook'])->middleware('throttle:20,1')->name('guestbook.store');
+            Route::delete('guestbook/{entry}', [HomeController::class, 'deleteGuestbook'])->name('guestbook.destroy');
+
+            // Dungeon-Quests (Konzept §2.7)
+            Route::get('dungeons/current', [DungeonController::class, 'current'])->name('dungeons.current');
+            Route::post('dungeons/solo', [DungeonController::class, 'solo'])->name('dungeons.solo');
+            Route::get('dungeons/{dungeon}', [DungeonController::class, 'show'])->name('dungeons.show');
+            Route::get('dungeons/{dungeon}/log', [DungeonController::class, 'log'])->name('dungeons.log');
+            Route::post('dungeons/{dungeon}/{action}', [DungeonController::class, 'act'])->whereIn('action', DungeonService::ACTIONS)
+                ->middleware('throttle:60,1')->name('dungeons.act');
+
             // Fokus & Alltagshilfen (Konzept §11)
             Route::get('me/support-settings', [SupportController::class, 'settings'])->name('support.settings');
             Route::put('me/support-settings', [SupportController::class, 'updateSettings'])->name('support.settings.update');
@@ -119,6 +156,8 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
         Route::get('quest.svg', [HomeAssistantController::class, 'questImage'])->name('quest.image');
         Route::post('tasks', [HomeAssistantController::class, 'createTask'])->name('tasks.store');
         Route::post('tasks/{task}/complete', [HomeAssistantController::class, 'completeTask'])->name('tasks.complete');
+        Route::post('garden/{slot}/water', [HomeAssistantController::class, 'waterGarden'])->whereNumber('slot')->name('garden.water');
+        Route::post('dungeon/mechanism', [HomeAssistantController::class, 'dungeonMechanism'])->name('dungeon.mechanism');
 
         // Eltern-Funktionen nur mit Token-Fähigkeit „ha:approve“ (beim Erzeugen des Tokens wählbar)
         Route::middleware('abilities:ha:approve')->group(function () {

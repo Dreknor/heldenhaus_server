@@ -65,6 +65,8 @@ return [
     'community_rhythm_gold' => 15,
     'focus_hour' => 12,
 
+    'max_streak_shields' => 3,
+
     // Haustiere
     'pet_growth_per_food' => 10,
     'pet_growth_mount' => 50,
@@ -81,6 +83,39 @@ return [
     ],
     'focus' => ['shared_bonus_gold' => 3, 'max_minutes' => 120],
     'ai' => ['monthly_budget_usd' => 1.0, 'requests_per_hour' => 10],
+
+    // Crafting & Housing (Konzept §2.5, §2.6)
+    'crafting' => [
+        'max_jobs' => 3,                         // gleichzeitige Herstellungsaufträge je Person
+        'xp_per_level' => 40,                    // nötige Handwerks-XP = Stufe × Wert
+        'max_level' => 20,
+        'good' => ['base' => 0.10, 'step' => 0.03, 'max' => 0.50],
+        'master' => ['base' => 0.0, 'step' => 0.01, 'max' => 0.15],
+    ],
+    'housing' => [
+        'room_size' => ['hut' => [10, 6], 'timber' => [12, 7], 'manor' => [14, 8], 'castle' => [16, 9]],
+        'bedroom_size' => [8, 5],
+        'max_items_per_room' => 60,
+        'max_active_projects' => 2,
+        'garden_slots' => 4,
+        'stable_feed_bonus' => 2,                // zusätzliches Wachstum je Futter, wenn es einen Stall gibt
+        'bed_heal' => 3,                         // nächtliche HP-Regeneration mit Bett im eigenen Zimmer
+        'inventory_slots' => 40,                 // Sorten im Inventar
+        'storage_room_slots' => 20,              // zusätzlich mit Lagerraum
+    ],
+
+    // Dungeon-Quests (Konzept §2.7)
+    'dungeon' => [
+        'torches' => ['trivial' => 1, 'easy' => 1, 'medium' => 2, 'hard' => 3, 'all_dailies' => 3],
+        'torch_daily_max' => 12,                 // höchstens so viele Fackeln pro Tag verdienen
+        'torch_store_max' => 20,                 // Vorrat
+        'cost' => ['move' => 1, 'interact' => 1, 'fight' => 1],
+        'knockout_torch_loss' => 2,
+        'hp' => 30,                              // Dungeon-HP (getrennt von den Spiel-HP), + 2 je Ausdauer
+        'skill_mana' => 5,
+        'boss_reward' => ['gold' => 20, 'xp' => 30],
+        'solo_reward' => ['gold' => 5, 'xp' => 10],
+    ],
 
     'categories' => [
         'household' => 'Haushalt',
