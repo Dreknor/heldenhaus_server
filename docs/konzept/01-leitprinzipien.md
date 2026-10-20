@@ -15,6 +15,8 @@ Regeln, die überall gelten:
 - **Kein Echtgeld, keine Glücksspielmechanik mit Geld**: Zufallsdrops gibt es nur für verdiente Spielwährung, keine Werbung, kein Tracking.
 - **Ruhezeiten**: Keine Pushes nachts und während der Schulzeit (einstellbar).
 - **Fokus & Alltagshilfen für alle**: Für ADHS und ähnliche Muster gibt es einen sanften Modus ohne HP-Schaden, Serien, die pausieren statt abzubrechen, Mikro-Schritte mit Sofort-Belohnung, Energiespar-Tage, visuelle Timer und einen reizarmen Fokus-Modus. Sie stehen allen offen, ohne Diagnose oder Etikett (§11).
+- **Schritt für Schritt**: Am Anfang gibt es nur Aufgaben, Belohnungen und den Helden. Weitere Funktionen werden mit dem Level freigeschaltet, jeweils mit kurzer Erklärung. Familienrelevantes ist nie gesperrt, Eltern können früher freischalten (§13).
+- **Events ohne Druck**: Saisonale und ausgelöste Events (§12) sind gemeinsam, mit etwa 60 % der üblichen Aktivität zu schaffen, und ihre Gegenstände kehren in späteren Jahren wieder.
 - **Überrechtfertigungs-Effekt vermeiden**: Nicht jede Kleinigkeit wird real belohnt. Reale Belohnungen gibt es über eine eigene Währung (Sterne), Spielfortschritt über Gold/XP.
 
 

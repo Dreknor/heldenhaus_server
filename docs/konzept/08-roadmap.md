@@ -11,8 +11,10 @@
 | **5 – Home Assistant** | HA-API + Ereignis-Zuordnung + YAML-Vorlagen → HACS-Integration (Sensoren, todo, Dienste) → ausgehende Webhooks + Belohnungsaktionen | Smart-Home-Kopplung |
 | **6 – Crafting & Housing** | Materialien als Drops (Kategorie bei Aufgaben gibt es schon ab Phase 1), Rezepte, Stationen, Herstellungsaufträge, Familienlager/Tausch; Familienhaus + eigene Zimmer, Editor (Flame/Web), Bauprojekte, Garten, Unordnung-Mechanik, Besuche/Gästebuch | Sammeln, Bauen, Gestalten |
 | **7 – Dungeon-Quests** | Tiled-Bausteine + Dungeon-Erzeugung, Fackel-Energie, Flame-Isometrie-Client, rundenbasierte Kämpfe, Klassen-Interaktionen, Familien-Dungeon mit Endboss, Solo-Gewölbe, Web-Kartenansicht, HA-Mechanismen | Quests als Mini-Dungeons |
+| **F – Freischaltungen** (§13) | Server zuerst: `features.json`, `feature_unlocks`, Middleware `feature:…`, Freischalt-Listener, Eltern-Overrides, Schnellstart, `legacy`-Migration. Danach App/Web: Freischalt-Karte, Tour, Vorschau, Heldenbuch, Navigation nach Freischaltung. Vor dem Praxistest mit der Familie fertig | Neue Spieler werden nicht erschlagen |
+| **E – Events** (§12) | Server zuerst: Event-Engine (Kalender mit Osterformel, OpenHolidays-Abgleich, Planer, Trigger mit Abklingzeit und Limit, Fortschritt und Stufen, Modifikatoren), `events.json` mit 21 Events, Zufallsereignisse zum Spaß (`fun_events.json`, 16 Stück), Admin-Editor. Danach App/Web (Banner, Event-Seite, Deko, Adventskalender) und HA-Ereignisse | Das Jahr fühlt sich lebendig an |
 | **G – Grafik (parallel)** | Läuft neben allen Phasen, siehe §2.9: G1 Avatar-, Monster- und Haustier-Baukasten + Effekte, G2 einheitliche Item-Icons und Szenen, G3 isometrische Sprites für Housing/Dungeons, G4 Sound | Es sieht aus wie ein Spiel |
-| **8 – Feinschliff** | Themes für Teens, saisonale Events (saisonale Rezepte/Möbel), Statistiken, Barrierefreiheit, Leistung, iOS-Build (optional) | Version 1.0 |
+| **8 – Feinschliff** | Themes für Teens, weitere Event-Inhalte (§12), Statistiken, Barrierefreiheit, Leistung, iOS-Build (optional) | Version 1.0 |
 
 Die REST-Endpunkte für HA (`ha/state`, `ha/events`) entstehen bereits in Phase 1/2, damit früh experimentiert werden kann.
 
@@ -40,7 +42,9 @@ Legende: ✅ fertig · 🟡 teilweise · ⬜ offen
 | G – Grafik | 🟡 | G1 Avatar-, Monster- und Haustier-Baukasten mit Animationen · G2 eigene Item-Grafiken, Helden-Szene mit Tageszeit · alles auch in der Flutter-App (gleiche Optik) · G3 Dungeon: 17 isometrische Tiled-Bausteine (`public/dungeon/blocks/*.tmx`) und 86 Sprites aus Kenney „Isometric Miniature Dungeon“ (CC0), erzeugt mit `tools/dungeon/build_blocks.py` | G3 Housing-Grafiken, Monster/Figuren im Dungeon, G4 Sound |
 | 6 – Crafting & Housing | 🟡 | **Server**: 17 neue Materialien/Erntegüter, 14 Möbel mit Grundfläche und Ebenen, 5 Crafting-Ausrüstungen, 24 Rezepte an 4 Stationen mit Ausbaustufen, Herstellungsaufträge in Echtzeit mit Push „fertig“, Qualität normal/gut/meisterhaft nach Handwerksstufe (meisterhafte Ausrüstung +1 je Wert), Bibliotheks-Rezepte, Familienlager, Schenken, Tausch mit Bündnis-Familien (Treuhand, Eltern-Zustimmung unter 13, kein Gold/Sterne, keine Ausrüstung), Familienhaus mit Ausbaustufen und eigenem Zimmer je Mitglied, Layout-API mit Versionsnummer (409 bei Konflikt), Raster-, Ebenen- und Überlappungsprüfung, 14 Bauprojekte (Räume, Stufen, Stationen) mit Beiträgen aus Inventar/Lager/Gold, Bauzeit, Einweihung und realem Familienziel, Garten (säen, täglich gießen, auch per HA, ernten), Unordnung aus überfälligen Haushaltsaufgaben, Besuche und Gästebuch, Stall-Bonus beim Füttern, eigenes Zimmer gestalten (Name, Wand, Boden; Eltern dürfen Kinderzimmer mitgestalten, Teen-Zimmer bleiben privat), Inventarplätze + Lagerraum, Bett-Regeneration, Trophäenhalle, Boss-Falle, Feuerwerk, Serien-Amulett | App/Web: Werkstatt, Zimmer-Editor (Flame/Web), Bauprojekt- und Garten-Ansicht; Grafik G3 für Housing |
 | 7 – Dungeon-Quests | 🟡 | **Server**: Erzeugung aus Seed (5–12 Räume, Schlüssel, Tore mit Hebel, Abkürzungen, Rätsel), Fackeln aus Aufgaben mit Tages-/Vorratslimit, wöchentlicher Familien-Dungeon mit Familien-Boss als Endboss, tägliches Solo-Gewölbe, Züge idempotent per `client_uuid`, reproduzierbare Kämpfe, Klassen-Interaktionen, HA-Taster als Mechanismus, Zug-Log; je Raum Tiled-Baustein und Tür-Sprites in der API | Isometrischer Client in der App (Flame + `flame_tiled`), Web-Kartenansicht |
-| 8 – Feinschliff | ⬜ | – | Teen-Themes, saisonale Events, Statistiken, Barrierefreiheit, iOS |
+| F – Freischaltungen | ⬜ | Grundlagen vorhanden: Level, Klassen-Freischaltung ab 5/8, Rezepte nach Handwerksstufe | Alles aus §13 |
+| E – Events | ⬜ | Grundlagen vorhanden: Quests, Drops, Rezepte/Möbel, Dungeon-Themen, Domain-Events, Modifikator-Kette | Alles aus §12; zuerst Kürbisnacht, Laternenfest, Wichtelwerkstatt und Raunächte (stehen als Nächstes im Kalender) sowie Willkommen zurück und Erster Schnee |
+| 8 – Feinschliff | ⬜ | – | Teen-Themes, Statistiken, Barrierefreiheit, iOS |
 
 **Tests**: Server 240 Pest-Tests, App 7 Flutter-Tests (inkl. Grafik-Vorschau), HA-Integration 25 pytest-Tests – alle grün.
 
@@ -50,4 +54,6 @@ Legende: ✅ fertig · 🟡 teilweise · ⬜ offen
 3. Phase 4a (§11) in App und Web: Fokus-Modus, Timer, Schritte einzeln anzeigen, Kopf-Ablage (Server ist fertig)
 4. Phase 5 abschließen: Webhook-Empfang in der HACS-Integration (Server sendet bereits)
 5. Phase 6 in App und Web: Werkstatt, Zimmer-Editor, Bauprojekte, Garten (Server ist fertig, mit Grafik G3)
-6. Phase 7 in der App: Dungeon mit Flame + `flame_tiled` aus den fertigen Bausteinen (Server ist fertig)
+6. Phase E (§12) serverseitig: Event-Engine und die Herbst-/Winter-Events, damit sie zur Kürbisnacht (24.10.) bzw. zur Wichtelwerkstatt (1. Advent) bereit sind
+7. Phase F (§13) serverseitig, damit der Praxistest mit einer übersichtlichen Oberfläche startet
+8. Phase 7 in der App: Dungeon mit Flame + `flame_tiled` aus den fertigen Bausteinen (Server ist fertig)

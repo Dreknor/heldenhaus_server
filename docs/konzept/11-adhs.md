@@ -10,7 +10,7 @@ Die Grundregeln aus §1 (sanfte Strafen, kein Streak-Stress, Kooperation vor Kon
 |---|---|---|
 | **Keine Scham-Schleifen** | Inaktivität und vergessene Tage werden nicht bestraft. Charaktere sterben nicht, Serien brechen nicht ersatzlos ab. | **Sanfter Modus** ohne HP-Schaden (§11.3), Serien pausieren statt zurückzufallen und lassen sich reparieren (§11.3), das K.O. aus §1 bleibt die härteste Folge |
 | **Sofortige Rückmeldung** | Jede Aktion gibt sofort sichtbares und hörbares Feedback. | Optimistische Anzeige in App und Web (Offline-first, §6), kurze Animation, Ton und Haptik bei jedem Abhaken, auch bei jedem Teilschritt |
-| **Weniger kognitive Last** | Die Oberfläche lässt sich auf einen reizarmen Fokus-Modus reduzieren. | **Fokus-Modus** (§11.4), Animationen und Töne einzeln abschaltbar |
+| **Weniger kognitive Last** | Die Oberfläche lässt sich auf einen reizarmen Fokus-Modus reduzieren. | **Fokus-Modus** (§11.4), Animationen und Töne einzeln abschaltbar, Funktionen kommen schrittweise nach Level dazu (§13) |
 | **Hilfe bei Zeitblindheit** | Zeit wird nie nur als Zahl gezeigt, sondern grafisch. | **Visuelle Timer**, Fälligkeiten als Balken oder „noch 2× schlafen“ (§11.4) |
 | **Autonomie vor Zwang** | Aufgaben bieten Wahlmöglichkeiten und passen sich der Tagesform an. | **Energiespar-Tag** mit Kern-Aufgaben (§11.2), Wahl zwischen mehreren kleinen Schritten, Aufgabenbörse statt Zuweisung, wo es geht |
 
@@ -60,6 +60,8 @@ Zielkonflikt: „Sofortiges Feedback“ und „reizarm“ widersprechen sich tei
 - Bei Routineaufgaben (Dailies und Gewohnheiten) gibt es zusätzlich zu den normalen Drops eine kleine Chance auf eine **Überraschung**: etwas Bonus-Gold, Futter, ein Material oder ein kosmetisches Teil (Hintergrund, Konfetti-Farbe).
 - Die Chance steigt leicht mit jeder Erledigung ohne Überraschung und setzt danach zurück („Pech-Schutz“), damit sie verlässlich ab und zu kommt. Sie hat ein Tageslimit wie die Drops (§2.3).
 - Es gelten die Regeln aus §1: nur Spielwährung und Spielgegenstände, **nie Sterne, nie Echtgeld**, keine Kisten zum Kaufen.
+
+**Events** (§12) folgen denselben Regeln: kein Countdown-Druck, Ziele mit etwa 60 % Aktivität erreichbar, Event-Gegenstände kehren wieder, „Willkommen zurück“ für den Wiedereinstieg nach einer Pause.
 
 **Gemeinsam statt allein**
 - Familien-Quests (§3.5) sind für Menschen mit ADHS besonders geeignet, weil der Fortschritt gemeinsam entsteht. Im Fokus-Profil ist die Familien-Quest deshalb auf dem Hauptbildschirm sichtbar, die Solo-Quest ist optional.
