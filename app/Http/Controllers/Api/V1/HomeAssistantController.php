@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Domain\Art\AvatarSvg;
 use App\Domain\Art\MonsterSvg;
+use App\Domain\Dungeons\DungeonService;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\ScoreTask;
 use App\Domain\Housing\GardenService;
@@ -182,6 +183,12 @@ class HomeAssistantController extends Controller
         $plot = $garden->water($family->id, $slot, CarbonImmutable::now($family->timezone ?? 'Europe/Berlin')->toDateString());
 
         return response()->json(['slot' => $plot->slot, 'stage' => GardenService::stage($plot)]);
+    }
+
+    /** Dienst heldenhaus.dungeon_mechanism: ein echter Taster oder NFC-Tag öffnet die Tore im Familien-Dungeon (§2.7). */
+    public function dungeonMechanism(Request $request, DungeonService $dungeons): JsonResponse
+    {
+        return response()->json(['opened' => $dungeons->triggerMechanism($request->user()->family_id)]);
     }
 
     /** Dienst heldenhaus.grant_stars: Lob mit Sternen, z. B. per Knopf am Wandtablet. Braucht die Fähigkeit „ha:approve“. */

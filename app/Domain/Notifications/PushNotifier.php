@@ -32,6 +32,7 @@ class PushNotifier
         'build_done' => ['Einweihung!', 'Ein Bauprojekt im Familienhaus ist fertig.'],
         'trade' => ['Tauschangebot', 'Es gibt Neuigkeiten zu einem Tausch.'],
         'gift' => ['Geschenk', 'Du hast ein Geschenk bekommen.'],
+        'dungeon' => ['Dungeon', 'Im Familien-Dungeon wartet der Endboss auf euch!'],
     ];
 
     /** @param  User|iterable<User>  $users */

@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Dungeons\DungeonService;
 use App\Http\Controllers\AchievementController;
 use App\Http\Controllers\Api\V1\AppReleaseController;
 use App\Http\Controllers\Api\V1\AuthController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\Api\V1\FamilyController;
 use App\Http\Controllers\Api\V1\GameController;
 use App\Http\Controllers\Api\V1\HomeAssistantController;
 use App\Http\Controllers\CraftingController;
+use App\Http\Controllers\DungeonController;
 use App\Http\Controllers\FamilyHubController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\QuestController;
@@ -119,6 +121,14 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
             Route::post('families/{family}/guestbook', [HomeController::class, 'writeGuestbook'])->middleware('throttle:20,1')->name('guestbook.store');
             Route::delete('guestbook/{entry}', [HomeController::class, 'deleteGuestbook'])->name('guestbook.destroy');
 
+            // Dungeon-Quests (Konzept §2.7)
+            Route::get('dungeons/current', [DungeonController::class, 'current'])->name('dungeons.current');
+            Route::post('dungeons/solo', [DungeonController::class, 'solo'])->name('dungeons.solo');
+            Route::get('dungeons/{dungeon}', [DungeonController::class, 'show'])->name('dungeons.show');
+            Route::get('dungeons/{dungeon}/log', [DungeonController::class, 'log'])->name('dungeons.log');
+            Route::post('dungeons/{dungeon}/{action}', [DungeonController::class, 'act'])->whereIn('action', DungeonService::ACTIONS)
+                ->middleware('throttle:60,1')->name('dungeons.act');
+
             // Fokus & Alltagshilfen (Konzept §11)
             Route::get('me/support-settings', [SupportController::class, 'settings'])->name('support.settings');
             Route::put('me/support-settings', [SupportController::class, 'updateSettings'])->name('support.settings.update');
@@ -147,6 +157,7 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
         Route::post('tasks', [HomeAssistantController::class, 'createTask'])->name('tasks.store');
         Route::post('tasks/{task}/complete', [HomeAssistantController::class, 'completeTask'])->name('tasks.complete');
         Route::post('garden/{slot}/water', [HomeAssistantController::class, 'waterGarden'])->whereNumber('slot')->name('garden.water');
+        Route::post('dungeon/mechanism', [HomeAssistantController::class, 'dungeonMechanism'])->name('dungeon.mechanism');
 
         // Eltern-Funktionen nur mit Token-Fähigkeit „ha:approve“ (beim Erzeugen des Tokens wählbar)
         Route::middleware('abilities:ha:approve')->group(function () {

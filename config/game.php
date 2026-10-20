@@ -104,6 +104,19 @@ return [
         'storage_room_slots' => 20,              // zusätzlich mit Lagerraum
     ],
 
+    // Dungeon-Quests (Konzept §2.7)
+    'dungeon' => [
+        'torches' => ['trivial' => 1, 'easy' => 1, 'medium' => 2, 'hard' => 3, 'all_dailies' => 3],
+        'torch_daily_max' => 12,                 // höchstens so viele Fackeln pro Tag verdienen
+        'torch_store_max' => 20,                 // Vorrat
+        'cost' => ['move' => 1, 'interact' => 1, 'fight' => 1],
+        'knockout_torch_loss' => 2,
+        'hp' => 30,                              // Dungeon-HP (getrennt von den Spiel-HP), + 2 je Ausdauer
+        'skill_mana' => 5,
+        'boss_reward' => ['gold' => 20, 'xp' => 30],
+        'solo_reward' => ['gold' => 5, 'xp' => 10],
+    ],
+
     'categories' => [
         'household' => 'Haushalt',
         'school' => 'Schule & Lernen',
