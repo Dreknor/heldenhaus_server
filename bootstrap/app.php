@@ -34,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'family' => EnsureFamily::class,
             'day-cron' => RunDayCronIfDue::class,
+            'ha-member' => \App\Http\Middleware\ActAsFamilyMember::class,
             'app-version' => EnsureSupportedAppVersion::class,
             'abilities' => CheckAbilities::class,
             'ability' => CheckForAnyAbility::class,

@@ -76,5 +76,38 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
     Route::middleware(['auth:sanctum', 'abilities:ha', 'family', 'throttle:120,1'])->prefix('ha')->name('ha.')->group(function () {
         Route::get('state', [HomeAssistantController::class, 'state'])->name('state');
         Route::post('events', [HomeAssistantController::class, 'event'])->name('events');
+        Route::get('quest.svg', [HomeAssistantController::class, 'questImage'])->name('quest.image');
+
+        // Spielen über Home Assistant: dieselben Aktionen wie in der App, stellvertretend für ein
+        // Familienmitglied. Eltern-Funktionen (Freigaben, Aufgabenverwaltung, Taschengeld) fehlen bewusst.
+        Route::prefix('members/{member}')->name('members.')->whereNumber('member')
+            ->middleware(['ha-member', 'day-cron'])->group(function () {
+                Route::get('avatar.svg', [HomeAssistantController::class, 'avatar'])->name('avatar');
+
+                Route::get('board', [GameController::class, 'board'])->name('board');
+                Route::post('cron', [GameController::class, 'cron'])->name('cron');
+                Route::post('assignments/{assignment}/score/{direction}', [GameController::class, 'score'])
+                    ->whereIn('direction', ['up', 'down'])->name('assignments.score');
+                Route::post('tasks/{task}/claim', [GameController::class, 'claim'])->name('tasks.claim');
+                Route::post('tasks/{task}/buy', [GameController::class, 'buy'])->name('tasks.buy');
+
+                Route::get('hero', [CharacterController::class, 'hero'])->name('hero');
+                Route::post('hero/allocate', [CharacterController::class, 'allocate'])->name('hero.allocate');
+                Route::post('hero/class', [CharacterController::class, 'chooseClass'])->name('hero.class');
+                Route::post('hero/cast', [CharacterController::class, 'cast'])->name('hero.cast');
+                Route::post('hero/unequip', [CharacterController::class, 'unequip'])->name('hero.unequip');
+                Route::get('inventory', [CharacterController::class, 'inventory'])->name('inventory');
+                Route::post('inventory/{item}/buy', [CharacterController::class, 'buy'])->name('inventory.buy');
+                Route::post('inventory/{item}/equip', [CharacterController::class, 'equip'])->name('inventory.equip');
+                Route::post('inventory/{item}/use', [CharacterController::class, 'use'])->name('inventory.use');
+                Route::post('pets/hatch', [CharacterController::class, 'hatch'])->name('pets.hatch');
+                Route::post('pets/{pet}/feed', [CharacterController::class, 'feed'])->name('pets.feed');
+
+                Route::get('quests', [QuestController::class, 'index'])->name('quests');
+                Route::post('quests', [QuestController::class, 'start'])->name('quests.start');
+
+                Route::get('shop', [FamilyController::class, 'shop'])->name('shop');
+                Route::post('shop/items/{item}/redeem', [FamilyController::class, 'redeem'])->name('shop.redeem');
+            });
     });
 });
