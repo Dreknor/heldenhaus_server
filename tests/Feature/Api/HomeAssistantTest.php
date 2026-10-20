@@ -99,7 +99,7 @@ test('avatar und quest-bild kommen als svg', function () {
 
     $avatar = $this->get("/api/v1/ha/members/{$this->child->id}/avatar.svg")->assertOk();
     expect($avatar->headers->get('Content-Type'))->toStartWith('image/svg+xml')
-        ->and($avatar->getContent())->toStartWith('<svg')->toContain('#c0392b')->toEndWith('</svg>');
+        ->and($avatar->getContent())->toStartWith('<svg')->toContain('#bfdbfe')->toContain('data:image/png;base64,')->toEndWith('</svg>');
 
     $this->get('/api/v1/ha/quest.svg')->assertNotFound();
 
@@ -120,16 +120,20 @@ test('avatar-svg lässt keine fremden werte in die grafik', function () {
     expect($svg)->not->toContain('<script')->not->toContain('onload');
 });
 
-test('avatar-svg nutzt die toon-head-grafik und zeigt die ausrüstung', function () {
-    $svg = AvatarSvg::render(
-        ['skin' => '#f6c89f', 'hair' => 'long', 'hair_color' => '#c0392b', 'eyes' => 'wink', 'outfit' => '#3498db', 'background' => '#bfdbfe', 'beard' => 'chin'],
-        ['head' => ['key' => 'head_cap', 'rarity' => 'rare', 'icon' => '🧢']],
-        7,
-        classIcon: '🛡️',
-    );
+test('avatar-svg setzt die pixelfigur aus klasse und ausrüstung zusammen', function () {
+    $look = ['skin' => '#f6c89f', 'hair' => 'long', 'hair_color' => '#c0392b', 'eyes' => 'wink', 'outfit' => '#3498db', 'background' => '#bfdbfe', 'beard' => 'chin'];
+    $layers = fn (...$args) => collect(AvatarSvg::layers($look, 7, ...$args))->map(fn ($f) => explode('-', $f)[0]);
 
-    expect($svg)->toContain('#c0392b')->toContain('#3498db')->toContain('Johan Melin')
-        ->toContain('#3b82f6')->toContain('🧢')->toContain('🛡️')
-        ->and(AvatarSvg::options(['hair' => 'long'], 7))
-        ->toMatchArray(['hairVariant' => ['sideComed'], 'rearHairVariant' => ['longStraight']]);
+    expect($layers())->toContain('body', 'head', 'hair_long_straight', 'face_happy', 'beard_trimmed', 'shirt_tshirt')
+        ->and($layers('mage'))->toContain('hat_wizard', 'cape', 'staff_diamond')
+        ->and($layers('mage', ['head' => ['key' => 'head_cap', 'rarity' => 'rare']]))->toContain('cap_bonnie')->not->toContain('hat_wizard')
+        ->and($layers(null, ['armor' => ['key' => 'armor_neu', 'rarity' => 'legendary']]))->toContain('armour_plate', 'arms_plate')
+        ->and($layers(null, [], 'hurt'))->toContain('face_sad');
+
+    foreach (AvatarSvg::layers($look, 7, 'warrior') as $file) {
+        expect(public_path("avatar/lpc/{$file}"))->toBeFile();
+    }
+
+    $svg = AvatarSvg::render($look, [], 7, portrait: true, classKey: 'warrior');
+    expect($svg)->toContain('viewBox="17 4 30 30"')->toContain('#bfdbfe')->toContain('data:image/png;base64,');
 });

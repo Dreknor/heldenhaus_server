@@ -23,7 +23,15 @@ const appearance = computed(() => (page.props.auth.user?.id === props.user.id ? 
 </script>
 
 <template>
-    <HeroAvatar v-if="appearance" :avatar="appearance.avatar" :seed="appearance.seed" :equipment="appearance.equipment" :size="32" portrait />
+    <HeroAvatar
+        v-if="appearance"
+        :avatar="appearance.avatar"
+        :seed="appearance.seed"
+        :equipment="appearance.equipment"
+        :class-key="appearance.class_key"
+        :size="32"
+        portrait
+    />
     <Avatar v-else class="h-8 w-8 overflow-hidden rounded-lg">
         <AvatarFallback class="rounded-lg text-black dark:text-white">
             {{ getInitials(user.name) }}

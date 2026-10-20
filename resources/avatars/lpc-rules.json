@@ -1,0 +1,86 @@
+{
+    "$comment": "Welche LPC-Teile (resources/avatars/lpc.json) zu Baukasten, Klasse und Ausrüstung gehören. Gelesen von resources/js/lib/avatar.ts und app/Domain/Art/AvatarSvg.php. Farbe \"$skin\", \"$hair\" und \"$outfit\" kommen aus dem Baukasten.",
+    "hair": {
+        "plain": "hair_plain",
+        "spiked": "hair_spiked",
+        "curly_short": "hair_curly_short",
+        "cowlick": "hair_cowlick",
+        "bob": "hair_bob",
+        "long_straight": "hair_long_straight",
+        "wavy": "hair_wavy",
+        "high_ponytail": "hair_high_ponytail",
+        "bangs_bun": "hair_bangs_bun",
+        "braid": "hair_braid",
+        "afro": "hair_afro",
+        "buzzcut": "hair_buzzcut",
+        "bald": null
+    },
+    "hair_legacy": {
+        "short": "plain",
+        "spiky": "spiked",
+        "undercut": "cowlick",
+        "bun": "bangs_bun",
+        "long": "long_straight",
+        "curly": "curly_short",
+        "ponytail": "high_ponytail"
+    },
+    "hair_back_legacy": {
+        "neck": "bob",
+        "shoulder": "bob",
+        "long": "long_straight",
+        "wavy": "wavy"
+    },
+    "eyes": {
+        "round": null,
+        "happy": "face_happy",
+        "wink": "face_happy",
+        "sleepy": "face_closing",
+        "wide": "face_shock"
+    },
+    "hurt_face": "face_sad",
+    "clothes": {
+        "tShirt": [["pants", "charcoal"], ["shirt_tshirt", "$outfit"]],
+        "shirt": [["pants", "charcoal"], ["shirt_buttoned", "$outfit"]],
+        "openJacket": [["pants", "charcoal"], ["shirt_cardigan", "$outfit"]],
+        "turtleNeck": [["pants", "charcoal"], ["shirt_longsleeve", "$outfit"]],
+        "dress": [["skirt", "$outfit"], ["shirt_scoop", "$outfit"]]
+    },
+    "beards": {
+        "none": null,
+        "moustacheTwirl": "beard_handlebar",
+        "chin": "beard_trimmed",
+        "chinMoustache": "beard_trimmed",
+        "fullBeard": "beard_medium",
+        "longBeard": "beard_winter"
+    },
+    "base": [["body", "$skin"], ["head", "$skin"], ["shoes", "walnut"]],
+    "classes": {
+        "warrior": { "armor": [["chainmail", "iron"]], "back": [["cape", "red"]], "weapon": [["sword", "iron"]] },
+        "mage": { "head": [["hat_wizard", "blue"]], "back": [["cape", "blue"]], "weapon": [["staff_diamond", "medium"]] },
+        "rogue": { "head": [["hood", "charcoal"]], "back": [["cape_tattered", "black"]], "weapon": [["dagger", "dagger"]] },
+        "healer": { "head": [["hood", "white"]], "back": [["cape", "white"]], "armor": [["belt_robe", "white"]], "weapon": [["staff", "simple"]] },
+        "tinkerer": { "head": [["headband", "red"]], "armor": [["overalls", "leather"]], "weapon": [["hammer", "base"]] },
+        "bard": { "head": [["cap_leather", "brown"], ["cap_feather", "red"]], "back": [["cape", "purple"]] }
+    },
+    "items": {
+        "head_cap": [["cap_bonnie", "red"]],
+        "weapon_wooden_sword": [["sword", "bronze"]],
+        "shield_lid": [["shield_round", "silver"]],
+        "armor_hoodie": [["shirt_longsleeve", "purple"]],
+        "accessory_glasses": [["glasses", "black"]]
+    },
+    "keywords": [
+        { "slot": "weapon", "words": ["stab", "staff", "zauber"], "parts": [["staff", "simple"], ["staff", "simple"], ["staff_diamond", "medium"], ["staff_diamond", "medium"], ["staff_diamond", "medium"]] },
+        { "slot": "weapon", "words": ["hammer"], "parts": [["hammer", "base"]] },
+        { "slot": "weapon", "words": ["dolch", "dagger", "messer"], "parts": [["dagger", "dagger"]] },
+        { "slot": "accessory", "words": ["brille", "glasses"], "parts": [["glasses", "black"]] }
+    ],
+    "rarities": ["common", "uncommon", "rare", "epic", "legendary"],
+    "slots": {
+        "head": [[["cap_leather", "base"]], [["helmet_nasal", "iron"]], [["helmet_bascinet", "steel"]], [["helmet_armet", "silver"]], [["helmet_greathelm", "gold"]]],
+        "armor": [[["armour_leather", "brown"]], [["chainmail", "steel"]], [["armour_plate", "steel"]], [["armour_plate", "silver"], ["arms_plate", "silver"]], [["armour_plate", "gold"], ["arms_plate", "gold"]]],
+        "weapon": [[["sword", "bronze"]], [["sword", "iron"]], [["sword", "steel"]], [["sword", "silver"]], [["sword", "gold"]]],
+        "shield": [[["shield_heater", "base"]], [["shield_round", "brown"]], [["shield_round", "silver"]], [["shield_crusader", "crusader"]], [["shield_round", "gold"]]],
+        "accessory": [[["necklace", "iron"]], [["necklace", "bronze"]], [["necklace", "silver"]], [["necklace", "silver"]], [["necklace", "gold"]]]
+    }
+}

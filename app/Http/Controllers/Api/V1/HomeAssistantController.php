@@ -12,7 +12,6 @@ use App\Enums\TaskType;
 use App\Http\Controllers\Controller;
 use App\Http\Presenters\CharacterSheet;
 use App\Http\Presenters\GamePresenter;
-use App\Models\Item;
 use App\Models\Quest;
 use App\Models\RewardRedemption;
 use App\Models\Task;
@@ -112,11 +111,9 @@ class HomeAssistantController extends Controller
     public function avatar(Request $request): Response
     {
         $appearance = CharacterSheet::appearance($request->user());
-        $equipment = collect($appearance['equipment'])->filter();
-        $icons = Item::whereIn('key', $equipment->pluck('key'))->pluck('icon', 'key');
-        $equipment = $equipment->map(fn ($e) => ['key' => (string) $e['key'], 'rarity' => (string) $e['rarity'], 'icon' => $icons[$e['key']] ?? null])->all();
+        $equipment = collect($appearance['equipment'])->filter()->map(fn ($e) => ['key' => (string) $e['key'], 'rarity' => (string) $e['rarity']])->all();
 
-        return $this->svg(AvatarSvg::render($appearance['avatar'], $equipment, $appearance['seed'], $request->boolean('portrait'), classIcon: $appearance['class_icon']));
+        return $this->svg(AvatarSvg::render($appearance['avatar'], $equipment, $appearance['seed'], $request->boolean('portrait'), classKey: $appearance['class_key']));
     }
 
     /** Bild der laufenden Familien-Quest: der Boss bzw. das gesuchte Sammelobjekt. */

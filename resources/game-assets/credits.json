@@ -1,23 +1,18 @@
 [
     {
-        "title": "Avatare: „ToonHead“",
-        "author": "Johan Melin",
-        "author_url": "https://www.johanmelin.com",
-        "source_url": "https://www.figma.com/community/file/1589627891082866389",
-        "license": "CC BY 4.0",
-        "license_url": "https://creativecommons.org/licenses/by/4.0/",
-        "changes": "Als DiceBear-Stil „toon-head“ (dicebear/styles 10.6.0) übernommen; Farben und Teile werden je Held kombiniert.",
-        "files": ["resources/avatars/toon-head.json"]
-    },
-    {
-        "title": "Avatar-Bibliothek DiceBear",
-        "author": "Florian Körner und Mitwirkende",
-        "author_url": "https://www.dicebear.com",
-        "source_url": "https://github.com/dicebear/dicebear",
-        "license": "MIT",
-        "license_url": "https://github.com/dicebear/dicebear/blob/main/LICENSE",
-        "changes": "Unverändert als Bibliothek eingebunden (npm @dicebear/core, Composer dicebear/core).",
-        "files": []
+        "title": "Heldenfiguren: Universal LPC Spritesheet Character Generator",
+        "author": "Liberated Pixel Cup und Mitwirkende",
+        "author_url": "https://opengameart.org/content/lpc-collection",
+        "source_url": "https://github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator",
+        "license": "OGA-BY 3.0, CC BY 3.0/4.0, CC0",
+        "license_url": "https://static.opengameart.org/OGA-BY-3.0.txt",
+        "changes": "Nur Teile mit OGA-BY-, CC-BY- oder CC0-Lizenz. Das jeweils erste Laufbild nach vorn ausgeschnitten, Farben über die LPC-Paletten eingefärbt (tools/avatar/build_lpc.py). Urheber und Lizenz jeder Datei stehen in der Liste unten.",
+        "details_file": "resources/avatars/lpc-credits.json",
+        "files": [
+            "public/avatar/lpc",
+            "resources/avatars/lpc.json",
+            "resources/avatars/lpc-credits.json"
+        ]
     },
     {
         "title": "Szenen-Grafiken: Fluent Emoji (3D)",

@@ -223,7 +223,7 @@ Grafik ist kein Feinschliff am Ende, sondern läuft als **eigener Strang paralle
 **Stufen**:
 | Stufe | Inhalt | Technik | Wann |
 |---|---|---|---|
-| G1 | **Avatar-Baukasten**: Körper, Hautton, Frisur, Haarfarbe, Augen, Kleidung; angelegte Ausrüstung erscheint sichtbar am Avatar; Klassen-Abzeichen | DiceBear-Stil „Toon Head“ (Johan Melin, CC BY 4.0), gleiche SVG-Ausgabe in Web (`@dicebear/core`), Server (`dicebear/core`) und Flutter (`dicebear_core`); Ausrüstung als Abzeichen am Bild | umgesetzt |
+| G1 | **Avatar-Baukasten**: Körper, Hautton, Frisur, Haarfarbe, Augen, Kleidung; Klassen-Kostüm und jede angelegte Ausrüstung erscheinen sichtbar am Körper (wie bei Habitica) | LPC-Pixelfiguren aus dem Universal LPC Spritesheet Character Generator (nur OGA-BY/CC-BY/CC0, Credits je Datei), Ebenen in `public/avatar/lpc`, Regeln in `resources/avatars/lpc-rules.json` für Web und Server-SVG; dieselben Spritesheets liefern später die Laufanimation im Dungeon | umgesetzt |
 | G1 | **Monster-Baukasten** für alle Quest-Bosse: Körperform, Farbe, Augen, Hörner/Stacheln, Mund – jeder Boss sieht anders aus | parametrisches SVG, Werte je Boss in `quests.json` | jetzt |
 | G1 | **Haustiere und Reittiere**: je Tierart eine Vorlage, gefärbt nach Schlüpfpulver (Feuer, Eis, Regenbogen …), Reittiere größer mit Sattel | parametrisches SVG | jetzt |
 | G1 | **Effekte**: Treffer am Boss, Level-up, Fund, Abhaken | CSS-/Flutter-Animationen | jetzt |
