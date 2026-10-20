@@ -6,6 +6,7 @@ use App\Domain\Art\AvatarSvg;
 use App\Domain\Art\MonsterSvg;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\ScoreTask;
+use App\Domain\Housing\GardenService;
 use App\Domain\Quests\QuestService;
 use App\Domain\Rewards\RewardService;
 use App\Domain\Tasks\TaskService;
@@ -20,6 +21,7 @@ use App\Models\Task;
 use App\Models\TaskAssignment;
 use App\Models\TaskCompletion;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -171,6 +173,15 @@ class HomeAssistantController extends Controller
         abort_if($assignment === null, 422, 'Niemand hat diese Aufgabe gerade offen.');
 
         return response()->json($score($assignment, 'up', 'ha')->toArray());
+    }
+
+    /** Dienst heldenhaus.water_garden: ein Beet gießen, z. B. ausgelöst von einem echten Pflanzensensor (§2.6). */
+    public function waterGarden(Request $request, int $slot, GardenService $garden): JsonResponse
+    {
+        $family = $request->user()->family;
+        $plot = $garden->water($family->id, $slot, CarbonImmutable::now($family->timezone ?? 'Europe/Berlin')->toDateString());
+
+        return response()->json(['slot' => $plot->slot, 'stage' => GardenService::stage($plot)]);
     }
 
     /** Dienst heldenhaus.grant_stars: Lob mit Sternen, z. B. per Knopf am Wandtablet. Braucht die Fähigkeit „ha:approve“. */

@@ -28,6 +28,10 @@ class PushNotifier
         'challenge' => ['Neue Challenge', 'Es gibt eine neue Challenge.'],
         'message' => ['Neue Nachricht', 'Im Heldenhaus gibt es eine neue Nachricht.'],
         'weekly_report' => ['Wochenbericht', 'Der Wochenbericht ist da.'],
+        'craft_ready' => ['Fertig!', 'In der Werkstatt ist etwas fertig geworden.'],
+        'build_done' => ['Einweihung!', 'Ein Bauprojekt im Familienhaus ist fertig.'],
+        'trade' => ['Tauschangebot', 'Es gibt Neuigkeiten zu einem Tausch.'],
+        'gift' => ['Geschenk', 'Du hast ein Geschenk bekommen.'],
     ];
 
     /** @param  User|iterable<User>  $users */

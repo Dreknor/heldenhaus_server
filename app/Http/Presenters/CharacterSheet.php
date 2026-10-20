@@ -62,7 +62,7 @@ class CharacterSheet
         return [
             'items' => UserItem::with('item')->where('user_id', $user->id)->where('quantity', '>', 0)->get()
                 ->sortBy(fn (UserItem $u) => [$u->item->type, $u->item->name])
-                ->map(fn (UserItem $u) => [...self::item($u->item), 'quantity' => $u->quantity, 'equipped' => in_array($u->item_id, $equipped, true)])
+                ->map(fn (UserItem $u) => [...self::item($u->item), 'quantity' => $u->quantity, 'master_quantity' => $u->master_quantity, 'equipped' => in_array($u->item_id, $equipped, true)])
                 ->values(),
             'shop' => Item::where('active', true)->whereNotNull('price_gold')->orderBy('type')->orderBy('price_gold')->get()
                 ->map(fn (Item $i) => self::item($i))->values(),

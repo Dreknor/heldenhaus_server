@@ -10,7 +10,7 @@ Home Assistant läuft zu Hause hinter NAT, der Laravel-Server im Internet. Desha
    - `DataUpdateCoordinator`, Abfrage alle 60 s (bei Webhook-Empfang sofort)
    - **Entitäten pro Familienmitglied**: `sensor` (Level, XP, Gold, Sterne, HP, offene Aufgaben, Streak), `binary_sensor` (alle Dailies erledigt, Freigaben ausstehend), **`todo`-Entität** (HA-Aufgabenliste ↔ To-Dos/Dailies, auch in der HA-App abhakbar), `image` (Avatar)
    - **Familien-Entitäten**: Boss-HP, Wochenfortschritt, offene Freigaben
-   - **Dienste**: `heldenhaus.complete_task`, `create_task`, `score_habit`, `trigger_event`, `approve`, `grant_stars`
+   - **Dienste**: `heldenhaus.complete_task`, `create_task`, `score_habit`, `trigger_event`, `approve`, `grant_stars`, `water_garden` (Server: `POST ha/garden/{beet}/water`, z. B. von einem Pflanzensensor)
    - **HA-Ereignisse**: `heldenhaus_task_completed`, `_reward_redeemed`, `_level_up`, `_all_dailies_done`, `_boss_defeated`, für die Fokus-Hilfen (§11.5) außerdem `_step_completed`, `_focus_started`, `_focus_ended`, `_low_energy_day` und ein Sensor „Fokus-Zeit“ je Mitglied
 3. **Ausgehende Webhooks** (Laravel → HA): HMAC-signiert, Wiederholung bei Fehlern über die Queue
 

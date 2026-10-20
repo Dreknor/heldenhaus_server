@@ -2,10 +2,12 @@
 
 use App\Domain\Achievements\AchievementService;
 use App\Domain\Classes\ClassService;
+use App\Domain\Crafting\CraftingService;
 use App\Domain\Family\FamilyService;
 use App\Domain\Family\WeeklyReport;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\RunDayCron;
+use App\Domain\Housing\BuildService;
 use App\Domain\Notifications\PushNotifier;
 use App\Domain\Social\ChallengeService;
 use App\Domain\Tasks\ReviewCompletion;
@@ -86,6 +88,10 @@ Artisan::command('heldenhaus:weekly-reports', function (PushNotifier $push) {
 Artisan::command('heldenhaus:challenges-close', function (ChallengeService $challenges) {
     $this->info($challenges->closeExpired().' Challenges abgeschlossen.');
 })->purpose('Abgelaufene Challenges schließen und ihre Aufgaben archivieren');
+
+Artisan::command('heldenhaus:housing-tick', function (CraftingService $crafting, BuildService $builds, PushNotifier $push) {
+    $this->info($crafting->markReady($push).' Herstellungsaufträge fertig, '.$builds->finishDue().' Bauprojekte eingeweiht.');
+})->purpose('Fertige Herstellungsaufträge melden und Bauprojekte abschließen');
 
 Artisan::command('heldenhaus:auto-approve', function (ReviewCompletion $review) {
     $this->info($review->autoApproveExpired().' Freigaben automatisch bestätigt.');
@@ -208,6 +214,7 @@ Schedule::command('queue:work --stop-when-empty --max-time=50 --tries=3')
 
 Schedule::command('heldenhaus:day-cron')->everyFifteenMinutes()->withoutOverlapping();
 Schedule::command('heldenhaus:auto-approve')->everyFifteenMinutes()->withoutOverlapping();
+Schedule::command('heldenhaus:housing-tick')->everyFiveMinutes()->withoutOverlapping();
 Schedule::command('heldenhaus:community-rhythm')->hourly()->withoutOverlapping();
 Schedule::command('heldenhaus:weekly-reports')->weeklyOn(0, '18:00')->timezone('Europe/Berlin');
 Schedule::command('heldenhaus:challenges-close')->dailyAt('03:30')->withoutOverlapping();

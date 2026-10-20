@@ -9,6 +9,7 @@ use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
 use App\Domain\Social\FeedService;
 use App\Models\Item;
+use App\Models\Room;
 use App\Models\User;
 use App\Models\UserEquipment;
 use App\Models\UserItem;
@@ -133,7 +134,10 @@ class InventoryService
 
         return DB::transaction(function () use ($user, $pet, $food) {
             $this->take($user, $food);
-            $pet->growth = min(config('game.pet_growth_mount'), $pet->growth + config('game.pet_growth_per_food'));
+            // Mit Stall im Familienhaus (§2.6) wächst das Tier etwas schneller
+            $stable = $user->family_id && Room::where('type', 'stable')->whereHas('home', fn ($q) => $q->where('family_id', $user->family_id))->exists();
+            $growth = config('game.pet_growth_per_food') + ($stable ? config('game.housing.stable_feed_bonus') : 0);
+            $pet->growth = min(config('game.pet_growth_mount'), $pet->growth + $growth);
             $pet->is_mount = $pet->growth >= config('game.pet_growth_mount');
             $pet->save();
             if ($pet->is_mount) {
@@ -185,7 +189,7 @@ class InventoryService
 
     private function take(User $user, Item $item): void
     {
-        $taken = UserItem::where('user_id', $user->id)->where('item_id', $item->id)->where('quantity', '>', 0)->decrement('quantity');
+        $taken = UserItem::where('user_id', $user->id)->where('item_id', $item->id)->whereColumn('quantity', '>', 'master_quantity')->decrement('quantity');
 
         if ($taken === 0) {
             throw new GameException("Du hast kein „{$item->name}“ mehr.");
