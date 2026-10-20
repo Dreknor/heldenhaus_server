@@ -8,6 +8,7 @@ use App\Enums\TaskType;
 use App\Models\Task;
 use App\Models\TaskAssignment;
 use App\Models\User;
+use App\Models\UserPet;
 
 /** Alle Daten des Heldenpanels einer Person – genutzt von Web (Inertia) und App (API). */
 class HeroBoard
@@ -45,6 +46,10 @@ class HeroBoard
                 ->map(fn (TaskAssignment $a) => ['assignment_id' => $a->id, 'title' => $a->task->title])
                 ->values(),
             'quests' => CharacterSheet::quests($user),
+            // Begleiter in der Szene: bevorzugt ein Reittier, sonst das neueste Haustier
+            'companion' => ($pet = UserPet::with('egg', 'potion')->where('user_id', $user->id)->orderByDesc('is_mount')->latest('id')->first())
+                ? ['egg_key' => $pet->egg->key, 'potion_key' => $pet->potion->key, 'is_mount' => $pet->is_mount, 'name' => $pet->name]
+                : null,
             'recentPending' => $user->completions()->where('status', CompletionStatus::Pending)->count(),
         ];
     }

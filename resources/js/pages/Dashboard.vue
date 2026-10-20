@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import HeroAvatar from '@/components/game/HeroAvatar.vue';
+import HeroScene from '@/components/game/HeroScene.vue';
 import QuestCard, { type ActiveQuest } from '@/components/game/QuestCard.vue';
 import CronDialog from '@/components/game/CronDialog.vue';
 import StatsPanel from '@/components/game/StatsPanel.vue';
@@ -20,6 +20,7 @@ const props = defineProps<{
     pool: Task[];
     cronPending: { assignment_id: number; title: string }[];
     quests: { family: ActiveQuest | null; solo: ActiveQuest | null };
+    companion: { egg_key: string; potion_key: string; is_mount: boolean; name: string } | null;
     categories: Record<string, string>;
     difficulties: Record<string, number>;
 }>();
@@ -96,28 +97,16 @@ const greeting = computed(() => {
     <AppLayout :breadcrumbs="[{ title: 'Mein Held', href: '/dashboard' }]">
         <div class="flex flex-1 flex-col gap-5 p-4 md:p-6">
             <!-- Kopf -->
-            <div class="flex flex-col gap-4 lg:flex-row lg:items-center">
-                <div class="flex flex-1 items-center gap-4">
-                    <HeroAvatar
-                        v-if="page.props.auth.appearance"
-                        :avatar="page.props.auth.appearance.avatar"
-                        :seed="page.props.auth.appearance.seed"
-                        :equipment="page.props.auth.appearance.equipment"
-                        :class-icon="page.props.auth.appearance.class_icon"
-                        :mood="(stats?.hp ?? 50) < 15 ? 'hurt' : 'happy'"
-                        :size="88"
-                        class="shrink-0"
-                    />
-                    <div>
-                        <h1 class="text-2xl font-extrabold tracking-tight">{{ greeting }}, {{ page.props.auth.user.name }}!</h1>
-                        <p class="text-sm text-muted-foreground">
-                            <template v-if="dailiesDone.total">Heute {{ dailiesDone.done }} von {{ dailiesDone.total }} täglichen Aufgaben geschafft.</template>
-                            <template v-else>Heute stehen keine täglichen Aufgaben an.</template>
-                        </p>
-                    </div>
+            <HeroScene v-if="page.props.auth.appearance" :appearance="page.props.auth.appearance" :companion="companion" :hurt="(stats?.hp ?? 50) < 15">
+                <div class="inline-block rounded-xl bg-white/85 px-3 py-2 text-left shadow-sm backdrop-blur dark:bg-slate-900/80">
+                    <h1 class="text-xl font-extrabold tracking-tight sm:text-2xl">{{ greeting }}, {{ page.props.auth.user.name }}!</h1>
+                    <p class="text-sm text-muted-foreground">
+                        <template v-if="dailiesDone.total">Heute {{ dailiesDone.done }} von {{ dailiesDone.total }} täglichen Aufgaben geschafft.</template>
+                        <template v-else>Heute stehen keine täglichen Aufgaben an.</template>
+                    </p>
                 </div>
-                <StatsPanel v-if="stats" :stats="stats" class="w-full lg:hidden" />
-            </div>
+            </HeroScene>
+            <StatsPanel v-if="stats" :stats="stats" class="w-full lg:hidden" />
 
             <QuestCard v-if="quests.family" :quest="quests.family" compact />
             <QuestCard v-if="quests.solo" :quest="quests.solo" compact />

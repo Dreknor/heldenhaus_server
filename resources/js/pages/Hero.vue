@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ItemIcon from '@/components/game/ItemIcon.vue';
 import AvatarEditor from '@/components/game/AvatarEditor.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -30,6 +31,7 @@ interface GameClass {
 }
 interface ItemInfo {
     id: number;
+    key: string;
     name: string;
     icon: string;
     rarity: string;
@@ -145,7 +147,7 @@ const hoursLeft = (iso: string) => Math.max(0, Math.round((new Date(iso).getTime
                         <div v-for="(label, slot) in slots" :key="slot" class="relative flex flex-col items-center gap-1 rounded-xl border-2 border-dashed p-3 text-center">
                             <span class="text-xs font-semibold text-muted-foreground">{{ label }}</span>
                             <template v-if="equipment[slot]">
-                                <span class="text-3xl">{{ equipment[slot].icon }}</span>
+                                <ItemIcon :item="{ ...equipment[slot], type: 'equipment', slot }" :size="44" />
                                 <span class="text-xs font-bold">{{ equipment[slot].name }}</span>
                                 <span class="text-[11px] text-muted-foreground">
                                     {{ Object.entries(equipment[slot].stats ?? {}).map(([k, v]) => `+${v} ${attributeInfo.find((a) => a.key === k)?.name}`).join(', ') }}

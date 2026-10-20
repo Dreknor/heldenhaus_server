@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ItemIcon from '@/components/game/ItemIcon.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -265,7 +266,7 @@ const chip = (active: boolean) =>
                         <tr v-for="item in filtered" :key="item.id" :class="item.active ? '' : 'opacity-50'">
                             <td class="p-3">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-2xl">{{ item.icon }}</span>
+                                    <ItemIcon :item="item" :size="40" framed />
                                     <div>
                                         <p class="font-semibold">{{ item.name }}</p>
                                         <p class="font-mono text-xs text-muted-foreground">

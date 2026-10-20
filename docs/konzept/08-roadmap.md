@@ -31,6 +31,6 @@ Die REST-Endpunkte für HA (`ha/state`, `ha/events`) entstehen bereits in Phase 
 | 2 – Flutter-App | ✅ Grundversion (Login, Board, Offline-Sync, Freigaben, Shop, App-Updater); Push und Widget fehlen noch |
 | 3 – Spieltiefe | ✅ Items & Drops (Admin), Inventar, Gold-Shop, Ausrüstung, Attribute, Haustiere/Reittiere, 6 Klassen mit Modifikator-Kette · offen: Avatar-Editor, Erfolge, Asset-Pipeline |
 | 4 – Familie+ | 🟡 Quest-System (Boss- und Sammel-Quests, solo und gemeinsam, wechselnde Quest-Tafel), Ämterplan-Rotation, Teamaufgaben, Feed (Backend), Taschengeld-Buchung · offen: Feed- und Rotations-Oberfläche, Wochenbericht, Bündnisse, Challenges |
-| G – Grafik | 🟡 G1 fertig: Avatar-Baukasten mit Editor und sichtbarer Ausrüstung, Monster-Baukasten (8 verschiedene Bosse, Treffer-Animation, Monster-Lexikon), Sammel-Korb, Haustiere/Reittiere je Art × Schlüpfpulver · offen: G2 Item-Icons statt Emoji, Szenen; G3 Isometrie; G4 Sound |
+| G – Grafik | 🟡 G1 fertig: Avatar-Baukasten mit Editor und sichtbarer Ausrüstung, Monster-Baukasten (8 verschiedene Bosse, Treffer-Animation, Monster-Lexikon), Sammel-Korb, Haustiere/Reittiere je Art × Schlüpfpulver · G2 fertig: eigene Item-Grafiken für alle Start-Items (neue Items bekommen das Motiv ihres Typs in Seltenheitsfarbe), Helden-Szene mit Tag/Nacht, Heldenhaus und Begleiter · offen: G3 Isometrie, G4 Sound, Grafiken in der Flutter-App |
 | 5 – Home Assistant | 🟡 REST-API + YAML-Vorlage · offen: HACS-Integration, ausgehende Webhooks |
 | 6–8 | offen |

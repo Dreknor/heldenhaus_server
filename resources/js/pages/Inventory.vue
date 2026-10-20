@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ItemIcon from '@/components/game/ItemIcon.vue';
 import PetArt from '@/components/game/PetArt.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -92,7 +93,7 @@ const tabClass = (active: boolean) => `rounded-lg px-4 py-2 text-sm font-bold tr
                     <h2 class="font-extrabold">{{ types[type] ?? type }}</h2>
                     <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
                         <div v-for="item in list" :key="item.id" class="relative flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center ring-2" :class="rarityRing[item.rarity]">
-                            <span class="text-4xl">{{ item.icon }}</span>
+                            <ItemIcon :item="item" :size="56" />
                             <span class="line-clamp-2 text-xs font-semibold">{{ item.name }}</span>
                             <span v-if="item.stats" class="text-[11px] text-muted-foreground">{{ statText(item.stats) }}</span>
                             <span class="absolute right-1.5 top-1.5 rounded-full bg-foreground px-1.5 text-[11px] font-bold text-background">×{{ item.quantity }}</span>
@@ -118,7 +119,7 @@ const tabClass = (active: boolean) => `rounded-lg px-4 py-2 text-sm font-bold tr
                 <p class="flex items-center gap-2 font-bold text-amber-600"><Coins class="size-5" /> {{ gold.toFixed(0) }} Gold</p>
                 <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                     <div v-for="item in shop" :key="item.id" class="flex items-center gap-3 rounded-2xl border bg-card p-4">
-                        <span class="text-4xl">{{ item.icon }}</span>
+                        <ItemIcon :item="item" :size="52" framed />
                         <div class="min-w-0 flex-1">
                             <p class="font-bold">{{ item.name }}</p>
                             <p class="text-xs text-muted-foreground">
@@ -148,12 +149,12 @@ const tabClass = (active: boolean) => `rounded-lg px-4 py-2 text-sm font-bold tr
                     <div v-else class="flex flex-wrap items-center gap-2">
                         <select v-model="egg" class="h-10 rounded-md border border-input bg-background px-3 text-sm">
                             <option :value="null">Ei wählen …</option>
-                            <option v-for="e in eggs" :key="e.id" :value="e.id">{{ e.icon }} {{ e.name }} (×{{ e.quantity }})</option>
+                            <option v-for="e in eggs" :key="e.id" :value="e.id">{{ e.name }} (×{{ e.quantity }})</option>
                         </select>
                         <span class="text-xl">+</span>
                         <select v-model="potion" class="h-10 rounded-md border border-input bg-background px-3 text-sm">
                             <option :value="null">Schlüpfpulver wählen …</option>
-                            <option v-for="p in potions" :key="p.id" :value="p.id">{{ p.icon }} {{ p.name }} (×{{ p.quantity }})</option>
+                            <option v-for="p in potions" :key="p.id" :value="p.id">{{ p.name }} (×{{ p.quantity }})</option>
                         </select>
                         <Button :disabled="!egg || !potion" @click="hatch">Ausbrüten</Button>
                     </div>
@@ -176,7 +177,7 @@ const tabClass = (active: boolean) => `rounded-lg px-4 py-2 text-sm font-bold tr
                                     class="w-full rounded-md border px-2 py-1 text-xs hover:bg-muted"
                                     @click="post('pets.feed', { pet: pet.id }, { food_id: f.id })"
                                 >
-                                    {{ f.icon }} {{ f.name }} (×{{ f.quantity }})
+                                    <span class="flex items-center gap-1"><ItemIcon :item="f" :size="20" /> {{ f.name }} (×{{ f.quantity }})</span>
                                 </button>
                                 <p v-if="!food.length" class="text-xs text-muted-foreground">Kein Futter – im Gold-Shop gibt es Äpfel.</p>
                             </template>

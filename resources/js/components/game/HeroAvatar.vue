@@ -12,8 +12,10 @@ const props = withDefaults(
         portrait?: boolean;
         classIcon?: string | null;
         mood?: 'normal' | 'happy' | 'hurt';
+        /** Runde Hintergrundscheibe (in Szenen ausblenden) */
+        backdrop?: boolean;
     }>(),
-    { equipment: () => ({}), seed: 1, size: 120, portrait: false, classIcon: null, mood: 'normal' },
+    { equipment: () => ({}), seed: 1, size: 120, portrait: false, classIcon: null, mood: 'normal', backdrop: true },
 );
 
 const a = computed<AvatarConfig>(() => ({ ...defaultAvatar(props.seed), ...(props.avatar ?? {}) }));
@@ -40,7 +42,7 @@ const height = computed(() => (props.portrait ? props.size : props.size * 1.2));
         :class="{ 'is-hurt': mood === 'hurt' }"
     >
         <!-- Hintergrund -->
-        <circle cx="50" cy="58" r="47" :fill="a.background" />
+        <circle v-if="backdrop" cx="50" cy="58" r="47" :fill="a.background" />
         <ellipse cx="50" cy="113" rx="24" ry="4" fill="#000" opacity=".12" />
 
         <!-- Haare hinten (lang, Zopf, Dutt) -->

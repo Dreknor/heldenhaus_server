@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ItemIcon from '@/components/game/ItemIcon.vue';
 import type { SharedData } from '@/types';
 import { usePage } from '@inertiajs/vue3';
 import { PartyPopper, TriangleAlert, X } from 'lucide-vue-next';
@@ -8,7 +9,7 @@ const page = usePage<SharedData>();
 const message = ref<string | null>(null);
 const error = ref<string | null>(null);
 const levelUp = ref<number | null>(null);
-const drop = ref<{ name: string; icon: string; rarity: string } | null>(null);
+const drop = ref<{ name: string; icon: string; rarity: string; key: string; type: string } | null>(null);
 let timer: ReturnType<typeof setTimeout> | undefined;
 
 watch(
@@ -39,7 +40,7 @@ watch(
         </Transition>
         <Transition enter-from-class="translate-y-4 scale-90 opacity-0" leave-to-class="opacity-0" enter-active-class="transition duration-300" leave-active-class="transition">
             <div v-if="drop" class="pointer-events-auto flex items-center gap-3 rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-500 px-5 py-3 font-bold text-white shadow-xl">
-                <span class="text-3xl">{{ drop.icon }}</span>
+                <span class="rounded-xl bg-white/90 p-1"><ItemIcon :item="drop" :size="40" /></span>
                 <span>Fund! Du hast <span class="underline decoration-2">{{ drop.name }}</span> gefunden.</span>
             </div>
         </Transition>

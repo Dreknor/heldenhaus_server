@@ -60,7 +60,7 @@ class TaskController extends Controller
         }
 
         if ($result->drop) {
-            $redirect->with('drop', $result->drop->only(['name', 'icon', 'rarity']));
+            $redirect->with('drop', $result->drop->only(['name', 'icon', 'rarity', 'key', 'type']));
         }
 
         if ($result->knockedOut) {

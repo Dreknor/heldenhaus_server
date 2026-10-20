@@ -3,8 +3,11 @@
 namespace Database\Seeders;
 
 use App\Domain\Family\FamilyService;
+use App\Domain\Inventory\InventoryService;
 use App\Domain\Tasks\TaskService;
+use App\Models\Item;
 use App\Models\User;
+use App\Models\UserItem;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Artisan;
 
@@ -75,5 +78,32 @@ class DatabaseSeeder extends Seeder
             ['title' => 'Einmal Spülen aussetzen', 'star_cost' => 8, 'limit_per_week' => 1],
             ['title' => 'Eis essen gehen', 'star_cost' => 20],
         ]);
+
+        $this->demoInventory($lea, $ben);
+    }
+
+    /** Ein paar Funde, Ausrüstung und Haustiere, damit die Grafiken sofort sichtbar sind. */
+    private function demoInventory(User $lea, User $ben): void
+    {
+        $give = function (User $user, array $items): void {
+            foreach ($items as $key => $quantity) {
+                $item = Item::where('key', $key)->first();
+                if ($item) {
+                    UserItem::updateOrCreate(['user_id' => $user->id, 'item_id' => $item->id], ['quantity' => $quantity]);
+                }
+            }
+        };
+
+        $give($lea, ['egg_cat' => 1, 'potion_ice' => 1, 'food_apple' => 3, 'feather' => 4, 'herbs' => 2, 'potion_health' => 1, 'head_cap' => 1]);
+        $give($ben, ['egg_wolf' => 1, 'potion_fire' => 2, 'wood' => 5, 'stone' => 3, 'ink' => 2, 'crystal_shard' => 1, 'food_cake' => 1, 'weapon_wooden_sword' => 1, 'shield_lid' => 1]);
+
+        $inventory = app(InventoryService::class);
+        $inventory->equip($lea, Item::where('key', 'head_cap')->first());
+        $inventory->equip($ben, Item::where('key', 'weapon_wooden_sword')->first());
+        $inventory->equip($ben, Item::where('key', 'shield_lid')->first());
+        $inventory->hatch($ben, Item::where('key', 'egg_wolf')->first(), Item::where('key', 'potion_fire')->first());
+
+        $lea->update(['avatar' => ['skin' => '#f6c89f', 'hair' => 'ponytail', 'hair_color' => '#a0522d', 'eyes' => 'happy', 'outfit' => '#e84393', 'background' => '#fde68a']]);
+        $ben->update(['avatar' => ['skin' => '#8d5a33', 'hair' => 'spiky', 'hair_color' => '#2b1d14', 'eyes' => 'round', 'outfit' => '#3498db', 'background' => '#bbf7d0']]);
     }
 }
