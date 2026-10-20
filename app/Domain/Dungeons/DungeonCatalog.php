@@ -37,4 +37,15 @@ class DungeonCatalog
     {
         return self::all()['blocks'][$type] ?? [$type];
     }
+
+    /** Grafik-Zuordnung für den Client (Tiled-Bausteine aus dem Kenney-Paket), Pfade als URLs. */
+    public static function art(): array
+    {
+        $art = self::all()['art'];
+        foreach (['tileset', 'block', 'sprites'] as $key) {
+            $art[$key] = str_replace(['%7B', '%7D'], ['{', '}'], asset($art[$key]));
+        }
+
+        return $art;
+    }
 }

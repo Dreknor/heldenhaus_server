@@ -58,8 +58,9 @@ class Turn
     public function setEdgeKind(int $a, int $b, string $kind): void
     {
         foreach ($this->state['edges'] as $i => $e) {
-            if (($e['a'] === $a && $e['b'] === $b) || ($e['a'] === $b && $e['b'] === $a)) {
-                $this->state['edges'][$i]['kind'] = $kind;
+            if ((($e['a'] === $a && $e['b'] === $b) || ($e['a'] === $b && $e['b'] === $a)) && $e['kind'] !== $kind) {
+                // Die frühere Art merkt sich die Darstellung (offene Tür statt Torbogen)
+                $this->state['edges'][$i] = ['kind' => $kind, 'was' => $e['kind']] + $e;
             }
         }
     }
@@ -68,7 +69,7 @@ class Turn
     {
         foreach ($this->state['edges'] as $i => $e) {
             if ($e['kind'] === 'gate') {
-                $this->state['edges'][$i]['kind'] = 'open';
+                $this->state['edges'][$i] = ['kind' => 'open', 'was' => 'gate'] + $e;
             }
         }
     }
