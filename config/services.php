@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    // Firebase Cloud Messaging HTTP v1: Pfad zur Dienstkonto-JSON aus der Firebase-Konsole.
+    // Ohne Datei bleibt Push einfach aus.
+    'fcm' => [
+        'credentials' => env('FCM_CREDENTIALS', storage_path('app/private/firebase.json')),
+        'channel' => env('FCM_ANDROID_CHANNEL', 'heldenhaus'),
+    ],
+
 ];

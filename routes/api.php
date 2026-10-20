@@ -4,6 +4,7 @@ use App\Http\Controllers\AchievementController;
 use App\Http\Controllers\Api\V1\AppReleaseController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CharacterController;
+use App\Http\Controllers\Api\V1\DeviceController;
 use App\Http\Controllers\Api\V1\FamilyController;
 use App\Http\Controllers\Api\V1\GameController;
 use App\Http\Controllers\Api\V1\HomeAssistantController;
@@ -27,6 +28,10 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
         Route::post('auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
         Route::get('me', [AuthController::class, 'me'])->name('me');
         Route::post('admin/app-releases', [AppReleaseController::class, 'store'])->name('admin.app-releases.store');
+        Route::post('devices', [DeviceController::class, 'store'])->name('devices.store');
+        Route::delete('devices', [DeviceController::class, 'destroy'])->name('devices.destroy');
+        Route::get('notifications/settings', [DeviceController::class, 'settings'])->name('notifications.settings');
+        Route::put('notifications/settings', [DeviceController::class, 'updateSettings'])->name('notifications.settings.update');
 
         Route::middleware(['family', 'day-cron'])->group(function () {
             Route::get('board', [GameController::class, 'board'])->name('board');

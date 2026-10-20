@@ -4,8 +4,10 @@ namespace App\Domain\Rewards;
 
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
+use App\Domain\Notifications\PushNotifier;
 use App\Domain\Social\FeedService;
 use App\Enums\TaskType;
+use App\Events\RedemptionRequested;
 use App\Events\RewardRedeemed;
 use App\Models\AllowanceEntry;
 use App\Models\RewardItem;
@@ -81,6 +83,8 @@ class RewardService
 
             if (! $item->requires_approval) {
                 $this->afterApproval($redemption->load('rewardItem', 'user'));
+            } else {
+                event(new RedemptionRequested($redemption->load('rewardItem', 'user')));
             }
 
             return $redemption;
@@ -100,17 +104,19 @@ class RewardService
                 UserStats::whereKey($redemption->user_id)->increment('stars', $redemption->stars);
             }
 
-            if ($approve) {
-                $redemption->loadMissing('rewardItem', 'user');
-                $this->afterApproval($redemption);
-            }
-
             $redemption->update([
                 'status' => $approve ? 'approved' : 'rejected',
                 'reviewed_by' => $reviewer->id,
                 'reviewed_at' => now(),
                 'review_comment' => $comment,
             ]);
+
+            if ($approve) {
+                $redemption->loadMissing('rewardItem', 'user');
+                $this->afterApproval($redemption);
+            } else {
+                app(PushNotifier::class)->notify($redemption->user, 'redemption_reviewed', ['redemption_id' => $redemption->id]);
+            }
 
             return $redemption;
         });
@@ -135,6 +141,7 @@ class RewardService
 
         $text = "{$member->name} bekommt {$stars} ".($stars === 1 ? 'Stern' : 'Sterne').($reason ? ": {$reason}" : '!');
         app(FeedService::class)->post($member->family_id, $member, 'stars_granted', '⭐', $text);
+        app(PushNotifier::class)->notify($member, 'stars_granted');
 
         return $stats->refresh();
     }

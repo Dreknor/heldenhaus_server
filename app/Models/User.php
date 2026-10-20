@@ -91,6 +91,16 @@ class User extends Authenticatable
         return $this->hasMany(UserAchievement::class);
     }
 
+    public function deviceTokens(): HasMany
+    {
+        return $this->hasMany(DeviceToken::class);
+    }
+
+    public function notificationSetting(): HasOne
+    {
+        return $this->hasOne(NotificationSetting::class);
+    }
+
     public function getAgeGroupAttribute(): string
     {
         return $this->ageGroup()->value;
