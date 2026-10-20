@@ -12,6 +12,7 @@
 | Document Root | Domain in konsoleH auf `…/current/public` zeigen lassen |
 | PHP CLI | Explizit den passenden Binary-Pfad nutzen (CLI-Version kann von der Web-Version abweichen) |
 | E-Mail | Hetzner-SMTP für Einladungen und Wochenbericht |
+| Externe Daten (Events) | OpenHolidays API (Feiertage, Schulferien, monatlich zwischengespeichert), optional Open-Meteo fürs Wetter, beides ohne Schlüssel über ausgehendes HTTPS (§12.3) |
 | KI (optional) | OpenRouter per ausgehendem HTTPS aus einem Queue-Job, Schlüssel nur in `.env` (§11.6) |
 
 **Deployment**: GitHub Actions bauen das Artefakt (`composer install --no-dev`, `npm run build`) und übertragen es per rsync/SSH in den Ordner `releases/<timestamp>`. Danach laufen `artisan migrate --force` und `optimize`, der Symlink `current` wird umgehängt (Zero-Downtime, z. B. mit Deployer). Composer/Node laufen **nicht** auf dem Server. Eine Staging-Subdomain mit eigener DB dient zum Testen.
@@ -35,12 +36,13 @@ app/
     Rewards/        Familien-Shop, Sterne, Einlösungen, Taschengeld-Konto
     Social/         Feed, Reaktionen, Nachrichten (gefiltert nach Alter)
     Integrations/HomeAssistant/  Token, Ereignis-Zuordnung, Webhooks, Prüfprotokoll
+    Events/         Kalender (Osterformel, Regeln, Schulferien), Planer, Trigger, Event-Fortschritt, Belohnungen (§12)
     Notifications/  FCM, E-Mail, Ruhezeiten
     Support/        Fokus & Alltagshilfen: Einstellungen, Energiespar-Tag, Erholungs-Quests, Fokus-Zeiten, Schritt-Vorschläge (Vorlagen, OpenRouter) (§11)
   Http/Controllers/{Web,Api/V1}
 ```
 - Geschäftslogik in **Action-Klassen** (`ScoreTask`, `RunDayCron`, `ApproveCompletion`, `RedeemReward`, `RotateChores`), damit Web, API und HA dieselbe Logik nutzen
-- **Domain-Events** (`TaskScored`, `LevelUp`, `CompletionApproved`, `RewardRedeemed`) → Listener für Erfolge, Boss-Schaden, Push und HA-Webhooks
+- **Domain-Events** (`TaskScored`, `LevelUp`, `CompletionApproved`, `RewardRedeemed`, `BossDefeated`, `FamilyDayEnded`, `MemberJoined`, `BuildProjectCompleted`) → Listener für Erfolge, Boss-Schaden, Spiel-Events (§12), Push und HA-Webhooks
 - **Policies** für Rollen und Altersgruppen, Familien-Scope über einen Global Scope (Mandantentrennung)
 - Inhalts- und Super-Admin-Bereich mit **Filament** unter `/admin` (Items, Quests, Familien)
 
@@ -66,6 +68,7 @@ app/
 - `challenges`, `challenge_participants`
 - `feed_entries`, `reactions`, `messages`
 - `device_tokens` (FCM), `notification_settings` (Ruhezeiten)
+- Events (§12.5): Inhalt `events.json` · `family_event_settings`, `member_dates`, `holiday_periods`, `family_events`, `event_participations`, `event_trigger_log`
 - Fokus & Alltagshilfen (§11.5): `user_support_settings`, `low_energy_days`, `recovery_quests`, `focus_sessions`, `ai_requests`; `tasks` bekommt Status `inbox`, `is_core`, `streak_paused_at`, `streak_best`, Checklisten-Einträge bekommen `id` und `rewarded_at`
 - `ha_event_mappings`, `ha_webhooks` (URL, Secret), `personal_access_tokens`, `activity_log`
 
@@ -78,6 +81,7 @@ app/
 - Dungeons: `GET dungeons/current`, `POST dungeons/{id}/move|interact|fight|use-item` (je mit `client_uuid`), `GET dungeons/{id}/log?since=`
 - Housing: `GET home`, `GET rooms/{id}`, `PUT rooms/{id}/layout` (ganzes Layout mit Versionsnummer gegen gleichzeitiges Bearbeiten), `POST build-projects/{id}/contribute`, `POST garden/{plot}/sow|water|harvest`, Gästebuch
 - Familie: Mitglieder, Einladungen, Rotationen, Belohnungen, Einlösungen, Feed, Wochenbericht
+- Events: `GET events`, `GET events/{id}`, `GET events/history`, `POST events/{id}/advent/{day}`, `POST events/{id}/secret-help`, `POST events/{id}/merchant/buy`, Eltern `GET|PUT family/event-settings`, `PUT members/{id}/dates`, `POST events/start`
 - Fokus & Alltagshilfen: `POST inbox`, `POST inbox/{id}/sort`, `POST tasks/{id}/steps/{step}/score`, `POST tasks/{id}/steps/suggest`, `POST|DELETE me/low-energy`, `focus-sessions` (Start, Ende, Verlängern, Einladen), `GET|PUT me/support-settings`
 - HA: `GET ha/state`, `POST ha/events`, `POST ha/tasks`, `POST ha/tasks/{id}/complete`
 - Versionierung über `/v1`, die App meldet ihre Version mit, und der Server kann ein Update erzwingen.

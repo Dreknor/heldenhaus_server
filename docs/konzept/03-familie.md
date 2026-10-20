@@ -40,6 +40,8 @@
 - **Wochenbericht** (Sonntag, Push und E-Mail an Eltern): Verteilung der Aufgaben (Fairness-Diagramm), Streaks, offene Freigaben. Energiespar-Tage erscheinen nur als Anzahl, pausierte Serien als „pausiert“, nie als Versagen (§11).
 - Im **sanften Modus** (§11.3) nennt der Feed nie, wer eine Daily verpasst hat.
 
+- **Familien-Events** (§12): Willkommensfest für neue Mitglieder, Hauseinweihung, Heldenjubiläum und auf Wunsch Geburtstage (nur Tag und Monat, von den Eltern eingetragen). Eltern schalten einzelne Events ab und wählen das Bundesland für Feiertage und Schulferien.
+
 ## 3.6 Bekannte & befreundete Familien
 - **Familienbündnis**: Zwei Familien verbinden sich, wenn beide Elternteile zustimmen. Danach sind gemeinsame Challenges und Partys möglich.
 - Kinder unter 13 sehen familienübergreifend **keinen Freitext-Chat**, nur vorgefertigte Nachrichten und Emojis. Teens bekommen Chat nur, wenn die Eltern ihn freigeben.

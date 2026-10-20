@@ -61,6 +61,8 @@ Zielkonflikt: „Sofortiges Feedback“ und „reizarm“ widersprechen sich tei
 - Die Chance steigt leicht mit jeder Erledigung ohne Überraschung und setzt danach zurück („Pech-Schutz“), damit sie verlässlich ab und zu kommt. Sie hat ein Tageslimit wie die Drops (§2.3).
 - Es gelten die Regeln aus §1: nur Spielwährung und Spielgegenstände, **nie Sterne, nie Echtgeld**, keine Kisten zum Kaufen.
 
+**Events** (§12) folgen denselben Regeln: kein Countdown-Druck, Ziele mit etwa 60 % Aktivität erreichbar, Event-Gegenstände kehren wieder, „Willkommen zurück“ für den Wiedereinstieg nach einer Pause.
+
 **Gemeinsam statt allein**
 - Familien-Quests (§3.5) sind für Menschen mit ADHS besonders geeignet, weil der Fortschritt gemeinsam entsteht. Im Fokus-Profil ist die Familien-Quest deshalb auf dem Hauptbildschirm sichtbar, die Solo-Quest ist optional.
 - Teamaufgaben und „Körper-Doubling“: Eine Person kann eine andere zu einer **gemeinsamen Fokus-Zeit** einladen (beide sehen denselben Timer, §11.4). Beide bekommen beim Ende einen kleinen Bonus.
