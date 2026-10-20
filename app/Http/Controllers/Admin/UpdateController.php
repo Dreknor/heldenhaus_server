@@ -2,95 +2,113 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Domain\Updater\DeploymentEnvironment;
-use App\Domain\Updater\ReleaseSource;
-use App\Domain\Updater\UpdateRunner;
 use App\Domain\Updater\UpdaterException;
+use App\Domain\Updater\UpdateService;
 use App\Http\Controllers\Controller;
-use App\Models\SystemUpdate;
+use Closure;
+use Illuminate\Foundation\Http\MaintenanceModeBypassCookie;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
-use Throwable;
 
-class UpdateController extends Controller
+/**
+ * Oberfläche des Online-Updaters. Die Ausführung selbst übernimmt der
+ * Scheduler (updater:run --if-requested), damit das Update nicht an die
+ * Laufzeit- und Rechtegrenzen des Webservers gebunden ist.
+ */
+class UpdateController extends Controller implements HasMiddleware
 {
-    public function index(DeploymentEnvironment $env): Response
+    public function __construct(private readonly UpdateService $updater) {}
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware(function (Request $request, Closure $next) {
+                abort_unless(config('updater.enabled'), 404);
+
+                return $next($request);
+            }),
+        ];
+    }
+
+    public function index(): Response
     {
         return Inertia::render('admin/Updates', [
-            'version' => config('updater.version'),
-            'channel' => config('updater.channel'),
-            'managed' => $env->isManaged(),
-            'configured' => (bool) (config('updater.github.repository') && config('updater.public_key')),
-            'available' => Cache::get('updater:available'),
-            'releases' => $env->isManaged() ? array_map(fn ($p) => ['path' => $p, 'version' => basename($p), 'current' => $p === $env->currentReleasePath()], $env->releases()) : [],
-            'history' => SystemUpdate::latest()->limit(10)->get()->map(fn (SystemUpdate $u) => [
-                'id' => $u->id,
-                'from' => $u->from_version,
-                'to' => $u->to_version,
-                'status' => $u->status,
-                'step' => $u->step,
-                'log' => $u->log,
-                'created_at' => $u->created_at->format('d.m.Y H:i'),
-            ]),
-            'steps' => UpdateRunner::STEPS,
+            'check' => $this->updater->lastCheck(),
+            'state' => $this->updater->publicState(),
+            'log' => $this->updater->logTail(),
+            'maintenance' => app()->isDownForMaintenance(),
         ]);
     }
 
-    public function check(UpdateRunner $runner): RedirectResponse
+    public function status(): JsonResponse
     {
-        try {
-            $release = $runner->check();
-        } catch (Throwable $e) {
-            return back()->withErrors(['game' => 'Prüfung fehlgeschlagen: '.$e->getMessage()]);
-        }
-
-        Cache::put('updater:available', $release?->toArray(), now()->addDay());
-
-        return back()->with('success', $release ? "Version {$release->version} ist verfügbar." : 'Heldenhaus ist aktuell.');
+        return response()->json([
+            'state' => $this->updater->publicState(),
+            'log' => $this->updater->logTail(),
+            'maintenance' => app()->isDownForMaintenance(),
+        ]);
     }
 
-    public function start(Request $request, UpdateRunner $runner, ReleaseSource $source): JsonResponse
+    public function check(): RedirectResponse
     {
-        $data = $request->validate(['version' => ['required', 'string']]);
-        $release = $source->find($data['version']);
-        abort_if($release === null, 404, 'Version nicht gefunden.');
+        $result = $this->updater->check();
+
+        if ($result['error']) {
+            return back()->withErrors(['game' => 'Prüfung fehlgeschlagen: '.$result['error']]);
+        }
+        if ($result['fetch_error']) {
+            return back()->withErrors(['game' => 'Das Repository konnte nicht abgefragt werden (Prüfung erfolgt zusätzlich per Scheduler).']);
+        }
+
+        return back()->with('success', $result['behind'] > 0
+            ? $result['behind'].' neue(r) Commit(s) verfügbar.'
+            : 'Heldenhaus ist aktuell.');
+    }
+
+    public function start(Request $request): RedirectResponse
+    {
+        // Läuft Heldenhaus bereits im Wartungsmodus (z. B. nach einem fehlgeschlagenen
+        // Update), muss der Bypass zum bestehenden Geheimnis passen.
+        $maintenance = app()->maintenanceMode();
+        $secret = ($maintenance->active() ? ($maintenance->data()['secret'] ?? null) : null) ?: Str::random(40);
 
         try {
-            $update = $runner->start($release, $request->user());
+            $this->updater->request($request->user()->name, $request->boolean('full'), $secret);
         } catch (UpdaterException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
-        }
-
-        return response()->json($this->state($update));
-    }
-
-    /** Ein Schritt pro Anfrage – passt zu den Laufzeitgrenzen des Webhostings. */
-    public function step(SystemUpdate $update, UpdateRunner $runner): JsonResponse
-    {
-        set_time_limit(280);
-
-        return response()->json($this->state($runner->step($update)));
-    }
-
-    public function rollback(Request $request, UpdateRunner $runner): RedirectResponse
-    {
-        $data = $request->validate(['path' => ['required', 'string']]);
-
-        try {
-            $runner->rollbackTo($data['path']);
-        } catch (Throwable $e) {
             return back()->withErrors(['game' => $e->getMessage()]);
         }
 
-        return back()->with('success', 'Auf '.basename($data['path']).' zurückgeschaltet.');
+        Log::info('Online-Update angefordert', ['user_id' => $request->user()->id, 'full' => $request->boolean('full')]);
+
+        // Bypass-Cookie: Der Admin kann den Fortschritt auch im Wartungsmodus verfolgen.
+        return back()->with('success', 'Das Update wurde angefordert und startet innerhalb einer Minute.')
+            ->withCookie(MaintenanceModeBypassCookie::create($secret));
     }
 
-    private function state(SystemUpdate $u): array
+    public function cancel(): RedirectResponse
     {
-        return ['id' => $u->id, 'status' => $u->status, 'step' => $u->step, 'log' => $u->log, 'to' => $u->to_version];
+        return $this->updater->cancelRequest()
+            ? back()->with('success', 'Die Update-Anforderung wurde zurückgenommen.')
+            : back()->withErrors(['game' => 'Es ist kein Update angefordert (oder es läuft bereits).']);
+    }
+
+    public function up(Request $request): RedirectResponse
+    {
+        if ($this->updater->isRunning()) {
+            return back()->withErrors(['game' => 'Während eines laufenden Updates kann der Wartungsmodus nicht beendet werden.']);
+        }
+
+        Artisan::call('up');
+        Log::warning('Wartungsmodus manuell über den Online-Updater beendet', ['user_id' => $request->user()->id]);
+
+        return back()->with('success', 'Der Wartungsmodus wurde beendet.');
     }
 }

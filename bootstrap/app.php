@@ -26,10 +26,8 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        $middleware->encryptCookies(except: ['appearance']);
-
-        // Der Online-Updater muss auch im Wartungsmodus weiterlaufen
-        $middleware->preventRequestsDuringMaintenance(except: ['admin/updates/*']);
+        // laravel_maintenance: Bypass-Cookie des Online-Updaters, wird unverschlüsselt geprüft
+        $middleware->encryptCookies(except: ['appearance', 'laravel_maintenance']);
 
         $middleware->alias([
             'family' => EnsureFamily::class,

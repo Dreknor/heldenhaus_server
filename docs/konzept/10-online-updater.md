@@ -4,47 +4,41 @@ Heldenhaus läuft auf einem Hetzner-Webhosting, und die App wird außerhalb des 
 
 | Kanal | Was wird aktualisiert | Ausgelöst durch |
 |---|---|---|
-| **Server-Updater** | Laravel-Code, Web-Frontend, Datenbank-Migrationen | Admin-Oberfläche („Update installieren“), optional automatisch nachts |
+| **Server-Updater** | Laravel-Code, Web-Frontend, Datenbank-Migrationen (aus dem Git-Repository) | Admin-Oberfläche („Update installieren“), ausgeführt vom Scheduler |
 | **App-Updater** | Android-App (APK) | Die App prüft beim Start und täglich |
 | **Inhalts-Updates** | Spielinhalte (JSON), Spritesheets, Sounds | Automatisch beim Abgleich, ohne App- oder Server-Update (siehe §2.8) |
 | **HA-Integration** | `heldenhaus`-Integration | HACS (GitHub-Releases des Integrations-Repos) |
 
 ---
 
-## 11.1 Server-Updater (Selbst-Update auf dem Webhosting)
+## 11.1 Server-Updater (Selbst-Update aus dem Git-Repository)
 
-**Release-Paket**: GitHub Actions bauen bei jedem Tag `vX.Y.Z` ein **fertiges Paket** `heldenhaus-X.Y.Z.zip`. Es enthält `vendor/` und die gebauten Assets, auf dem Server ist also weder Composer noch Node nötig. Dazu kommen:
-- `manifest.json`: Version, Kanal (`stable`/`beta`), minimale PHP-Version, nötige Erweiterungen, SHA-256 des Pakets, Changelog, Hinweis „enthält Migrationen“
-- `manifest.sig`: **Ed25519-Signatur** des Manifests (libsodium ist in PHP enthalten). Der öffentliche Schlüssel liegt in `config/updater.php`, der private nur als GitHub-Secret.
-
-**Verzeichnisstruktur** (identisch mit dem GitHub-Actions-Deployment, beide Wege sind kompatibel):
-```
-~/heldenhaus/
-  releases/1.4.0/  releases/1.5.0/      ← höchstens 3 Versionen bleiben erhalten
-  shared/.env  shared/storage/          ← werden per Symlink eingebunden
-  current -> releases/1.5.0             ← Document Root zeigt auf current/public
-  backups/                              ← DB-Sicherungen vor jedem Update
-```
+Der Server-Updater arbeitet wie der des Elterninfoboards: Die Installation ist ein **Git-Checkout** des Server-Repositorys, und ein Update zieht neue Commits per `git pull --ff-only`. Auf dem Server müssen deshalb **Git, Composer und Node/npm** verfügbar sein (`public/build` und `vendor/` sind nicht versioniert).
 
 **Ablauf**:
-1. **Prüfen**: Ein täglicher Scheduler-Job fragt die GitHub-Releases-API ab (für ein privates Repo mit Token). Eine neue Version erscheint als Hinweis im Admin-Bereich mit Changelog, Admins bekommen optional eine E-Mail.
-2. **Vorabprüfung**: PHP-Version, Erweiterungen, freier Speicherplatz, Schreibrechte, laufende Queue-Jobs.
-3. **Herunterladen und prüfen**: Das Paket wird geladen, Signatur und SHA-256 werden geprüft. Stimmt etwas nicht, bricht der Vorgang ohne Änderung ab.
-4. **Entpacken** nach `releases/X.Y.Z`, `.env` und `storage` werden per Symlink eingebunden.
-5. **Datenbank sichern**: SQL-Dump nach `backups/` (PHP-basiert, da `mysqldump` nicht immer verfügbar ist).
-6. **Wartungsmodus** (`artisan down` mit Secret-Bypass für Admins und kindgerechter Wartungsseite)
-7. **Migrationen** mit `migrate --force` im neuen Release, danach `optimize`
-8. **Umschalten**: Der Symlink `current` wird atomar auf das neue Release gesetzt.
-9. **Gesundheitsprüfung**: `/up` sowie ein internes Smoke-Test-Kommando (DB, Cache, Queue, Spielformeln)
-10. **Wartungsmodus aus**. Ein Feed-Eintrag für Admins meldet z. B. „Heldenhaus wurde auf 1.5.0 aktualisiert“.
+1. **Prüfen**: `php artisan updater:check` (per Scheduler alle 6 Stunden, Cron-Ausdruck `UPDATER_CHECK_CRON`) holt den Stand des Remotes und vergleicht ihn mit `HEAD`. Die Admin-Seite zeigt neue Commits, Migrationen, geänderte Abhängigkeiten/Assets, lokale Änderungen und lokale Commits.
+2. **Anfordern**: Der Admin klickt „Update installieren“. Die Oberfläche merkt das Update nur vor (`storage/app/updater/state.json`) und setzt ein **Bypass-Cookie** für den Wartungsmodus.
+3. **Ausführen**: Der Scheduler startet innerhalb einer Minute `updater:run --if-requested` – als CLI-Prozess mit dem Benutzer, dem die Dateien gehören, ohne die Laufzeitgrenzen des Webservers. Jeder Schritt läuft als eigener Prozess:
 
-**Fehlerfall und Rollback**: Scheitert ein Schritt ab 7, wird `current` auf das vorherige Release zurückgesetzt. Bei Fehlern in der Migration wird zusätzlich die DB-Sicherung eingespielt. Dafür gilt die **Migrationsregel**: nur vorwärtskompatible Migrationen. Spalten werden erst in einer späteren Version entfernt, sodass die Vorversion mit dem neuen Schema weiterläuft. Ein Rollback ist außerdem per Knopfdruck auf jede der aufbewahrten Versionen möglich.
+| Schritt | Inhalt |
+|---|---|
+| Voraussetzungen | richtiger Branch, `git fetch`, nur Fast-Forward, keine lokal geänderten Dateien, die überschrieben würden |
+| Datenbank sichern | `mysqldump` (ohne mysqldump: PHP-Dump) bzw. SQLite-Kopie, gzip, nach `storage/app/updater/backups` (die letzten 5) |
+| Wartungsmodus | `artisan down --render=errors::503 --secret=…` |
+| `git pull --ff-only` | |
+| `composer install --no-dev` | nur bei geänderter `composer.json`/`composer.lock` |
+| `npm ci && npm run build` | nur bei geänderten Frontend-Dateien |
+| `migrate --force` | |
+| Zusatzbefehle | `game:content-sync` (neue Spielinhalte, idempotent) |
+| Caches | `config/route/view/event:clear`, danach `optimize` |
+| `queue:restart`, `heldenhaus:smoke` | Gesundheitsprüfung (DB, Cache, Spielformeln) |
+| Wartungsmodus aus | |
 
-**Grenzen des Webhostings**: Die PHP-Laufzeit pro Anfrage ist begrenzt. Der Updater ist deshalb ein **Zustandsautomat** (Tabelle `system_updates`). Jeder Schritt ist eine eigene, kurze Anfrage: Die Admin-Seite ruft die Schritte nacheinander auf und zeigt den Fortschritt live. Alternativ geht dasselbe per SSH oder Cron mit `php artisan heldenhaus:update [--version=] [--channel=]`.
+4. **Fortschritt**: Die Admin-Seite fragt alle 3 Sekunden `admin/updates/status` ab und zeigt Schritte und Protokoll live – dank Bypass-Cookie auch im Wartungsmodus.
 
-**Automatik (optional)**: Patch-Versionen (`X.Y.*`) auf dem Kanal `stable` können sich nachts um 03:00 selbst installieren, aber nur ohne Migrationen. Größere Versionen brauchen immer einen Klick vom Admin.
+**Fehlerfall**: Scheitert ein Schritt, bleibt Heldenhaus im Wartungsmodus (`UPDATER_STAY_DOWN_ON_FAILURE`), damit kein halb migrierter Stand online geht. Nach Behebung lässt sich das Update mit „Update-Schritte erneut ausführen“ (`updater:run --full`) wiederholen oder der Wartungsmodus auf der Seite beenden. Ein automatischer Rollback findet nicht statt; die Datenbanksicherung liegt in `storage/app/updater/backups`. Abgestürzte Läufe erkennt der Updater an der freigegebenen Sperrdatei.
 
-**Sicherheit**: Nur `is_admin` darf Updates auslösen. Jede Aktion landet im Prüfprotokoll. Downloads gehen nur von der konfigurierten Release-Quelle aus, und ohne gültige Signatur gibt es keine Installation.
+**Sicherheit**: Nur `is_admin` darf Updates prüfen und anfordern. Quelle ist ausschließlich das konfigurierte Git-Remote; das Bypass-Geheimnis taucht weder im Status noch im Protokoll auf. Abschalten mit `UPDATER_ENABLED=false`.
 
 ---
 
@@ -66,22 +60,21 @@ Es gibt zwei Wege, abhängig von der Verteilung (Build-Flavor):
 
 **Bereitstellung**: GitHub Actions bauen die signierte Release-APK (Keystore als Secret) und laden sie mit Changelog über die Admin-API `POST /api/v1/admin/app-releases` hoch. Alternativ geht das per Upload im Admin-Bereich. Kanäle `stable` / `beta`: Einzelne Geräte (z. B. das eines Elternteils) können Beta-Versionen erhalten.
 
-**Kompatibilität zwischen Server und App**: Server-Releases geben im Manifest `min_app_build` an. Der Server-Updater warnt, wenn ein Server-Update ältere Apps aussperren würde. Grundsatz: Die API `/v1` bleibt abwärtskompatibel, Pflicht-Updates sind die Ausnahme.
+**Kompatibilität zwischen Server und App**: Grundsatz: Die API `/v1` bleibt abwärtskompatibel, Pflicht-Updates sind die Ausnahme.
 
 ---
 
 ## 11.3 Datenmodell & API
 
-- `system_updates`: Version, Kanal, Status (`pending|downloading|verifying|migrating|switching|done|failed|rolled_back`), aktueller Schritt, Log (JSON), `started_by`, `backup_path`, Zeitstempel
+- Server-Updater: keine Tabelle – Status, Prüfergebnis, Protokolle und Sicherungen liegen als Dateien unter `storage/app/updater` (lesbar auch während Migrationen)
 - `app_releases`: `version_name`, `version_code`, Kanal, `apk_path`, `sha256`, Größe, Changelog, `min_supported_code`, `published_at`
 - `devices` (bzw. `device_tokens`) bekommt `app_build` und `channel`: Dadurch sieht man, welches Familiengerät veraltet ist.
-- Admin-Web: `GET admin/updates`, `POST admin/updates/check`, `POST admin/updates/{version}/step`, `POST admin/updates/rollback/{version}`
+- Admin-Web: `GET admin/updates`, `GET admin/updates/status`, `POST admin/updates/check`, `POST admin/updates/start` (`full` = alle Schritte), `POST admin/updates/cancel`, `POST admin/updates/up`
 - App-API: `GET app/version`, `GET app/download/{release}` (signiert), Admin: `POST admin/app-releases`
 
 ## 11.4 Tests
 
-- Signaturprüfung: Ein manipuliertes Manifest oder Paket wird abgelehnt (Ed25519 mit Test-Schlüsselpaar).
-- Zustandsautomat: Jeder Schritt ist idempotent und kann nach einem Abbruch fortgesetzt werden. Ein Fehler ab Schritt 7 löst den Rollback aus (Dateisystem mit `Storage::fake` bzw. temporären Verzeichnissen).
-- Versionslogik: Kanäle, Erkennung von Patch-Versionen für die Automatik, `min_supported` → `426`
+- Server-Updater: nur Admins, Anfordern/Zurücknehmen, Bypass-Cookie passt zum Geheimnis, Geheimnis nicht im Status, abgestürzte Läufe gelten als fehlgeschlagen, `updater:run --if-requested` tut ohne Anforderung nichts
+- Versionslogik der App: Kanäle, `min_supported` → `426`
 - App: Unit-Tests für Versionsvergleich und SHA-Prüfung, Integrationstest gegen Staging mit einer Test-APK
 - Probelauf auf Staging vor jedem Produktiv-Update. Das Staging-Update läuft über denselben Updater.

@@ -2,83 +2,158 @@
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
-import { CircleAlert, CircleCheck, Download, LoaderCircle, RotateCcw } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import {
+    Circle,
+    CircleAlert,
+    CircleCheck,
+    CircleX,
+    Database,
+    Download,
+    GitBranch,
+    HardHat,
+    Hourglass,
+    LoaderCircle,
+    Minus,
+    Package,
+    Paintbrush,
+    Plug,
+    RefreshCw,
+    RotateCcw,
+    TriangleAlert,
+} from 'lucide-vue-next';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
-interface LogEntry {
-    at: string;
-    level: string;
-    message: string;
+interface Commit {
+    hash: string;
+    short: string;
+    date: string;
+    author: string;
+    subject: string;
+}
+
+interface Check {
+    checked_at: string;
+    remote: string;
+    branch: string | null;
+    current_branch: string | null;
+    branch_matches: boolean;
+    current: Commit | null;
+    latest: Commit | null;
+    behind: number;
+    ahead: number;
+    commits: Commit[];
+    local_changes: string[];
+    migrations: number;
+    dependencies: boolean;
+    assets: boolean;
+    fetch_error: string | null;
+    error: string | null;
+}
+
+interface Step {
+    label: string;
+    status: 'pending' | 'running' | 'done' | 'skipped' | 'warning' | 'failed';
+    message: string | null;
+}
+
+interface State {
+    status: 'idle' | 'requested' | 'running' | 'success' | 'failed';
+    requested_by?: string | null;
+    requested_at?: string | null;
+    started_at?: string | null;
+    finished_at?: string | null;
+    message?: string | null;
+    error?: string | null;
+    steps?: Record<string, Step>;
 }
 
 const props = defineProps<{
-    version: string;
-    channel: string;
-    managed: boolean;
-    configured: boolean;
-    available: { version: string; channel: string; changelog: string | null; publishedAt: string | null } | null;
-    releases: { path: string; version: string; current: boolean }[];
-    history: { id: number; from: string; to: string; status: string; step: string | null; log: LogEntry[]; created_at: string }[];
-    steps: string[];
+    check: Check | null;
+    state: State;
+    log: string;
+    maintenance: boolean;
 }>();
 
-const stepLabels: Record<string, string> = {
-    download: 'Herunterladen',
-    verify: 'Signatur prüfen',
-    extract: 'Entpacken',
-    backup: 'Datenbank sichern',
-    maintenance: 'Wartungsmodus',
-    migrate: 'Datenbank aktualisieren',
-    switch: 'Umschalten',
-    health: 'Gesundheitsprüfung',
-    finish: 'Aufräumen',
-};
+const state = ref<State>(props.state);
+const log = ref(props.log);
+const maintenance = ref(props.maintenance);
+const connectionLost = ref(false);
+const finishedNow = ref(false);
+const logEl = ref<HTMLPreElement | null>(null);
+let timer: ReturnType<typeof setTimeout> | undefined;
 
-const running = ref(false);
-const state = ref<{ id: number; status: string; step: string | null; log: LogEntry[] } | null>(null);
-const error = ref<string | null>(null);
+const busy = computed(() => ['requested', 'running'].includes(state.value.status));
 
-const currentIndex = computed(() => (state.value?.step ? props.steps.indexOf(state.value.step) : props.steps.length));
+// Nach Inertia-Aktionen (Anfordern, Zurücknehmen) kommen neue Props
+watch(
+    () => props.state,
+    (value) => {
+        state.value = value;
+        log.value = props.log;
+        maintenance.value = props.maintenance;
+        if (busy.value) poll();
+    },
+);
 
-function xsrf(): string {
-    const cookie = document.cookie.split('; ').find((c) => c.startsWith('XSRF-TOKEN='));
-    return cookie ? decodeURIComponent(cookie.split('=')[1]) : '';
+const waitingTooLong = computed(
+    () =>
+        state.value.status === 'requested' && !!state.value.requested_at && Date.now() - new Date(state.value.requested_at).getTime() > 3 * 60 * 1000,
+);
+const updatable = computed(() => props.check && !props.check.error && props.check.behind > 0);
+
+function formatDate(value?: string | null): string {
+    return value ? new Date(value).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' }) : '–';
 }
 
-async function post(url: string, body: object = {}) {
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-XSRF-TOKEN': xsrf() },
-        body: JSON.stringify(body),
-    });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.message ?? `Fehler ${response.status}`);
-    return data;
+function poll() {
+    clearTimeout(timer);
+    timer = setTimeout(refresh, 3000);
 }
 
-async function install() {
-    if (!props.available || !confirm(`Heldenhaus auf ${props.available.version} aktualisieren? Während des Updates ist die Seite kurz im Wartungsmodus.`)) return;
-    running.value = true;
-    error.value = null;
+async function refresh() {
     try {
-        state.value = await post(route('admin.updates.start'), { version: props.available.version });
-        while (state.value && !['done', 'failed', 'rolled_back'].includes(state.value.status)) {
-            state.value = await post(route('admin.updates.step', { update: state.value.id }));
-        }
-    } catch (e) {
-        error.value = (e as Error).message;
-    } finally {
-        running.value = false;
-        router.reload();
+        const response = await fetch(route('admin.updates.status'), {
+            headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin',
+        });
+        if (!response.ok) throw new Error(String(response.status));
+        const data = await response.json();
+        const wasBusy = busy.value;
+        state.value = data.state;
+        log.value = data.log;
+        maintenance.value = data.maintenance;
+        connectionLost.value = false;
+        if (wasBusy && !busy.value) finishedNow.value = true;
+        await nextTick();
+        if (logEl.value) logEl.value.scrollTop = logEl.value.scrollHeight;
+    } catch {
+        // Während composer/Migrationen kann der Server kurzzeitig Fehler liefern
+        connectionLost.value = true;
     }
+    if (busy.value || connectionLost.value) poll();
 }
 
-function rollback(path: string, version: string) {
-    if (!confirm(`Auf Version ${version} zurückschalten? Die Datenbank bleibt unverändert.`)) return;
-    router.post(route('admin.updates.rollback'), { path });
+onMounted(() => {
+    if (busy.value) poll();
+});
+onBeforeUnmount(() => clearTimeout(timer));
+
+function post(name: string, data: Record<string, boolean> = {}, question?: string) {
+    if (question && !confirm(question)) return;
+    router.post(route(name), data, { preserveScroll: true });
 }
 
-const statusLabel: Record<string, string> = { done: 'erfolgreich', failed: 'fehlgeschlagen', rolled_back: 'zurückgerollt', running: 'läuft' };
+function install() {
+    post('admin.updates.start', {}, 'Update jetzt installieren? Heldenhaus ist währenddessen für alle im Wartungsmodus.');
+}
+
+function rerun() {
+    post('admin.updates.start', { full: true }, 'Alle Update-Schritte erneut ausführen? Heldenhaus ist währenddessen im Wartungsmodus.');
+}
+
+function endMaintenance() {
+    post('admin.updates.up', {}, 'Wartungsmodus wirklich beenden? Bei einem fehlgeschlagenen Update ist die Installation evtl. unvollständig.');
+}
 </script>
 
 <template>
@@ -88,70 +163,195 @@ const statusLabel: Record<string, string> = { done: 'erfolgreich', failed: 'fehl
         <div class="flex flex-1 flex-col gap-6 p-4 md:p-6">
             <div class="flex flex-wrap items-center gap-3">
                 <h1 class="flex-1 text-2xl font-extrabold tracking-tight">System-Updates</h1>
-                <span class="rounded-lg bg-muted px-3 py-1 font-mono text-sm">Version {{ version }} · {{ channel }}</span>
-                <Button variant="outline" :disabled="running" @click="router.post(route('admin.updates.check'))">Nach Updates suchen</Button>
+                <span v-if="check?.current" class="rounded-lg bg-muted px-3 py-1 font-mono text-sm"
+                    >{{ check.current.short }} · {{ check.branch }}</span
+                >
+                <Button variant="outline" :disabled="busy" @click="post('admin.updates.check')"> <RefreshCw class="size-4" /> Jetzt prüfen </Button>
             </div>
 
-            <div v-if="!managed" class="flex gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm dark:bg-amber-950/30">
-                <CircleAlert class="size-5 shrink-0 text-amber-600" />
-                <p>Diese Installation liegt nicht in der Release-Struktur (<code>releases/</code>, <code>shared/</code>, <code>current</code>). Der Online-Updater ist nur auf dem Server verfügbar – siehe <code>docs/deployment.md</code>.</p>
-            </div>
-            <div v-else-if="!configured" class="flex gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm dark:bg-amber-950/30">
-                <CircleAlert class="size-5 shrink-0 text-amber-600" />
-                <p>Release-Quelle oder öffentlicher Schlüssel fehlen (<code>UPDATER_GITHUB_REPOSITORY</code>, <code>UPDATER_PUBLIC_KEY</code>).</p>
+            <!-- Wartungsmodus -->
+            <div
+                v-if="maintenance"
+                class="flex flex-wrap items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm dark:bg-amber-950/30"
+            >
+                <HardHat class="size-5 shrink-0 text-amber-600" />
+                <p class="flex-1">
+                    <strong>Heldenhaus befindet sich im Wartungsmodus.</strong>
+                    Nur du siehst die Seite weiterhin (Bypass-Cookie).
+                </p>
+                <Button v-if="state.status !== 'running'" size="sm" class="bg-amber-600 text-white hover:bg-amber-700" @click="endMaintenance">
+                    Wartungsmodus beenden
+                </Button>
             </div>
 
-            <section v-if="available" class="rounded-2xl border bg-card p-5 shadow-sm">
-                <div class="flex flex-wrap items-center gap-3">
-                    <Download class="size-6 text-emerald-600" />
-                    <p class="flex-1 text-lg font-extrabold">Version {{ available.version }} ist verfügbar</p>
-                    <Button :disabled="running || !managed" @click="install">
-                        <LoaderCircle v-if="running" class="size-4 animate-spin" />
-                        Update installieren
-                    </Button>
-                </div>
-                <pre v-if="available.changelog" class="mt-3 whitespace-pre-wrap rounded-lg bg-muted p-3 text-sm">{{ available.changelog }}</pre>
+            <div class="grid gap-6 lg:grid-cols-2">
+                <!-- Installierte Version -->
+                <section class="rounded-2xl border bg-card p-5 shadow-sm">
+                    <h2 class="mb-3 font-extrabold">Installierte Version</h2>
+
+                    <p v-if="!check" class="text-sm text-muted-foreground">Es wurde noch nicht nach Updates gesucht.</p>
+                    <p v-else-if="check.error" class="text-sm font-semibold text-rose-600">Prüfung fehlgeschlagen: {{ check.error }}</p>
+                    <template v-else>
+                        <dl class="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1.5 text-sm">
+                            <dt class="text-muted-foreground">Branch</dt>
+                            <dd class="font-mono">{{ check.remote }}/{{ check.branch }}</dd>
+                            <dt class="text-muted-foreground">Commit</dt>
+                            <dd>
+                                <span class="font-mono">{{ check.current?.short }}</span> vom {{ formatDate(check.current?.date) }}
+                            </dd>
+                            <dt class="text-muted-foreground">Beschreibung</dt>
+                            <dd>{{ check.current?.subject }}</dd>
+                            <dt class="text-muted-foreground">Letzte Prüfung</dt>
+                            <dd>{{ formatDate(check.checked_at) }}</dd>
+                        </dl>
+
+                        <p v-if="!check.branch_matches" class="mt-3 text-sm font-semibold text-rose-600">
+                            Ausgecheckt ist „{{ check.current_branch }}“, konfiguriert ist „{{ check.branch }}“ (UPDATER_BRANCH). Ein Update ist so
+                            nicht möglich.
+                        </p>
+                        <div v-if="check.fetch_error" class="mt-3 flex gap-2 text-sm text-amber-700 dark:text-amber-400">
+                            <TriangleAlert class="size-4 shrink-0" />
+                            <p>
+                                Das Repository konnte vom Webserver nicht abgefragt werden; angezeigt wird der zuletzt bekannte Stand.
+                                <span class="mt-1 block break-all font-mono text-xs opacity-75">{{ check.fetch_error.slice(0, 300) }}</span>
+                            </p>
+                        </div>
+                    </template>
+                </section>
+
+                <!-- Verfügbares Update -->
+                <section class="rounded-2xl border bg-card p-5 shadow-sm">
+                    <template v-if="updatable && check">
+                        <h2 class="mb-3 flex items-center gap-2 font-extrabold">
+                            <Download class="size-5 text-emerald-600" /> {{ check.behind }} neue(r) Commit(s) verfügbar
+                        </h2>
+                        <p class="mb-3 text-sm">
+                            Neuester Stand: <span class="font-mono">{{ check.latest?.short }}</span> vom {{ formatDate(check.latest?.date) }}
+                        </p>
+                        <ul class="mb-4 grid gap-1 text-sm">
+                            <li v-if="check.migrations" class="flex items-center gap-2">
+                                <Database class="size-4 text-amber-600" /> {{ check.migrations }} Datenbank-Migration(en)
+                            </li>
+                            <li v-if="check.dependencies" class="flex items-center gap-2">
+                                <Package class="size-4 text-muted-foreground" /> Geänderte PHP-Abhängigkeiten (composer install)
+                            </li>
+                            <li v-if="check.assets" class="flex items-center gap-2">
+                                <Paintbrush class="size-4 text-muted-foreground" /> Frontend-Assets werden neu gebaut
+                            </li>
+                            <li v-if="check.ahead" class="flex items-center gap-2 text-rose-600">
+                                <GitBranch class="size-4" /> {{ check.ahead }} lokale(r) Commit(s) – kein Fast-Forward möglich
+                            </li>
+                            <li v-if="check.local_changes.length" class="flex items-start gap-2 text-amber-700 dark:text-amber-400">
+                                <TriangleAlert class="mt-0.5 size-4 shrink-0" /> Lokal geänderte Dateien: {{ check.local_changes.join(', ') }}
+                            </li>
+                        </ul>
+                        <Button class="w-full" :disabled="busy" @click="install"><Download class="size-4" /> Update installieren</Button>
+                    </template>
+                    <template v-else>
+                        <h2 class="mb-3 flex items-center gap-2 font-extrabold">
+                            <CircleCheck class="size-5 text-emerald-600" /> Keine neuen Versionen
+                        </h2>
+                        <p class="mb-4 text-sm text-muted-foreground">
+                            Heldenhaus entspricht dem zuletzt geprüften Stand des Repositorys. Nach einem fehlgeschlagenen Update lassen sich alle
+                            Schritte erneut ausführen (Abhängigkeiten, Assets, Migrationen, Caches).
+                        </p>
+                        <Button variant="outline" size="sm" :disabled="busy" @click="rerun"
+                            ><RotateCcw class="size-4" /> Update-Schritte erneut ausführen</Button
+                        >
+                    </template>
+                </section>
+            </div>
+
+            <!-- Änderungen -->
+            <section v-if="check && !check.error && check.commits.length" class="rounded-2xl border bg-card p-5 shadow-sm">
+                <h2 class="mb-3 font-extrabold">Änderungen</h2>
+                <ul class="divide-y text-sm">
+                    <li v-for="commit in check.commits" :key="commit.hash" class="flex gap-3 py-1.5">
+                        <span class="shrink-0 font-mono text-muted-foreground">{{ commit.short }}</span>
+                        <span class="flex-1">{{ commit.subject }}</span>
+                        <span class="hidden shrink-0 text-muted-foreground sm:inline">{{ formatDate(commit.date) }}</span>
+                    </li>
+                </ul>
             </section>
 
-            <!-- Fortschritt -->
-            <section v-if="state" class="grid gap-3 rounded-2xl border bg-card p-5">
-                <ol class="grid gap-1.5">
-                    <li v-for="(step, i) in steps" :key="step" class="flex items-center gap-2 text-sm">
-                        <CircleCheck v-if="i < currentIndex || state.status === 'done'" class="size-4 text-emerald-600" />
-                        <LoaderCircle v-else-if="i === currentIndex && running" class="size-4 animate-spin text-sky-600" />
-                        <span v-else class="size-4 rounded-full border" />
-                        {{ stepLabels[step] ?? step }}
+            <!-- Fortschritt / letzter Lauf -->
+            <section v-if="state.status !== 'idle'" class="rounded-2xl border bg-card p-5 shadow-sm">
+                <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+                    <h2 class="flex items-center gap-2 font-extrabold">
+                        <template v-if="state.status === 'requested'"
+                            ><Hourglass class="size-5 text-amber-600" /> Update angefordert – wartet auf den Scheduler</template
+                        >
+                        <template v-else-if="state.status === 'running'"
+                            ><LoaderCircle class="size-5 animate-spin text-sky-600" /> Update läuft …</template
+                        >
+                        <template v-else-if="state.status === 'success'"
+                            ><CircleCheck class="size-5 text-emerald-600" /> Letztes Update erfolgreich</template
+                        >
+                        <template v-else><CircleX class="size-5 text-rose-600" /> Letztes Update fehlgeschlagen</template>
+                    </h2>
+                    <Button v-if="state.status === 'requested'" variant="outline" size="sm" @click="post('admin.updates.cancel')"
+                        >Anforderung zurücknehmen</Button
+                    >
+                    <Button v-if="finishedNow" size="sm" @click="router.reload()">Seite neu laden</Button>
+                </div>
+
+                <p class="mb-3 text-xs text-muted-foreground">
+                    <span v-if="state.requested_by"
+                        >Angefordert von {{ state.requested_by }}<span v-if="state.requested_at"> am {{ formatDate(state.requested_at) }}</span
+                        >.</span
+                    >
+                    <span v-if="state.started_at"> Gestartet {{ formatDate(state.started_at) }}.</span>
+                    <span v-if="state.finished_at"> Beendet {{ formatDate(state.finished_at) }}.</span>
+                </p>
+
+                <p v-if="waitingTooLong" class="mb-3 text-sm text-amber-700 dark:text-amber-400">
+                    Das Update wurde noch nicht gestartet. Läuft der Cronjob für <code>php artisan schedule:run</code>? Alternativ auf dem Server
+                    ausführen:
+                    <code>php artisan updater:run</code>
+                </p>
+                <p v-if="state.error" class="mb-3 text-sm font-semibold text-rose-600">{{ state.error }}</p>
+                <p v-if="state.status === 'success' && state.message" class="mb-3 text-sm text-emerald-700 dark:text-emerald-400">
+                    {{ state.message }}
+                </p>
+                <p v-if="connectionLost" class="mb-3 flex items-center gap-2 text-sm text-amber-700 dark:text-amber-400">
+                    <Plug class="size-4" /> Server vorübergehend nicht erreichbar – während des Updates normal. Es wird weiter abgefragt …
+                </p>
+
+                <ol v-if="state.steps" class="mb-4 grid gap-1.5 text-sm">
+                    <li v-for="(step, key) in state.steps" :key="key" class="flex items-start gap-2">
+                        <span class="mt-0.5 flex w-5 shrink-0 justify-center">
+                            <Circle v-if="step.status === 'pending'" class="size-4 opacity-40" />
+                            <LoaderCircle v-else-if="step.status === 'running'" class="size-4 animate-spin text-sky-600" />
+                            <CircleCheck v-else-if="step.status === 'done'" class="size-4 text-emerald-600" />
+                            <Minus v-else-if="step.status === 'skipped'" class="size-4 opacity-50" />
+                            <CircleAlert v-else-if="step.status === 'warning'" class="size-4 text-amber-600" />
+                            <CircleX v-else class="size-4 text-rose-600" />
+                        </span>
+                        <span class="flex-1">
+                            <span :class="{ 'opacity-60': step.status === 'pending' || step.status === 'skipped' }">{{ step.label }}</span>
+                            <span v-if="step.message" class="block break-words text-xs text-muted-foreground">{{ step.message }}</span>
+                        </span>
                     </li>
                 </ol>
-                <p v-if="error" class="text-sm font-semibold text-rose-600">{{ error }}</p>
-            </section>
 
-            <section v-if="releases.length" class="grid gap-2">
-                <h2 class="font-extrabold">Installierte Releases</h2>
-                <div class="divide-y rounded-xl border bg-card">
-                    <div v-for="r in releases" :key="r.path" class="flex items-center gap-3 p-3 text-sm">
-                        <span class="font-mono font-bold">{{ r.version }}</span>
-                        <span v-if="r.current" class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">aktiv</span>
-                        <button v-else class="ml-auto flex items-center gap-1 rounded-md px-2 py-1 hover:bg-muted" @click="rollback(r.path, r.version)">
-                            <RotateCcw class="size-4" /> Zurückschalten
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <section v-if="history.length" class="grid gap-2">
-                <h2 class="font-extrabold">Verlauf</h2>
-                <details v-for="h in history" :key="h.id" class="rounded-xl border bg-card p-3 text-sm">
-                    <summary class="cursor-pointer">
-                        {{ h.created_at }} · {{ h.from }} → {{ h.to }} · <strong>{{ statusLabel[h.status] ?? h.status }}</strong>
-                    </summary>
-                    <ul class="mt-2 grid gap-1 font-mono text-xs">
-                        <li v-for="(entry, i) in h.log" :key="i" :class="{ 'text-rose-600': entry.level === 'error', 'text-amber-600': entry.level === 'warning' }">
-                            {{ entry.at.slice(11, 19) }} {{ entry.message }}
-                        </li>
-                    </ul>
+                <details :open="state.status === 'running' || state.status === 'failed'">
+                    <summary class="mb-2 cursor-pointer select-none text-sm">Protokoll</summary>
+                    <pre
+                        ref="logEl"
+                        class="max-h-[420px] overflow-auto whitespace-pre-wrap break-all rounded-lg bg-gray-900 p-3 text-xs text-gray-100"
+                        >{{ log || '(noch keine Ausgabe)' }}</pre
+                    >
                 </details>
             </section>
+
+            <p class="flex gap-2 text-xs text-muted-foreground">
+                <CircleAlert class="size-4 shrink-0" />
+                <span>
+                    Das Update führt der Scheduler aus (Cron: <code>* * * * * php artisan schedule:run</code>) – als Benutzer, dem die Dateien
+                    gehören. Vorher wird die Datenbank nach <code>storage/app/updater/backups</code> gesichert. Auf der Konsole:
+                    <code>php artisan updater:check</code> und <code>php artisan updater:run</code>.
+                </span>
+            </p>
         </div>
     </AppLayout>
 </template>

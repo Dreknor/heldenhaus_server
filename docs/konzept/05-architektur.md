@@ -15,7 +15,7 @@
 
 **Deployment**: GitHub Actions bauen das Artefakt (`composer install --no-dev`, `npm run build`) und übertragen es per rsync/SSH in den Ordner `releases/<timestamp>`. Danach laufen `artisan migrate --force` und `optimize`, der Symlink `current` wird umgehängt (Zero-Downtime, z. B. mit Deployer). Composer/Node laufen **nicht** auf dem Server. Eine Staging-Subdomain mit eigener DB dient zum Testen.
 
-**Online-Updater**: Zusätzlich zum CI-Deployment kann sich der Server über die Admin-Oberfläche selbst aktualisieren (signierte Release-Pakete, DB-Sicherung, Rollback), siehe §11.
+**Online-Updater**: Zusätzlich zum CI-Deployment kann sich der Server über die Admin-Oberfläche selbst aktualisieren (git pull, Composer, npm-Build, Migrationen, DB-Sicherung – ausgeführt vom Scheduler), siehe §11.
 
 **Ausweg bei Wachstum**: Wenn Echtzeit nötig wird, kann auf einen kleinen Hetzner-Cloud-Server (Reverb, Redis) migriert werden, ohne Code umzubauen (nur Treiberwechsel in `.env`).
 

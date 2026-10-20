@@ -6,10 +6,8 @@ use App\Domain\Family\WeeklyReport;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\RunDayCron;
 use App\Domain\Tasks\ReviewCompletion;
-use App\Domain\Updater\ManifestVerifier;
-use App\Domain\Updater\ReleaseSource;
-use App\Domain\Updater\UpdateRunner;
-use App\Domain\Updater\Version;
+use App\Domain\Updater\UpdaterException;
+use App\Domain\Updater\UpdateService;
 use App\Mail\WeeklyReportMail;
 use App\Models\Family;
 use App\Models\Item;
@@ -115,61 +113,67 @@ Artisan::command('heldenhaus:smoke', function () {
     Cache::put('heldenhaus:smoke', true, 10);
     abort_unless(Cache::get('heldenhaus:smoke') === true, 500, 'Cache defekt');
     abort_unless(Formulas::xpToNextLevel(1) === 150, 500, 'Spielformeln defekt');
-    $this->info('OK '.config('updater.version'));
+    $this->info('OK');
 })->purpose('Gesundheitsprüfung nach einem Update');
 
-Artisan::command('heldenhaus:updater-keygen', function () {
-    $pair = ManifestVerifier::generateKeyPair();
-    $this->line('Öffentlicher Schlüssel → .env auf dem Server:');
-    $this->info("UPDATER_PUBLIC_KEY={$pair['public']}");
-    $this->line('Geheimer Schlüssel → nur als GitHub-Secret UPDATER_SECRET_KEY speichern, niemals ins Repo:');
-    $this->warn($pair['secret']);
-})->purpose('Schlüsselpaar für signierte Release-Pakete erzeugen');
+Artisan::command('updater:check {--no-fetch : Remote nicht abfragen, nur mit lokalem Stand vergleichen}', function (UpdateService $updater) {
+    $result = $updater->check(! $this->option('no-fetch'));
 
-Artisan::command('heldenhaus:update {--check : Nur prüfen} {--version= : Bestimmte Version} {--channel=} {--auto : Nur Patch-Versionen ohne Migrationen}', function (UpdateRunner $runner, ReleaseSource $source) {
-    if ($this->option('auto') && ! config('updater.auto_patch')) {
-        return;
+    if ($result['error']) {
+        $this->error('Prüfung fehlgeschlagen: '.$result['error']);
+
+        return 1;
+    }
+    if ($result['fetch_error']) {
+        $this->warn('Remote konnte nicht abgefragt werden: '.$result['fetch_error']);
     }
 
-    $release = $this->option('version')
-        ? $source->find($this->option('version'))
-        : $runner->check($this->option('channel'));
+    $this->line("Branch: {$result['remote']}/{$result['branch']}");
+    if (! $result['branch_matches']) {
+        $this->warn("Ausgecheckt ist „{$result['current_branch']}“ – Updates sind nur auf „{$result['branch']}“ möglich (UPDATER_BRANCH).");
+    }
+    $this->line("Installiert: {$result['current']['short']} ({$result['current']['date']}) {$result['current']['subject']}");
 
-    if ($release === null) {
-        $this->info('Heldenhaus ist aktuell ('.config('updater.version').').');
+    if ($result['behind'] === 0) {
+        $this->info('Heldenhaus ist aktuell.');
 
-        return;
+        return 0;
     }
 
-    $this->info("Neue Version verfügbar: {$release->version} ({$release->channel})");
-    if ($this->option('check')) {
-        return;
+    $this->info("{$result['behind']} neue(r) Commit(s) verfügbar:");
+    foreach ($result['commits'] as $commit) {
+        $this->line("  {$commit['short']}  {$commit['subject']}");
+    }
+    if ($result['migrations']) {
+        $this->line("Enthält {$result['migrations']} Datenbank-Migration(en).");
+    }
+    if ($result['local_changes']) {
+        $this->warn('Lokal geänderte Dateien: '.implode(', ', $result['local_changes']));
     }
 
-    if ($this->option('auto') && ! Version::isPatchUpgrade($release->version, config('updater.version'))) {
-        $this->warn('Keine Patch-Version – bitte manuell im Admin-Bereich installieren.');
+    return 0;
+})->purpose('Prüft, ob im Git-Repository eine neue Version verfügbar ist');
 
-        return;
+Artisan::command('updater:run
+    {--full : Alle Schritte ausführen, auch ohne neue Commits (z. B. nach einem fehlgeschlagenen Update)}
+    {--if-requested : Nur ausführen, wenn über die Oberfläche ein Update angefordert wurde (Scheduler)}', function (UpdateService $updater) {
+    if ($this->option('if-requested') && ! $updater->isRequested()) {
+        return 0;
     }
 
-    if ($this->option('auto') && (json_decode($source->fetch($release->manifestUrl), true)['has_migrations'] ?? true)) {
-        $this->warn('Update enthält Migrationen – bitte manuell im Admin-Bereich installieren.');
+    try {
+        $success = $updater->run(
+            full: (bool) $this->option('full'),
+            output: fn (string $text) => $this->output->write($text),
+        );
+    } catch (UpdaterException $e) {
+        $this->error($e->getMessage());
 
-        return;
+        return 1;
     }
 
-    $update = $runner->start($release);
-    while (! $update->isFinished()) {
-        $this->line("→ {$update->step}");
-        $update = $runner->step($update);
-    }
-
-    foreach ($update->log as $entry) {
-        $this->line("[{$entry['level']}] {$entry['message']}");
-    }
-
-    $update->status === 'done' ? $this->info('Update erfolgreich.') : $this->error("Update {$update->status}.");
-})->purpose('Online-Update prüfen und installieren');
+    return $success ? 0 : 1;
+})->purpose('Aktualisiert Heldenhaus aus dem Git-Repository (Online-Updater)');
 
 /*
  * Scheduler – auf dem Hetzner-Webhosting per konsoleH-Cron jede Minute:
@@ -184,6 +188,20 @@ Schedule::command('heldenhaus:day-cron')->everyFifteenMinutes()->withoutOverlapp
 Schedule::command('heldenhaus:auto-approve')->everyFifteenMinutes()->withoutOverlapping();
 Schedule::command('heldenhaus:community-rhythm')->hourly()->withoutOverlapping();
 Schedule::command('heldenhaus:weekly-reports')->weeklyOn(0, '18:00')->timezone('Europe/Berlin');
-Schedule::command('heldenhaus:update --auto')->dailyAt('03:00')->withoutOverlapping();
 Schedule::command('model:prune')->daily();
 Schedule::command('queue:prune-failed --hours=168')->daily();
+
+// Online-Updater: über die Oberfläche angeforderte Updates ausführen (auch im
+// Wartungsmodus, damit ein fehlgeschlagenes Update erneut gestartet werden kann)
+if (config('updater.enabled')) {
+    Schedule::command('updater:run --if-requested')
+        ->everyMinute()
+        ->when(fn () => app(UpdateService::class)->isRequested())
+        ->evenInMaintenanceMode()
+        ->withoutOverlapping(60)
+        ->runInBackground();
+
+    if (config('updater.check_cron')) {
+        Schedule::command('updater:check')->cron(config('updater.check_cron'));
+    }
+}

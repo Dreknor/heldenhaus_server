@@ -86,10 +86,11 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
 
 Route::middleware(['auth', 'can:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('updates', [UpdateController::class, 'index'])->name('updates.index');
+    Route::get('updates/status', [UpdateController::class, 'status'])->name('updates.status');
     Route::post('updates/check', [UpdateController::class, 'check'])->name('updates.check');
     Route::post('updates/start', [UpdateController::class, 'start'])->name('updates.start');
-    Route::post('updates/{update}/step', [UpdateController::class, 'step'])->name('updates.step');
-    Route::post('updates/rollback', [UpdateController::class, 'rollback'])->name('updates.rollback');
+    Route::post('updates/cancel', [UpdateController::class, 'cancel'])->name('updates.cancel');
+    Route::post('updates/up', [UpdateController::class, 'up'])->name('updates.up');
 
     Route::get('items', [ItemController::class, 'index'])->name('items.index');
     Route::post('items', [ItemController::class, 'store'])->name('items.store');
