@@ -112,6 +112,7 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
             Route::get('home', [HomeController::class, 'show'])->name('home');
             Route::get('families/{family}/home', [HomeController::class, 'visit'])->name('home.visit');
             Route::get('rooms/{room}', [HomeController::class, 'room'])->name('rooms.show');
+            Route::put('rooms/{room}', [HomeController::class, 'customize'])->name('rooms.update');
             Route::put('rooms/{room}/layout', [HomeController::class, 'layout'])->name('rooms.layout');
             Route::post('build-projects', [HomeController::class, 'startProject'])->name('build.start');
             Route::post('build-projects/{project}/contribute', [HomeController::class, 'contribute'])->name('build.contribute');

@@ -216,5 +216,36 @@
     "merchant": {
         "potion_health": 20,
         "dungeon_key": 30
+    },
+    "art": {
+        "tileset": "dungeon/dungeon.tsx",
+        "block": "dungeon/blocks/{block}.tmx",
+        "sprites": "dungeon/sprites/{sprite}_{suffix}.png",
+        "room_size": 5,
+        "side_suffix": {
+            "N": "S",
+            "W": "E",
+            "S": "N",
+            "E": "W"
+        },
+        "edges": {
+            "none_back": "stoneWall",
+            "none_front": "stoneWallHalf",
+            "open": "stoneWallArchway",
+            "locked": "stoneWallDoorClosed",
+            "gate": "stoneWallGateClosed",
+            "cracked": "stoneWallBroken",
+            "opened_locked": "stoneWallDoorOpen",
+            "opened_gate": "stoneWallGateOpen",
+            "opened_cracked": "stoneWallHole"
+        },
+        "spots": {
+            "chest_closed": "chestClosed",
+            "chest_open": "chestOpen",
+            "trap_hidden": "stoneInset",
+            "trap_sprung": "stoneMissingTiles",
+            "lever": "switchFloorOn"
+        },
+        "credits": "Kenney, Isometric Miniature Dungeon (CC0), kenney.nl"
     }
 }

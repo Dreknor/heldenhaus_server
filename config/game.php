@@ -96,6 +96,8 @@ return [
         'room_size' => ['hut' => [10, 6], 'timber' => [12, 7], 'manor' => [14, 8], 'castle' => [16, 9]],
         'bedroom_size' => [8, 5],
         'max_items_per_room' => 60,
+        'walls' => ['stone' => 'Stein', 'wood' => 'Holz', 'stars' => 'Sternentapete', 'stripes' => 'Streifentapete', 'pastel' => 'Pastell', 'castle' => 'Burgmauer'],
+        'floors' => ['planks' => 'Dielen', 'stone' => 'Steinboden', 'carpet' => 'Teppich', 'grass' => 'Wiese', 'tiles' => 'Fliesen'],
         'max_active_projects' => 2,
         'garden_slots' => 4,
         'stable_feed_bonus' => 2,                // zusätzliches Wachstum je Futter, wenn es einen Stall gibt

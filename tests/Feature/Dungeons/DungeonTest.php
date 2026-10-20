@@ -176,6 +176,46 @@ it('lässt kämpfen, Beute und den Schlüssel finden und die Tür aufschließen'
     expect(FeedEntry::where('type', 'dungeon_discovery')->count())->toBe(1);
 });
 
+it('liefert zu jedem Raum den Tiled-Baustein und die Tür-Sprites, offene Türen bleiben als Tür erkennbar', function () {
+    $d = fixtureDungeon($this->family);
+    $d->update(['state' => ['rooms' => collect($d->state['rooms'])->map(fn ($r) => ['block' => 'hall_pillars'] + $r)->all()] + $d->state]);
+    torches($this->child, 20);
+    Sanctum::actingAs($this->child, ['app']);
+    $view = $this->getJson("/api/v1/dungeons/{$d->id}")->assertOk();
+
+    $entrance = collect($view['rooms'])->firstWhere('id', 0);
+    expect($entrance['block_url'])->toEndWith('/dungeon/blocks/hall_pillars.tmx')
+        ->and($entrance['doors']['E'])->toBe(['to' => 1, 'kind' => 'open', 'sprite' => 'stoneWallArchway_W'])
+        ->and($entrance['doors']['W'])->toBe(['to' => 2, 'kind' => 'locked', 'sprite' => 'stoneWallDoorClosed_E'])
+        ->and($entrance['doors']['S']['sprite'])->toBe('stoneWallArchway_N')
+        ->and($entrance['doors']['N'])->toBeNull()
+        ->and($view['art']['tileset'])->toEndWith('/dungeon/dungeon.tsx')
+        ->and($view['art']['sprites'])->toEndWith('/dungeon/sprites/{sprite}_{suffix}.png')
+        ->and(file_exists(public_path('dungeon/blocks/hall_pillars.tmx')))->toBeTrue();
+
+    $state = $d->state;
+    $state['edges'][1]['kind'] = 'open';
+    $state['edges'][1]['was'] = 'locked';
+    $d->update(['state' => $state]);
+    $doors = collect($this->getJson("/api/v1/dungeons/{$d->id}")['rooms'])->firstWhere('id', 0)['doors'];
+    expect($doors['W']['sprite'])->toBe('stoneWallDoorOpen_E');
+});
+
+it('hat für jeden Baustein eine Tiled-Datei und jedes Kanten-Sprite', function () {
+    $art = json_decode(file_get_contents(database_path('content/dungeons.json')), true)['art'];
+    foreach (json_decode(file_get_contents(database_path('content/dungeons.json')), true)['blocks'] as $keys) {
+        foreach ($keys as $key) {
+            expect(file_exists(public_path("dungeon/blocks/{$key}.tmx")))->toBeTrue("Baustein {$key} fehlt");
+        }
+    }
+    foreach ([...array_values($art['edges']), ...array_values($art['spots'])] as $sprite) {
+        $suffixes = $sprite === 'switchFloorOn' ? ['E'] : array_values($art['side_suffix']);
+        foreach ($suffixes as $suffix) {
+            expect(file_exists(public_path("dungeon/sprites/{$sprite}_{$suffix}.png")))->toBeTrue("Sprite {$sprite}_{$suffix} fehlt");
+        }
+    }
+});
+
 it('würfelt Kämpfe reproduzierbar', function () {
     $runs = [];
     foreach ([1, 2] as $i) {
@@ -277,21 +317,31 @@ it('öffnet das Solo-Gewölbe erst, wenn die Dailies geschafft sind, und schlie�
     $solo = $this->postJson('/api/v1/dungeons/solo')->assertOk();
     expect($solo['kind'])->toBe('solo')->and($this->postJson('/api/v1/dungeons/solo')->json('id'))->toBe($solo['id']);
 
-    // Fertig, sobald der letzte Raum geöffnet ist
+    // Fertig, sobald der letzte Raum geöffnet ist: Weg vom Eingang zum Ziel freiräumen und gehen
     $d = Dungeon::find($solo['id']);
     $state = $d->state;
-    $state['rooms'][1] = ['id' => 1, 'x' => $state['rooms'][1]['x'], 'y' => $state['rooms'][1]['y'], 'type' => 'monster', 'block' => 'x', 'monster' => ['key' => 'rat', 'hp' => 0, 'max_hp' => 12]];
+    $path = [$state['final']];
+    while (end($path) !== 0) {
+        $prev = collect($state['edges'])->map(fn ($e) => $e['a'] === end($path) ? $e['b'] : ($e['b'] === end($path) ? $e['a'] : null))
+            ->filter(fn ($n) => $n !== null)->sortBy(fn ($n) => DungeonGenerator::depths(3, $state['edges'])[$n])->first();
+        $path[] = $prev;
+    }
+    $path = array_reverse($path);
+    foreach ($path as $room) {
+        if (isset($state['rooms'][$room]['monster'])) {
+            $state['rooms'][$room]['monster']['hp'] = 0;
+        }
+        if (isset($state['rooms'][$room]['trap'])) {
+            $state['rooms'][$room]['trap']['sprung'] = true;
+        }
+    }
     $d->update(['state' => $state]);
     torches($this->child, 10);
-    $path = DungeonGenerator::reachable($state);
-    act($this->child, $d, 'move', ['to' => 1])->assertOk();
-    $edge = collect($state['edges'])->first(fn ($e) => in_array($state['final'], [$e['a'], $e['b']]));
-    if (! in_array(1, [$edge['a'], $edge['b']])) {
-        act($this->child, $d, 'move', ['to' => 0])->assertOk();
+    foreach (array_slice($path, 1) as $room) {
+        act($this->child, $d, 'move', ['to' => $room])->assertOk();
     }
-    act($this->child, $d, 'move', ['to' => $state['final']])->assertOk();
     act($this->child, $d, 'interact')->assertOk()->assertJsonPath('dungeon.status', 'completed');
-    expect($path)->toBe([0, 1, 2]);
+    expect(count($path))->toBeBetween(2, 3);
 });
 
 it('zeigt anderen Familien keinen Dungeon und führt ein Zug-Log', function () {

@@ -711,11 +711,13 @@ class DungeonService
         $me = $positions->firstWhere('user_id', $viewer->id);
         $stats = UserStats::find($viewer->id);
 
-        $rooms = collect($state['rooms'])->map(function (array $r) use ($revealed, $fog, $class, $dungeon) {
+        $rooms = collect($state['rooms'])->keyBy('id')->all();
+        $rooms = collect($state['rooms'])->map(function (array $r) use ($revealed, $fog, $class, $dungeon, $visible, $rooms) {
             if (! in_array($r['id'], $revealed, true)) {
                 return $fog->contains($r['id']) ? ['id' => $r['id'], 'x' => $r['x'], 'y' => $r['y'], 'fog' => true] : null;
             }
-            $room = ['id' => $r['id'], 'x' => $r['x'], 'y' => $r['y'], 'type' => $r['type'], 'block' => $r['block'], 'fog' => false];
+            $room = ['id' => $r['id'], 'x' => $r['x'], 'y' => $r['y'], 'type' => $r['type'], 'block' => $r['block'], 'fog' => false,
+                'block_url' => asset("dungeon/blocks/{$r['block']}.tmx"), 'doors' => self::doors($r, $visible->all(), $rooms)];
             if (isset($r['monster'])) {
                 $m = DungeonCatalog::monster($r['monster']['key']);
                 $room['monster'] = ['key' => $m['key'], 'name' => $m['name'], 'icon' => $m['icon'], 'hp' => $r['monster']['hp'], 'max_hp' => $r['monster']['max_hp']];
@@ -750,7 +752,8 @@ class DungeonService
             'boss_unlocked' => $dungeon->boss_unlocked,
             'quest_id' => $dungeon->quest_id,
             'rooms' => $rooms,
-            'edges' => $visible->map(fn ($e) => ['a' => $e['a'], 'b' => $e['b'], 'kind' => $e['kind']])->values(),
+            'edges' => $visible->map(fn ($e) => ['a' => $e['a'], 'b' => $e['b'], 'kind' => $e['kind'], 'was' => $e['was'] ?? null])->values(),
+            'art' => DungeonCatalog::art(),
             'members' => $positions->map(fn (DungeonPosition $p) => [
                 'user_id' => $p->user_id, 'name' => $p->user?->name, 'room' => $p->room, 'hp' => $p->hp, 'class' => self::classOf($p->user),
             ])->values(),
@@ -765,6 +768,33 @@ class DungeonService
             ],
             'last_action_id' => DungeonAction::where('dungeon_id', $dungeon->id)->max('id'),
         ];
+    }
+
+    /**
+     * Türen eines Raums je Himmelsrichtung (N = y-1, W = x-1) mit Art und Sprite-Schlüssel aus dungeons.json "art".
+     * Seiten ohne Verbindung bekommen null, der Client setzt dort eine Wand.
+     */
+    private static function doors(array $room, array $edges, array $rooms): array
+    {
+        $art = DungeonCatalog::all()['art'];
+        $doors = ['N' => null, 'E' => null, 'S' => null, 'W' => null];
+        foreach ($edges as $e) {
+            if ($e['a'] !== $room['id'] && $e['b'] !== $room['id']) {
+                continue;
+            }
+            $other = $rooms[$e['a'] === $room['id'] ? $e['b'] : $e['a']];
+            $side = match ([$other['x'] - $room['x'], $other['y'] - $room['y']]) {
+                [0, -1] => 'N', [1, 0] => 'E', [0, 1] => 'S', [-1, 0] => 'W', default => null,
+            };
+            if ($side === null) {
+                continue;
+            }
+            $was = $e['was'] ?? null;
+            $sprite = $e['kind'] === 'open' && $was && $was !== 'open' ? $art['edges']["opened_{$was}"] : $art['edges'][$e['kind']];
+            $doors[$side] = ['to' => $other['id'], 'kind' => $e['kind'], 'sprite' => "{$sprite}_{$art['side_suffix'][$side]}"];
+        }
+
+        return $doors;
     }
 
     public static function log(Dungeon $dungeon, int $since = 0): array

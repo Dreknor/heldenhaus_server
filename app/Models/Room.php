@@ -19,11 +19,11 @@ class Room extends Model
         'trophy' => 'Trophäenhalle',
     ];
 
-    protected $fillable = ['home_id', 'type', 'owner_user_id', 'name', 'width', 'height', 'version'];
+    protected $fillable = ['home_id', 'type', 'owner_user_id', 'name', 'style', 'width', 'height', 'version'];
 
     protected function casts(): array
     {
-        return ['width' => 'integer', 'height' => 'integer', 'version' => 'integer'];
+        return ['style' => 'array', 'width' => 'integer', 'height' => 'integer', 'version' => 'integer'];
     }
 
     public function home(): BelongsTo
