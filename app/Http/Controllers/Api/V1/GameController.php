@@ -29,6 +29,7 @@ class GameController extends Controller
         return response()->json([
             ...HeroBoard::for($user),
             'stats' => GamePresenter::stats($user->stats()->first()),
+            'appearance' => \App\Http\Presenters\CharacterSheet::appearance($user),
             'server_time' => now()->toIso8601String(),
         ]);
     }

@@ -43,7 +43,7 @@ test('das board enthält aufgaben und werte', function () {
         ->assertOk()
         ->assertJsonPath('dailies.0.title', 'Zähne putzen')
         ->assertJsonPath('stats.level', 1)
-        ->assertJsonStructure(['habits', 'todos', 'rewards', 'pool', 'cronPending', 'server_time']);
+        ->assertJsonStructure(['habits', 'todos', 'rewards', 'pool', 'cronPending', 'server_time', 'appearance' => ['avatar', 'seed', 'equipment'], 'quests', 'companion']);
 });
 
 test('spielfehler kommen als json 422', function () {

@@ -111,7 +111,7 @@ const uid = Math.random().toString(36).slice(2, 8);
         </g>
 
         <!-- Sattel für Reittiere -->
-        <g v-if="mount" :stroke="ink" stroke-width="2.5">
+        <g v-if="mount" :stroke="ink" stroke-width="2.5" :transform="species === 'owl' ? 'translate(0 18)' : undefined">
             <path d="M48 62 Q62 54 78 62 L76 76 Q62 70 50 76 Z" fill="#b91c1c" />
             <path d="M62 74 v14" stroke="#78350f" stroke-width="3" />
             <circle cx="62" cy="90" r="3" fill="#fbbf24" />
