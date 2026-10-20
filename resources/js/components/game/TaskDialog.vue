@@ -43,6 +43,7 @@ function initial() {
         difficulty: t?.difficulty ?? 1,
         up: t?.up ?? true,
         down: t?.down ?? false,
+        daily_limit: (t?.daily_limit ?? undefined) as number | undefined,
         repeat: t?.repeat ?? { type: 'daily' as const, every: 1, days: [1, 2, 3, 4, 5] },
         due_date: t?.due_date ?? '',
         is_private: t?.is_private ?? false,
@@ -83,7 +84,7 @@ function payload() {
         data.type = d.type;
         data.scope = d.scope;
     }
-    if (d.type === 'habit') Object.assign(data, { up: d.up, down: d.down });
+    if (d.type === 'habit') Object.assign(data, { up: d.up, down: d.down, daily_limit: d.daily_limit || null });
     if (d.type === 'daily') data.repeat = d.repeat;
     if (d.type === 'todo') data.due_date = d.due_date || null;
     if (d.type === 'reward') data.gold_cost = d.gold_cost;
@@ -175,30 +176,56 @@ const chip = (active: boolean) =>
                 <div v-if="currentType !== 'reward'" class="grid gap-1.5">
                     <Label>Schwierigkeit</Label>
                     <div class="flex flex-wrap gap-2">
-                        <button v-for="value in Object.values(difficulties)" :key="value" type="button" :class="chip(form.difficulty === value)" @click="form.difficulty = value">
+                        <button
+                            v-for="value in Object.values(difficulties)"
+                            :key="value"
+                            type="button"
+                            :class="chip(form.difficulty === value)"
+                            @click="form.difficulty = value"
+                        >
                             {{ difficultyLabels[value] }}
                         </button>
                     </div>
                 </div>
 
                 <!-- Gewohnheit -->
-                <div v-if="currentType === 'habit'" class="flex gap-2">
-                    <button type="button" :class="chip(form.up)" @click="form.up = !form.up">＋ positiv</button>
-                    <button type="button" :class="chip(form.down)" @click="form.down = !form.down">− negativ</button>
+                <div v-if="currentType === 'habit'" class="grid gap-2">
+                    <div class="flex gap-2">
+                        <button type="button" :class="chip(form.up)" @click="form.up = !form.up">＋ positiv</button>
+                        <button type="button" :class="chip(form.down)" @click="form.down = !form.down">− negativ</button>
+                    </div>
+                    <Label for="daily_limit">Höchstens pro Tag (leer = 8)</Label>
+                    <Input id="daily_limit" v-model.number="form.daily_limit" type="number" min="1" max="50" placeholder="8" />
+                    <p class="text-xs text-muted-foreground">Jede weitere Wiederholung am selben Tag bringt etwas weniger.</p>
+                    <InputError :message="form.errors.daily_limit" />
                 </div>
 
                 <!-- Daily: Wiederholung -->
                 <div v-if="currentType === 'daily'" class="grid gap-2">
                     <Label>Wiederholung</Label>
                     <div class="flex gap-2">
-                        <button type="button" :class="chip(form.repeat.type === 'daily')" @click="form.repeat = { type: 'daily', every: 1 }">Alle X Tage</button>
-                        <button type="button" :class="chip(form.repeat.type === 'weekly')" @click="form.repeat = { type: 'weekly', days: [1, 2, 3, 4, 5] }">Wochentage</button>
+                        <button type="button" :class="chip(form.repeat.type === 'daily')" @click="form.repeat = { type: 'daily', every: 1 }">
+                            Alle X Tage
+                        </button>
+                        <button
+                            type="button"
+                            :class="chip(form.repeat.type === 'weekly')"
+                            @click="form.repeat = { type: 'weekly', days: [1, 2, 3, 4, 5] }"
+                        >
+                            Wochentage
+                        </button>
                     </div>
                     <div v-if="form.repeat.type === 'daily'" class="flex items-center gap-2 text-sm">
                         Alle <Input v-model.number="form.repeat.every" type="number" min="1" class="w-20" /> Tage
                     </div>
                     <div v-else class="flex flex-wrap gap-1.5">
-                        <button v-for="d in weekdays" :key="d.value" type="button" :class="chip((form.repeat.days ?? []).includes(d.value))" @click="toggleDay(d.value)">
+                        <button
+                            v-for="d in weekdays"
+                            :key="d.value"
+                            type="button"
+                            :class="chip((form.repeat.days ?? []).includes(d.value))"
+                            @click="toggleDay(d.value)"
+                        >
                             {{ d.label }}
                         </button>
                     </div>
@@ -222,11 +249,23 @@ const chip = (active: boolean) =>
                     <div class="grid gap-1.5">
                         <Label>Wer?</Label>
                         <div class="flex gap-2">
-                            <button type="button" :class="chip(form.assignment_mode === 'assigned')" @click="form.assignment_mode = 'assigned'">Zuweisen</button>
-                            <button v-if="currentType === 'daily'" type="button" :class="chip(form.assignment_mode === 'rotation')" @click="form.assignment_mode = 'rotation'">
+                            <button type="button" :class="chip(form.assignment_mode === 'assigned')" @click="form.assignment_mode = 'assigned'">
+                                Zuweisen
+                            </button>
+                            <button
+                                v-if="currentType === 'daily'"
+                                type="button"
+                                :class="chip(form.assignment_mode === 'rotation')"
+                                @click="form.assignment_mode = 'rotation'"
+                            >
                                 Ämterplan
                             </button>
-                            <button v-if="currentType === 'todo'" type="button" :class="chip(form.assignment_mode === 'team')" @click="form.assignment_mode = 'team'">
+                            <button
+                                v-if="currentType === 'todo'"
+                                type="button"
+                                :class="chip(form.assignment_mode === 'team')"
+                                @click="form.assignment_mode = 'team'"
+                            >
                                 Team
                             </button>
                             <button
@@ -239,15 +278,27 @@ const chip = (active: boolean) =>
                             </button>
                         </div>
                         <div v-if="form.assignment_mode !== 'pool'" class="flex flex-wrap gap-1.5">
-                            <button v-for="m in members" :key="m.id" type="button" :class="chip(form.assignees.includes(m.id))" @click="toggleAssignee(m.id)">
-                                <template v-if="form.assignment_mode === 'rotation' && form.assignees.includes(m.id)">{{ form.assignees.indexOf(m.id) + 1 }}. </template>{{ m.name }}
+                            <button
+                                v-for="m in members"
+                                :key="m.id"
+                                type="button"
+                                :class="chip(form.assignees.includes(m.id))"
+                                @click="toggleAssignee(m.id)"
+                            >
+                                <template v-if="form.assignment_mode === 'rotation' && form.assignees.includes(m.id)"
+                                    >{{ form.assignees.indexOf(m.id) + 1 }}. </template
+                                >{{ m.name }}
                             </button>
                         </div>
                         <p v-if="form.assignment_mode === 'pool'" class="text-xs text-muted-foreground">Wer zuerst zugreift, bekommt die Aufgabe.</p>
                         <div v-if="form.assignment_mode === 'rotation'" class="flex flex-wrap items-center gap-2 text-sm">
                             <span class="text-xs text-muted-foreground">Reihenfolge = Reihenfolge beim Antippen. Wechsel</span>
-                            <button type="button" :class="chip(form.rotation_interval === 'daily')" @click="form.rotation_interval = 'daily'">täglich</button>
-                            <button type="button" :class="chip(form.rotation_interval === 'weekly')" @click="form.rotation_interval = 'weekly'">wöchentlich</button>
+                            <button type="button" :class="chip(form.rotation_interval === 'daily')" @click="form.rotation_interval = 'daily'">
+                                täglich
+                            </button>
+                            <button type="button" :class="chip(form.rotation_interval === 'weekly')" @click="form.rotation_interval = 'weekly'">
+                                wöchentlich
+                            </button>
                         </div>
                         <div v-if="form.assignment_mode === 'team'" class="flex items-center gap-2 text-sm">
                             <span class="text-xs text-muted-foreground">Alle müssen ihren Teil abhaken. Team-Bonus für jeden:</span>

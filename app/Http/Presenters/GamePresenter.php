@@ -3,6 +3,7 @@
 namespace App\Http\Presenters;
 
 use App\Domain\Gameplay\Formulas;
+use App\Domain\Gameplay\ScoreTask;
 use App\Domain\Support\StepService;
 use App\Enums\AgeGroup;
 use App\Enums\CompletionStatus;
@@ -61,6 +62,7 @@ class GamePresenter
             ...self::task($task),
             'assignment_id' => $a->id,
             'value' => round($a->value, 2),
+            'color' => Formulas::color($a->value),
             'streak' => $a->streak,
             'streak_paused' => $a->streak_paused_at !== null,
             'streak_best' => $a->streak_best,
@@ -68,6 +70,8 @@ class GamePresenter
             'completed' => $a->completed,
             'counter_up' => $a->counter_up,
             'counter_down' => $a->counter_down,
+            // Gewohnheiten: heute gezählt und was die nächste Wiederholung noch wert ist (1 = volle Belohnung, 0 = Limit erreicht)
+            'habit_today' => $task->type === TaskType::Habit ? self::habitToday($a) : null,
             'due_today' => $task->type === TaskType::Daily ? $task->isDueFor($today ?? now(), $a->user_id) : null,
             'on_duty' => $task->assignment_mode === 'rotation' ? $task->isOnDuty($a->user_id, $today ?? now()) : null,
             'team' => $task->assignment_mode === 'team' && $task->relationLoaded('assignments')
@@ -75,6 +79,14 @@ class GamePresenter
                 : null,
             'pending_approval' => $pending,
         ];
+    }
+
+    private static function habitToday(TaskAssignment $a): array
+    {
+        $up = ScoreTask::habitToday($a, 'up');
+        $down = ScoreTask::habitToday($a, 'down');
+
+        return ['up' => $up['today'], 'down' => $down['today'], 'limit' => $up['limit'], 'next_factor' => $up['limited'] ? 0.0 : $up['factor']];
     }
 
     public static function task(Task $task): array
@@ -91,6 +103,7 @@ class GamePresenter
             'difficulty' => $task->difficulty,
             'up' => $task->up,
             'down' => $task->down,
+            'daily_limit' => $task->type === TaskType::Habit ? (int) ($task->daily_limit ?? config('game.habits.daily_limit')) : null,
             'repeat' => $task->repeat,
             'start_date' => $task->start_date?->toDateString(),
             'due_date' => $task->due_date?->toDateString(),

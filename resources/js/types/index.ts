@@ -106,6 +106,7 @@ export interface Task {
     difficulty: number;
     up: boolean;
     down: boolean;
+    daily_limit: number | null;
     repeat: Repeat | null;
     start_date: string | null;
     due_date: string | null;
@@ -124,10 +125,12 @@ export interface Task {
 export interface AssignedTask extends Task {
     assignment_id: number;
     value: number;
+    color: { key: 'worst' | 'worse' | 'bad' | 'neutral' | 'good' | 'better' | 'best'; hex: string };
     streak: number;
     completed: boolean;
     counter_up: number;
     counter_down: number;
+    habit_today: { up: number; down: number; limit: number; next_factor: number } | null;
     due_today: boolean | null;
     pending_approval: boolean;
     on_duty: boolean | null;

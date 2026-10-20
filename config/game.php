@@ -9,6 +9,13 @@ return [
     'value_max' => 21.27,
     'delta_base' => 0.9747,
 
+    // Gewohnheiten: höchstens so oft am Tag zählen (je Aufgabe änderbar), jede Wiederholung am selben Tag bringt weniger
+    'habits' => [
+        'daily_limit' => (int) env('HABIT_DAILY_LIMIT', 8),
+        'repeat_factor' => 0.75,
+        'min_factor' => 0.2,
+    ],
+
     'difficulties' => [
         'trivial' => 0.1,
         'easy' => 1.0,
