@@ -28,4 +28,4 @@ Festgelegte Rahmenbedingungen:
 | 9 | [Tests](konzept/09-tests.md) | Teststrategie und Abnahme |
 | 10 | [Online-Updater](konzept/10-online-updater.md) | Server-Selbst-Update aus dem Git-Repository, APK-Updater in der App, Inhalts-Updates |
 | 11 | [ADHS-Optimierung](konzept/11-adhs.md) | Fokus & Alltagshilfen: sanfter Modus, Serien reparieren, Mikro-Schritte, Energiespar-Tag, Kopf-Ablage, visuelle Timer, Fokus-Modus, HA-Signale, KI-Aufteilung über OpenRouter |
-| 12 | [Events](konzept/12-events.md) | 21 Events: 11 nach Kalender (Jahreszeiten, Feiertage, Schulferien), 10 durch Ereignisse (Spiel, Familie, Home Assistant, Wetter, Zufall); Auslöser, Regeln gegen Druck, Datenmodell, API |
+| 12 | [Events](konzept/12-events.md) | 21 Events: 11 nach Kalender (Jahreszeiten, Feiertage, Schulferien), 10 durch Ereignisse (Spiel, Familie, Home Assistant, Wetter, Zufall); 16 Zufallsereignisse zum Spaß; Auslöser, Regeln gegen Druck, Datenmodell, API |

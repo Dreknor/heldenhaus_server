@@ -1,6 +1,6 @@
 # 12. Events
 
-Events sind **zeitlich begrenzte Spielphasen mit eigenem Thema**: Das Familienhaus ist geschmückt, es gibt eine passende Quest, besondere Funde und eine gemeinsame Belohnung. Ein Teil startet **nach Kalender** (Jahreszeiten, Feiertage, Schulferien), der andere **durch Ereignisse** (im Spiel, in der Familie oder über Home Assistant). Events ersetzen den bisherigen Punkt „Saisonale Events“ (§2.3, Phase 8).
+Events sind **zeitlich begrenzte Spielphasen mit eigenem Thema**: Das Familienhaus ist geschmückt, es gibt eine passende Quest, besondere Funde und eine gemeinsame Belohnung. Ein Teil startet **nach Kalender** (Jahreszeiten, Feiertage, Schulferien), der andere **durch Ereignisse** (im Spiel, in der Familie oder über Home Assistant). Dazu kommen kleine **Zufallsereignisse nur zum Spaß** (§12.5). Events ersetzen den bisherigen Punkt „Saisonale Events“ (§2.3, Phase 8).
 
 ## 12.1 Grundregeln
 
@@ -86,7 +86,37 @@ Ergänzend (eher als Variante von bestehenden Events): **Fasching** (`easter_off
 
 **Jahresverlauf** (Beispiel 2027, Sachsen): Erntefest und Kürbisnacht im Herbst, Laternenfest und Wichtelwerkstatt bis Weihnachten, Raunächte zum Jahreswechsel, Frühlingserwachen und Eiersuche (28.03.) im Frühling, Rollentausch-Tag im Mai, Mittsommer und Sommerferien-Abenteuer im Sommer, danach der Schulstart. Ereignis-Events füllen die Lücken.
 
-## 12.5 Datenmodell, Ablauf und API
+## 12.5 Zufallsereignisse (nur zum Spaß)
+
+Neben den großen Events gibt es **kleine Zufallsereignisse**, die einfach Freude machen sollen. Sie haben kein Ziel, keinen Fortschritt und keine Folgen, wenn man sie verpasst. Sie dauern Sekunden bis höchstens einen Tag. Anders als die Überraschungen aus §11.3 (Zufalls-Loot) geht es hier um kleine Geschichten und Animationen, die Belohnung ist höchstens winzig.
+
+| # | Zufallsereignis | Wann es auftauchen kann | Was passiert |
+|---|---|---|---|
+| Z1 | 🐦 **Diebische Elster** | beim Abhaken einer Aufgabe | Eine Elster schnappt sich eine Münze und flattert durchs Heldenpanel. Wer sie antippt, bekommt 3 Münzen zurück |
+| Z2 | 🐔 **Ausgebüxtes Huhn** | im Familienhaus, tagsüber | Ein Huhn läuft durch die Räume. Wer es zuerst antippt, bekommt ein Ei, der Feed meldet „Ben hat das Huhn eingefangen“ |
+| Z3 | 🌈 **Regenbogen** | zufällig nachmittags oder nach HA-Regen | Ein Regenbogen über der Helden-Szene, als Sticker fürs Gästebuch speicherbar |
+| Z4 | 🐾 **Schluckauf** | beim Besuch im Stall | Ein Haustier hat Schluckauf und hüpft bei jedem „Hicks“. Dreimal streicheln hilft |
+| Z5 | 👻 **Kleiner Hausgeist** | abends im Familienhaus | Ein freundlicher Geist blinzelt hinter einem Möbel hervor und verschwindet kichernd. Für 9–12 eher niedlich |
+| Z6 | 🌠 **Sternschnuppe** | nach der letzten Aufgabe des Tages, vor den Ruhezeiten | Eine Sternschnuppe fliegt über den Himmel, man darf sich aus einer Liste etwas „wünschen“ (nur Spaß, der Wunsch erscheint am nächsten Morgen als Gruß) |
+| Z7 | 📮 **Post vom Monster** | Tage nach einem besiegten Boss | Der Boss schickt eine Urlaubskarte ins Gästebuch („Grüße aus dem Staubsauger-Spa, euer Staubmonster“) |
+| Z8 | 🍮 **Wackelpudding-Stunde** | einmal im Monat, zufällige Stunde | Alle Avatare der Familie wackeln eine Stunde lang bei jeder Bewegung |
+| Z9 | 🙃 **Kopfstand-Minute** | beim Level-up oder zufällig | Der eigene Avatar steht eine Minute lang auf dem Kopf |
+| Z10 | 💨 **Windstoß** | an windigen Tagen (HA-Wetter) oder zufällig | Ein Windstoß weht den Hut weg, er landet irgendwo im Familienhaus und lässt sich wieder einsammeln |
+| Z11 | 🧌 **Möbel-Kobold** | im Familienhaus | Ein Kobold hat ein Möbelstück verschoben. Wer es zurückstellt, findet darunter ein Material |
+| Z12 | 🔥 **Wanderer am Lagerfeuer** | im Dungeon am Lagerfeuer | Ein Wanderer erzählt einen Witz oder ein Rätsel (Listen je Altersgruppe in `fun_events.json`) |
+| Z13 | 🙌 **Familien-Echo** | wenn zwei Mitglieder innerhalb von 10 Minuten etwas abhaken | „Lea war auch gerade fleißig!“ Beide können abklatschen, dann gibt es Doppel-Konfetti |
+| Z14 | 🥠 **Glückskeks** | nach der ersten Aufgabe des Tages | Ein Glückskeks mit einem Spruch, Witz oder Tierfakt |
+| Z15 | 🫧 **Seifenblasen** | beim Abhaken einer Haushaltsaufgabe | Seifenblasen steigen über die Aufgabenliste auf und lassen sich zerplatzen |
+| Z16 | 💡 **Spuk im Smart Home** | zufällig, nur mit HA und wenn die Eltern es erlauben | Eine Lampe flackert kurz, in der App steht „Der Hausgeist war hier!“ |
+
+**Regeln**
+- **Selten und dosiert**: Jede Person erlebt höchstens 2 Zufallsereignisse am Tag, die Familie höchstens 4. Jedes Ereignis hat eine eigene Chance und Abklingzeit, damit es eine Überraschung bleibt.
+- **Nicht im Weg**: Im Fokus-Modus und bei „Animationen aus“ (§11.4) erscheinen keine Zufallsereignisse, bei „dezent“ nur die ruhigen (Regenbogen, Glückskeks, Post vom Monster). Während der Ruhezeiten gibt es keine, und sie lösen nie einen Push aus.
+- **Winzige Belohnung**: höchstens ein paar Münzen, ein Ei oder ein Material, mit eigenem Tageslimit. **Nie Sterne, nie Echtgeld.** Bei „Wer zuerst antippt“ gewinnt genau eine Person, die anderen sehen eine freundliche Meldung statt eines Verlusts.
+- **Abschaltbar**: Eltern können Zufallsereignisse für die Familie ganz oder einzeln abschalten, die Lampen-Spukerei (Z16) ist standardmäßig aus.
+- **Technik**: Der Server entscheidet mit einem festen Zufalls-Seed (Person, Datum, Zähler) und hängt ein Zufallsereignis an die Antwort beim Abhaken bzw. an den Abgleich an (`fun_event` mit `expires_at`). Die Darstellung läuft in App und Web. Belohnungen holt man mit `POST fun-events/{id}/interact` ab (mit Zeilensperre, damit bei Z2 nur einer gewinnt). Der Katalog liegt in `database/content/fun_events.json`, die Instanzen in `fun_event_instances` (Familie oder Person, `key`, `seed`, Status, `expires_at`, `claimed_by`).
+
+## 12.6 Datenmodell, Ablauf und API
 
 **Inhalt** (`database/content/events.json`, Import mit `game:content-sync`, im Admin-Backend bearbeitbar wie Items & Drops):
 `key`, `name`, `icon`, `category` (`calendar|game|family|world`), `trigger` (Typ und Parameter), `duration_days`, `cooldown_days`, `priority`, `default_enabled`, `min_family_level`, `requires_ha`, `variants` (Texte je Altersgruppe), `quest_key`, `goal` (Punkte und Stufen), `modifiers` (Effekt-Typen der Modifikator-Kette), `drops`, `recipes`, `decor`, `badge`, `ha_actions`, `returns_in_years`
@@ -119,7 +149,7 @@ Ergänzend (eher als Variante von bestehenden Events): **Fasching** (`easter_off
 - Eingehende Schlüssel `weather_snow`, `weather_hot` lösen Welt-Events aus (YAML-Vorlage für die HA-Wetter-Entität)
 - Beispiel: Kürbisnacht → Wohnzimmerlampen orange, Wichtelwerkstatt → Lichterkette an, wenn das Türchen geöffnet wurde
 
-## 12.6 Oberfläche
+## 12.7 Oberfläche
 
 - **Event-Banner** auf dem Heldenpanel mit Fortschrittsbalken der Familie (Zeit als Balken, nicht als Countdown-Zahl, §11) und Stufen-Symbolen
 - **Event-Seite**: Ziel, Stufen, eigene Sammelstücke, Quest, Rezepte; im Fokus-Modus ausgeblendet
@@ -127,11 +157,12 @@ Ergänzend (eher als Variante von bestehenden Events): **Fasching** (`easter_off
 - **Kalender „Demnächst“** für Kalender-Events, in den Eltern-Einstellungen mit Schaltern je Event
 - Pushes nur beim Start und beim Erreichen einer Stufe, mit Ruhezeiten (§1), ohne Inhalte (§7)
 
-## 12.7 Tests
+## 12.8 Tests
 
 - Kalender: Ostersonntag für mehrere Jahre (2026-04-05, 2027-03-28, 2028-04-16), 1. Advent, Erntedank, Jahreszeiten, Zeitzone und Sommerzeit (`Carbon::setTestNow`)
 - Schulferien: OpenHolidays-Antwort mit `Http::fake`, Ausfall der API (manuelle Einträge greifen), Wechsel des Bundeslands
 - Trigger: Bedingungen (3 Bosse in Folge, 3 Tage alle Dailies), Abklingzeit, abgeschaltete Events, Limit gleichzeitiger Events mit Warteschlange und Verfall, Idempotenz (doppelte Domain-Events starten kein zweites Event)
 - Fortschritt: Event-Punkte wie Boss-Schaden, Stufen-Belohnung genau einmal, Belohnung auch für Mitglieder im Gasthaus, Ziel bei 60 % Aktivität erreichbar (Simulation mit festem Seed)
 - Regeln: keine Sterne aus Event-Zufall, Geburtstag nur mit Eintrag, Heimliche Helfer bleibt bis zum 24.12. geheim, Händler nur für Gold
+- Zufallsereignisse: gleicher Seed ergibt dasselbe Ereignis, Tageslimits je Person und Familie, Abklingzeit, bei „wer zuerst“ genau ein Gewinner (zwei parallele Anfragen), nie Sterne, keine Ereignisse im Fokus-Modus und in den Ruhezeiten
 - Modifikatoren: Event-Boni laufen durch die Modifikator-Kette und stapeln nicht doppelt mit gleichartigen Buffs

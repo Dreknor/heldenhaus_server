@@ -7,7 +7,7 @@
 - **Modi**: Kinder-Ansicht (große Kacheln, wenig Text), Teen-Ansicht (kompakter, Themes), **Eltern-Ansicht** (Freigabe-Inbox, Familienverwaltung, Belohnungsshop, Statistik), Familiengerät-Modus
 - **Android-Extras**: Home-Screen-Widget (`home_widget`) mit den Dailies des Tages und einem Abhak-Button, FCM-Push mit Aktionsbuttons („Bestätigen“ direkt aus der Benachrichtigung), Kamera für Foto-Nachweise, QR-Scanner zum Koppeln
 - **Fokus & Alltagshilfen** (§11): Kopf-Ablage als schwebender Knopf, im Widget und im Teilen-Menü, Spracheingabe auf dem Gerät; Fokus-Modus mit nur einer nächsten Aufgabe; visueller Timer (schrumpfende Scheibe) mit lokaler Benachrichtigung; Schritte einer Aufgabe einzeln mit Sofort-Feedback; Rückmeldung voll / dezent / nur Haptik, folgt „Animationen entfernen“
-- **Events** (§12.6): Event-Banner mit Familien-Fortschritt als Balken, Event-Seite, Deko im Familienhaus und in der Helden-Szene, Kalender „Demnächst“, Adventskalender
+- **Events** (§12.7): Event-Banner mit Familien-Fortschritt als Balken, Event-Seite, Deko im Familienhaus und in der Helden-Szene, Kalender „Demnächst“, Adventskalender
 - **Builds**: Flavors `dev`/`staging`/`prod`, Verteilung über einen **geschlossenen Play-Store-Test** (Familie + Bekannte, bis 100 Tester) oder eine signierte APK. Eine öffentliche Store-Veröffentlichung (Families Policy) ist nicht nötig. Updates laufen über den eingebauten **Online-Updater** (§10).
 
 

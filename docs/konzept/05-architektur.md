@@ -68,7 +68,7 @@ app/
 - `challenges`, `challenge_participants`
 - `feed_entries`, `reactions`, `messages`
 - `device_tokens` (FCM), `notification_settings` (Ruhezeiten)
-- Events (§12.5): Inhalt `events.json` · `family_event_settings`, `member_dates`, `holiday_periods`, `family_events`, `event_participations`, `event_trigger_log`
+- Events (§12.6): Inhalt `events.json` und `fun_events.json` · `fun_event_instances`, · `family_event_settings`, `member_dates`, `holiday_periods`, `family_events`, `event_participations`, `event_trigger_log`
 - Fokus & Alltagshilfen (§11.5): `user_support_settings`, `low_energy_days`, `recovery_quests`, `focus_sessions`, `ai_requests`; `tasks` bekommt Status `inbox`, `is_core`, `streak_paused_at`, `streak_best`, Checklisten-Einträge bekommen `id` und `rewarded_at`
 - `ha_event_mappings`, `ha_webhooks` (URL, Secret), `personal_access_tokens`, `activity_log`
 
@@ -81,7 +81,7 @@ app/
 - Dungeons: `GET dungeons/current`, `POST dungeons/{id}/move|interact|fight|use-item` (je mit `client_uuid`), `GET dungeons/{id}/log?since=`
 - Housing: `GET home`, `GET rooms/{id}`, `PUT rooms/{id}/layout` (ganzes Layout mit Versionsnummer gegen gleichzeitiges Bearbeiten), `POST build-projects/{id}/contribute`, `POST garden/{plot}/sow|water|harvest`, Gästebuch
 - Familie: Mitglieder, Einladungen, Rotationen, Belohnungen, Einlösungen, Feed, Wochenbericht
-- Events: `GET events`, `GET events/{id}`, `GET events/history`, `POST events/{id}/advent/{day}`, `POST events/{id}/secret-help`, `POST events/{id}/merchant/buy`, Eltern `GET|PUT family/event-settings`, `PUT members/{id}/dates`, `POST events/start`
+- Events: `POST fun-events/{id}/interact` (Zufallsereignisse), `GET events`, `GET events/{id}`, `GET events/history`, `POST events/{id}/advent/{day}`, `POST events/{id}/secret-help`, `POST events/{id}/merchant/buy`, Eltern `GET|PUT family/event-settings`, `PUT members/{id}/dates`, `POST events/start`
 - Fokus & Alltagshilfen: `POST inbox`, `POST inbox/{id}/sort`, `POST tasks/{id}/steps/{step}/score`, `POST tasks/{id}/steps/suggest`, `POST|DELETE me/low-energy`, `focus-sessions` (Start, Ende, Verlängern, Einladen), `GET|PUT me/support-settings`
 - HA: `GET ha/state`, `POST ha/events`, `POST ha/tasks`, `POST ha/tasks/{id}/complete`
 - Versionierung über `/v1`, die App meldet ihre Version mit, und der Server kann ein Update erzwingen.
