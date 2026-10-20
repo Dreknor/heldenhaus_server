@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Art\SceneBackgrounds;
 use App\Domain\Gameplay\RunDayCron;
 use App\Http\Presenters\HeroBoard;
 use App\Models\DayLog;
@@ -18,6 +19,7 @@ class HeroController extends Controller
             ...HeroBoard::for($request->user()),
             'categories' => config('game.categories'),
             'difficulties' => config('game.difficulties'),
+            'sceneBackground' => SceneBackgrounds::forToday($request->user()->id),
         ]);
     }
 

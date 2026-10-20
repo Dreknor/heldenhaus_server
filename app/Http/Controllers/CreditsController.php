@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Art\SceneBackgrounds;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,7 +21,7 @@ class CreditsController extends Controller
             unset($credit['details_file']);
 
             return $credit;
-        });
+        })->when(SceneBackgrounds::credit(), fn ($c, $credit) => $c->push($credit));
 
         return Inertia::render('Credits', ['credits' => $credits]);
     }

@@ -8,6 +8,10 @@ Heldenhaus verwendet nur Grafiken mit freier Lizenz (Konzept §2.8). Die maschin
 | Heldenfiguren (LPC) | Liberated Pixel Cup und Mitwirkende, siehe unten | [OGA-BY 3.0](https://static.opengameart.org/OGA-BY-3.0.txt), [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)/[4.0](https://creativecommons.org/licenses/by/4.0/), [CC0](https://creativecommons.org/publicdomain/zero/1.0/) | [Universal LPC Spritesheet Character Generator](https://github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator) | `public/avatar/lpc/*.png`, `resources/avatars/lpc*.json` |
 | Szenen-Grafiken Fluent Emoji (3D) | Microsoft Corporation | [MIT](https://github.com/microsoft/fluentui-emoji/blob/main/LICENSE) | [GitHub](https://github.com/microsoft/fluentui-emoji) | `public/images/scene/*.webp` |
 
+Optional können auf dem eigenen Server gemalte Szenen-Hintergründe importiert werden (z. B. *Fantasy Forest Backgrounds* von
+[Lornn](https://lornn.itch.io/fantasy-forest-backgrounds), siehe `docs/deployment.md`). Sie sind nicht Teil des Repositorys und
+erscheinen nach dem Import automatisch auf der Credits-Seite.
+
 ## Heldenfiguren (LPC)
 
 Sprites by: Ahmad3366, Benjamin K. Smith (BenCreating), bluecarrot16, DarkwallLKE, Dr. Jamgo, Durrani, Eliza Wyatt (ElizaWy), ElizaWy, ElizaWy; walk and down by JaidynReiman, Evert, JaidynReiman, Joe White, Johannes Sjölund (wulax), kcilds/Rocetti/Eredah, Manuel Riecke (MrBeast), Matthew Krohn (Makrohn), Matthew Krohn (makrohn), Michael Whitlock (bigbeargames), MuffinElZangano, Napsio (Vitruvian Studio), Nila122, Pierre Vigier (pvigier), Sander Frenken (castelonia), Stephen Challener (Redshrike), thecilekli, TheraHedwig, Tracy, Tuomo Untinen (reemax).

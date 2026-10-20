@@ -6,12 +6,15 @@ import { computed } from 'vue';
 
 /**
  * Szene im Heldenpanel (Konzept §2.9, G2): Himmel nach Tageszeit, Heldenhaus, Avatar und Begleiter.
- * Landschaftsgrafiken: Microsoft Fluent Emoji (MIT), siehe CREDITS.md.
+ * Landschaftsgrafiken: Microsoft Fluent Emoji (MIT), siehe CREDITS.md. Sind auf dem Server gemalte
+ * Hintergründe importiert (artisan heldenhaus:import-backgrounds), zeigt die Szene stattdessen den des Tages.
  */
 defineProps<{
     appearance: Appearance;
     companion: { egg_key: string; potion_key: string; is_mount: boolean; name: string } | null;
     hurt?: boolean;
+    /** Gemalter Hintergrund des Tages, sonst die Fluent-Landschaft */
+    background?: string | null;
 }>();
 
 const hour = new Date().getHours();
@@ -47,7 +50,20 @@ const stars = [
 
 <template>
     <div class="scene relative min-h-48 overflow-hidden rounded-2xl border sm:min-h-52" :style="{ background: sky }">
-        <div class="pointer-events-none absolute inset-0 select-none" aria-hidden="true">
+        <div v-if="background" class="pointer-events-none absolute inset-0 select-none" aria-hidden="true">
+            <img :src="background" alt="" class="absolute inset-0 h-full w-full object-cover" />
+            <!-- Tageszeit als Tönung über dem Bild -->
+            <div
+                class="absolute inset-0"
+                :class="{
+                    'bg-indigo-950/55 mix-blend-multiply': night,
+                    'bg-orange-400/25 mix-blend-multiply': phase === 'evening',
+                    'bg-rose-200/20 mix-blend-soft-light': phase === 'morning',
+                }"
+            />
+            <div class="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/30 to-transparent" />
+        </div>
+        <div v-else class="pointer-events-none absolute inset-0 select-none" aria-hidden="true">
             <!-- Sonne / Mond / Sterne -->
             <template v-if="night">
                 <img

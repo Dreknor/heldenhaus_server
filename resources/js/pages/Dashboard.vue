@@ -23,6 +23,7 @@ const props = defineProps<{
     companion: { egg_key: string; potion_key: string; is_mount: boolean; name: string } | null;
     categories: Record<string, string>;
     difficulties: Record<string, number>;
+    sceneBackground?: string | null;
 }>();
 
 const page = usePage<SharedData>();
@@ -97,7 +98,7 @@ const greeting = computed(() => {
     <AppLayout :breadcrumbs="[{ title: 'Mein Held', href: '/dashboard' }]">
         <div class="flex flex-1 flex-col gap-5 p-4 md:p-6">
             <!-- Kopf -->
-            <HeroScene v-if="page.props.auth.appearance" :appearance="page.props.auth.appearance" :companion="companion" :hurt="(stats?.hp ?? 50) < 15">
+            <HeroScene v-if="page.props.auth.appearance" :appearance="page.props.auth.appearance" :companion="companion" :background="sceneBackground" :hurt="(stats?.hp ?? 50) < 15">
                 <div class="inline-block rounded-xl bg-white/85 px-3 py-2 text-left shadow-sm backdrop-blur dark:bg-slate-900/80">
                     <h1 class="text-xl font-extrabold tracking-tight sm:text-2xl">{{ greeting }}, {{ page.props.auth.user.name }}!</h1>
                     <p class="text-sm text-muted-foreground">

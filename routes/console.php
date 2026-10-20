@@ -1,6 +1,7 @@
 <?php
 
 use App\Domain\Achievements\AchievementService;
+use App\Domain\Art\SceneBackgrounds;
 use App\Domain\Classes\ClassService;
 use App\Domain\Family\FamilyService;
 use App\Domain\Family\WeeklyReport;
@@ -38,6 +39,16 @@ Artisan::command('heldenhaus:create-family {family} {name} {email}', function (F
 
     $this->info("Familie „{$family->name}“ angelegt. Familiencode für den Kinder-Login: {$family->login_code}");
 })->purpose('Erste Familie mit Admin-Elternteil anlegen');
+
+/*
+ * Gemalte Szenen-Hintergründe aus einem gekauften Paket (ZIP) importieren.
+ * Sie bleiben auf diesem Server und kommen nicht ins Repository.
+ */
+Artisan::command('heldenhaus:import-backgrounds {zip} {--title=Fantasy Forest Backgrounds} {--author=Lornn} {--url=https://lornn.itch.io/fantasy-forest-backgrounds} {--indoor : Auch Innenräume übernehmen}', function () {
+    $count = SceneBackgrounds::import($this->argument('zip'), $this->option('title'), $this->option('author'), $this->option('url'), $this->option('indoor'));
+
+    $this->info("{$count} Hintergründe importiert. Sie erscheinen ab sofort in der Heldenszene und unter /credits.");
+})->purpose('Szenen-Hintergründe aus einem ZIP importieren');
 
 /*
  * Tageswechsel für alle, die die App heute noch nicht geöffnet haben
