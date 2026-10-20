@@ -4,6 +4,7 @@ namespace App\Domain\Family;
 
 use App\Domain\Gameplay\GameException;
 use App\Enums\FamilyRole;
+use App\Events\MemberJoined;
 use App\Models\Family;
 use App\Models\FamilyInvite;
 use App\Models\User;
@@ -43,12 +44,14 @@ class FamilyService
             $user->update(['family_id' => $invite->family_id, 'family_role' => $invite->role]);
             $invite->update(['used_by' => $user->id, 'used_at' => now()]);
         });
+
+        event(new MemberJoined($user->refresh()));
     }
 
     /** Kinderprofil ohne E-Mail: Anmeldung über Familiencode + PIN. */
     public function addChild(User $parent, string $name, int $birthYear, string $pin): User
     {
-        return User::create([
+        $child = User::create([
             'name' => $name,
             'family_id' => $parent->family_id,
             'family_role' => FamilyRole::Child,
@@ -58,6 +61,9 @@ class FamilyService
             'day_start' => $parent->day_start,
             'theme' => $birthYear <= now()->year - 13 ? 'teen' : 'kids',
         ]);
+        event(new MemberJoined($child));
+
+        return $child;
     }
 
     public function attemptPinLogin(Family $family, int $userId, string $pin): ?User

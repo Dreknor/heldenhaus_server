@@ -7,8 +7,24 @@
         "description_one": "Erledige deine erste Aufgabe.",
         "motif": "check",
         "metric": "tasks_done",
-        "tiers": [1, 10, 50, 100, 250, 500, 1000],
-        "gold": [2, 5, 10, 15, 25, 40, 60]
+        "tiers": [
+            1,
+            10,
+            50,
+            100,
+            250,
+            500,
+            1000
+        ],
+        "gold": [
+            2,
+            5,
+            10,
+            15,
+            25,
+            40,
+            60
+        ]
     },
     {
         "key": "good_habits",
@@ -17,8 +33,18 @@
         "description": "Zähle {n}-mal eine gute Gewohnheit.",
         "motif": "leaf",
         "metric": "habits_up",
-        "tiers": [10, 50, 200, 500],
-        "gold": [5, 10, 20, 35]
+        "tiers": [
+            10,
+            50,
+            200,
+            500
+        ],
+        "gold": [
+            5,
+            10,
+            20,
+            35
+        ]
     },
     {
         "key": "streak",
@@ -27,8 +53,22 @@
         "description": "Schaffe eine tägliche Aufgabe {n} Tage am Stück.",
         "motif": "flame",
         "metric": "best_streak",
-        "tiers": [3, 7, 21, 50, 100, 365],
-        "gold": [5, 10, 20, 35, 60, 100]
+        "tiers": [
+            3,
+            7,
+            21,
+            50,
+            100,
+            365
+        ],
+        "gold": [
+            5,
+            10,
+            20,
+            35,
+            60,
+            100
+        ]
     },
     {
         "key": "perfect_day",
@@ -38,8 +78,18 @@
         "description_one": "Erledige an einem Tag alle täglichen Aufgaben.",
         "motif": "sun",
         "metric": "perfect_days",
-        "tiers": [1, 7, 30, 100],
-        "gold": [5, 15, 30, 60]
+        "tiers": [
+            1,
+            7,
+            30,
+            100
+        ],
+        "gold": [
+            5,
+            15,
+            30,
+            60
+        ]
     },
     {
         "key": "family_helper",
@@ -48,8 +98,18 @@
         "description": "Erledige {n} Familienaufgaben.",
         "motif": "house",
         "metric": "family_tasks",
-        "tiers": [5, 25, 100, 250],
-        "gold": [5, 15, 30, 50]
+        "tiers": [
+            5,
+            25,
+            100,
+            250
+        ],
+        "gold": [
+            5,
+            15,
+            30,
+            50
+        ]
     },
     {
         "key": "team_player",
@@ -59,8 +119,16 @@
         "description_one": "Erledige deinen Teil einer Teamaufgabe.",
         "motif": "team",
         "metric": "team_tasks",
-        "tiers": [1, 10, 50],
-        "gold": [5, 15, 30]
+        "tiers": [
+            1,
+            10,
+            50
+        ],
+        "gold": [
+            5,
+            15,
+            30
+        ]
     },
     {
         "key": "star_collector",
@@ -69,8 +137,18 @@
         "description": "Verdiene insgesamt {n} Sterne.",
         "motif": "star",
         "metric": "stars_earned",
-        "tiers": [10, 50, 200, 500],
-        "gold": [5, 15, 30, 50]
+        "tiers": [
+            10,
+            50,
+            200,
+            500
+        ],
+        "gold": [
+            5,
+            15,
+            30,
+            50
+        ]
     },
     {
         "key": "cheerleader",
@@ -79,8 +157,16 @@
         "description": "Reagiere {n}-mal im Familien-Feed.",
         "motif": "heart",
         "metric": "reactions_given",
-        "tiers": [10, 50, 200],
-        "gold": [3, 10, 20]
+        "tiers": [
+            10,
+            50,
+            200
+        ],
+        "gold": [
+            3,
+            10,
+            20
+        ]
     },
     {
         "key": "monster_hunter",
@@ -90,8 +176,18 @@
         "description_one": "Besiege deinen ersten Boss.",
         "motif": "sword",
         "metric": "bosses_defeated",
-        "tiers": [1, 5, 15, 30],
-        "gold": [10, 20, 40, 70]
+        "tiers": [
+            1,
+            5,
+            15,
+            30
+        ],
+        "gold": [
+            10,
+            20,
+            40,
+            70
+        ]
     },
     {
         "key": "gatherer",
@@ -101,8 +197,16 @@
         "description_one": "Schaffe deine erste Sammel-Quest.",
         "motif": "basket",
         "metric": "collect_quests",
-        "tiers": [1, 5, 15],
-        "gold": [10, 20, 40]
+        "tiers": [
+            1,
+            5,
+            15
+        ],
+        "gold": [
+            10,
+            20,
+            40
+        ]
     },
     {
         "key": "pet_friend",
@@ -112,8 +216,18 @@
         "description_one": "Brüte dein erstes Haustier aus.",
         "motif": "paw",
         "metric": "pets",
-        "tiers": [1, 5, 10, 20],
-        "gold": [5, 15, 30, 50]
+        "tiers": [
+            1,
+            5,
+            10,
+            20
+        ],
+        "gold": [
+            5,
+            15,
+            30,
+            50
+        ]
     },
     {
         "key": "rider",
@@ -123,8 +237,16 @@
         "description_one": "Ziehe ein Haustier zum Reittier groß.",
         "motif": "horseshoe",
         "metric": "mounts",
-        "tiers": [1, 3, 10],
-        "gold": [10, 25, 50]
+        "tiers": [
+            1,
+            3,
+            10
+        ],
+        "gold": [
+            10,
+            25,
+            50
+        ]
     },
     {
         "key": "level",
@@ -133,8 +255,20 @@
         "description": "Erreiche Level {n}.",
         "motif": "crown",
         "metric": "level",
-        "tiers": [5, 10, 20, 30, 50],
-        "gold": [5, 15, 30, 50, 80]
+        "tiers": [
+            5,
+            10,
+            20,
+            30,
+            50
+        ],
+        "gold": [
+            5,
+            15,
+            30,
+            50,
+            80
+        ]
     },
     {
         "key": "calling",
@@ -143,8 +277,12 @@
         "description": "Wähle eine Klasse.",
         "motif": "sparkle",
         "metric": "class_chosen",
-        "tiers": [1],
-        "gold": [5]
+        "tiers": [
+            1
+        ],
+        "gold": [
+            5
+        ]
     },
     {
         "key": "fully_equipped",
@@ -153,7 +291,158 @@
         "description": "Lege in allen {n} Plätzen Ausrüstung an.",
         "motif": "shield",
         "metric": "equipped_slots",
-        "tiers": [5],
-        "gold": [15]
+        "tiers": [
+            5
+        ],
+        "gold": [
+            15
+        ]
+    },
+    {
+        "key": "crafter",
+        "group": "Handwerk",
+        "name": "Meisterhände",
+        "description": "Stelle {n} Gegenstände her.",
+        "description_one": "Stelle deinen ersten Gegenstand her.",
+        "motif": "house",
+        "metric": "items_crafted",
+        "tiers": [
+            1,
+            10,
+            50,
+            150,
+            400
+        ],
+        "gold": [
+            2,
+            5,
+            10,
+            20,
+            40
+        ]
+    },
+    {
+        "key": "dungeon_delver",
+        "group": "Abenteuer",
+        "name": "Dungeon-Entdecker",
+        "description": "Schaffe {n} Dungeons.",
+        "description_one": "Schaffe deinen ersten Dungeon.",
+        "motif": "sword",
+        "metric": "dungeons_cleared",
+        "tiers": [
+            1,
+            5,
+            20,
+            50
+        ],
+        "gold": [
+            5,
+            10,
+            20,
+            40
+        ]
+    },
+    {
+        "key": "monster_slayer",
+        "group": "Abenteuer",
+        "name": "Monsterschreck",
+        "description": "Besiege {n} Monster im Dungeon.",
+        "description_one": "Besiege dein erstes Monster im Dungeon.",
+        "motif": "sword",
+        "metric": "monsters_defeated",
+        "tiers": [
+            1,
+            25,
+            100,
+            300
+        ],
+        "gold": [
+            2,
+            8,
+            15,
+            30
+        ]
+    },
+    {
+        "key": "gardener",
+        "group": "Haus & Garten",
+        "name": "Grüner Daumen",
+        "description": "Ernte {n}-mal im Garten.",
+        "description_one": "Ernte zum ersten Mal im Garten.",
+        "motif": "leaf",
+        "metric": "harvests",
+        "tiers": [
+            1,
+            10,
+            50,
+            150
+        ],
+        "gold": [
+            2,
+            6,
+            12,
+            25
+        ]
+    },
+    {
+        "key": "focused",
+        "group": "Fokus",
+        "name": "Volle Konzentration",
+        "description": "Schaffe {n} Fokus-Zeiten.",
+        "description_one": "Schaffe deine erste Fokus-Zeit.",
+        "motif": "sun",
+        "metric": "focus_sessions",
+        "tiers": [
+            1,
+            10,
+            50,
+            200
+        ],
+        "gold": [
+            2,
+            6,
+            12,
+            25
+        ]
+    },
+    {
+        "key": "event_fan",
+        "group": "Events",
+        "name": "Festtagsheld",
+        "description": "Mach bei {n} Events mit.",
+        "description_one": "Mach bei deinem ersten Event mit.",
+        "motif": "star",
+        "metric": "events_joined",
+        "tiers": [
+            1,
+            5,
+            12,
+            25
+        ],
+        "gold": [
+            3,
+            8,
+            15,
+            30
+        ]
+    },
+    {
+        "key": "host",
+        "group": "Gemeinschaft",
+        "name": "Gern gesehener Gast",
+        "description": "Schreibe {n} Gästebuch-Einträge.",
+        "description_one": "Schreibe deinen ersten Gästebuch-Eintrag.",
+        "motif": "heart",
+        "metric": "guestbook",
+        "tiers": [
+            1,
+            10,
+            30
+        ],
+        "gold": [
+            2,
+            5,
+            10
+        ]
     }
 ]

@@ -17,6 +17,9 @@ class Room extends Model
         'storage' => 'Lagerraum',
         'garden' => 'Garten',
         'trophy' => 'Trophäenhalle',
+        'kitchen' => 'Familienküche',
+        'music' => 'Musikzimmer',
+        'observatory' => 'Sternwarte',
     ];
 
     protected $fillable = ['home_id', 'type', 'owner_user_id', 'name', 'style', 'width', 'height', 'version'];

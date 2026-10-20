@@ -2,13 +2,14 @@
 
 namespace App\Domain\Classes;
 
+use App\Domain\Events\EventEngine;
 use App\Models\ActiveBuff;
 use App\Models\User;
 use App\Models\UserStats;
 
 /**
  * Stellt die Modifikator-Kette einer Person zusammen:
- * eigene Klassen-Passive → Familien-Passive (Schildwall) → Familien-Buffs → persönliche, scharfe Buffs.
+ * eigene Klassen-Passive → Familien-Passive (Schildwall) → Familien-Buffs → Event-Boni → persönliche, scharfe Buffs.
  */
 class ModifierChain
 {
@@ -39,6 +40,17 @@ class ModifierChain
                     };
                 });
         }
+
+        // Laufende Events der Familie (§12.2); gleichartige Boni stapeln nicht
+        foreach (EventEngine::modifiersFor($user) as $m) {
+            $chain[] = Modifiers::event($m['event'], $m['modifier']);
+        }
+
+        // Elixiere wirken über ihre ganze Laufzeit (nicht scharf, werden nicht verbraucht)
+        ActiveBuff::current()->where('user_id', $user->id)->where('armed', false)->whereIn('key', ['elixir_xp', 'elixir_gold', 'elixir_boss'])->get()->unique('key')
+            ->each(function (ActiveBuff $buff) use (&$chain) {
+                $chain[] = Modifiers::elixir($buff);
+            });
 
         ActiveBuff::current()->where('user_id', $user->id)->where('armed', true)->get()->unique('key')
             ->each(function (ActiveBuff $buff) use (&$chain) {

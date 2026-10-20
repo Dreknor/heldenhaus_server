@@ -14,6 +14,11 @@ class DungeonPosition extends Model
         return ['room' => 'integer', 'previous_room' => 'integer', 'hp' => 'float', 'fight' => 'array', 'knockouts' => 'integer'];
     }
 
+    public function dungeon(): BelongsTo
+    {
+        return $this->belongsTo(Dungeon::class);
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

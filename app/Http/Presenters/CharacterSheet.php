@@ -66,7 +66,7 @@ class CharacterSheet
                 ->map(fn (UserItem $u) => [...self::item($u->item), 'quantity' => $u->quantity, 'master_quantity' => $u->master_quantity, 'equipped' => in_array($u->item_id, $equipped, true)])
                 ->values(),
             'slots' => Stock::slots($user->id),
-            'shop' => Item::where('active', true)->whereNotNull('price_gold')->orderBy('type')->orderBy('price_gold')->get()
+            'shop' => Item::where('active', true)->whereNotNull('price_gold')->availableFor($user->family_id)->orderBy('type')->orderBy('price_gold')->get()
                 ->map(fn (Item $i) => self::item($i))->values(),
             'pets' => UserPet::with('egg', 'potion')->where('user_id', $user->id)->orderBy('name')->get()
                 ->map(fn (UserPet $p) => [
@@ -112,7 +112,7 @@ class CharacterSheet
 
     public static function item(?Item $item): ?array
     {
-        return $item?->only(['id', 'key', 'name', 'description', 'type', 'slot', 'rarity', 'icon', 'stats', 'price_gold', 'min_level']);
+        return $item?->only(['id', 'key', 'name', 'description', 'type', 'slot', 'rarity', 'icon', 'stats', 'price_gold', 'min_level', 'event_key']);
     }
 
     /** Verpasste Dailies der Familie aus den letzten 24 Stunden (für „Zweite Chance“). */

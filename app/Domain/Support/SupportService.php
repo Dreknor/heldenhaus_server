@@ -54,17 +54,42 @@ class SupportService
             'low_energy_left' => max(0, $s->low_energy_per_week - self::lowEnergyThisWeek($user)),
             'low_energy_today' => self::isLowEnergy($user, $user->gameDate()),
             'ai_steps' => $s->ai_steps,
+            'theme' => self::theme($user),
+            'theme_own' => $s->theme,
+            'themes' => self::themesFor($user),
+            'high_contrast' => $s->high_contrast,
+            'text_scale' => $s->text_scale,
+            'dyslexia_font' => $s->dyslexia_font,
+            'color_vision' => $s->color_vision,
             'can_change' => self::editableBy($user, $user),
         ];
+    }
+
+    /** Gewähltes Theme, sonst Standard der Altersgruppe. */
+    public static function theme(User $user): string
+    {
+        $own = self::settings($user)->theme;
+        $available = array_column(self::themesFor($user), 'key');
+
+        return in_array($own, $available, true) ? $own : config('game.default_theme.'.$user->ageGroup()->value, 'classic');
+    }
+
+    /** @return list<array{key: string, name: string, dark: bool}> */
+    public static function themesFor(User $user): array
+    {
+        return collect(config('game.themes'))->filter(fn ($t) => in_array($user->ageGroup()->value, $t['ages'], true))
+            ->map(fn ($t, $key) => ['key' => $key, 'name' => $t['name'], 'dark' => $t['dark']])->values()->all();
     }
 
     /** Welche Felder darf $actor bei $target ändern? */
     public static function editableBy(User $actor, User $target): array
     {
-        $all = ['gentle_mode', 'focus_mode_default', 'feedback_level', 'reduce_motion', 'sound', 'haptics', 'timer_style', 'max_steps', 'low_energy_per_week', 'ai_steps'];
+        $all = ['gentle_mode', 'focus_mode_default', 'feedback_level', 'reduce_motion', 'sound', 'haptics', 'timer_style', 'max_steps', 'low_energy_per_week', 'ai_steps',
+            'theme', 'high_contrast', 'text_scale', 'dyslexia_font', 'color_vision'];
 
         if ($actor->isParent() && $actor->sameFamilyAs($target)) {
-            return $all;
+            // Das Theme eines Teens oder Erwachsenen bleibt deren eigene Sache
+            return $actor->is($target) || $target->ageGroup() === AgeGroup::Child ? $all : array_values(array_diff($all, ['theme']));
         }
         if (! $actor->is($target)) {
             return [];

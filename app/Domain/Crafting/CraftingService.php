@@ -2,6 +2,7 @@
 
 namespace App\Domain\Crafting;
 
+use App\Domain\Achievements\AchievementService;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
 use App\Domain\Housing\HomeService;
@@ -93,9 +94,11 @@ class CraftingService
 
         $crafting = self::crafting($user);
         if (! self::isUnlocked($user, $recipe, $crafting)) {
-            throw new GameException(($recipe['unlock'] ?? 'level') === 'library' && $crafting->level >= $recipe['level']
-                ? 'Dieses Rezept musst du zuerst in der Bibliothek lernen.'
-                : "Dieses Rezept gibt es ab Handwerksstufe {$recipe['level']}.");
+            throw new GameException(match (true) {
+                $crafting->level < $recipe['level'] => "Dieses Rezept gibt es ab Handwerksstufe {$recipe['level']}.",
+                ($recipe['unlock'] ?? 'level') === 'event' => 'Dieses Rezept bekommt man während seines Events.',
+                default => 'Dieses Rezept musst du zuerst in der Bibliothek lernen.',
+            });
         }
 
         return DB::transaction(function () use ($user, $recipe, $crafting) {
@@ -154,6 +157,8 @@ class CraftingService
             if ($job->quality === 'master') {
                 $this->feed->post($user->family_id, $user, 'craft_master', '🌟', "{$user->name} hat meisterhaft hergestellt: {$job->item->name}");
             }
+
+            app(AchievementService::class)->evaluate($user, ['items_crafted']);
 
             return ['job' => $job, 'level_up' => $levelUp];
         });
@@ -235,7 +240,8 @@ class CraftingService
                 ])->values(),
             'recipes' => collect($recipes)->map(function (array $r) use ($crafting, $learned, $home, $item) {
                 $library = ($r['unlock'] ?? 'level') === 'library';
-                $unlocked = $crafting->level >= $r['level'] && (! $library || in_array($r['key'], $learned, true));
+                // Event-Rezepte (§12.2) schenkt das laufende Event, danach bleiben sie
+                $unlocked = $crafting->level >= $r['level'] && (($r['unlock'] ?? 'level') === 'level' || in_array($r['key'], $learned, true));
                 $inputs = collect($r['inputs'])->map(fn ($q, $k) => $item($k, $q))->values();
 
                 return [

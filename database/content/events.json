@@ -1,0 +1,1350 @@
+[
+    {
+        "key": "spring_awakening",
+        "name": "Frühlingserwachen",
+        "icon": "🌱",
+        "category": "calendar",
+        "trigger": {
+            "type": "season",
+            "start": "03-20"
+        },
+        "duration_days": 14,
+        "cooldown_days": 0,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": false,
+        "description": "Frühjahrsputz gegen den Staubkönig, Saatgut-Funde und ein Garten, der doppelt so schnell wächst.",
+        "variants": {
+            "child": "Frühjahrsputz gegen den Staubkönig, Saatgut-Funde und ein Garten, der doppelt so schnell wächst.",
+            "teen": "Frühjahrsputz gegen den Staubkönig, Saatgut-Funde und ein Garten, der doppelt so schnell wächst."
+        },
+        "quest_key": "dust_king",
+        "goal": {
+            "points_per_member_day": 12,
+            "tiers": [
+                {
+                    "percent": 25,
+                    "rewards": {
+                        "gold": 10,
+                        "items": {
+                            "seeds": 3
+                        }
+                    }
+                },
+                {
+                    "percent": 50,
+                    "rewards": {
+                        "gold": 20,
+                        "items": {
+                            "furn_spring_flowers": 1
+                        }
+                    }
+                },
+                {
+                    "percent": 100,
+                    "rewards": {
+                        "gold": 40,
+                        "xp": 60,
+                        "items": {
+                            "furn_flower_box": 1
+                        },
+                        "badge": "Frühlingsbote"
+                    }
+                }
+            ]
+        },
+        "modifiers": [
+            {
+                "type": "garden_speed",
+                "factor": 2
+            }
+        ],
+        "drops": {
+            "seeds": 40,
+            "flower": 25,
+            "furn_spring_flowers": 3
+        },
+        "recipes": ["furn_flower_box"],
+        "decor": {
+            "colors": ["#86efac", "#fef08a"],
+            "items": ["furn_spring_flowers"]
+        },
+        "ha_actions": {
+            "color": "#86efac"
+        },
+        "returns_in_years": 1
+    },
+    {
+        "key": "egg_hunt",
+        "name": "Eiersuche",
+        "icon": "🥚",
+        "category": "calendar",
+        "trigger": {
+            "type": "easter_offset",
+            "from": -3,
+            "to": 1
+        },
+        "duration_days": 5,
+        "cooldown_days": 0,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": false,
+        "description": "Bei erledigten Aufgaben tauchen Eier versteckt im Familienhaus und im Solo-Gewölbe auf.",
+        "variants": {
+            "child": "Bei erledigten Aufgaben tauchen Eier versteckt im Familienhaus und im Solo-Gewölbe auf.",
+            "teen": "Bei erledigten Aufgaben tauchen Eier versteckt im Familienhaus und im Solo-Gewölbe auf."
+        },
+        "quest_key": "collect_easter_eggs",
+        "goal": {
+            "points_per_member_day": 12,
+            "tiers": [
+                {
+                    "percent": 25,
+                    "rewards": {
+                        "gold": 10,
+                        "items": {
+                            "food_chocolate_egg": 2
+                        }
+                    }
+                },
+                {
+                    "percent": 50,
+                    "rewards": {
+                        "gold": 20,
+                        "items": {
+                            "potion_pastel": 1
+                        }
+                    }
+                },
+                {
+                    "percent": 100,
+                    "rewards": {
+                        "gold": 40,
+                        "xp": 60,
+                        "items": {
+                            "egg_bunny": 1,
+                            "potion_pastel": 1
+                        },
+                        "badge": "Eierfinder"
+                    }
+                }
+            ]
+        },
+        "drops": {
+            "food_chocolate_egg": 30,
+            "easter_egg_paint": 25,
+            "egg_chick": 6,
+            "potion_pastel": 4
+        },
+        "recipes": ["season_easter_basket", "food_chocolate_egg"],
+        "decor": {
+            "colors": ["#c4b5fd", "#fef08a"],
+            "items": ["furn_easter_basket"]
+        },
+        "ha_actions": {
+            "color": "#c4b5fd"
+        },
+        "rewards_note": "Event-Haustier „Frühlingshase“: Hasenei mit Pastell-Schlüpfpulver.",
+        "returns_in_years": 1
+    },
+    {
+        "key": "role_swap",
+        "name": "Rollentausch-Tag",
+        "icon": "🔄",
+        "category": "calendar",
+        "trigger": {
+            "type": "fixed",
+            "start": "05-15",
+            "end": "05-15"
+        },
+        "duration_days": 1,
+        "cooldown_days": 0,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": false,
+        "description": "Kinder weisen den Eltern je eine Aufgabe zu und geben an diesem Tag die Freigaben (außer Sterne-Aufgaben). Eltern bekommen Bonus-XP.",
+        "variants": {
+            "child": "Kinder weisen den Eltern je eine Aufgabe zu und geben an diesem Tag die Freigaben (außer Sterne-Aufgaben). Eltern bekommen Bonus-XP.",
+            "teen": "Kinder weisen den Eltern je eine Aufgabe zu und geben an diesem Tag die Freigaben (außer Sterne-Aufgaben). Eltern bekommen Bonus-XP."
+        },
+        "modifiers": [
+            {
+                "type": "parent_bonus",
+                "xp": 0.5
+            },
+            {
+                "type": "children_approve"
+            }
+        ],
+        "goal": {
+            "points_per_member_day": 10,
+            "tiers": [
+                {
+                    "percent": 25,
+                    "rewards": {
+                        "gold": 5
+                    }
+                },
+                {
+                    "percent": 50,
+                    "rewards": {
+                        "gold": 10
+                    }
+                },
+                {
+                    "percent": 100,
+                    "rewards": {
+                        "gold": 20,
+                        "xp": 30,
+                        "badge": "Chef für einen Tag"
+                    }
+                }
+            ]
+        },
+        "decor": {
+            "colors": ["#fda4af", "#93c5fd"]
+        },
+        "ha_actions": {
+            "color": "#f9a8d4"
+        },
+        "returns_in_years": 1
+    },
+    {
+        "key": "midsummer",
+        "name": "Mittsommerfest",
+        "icon": "☀️",
+        "category": "calendar",
+        "trigger": {
+            "type": "season",
+            "start": "06-21"
+        },
+        "duration_days": 3,
+        "cooldown_days": 0,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": false,
+        "description": "+25 % XP und Gold für Sport & Draußen, Sonnen-Kosmetik und Lagerfeuer, die im Dungeon doppelt heilen.",
+        "variants": {
+            "child": "+25 % XP und Gold für Sport & Draußen, Sonnen-Kosmetik und Lagerfeuer, die im Dungeon doppelt heilen.",
+            "teen": "+25 % XP und Gold für Sport & Draußen, Sonnen-Kosmetik und Lagerfeuer, die im Dungeon doppelt heilen."
+        },
+        "modifiers": [
+            {
+                "type": "category_bonus",
+                "category": "sport",
+                "xp": 0.25,
+                "gold": 0.25
+            },
+            {
+                "type": "campfire_heal",
+                "factor": 2
+            }
+        ],
+        "goal": {
+            "points_per_member_day": 10,
+            "tiers": [
+                {
+                    "percent": 25,
+                    "rewards": {
+                        "gold": 8
+                    }
+                },
+                {
+                    "percent": 50,
+                    "rewards": {
+                        "gold": 15,
+                        "items": {
+                            "accessory_sunglasses": 1
+                        }
+                    }
+                },
+                {
+                    "percent": 100,
+                    "rewards": {
+                        "gold": 30,
+                        "xp": 45,
+                        "items": {
+                            "head_sun_hat": 1
+                        },
+                        "badge": "Sonnenkind"
+                    }
+                }
+            ]
+        },
+        "drops": {
+            "flower": 25,
+            "food_berries": 25
+        },
+        "decor": {
+            "colors": ["#fde047", "#fb923c"]
+        },
+        "ha_actions": {
+            "color": "#fbbf24"
+        },
+        "returns_in_years": 1
+    },
+    {
+        "key": "summer_adventure",
+        "name": "Sommerferien-Abenteuer",
+        "icon": "🏕️",
+        "category": "calendar",
+        "trigger": {
+            "type": "school_holidays",
+            "holiday": "summer",
+            "edge": "start",
+            "from": 0,
+            "to": 41
+        },
+        "duration_days": 42,
+        "cooldown_days": 0,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": false,
+        "description": "Eine Reise in sechs Kapiteln: Strand, Berge, Burg, Wald, See und Stadt. Jedes Kapitel bringt eine Postkarte fürs Familienhaus.",
+        "variants": {
+            "child": "Eine Reise in sechs Kapiteln: Strand, Berge, Burg, Wald, See und Stadt. Jedes Kapitel bringt eine Postkarte fürs Familienhaus.",
+            "teen": "Eine Reise in sechs Kapiteln: Strand, Berge, Burg, Wald, See und Stadt. Jedes Kapitel bringt eine Postkarte fürs Familienhaus."
+        },
+        "quest_key": "collect_postcards",
+        "dungeon_theme": "sunken_grotto",
+        "chapters": ["beach", "mountains", "castle", "forest", "lake", "city"],
+        "goal": {
+            "points_per_member_day": 8,
+            "tiers": [
+                {
+                    "percent": 16,
+                    "rewards": {
+                        "gold": 10,
+                        "items": {
+                            "furn_postcard_beach": 1
+                        }
+                    }
+                },
+                {
+                    "percent": 33,
+                    "rewards": {
+                        "gold": 10,
+                        "items": {
+                            "furn_postcard_mountains": 1
+                        }
+                    }
+                },
+                {
+                    "percent": 50,
+                    "rewards": {
+                        "gold": 10,
+                        "items": {
+                            "furn_postcard_castle": 1
+                        }
+                    }
+                },
+                {
+                    "percent": 66,
+                    "rewards": {
+                        "gold": 10,
+                        "items": {
+                            "furn_postcard_forest": 1
+                        }
+                    }
+                },
+                {
+                    "percent": 83,
+                    "rewards": {
+                        "gold": 10,
+                        "items": {
+                            "furn_postcard_lake": 1
+                        }
+                    }
+                },
+                {
+                    "percent": 100,
+                    "rewards": {
+                        "gold": 40,
+                        "xp": 80,
+                        "items": {
+                            "furn_postcard_city": 1,
+                            "furn_beach_chair": 1
+                        },
+                        "badge": "Weltenbummler"
+                    }
+                }
+            ]
+        },
+        "drops": {
+            "sand": 25,
+            "shell": 25,
+            "food_ice_cream": 10,
+            "potion_sunny": 4
+        },
+        "recipes": ["season_beach_chair", "glass"],
+        "decor": {
+            "colors": ["#38bdf8", "#fde68a"],
+            "items": ["furn_beach_chair"]
+        },
+        "ha_actions": {
+            "color": "#38bdf8"
+        },
+        "suggest_inn": true,
+        "returns_in_years": 1
+    },
+    {
+        "key": "school_start",
+        "name": "Schulstart-Neustart",
+        "icon": "🎒",
+        "category": "calendar",
+        "trigger": {
+            "type": "school_holidays",
+            "holiday": "summer",
+            "edge": "end",
+            "from": -3,
+            "to": 7
+        },
+        "duration_days": 11,
+        "cooldown_days": 0,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": false,
+        "description": "Schulsachen packen, Lern-Dailies anlegen und sanft mit den Kern-Dailies einsteigen. +20 % XP für Schule & Lernen.",
+        "variants": {
+            "child": "Schulsachen packen, Lern-Dailies anlegen und sanft mit den Kern-Dailies einsteigen. +20 % XP für Schule & Lernen.",
+            "teen": "Schulsachen packen, Lern-Dailies anlegen und sanft mit den Kern-Dailies einsteigen. +20 % XP für Schule & Lernen."
+        },
+        "quest_key": "collect_school_bag",
+        "modifiers": [
+            {
+                "type": "category_bonus",
+                "category": "school",
+                "xp": 0.2
+            }
+        ],
+        "goal": {
+            "points_per_member_day": 10,
+            "tiers": [
+                {
+                    "percent": 25,
+                    "rewards": {
+                        "gold": 8,
+                        "items": {
+                            "elixir_wisdom": 1
+                        }
+                    }
+                },
+                {
+                    "percent": 50,
+                    "rewards": {
+                        "gold": 15,
+                        "items": {
+                            "shield_book": 1
+                        }
+                    }
+                },
+                {
+                    "percent": 100,
+                    "rewards": {
+                        "gold": 30,
+                        "xp": 45,
+                        "badge": "Startklar"
+                    }
+                }
+            ]
+        },
+        "step_templates": ["Schulranzen packen", "Stundenplan aufhängen", "Hefte beschriften", "Lern-Daily anlegen"],
+        "decor": {
+            "colors": ["#fbbf24", "#60a5fa"]
+        },
+        "returns_in_years": 1
+    },
+    {
+        "key": "harvest_festival",
+        "name": "Erntefest",
+        "icon": "🍂",
+        "category": "calendar",
+        "trigger": {
+            "type": "rule",
+            "start": "09-22",
+            "end_rule": "harvest_thanksgiving"
+        },
+        "duration_days": 14,
+        "cooldown_days": 0,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": false,
+        "description": "Doppelte Ernte im Garten, die Erntescheune als Bauprojekt und gemeinsam die Vorratskammer füllen.",
+        "variants": {
+            "child": "Doppelte Ernte im Garten, die Erntescheune als Bauprojekt und gemeinsam die Vorratskammer füllen.",
+            "teen": "Doppelte Ernte im Garten, die Erntescheune als Bauprojekt und gemeinsam die Vorratskammer füllen."
+        },
+        "quest_key": "collect_harvest",
+        "modifiers": [
+            {
+                "type": "garden_yield",
+                "factor": 2
+            }
+        ],
+        "build_projects": ["event_harvest_barn"],
+        "goal": {
+            "points_per_member_day": 12,
+            "tiers": [
+                {
+                    "percent": 25,
+                    "rewards": {
+                        "gold": 10,
+                        "items": {
+                            "food_apple_pie": 2
+                        }
+                    }
+                },
+                {
+                    "percent": 50,
+                    "rewards": {
+                        "gold": 20,
+                        "items": {
+                            "head_straw_hat": 1
+                        }
+                    }
+                },
+                {
+                    "percent": 100,
+                    "rewards": {
+                        "gold": 40,
+                        "xp": 60,
+                        "items": {
+                            "furn_harvest_basket": 1
+                        },
+                        "badge": "Erntehelfer"
+                    }
+                }
+            ]
+        },
+        "drops": {
+            "pumpkin": 20,
+            "wheat": 25,
+            "food_apple": 20
+        },
+        "recipes": ["food_apple_pie", "food_pumpkin_soup"],
+        "decor": {
+            "colors": ["#f59e0b", "#92400e"],
+            "items": ["furn_harvest_basket"]
+        },
+        "ha_actions": {
+            "color": "#f59e0b"
+        },
+        "returns_in_years": 1
+    },
+    {
+        "key": "pumpkin_night",
+        "name": "Kürbisnacht",
+        "icon": "🎃",
+        "category": "calendar",
+        "trigger": {
+            "type": "fixed",
+            "start": "10-24",
+            "end": "10-31"
+        },
+        "duration_days": 8,
+        "cooldown_days": 0,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": false,
+        "description": "Kostüme, die Kürbis-Gruft im Dungeon, Spuk-Monster und eine Kürbis-Sammelquest.",
+        "variants": {
+            "child": "Lustig statt gruselig: Kostüme, Kürbisse sammeln und die Kürbis-Gruft mit freundlichen Gespenstern.",
+            "teen": "Kostüme, die Kürbis-Gruft mit Spuk-Monstern und der Kürbiskönig."
+        },
+        "quest_key": "collect_pumpkins",
+        "dungeon_theme": "pumpkin_crypt",
+        "goal": {
+            "points_per_member_day": 12,
+            "tiers": [
+                {
+                    "percent": 25,
+                    "rewards": {
+                        "gold": 10,
+                        "items": {
+                            "food_candy": 3
+                        }
+                    }
+                },
+                {
+                    "percent": 50,
+                    "rewards": {
+                        "gold": 20,
+                        "items": {
+                            "head_pumpkin": 1
+                        }
+                    }
+                },
+                {
+                    "percent": 100,
+                    "rewards": {
+                        "gold": 40,
+                        "xp": 60,
+                        "items": {
+                            "potion_spooky": 1,
+                            "egg_bat": 1
+                        },
+                        "badge": "Kürbisheld"
+                    }
+                }
+            ]
+        },
+        "drops": {
+            "candy_corn": 30,
+            "pumpkin": 20,
+            "food_candy": 20,
+            "egg_bat": 4,
+            "potion_spooky": 3
+        },
+        "recipes": ["season_pumpkin_lantern", "food_candy"],
+        "decor": {
+            "colors": ["#f97316", "#581c87"],
+            "items": ["furn_pumpkin_lantern", "furn_cobweb"]
+        },
+        "ha_actions": {
+            "color": "#f97316"
+        },
+        "returns_in_years": 1
+    },
+    {
+        "key": "lantern_festival",
+        "name": "Laternenfest",
+        "icon": "🏮",
+        "category": "calendar",
+        "trigger": {
+            "type": "fixed",
+            "start": "11-08",
+            "end": "11-11"
+        },
+        "duration_days": 4,
+        "cooldown_days": 0,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": false,
+        "description": "Thema Teilen: Geschenke an Familie und Bündnis-Familien geben Event-Punkte. Die Laterne bringt im Dungeon zusätzliche Fackeln.",
+        "variants": {
+            "child": "Thema Teilen: Geschenke an Familie und Bündnis-Familien geben Event-Punkte. Die Laterne bringt im Dungeon zusätzliche Fackeln.",
+            "teen": "Thema Teilen: Geschenke an Familie und Bündnis-Familien geben Event-Punkte. Die Laterne bringt im Dungeon zusätzliche Fackeln."
+        },
+        "quest_key": "collect_lanterns",
+        "modifiers": [
+            {
+                "type": "gift_points",
+                "points": 5
+            },
+            {
+                "type": "dungeon_torches",
+                "bonus": 1
+            }
+        ],
+        "goal": {
+            "points_per_member_day": 10,
+            "tiers": [
+                {
+                    "percent": 25,
+                    "rewards": {
+                        "gold": 8,
+                        "items": {
+                            "wax": 2
+                        }
+                    }
+                },
+                {
+                    "percent": 50,
+                    "rewards": {
+                        "gold": 15,
+                        "items": {
+                            "furn_paper_lantern": 1
+                        }
+                    }
+                },
+                {
+                    "percent": 100,
+                    "rewards": {
+                        "gold": 30,
+                        "xp": 45,
+                        "items": {
+                            "accessory_lantern": 1
+                        },
+                        "badge": "Lichterträger"
+                    }
+                }
+            ]
+        },
+        "drops": {
+            "wax": 30,
+            "parchment": 20
+        },
+        "recipes": ["season_lantern", "season_paper_lantern"],
+        "decor": {
+            "colors": ["#fbbf24", "#1e3a8a"],
+            "items": ["furn_paper_lantern"]
+        },
+        "ha_actions": {
+            "color": "#fbbf24"
+        },
+        "returns_in_years": 1
+    },
+    {
+        "key": "elf_workshop",
+        "name": "Wichtelwerkstatt",
+        "icon": "🎄",
+        "category": "calendar",
+        "trigger": {
+            "type": "rule",
+            "start_rule": "first_advent",
+            "end": "12-24"
+        },
+        "duration_days": 24,
+        "cooldown_days": 0,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": false,
+        "description": "Adventskalender mit einem Türchen nach der ersten erledigten Aufgabe des Tages und heimliche Helfer, die am 24.12. verraten werden.",
+        "variants": {
+            "child": "Adventskalender mit einem Türchen nach der ersten erledigten Aufgabe des Tages und heimliche Helfer, die am 24.12. verraten werden.",
+            "teen": "Adventskalender mit einem Türchen nach der ersten erledigten Aufgabe des Tages und heimliche Helfer, die am 24.12. verraten werden."
+        },
+        "quest_key": "frost_giant",
+        "goal": {
+            "points_per_member_day": 12,
+            "tiers": [
+                {
+                    "percent": 25,
+                    "rewards": {
+                        "gold": 10,
+                        "items": {
+                            "food_cookies": 3
+                        }
+                    }
+                },
+                {
+                    "percent": 50,
+                    "rewards": {
+                        "gold": 20,
+                        "items": {
+                            "head_santa_hat": 1
+                        }
+                    }
+                },
+                {
+                    "percent": 100,
+                    "rewards": {
+                        "gold": 40,
+                        "xp": 60,
+                        "items": {
+                            "furn_christmas_tree": 1
+                        },
+                        "badge": "Wichtel"
+                    }
+                }
+            ]
+        },
+        "advent": {
+            "pool": {
+                "food_cookies": 20,
+                "food_gingerbread": 15,
+                "fir_branch": 15,
+                "wax": 10,
+                "potion_health": 8,
+                "elixir_wisdom": 6,
+                "furn_advent_wreath": 4,
+                "accessory_red_scarf": 3,
+                "egg_reindeer": 4,
+                "potion_frost_star": 3,
+                "stardust": 1
+            },
+            "gold": 3
+        },
+        "secret_help": {
+            "points": 5,
+            "per_day": 1,
+            "reveal": "12-24"
+        },
+        "drops": {
+            "fir_branch": 25,
+            "food_cookies": 20,
+            "egg_reindeer": 4
+        },
+        "recipes": ["season_christmas_tree", "season_advent_wreath", "food_gingerbread", "food_cookies"],
+        "decor": {
+            "colors": ["#dc2626", "#166534"],
+            "items": ["furn_christmas_tree", "furn_advent_wreath"]
+        },
+        "ha_actions": {
+            "color": "#dc2626",
+            "on_advent": "lights_on"
+        },
+        "returns_in_years": 1
+    },
+    {
+        "key": "twelve_nights",
+        "name": "Raunächte & Jahreswechsel",
+        "icon": "🎆",
+        "category": "calendar",
+        "trigger": {
+            "type": "fixed",
+            "start": "12-27",
+            "end": "01-06"
+        },
+        "duration_days": 11,
+        "cooldown_days": 0,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": false,
+        "description": "Ein ruhiges Event: Jahresrückblick der Familie, freiwillige Vorsätze als Challenges und ein Feuerwerk an Silvester. Keine Pflicht-Ziele.",
+        "variants": {
+            "child": "Ein ruhiges Event: Jahresrückblick der Familie, freiwillige Vorsätze als Challenges und ein Feuerwerk an Silvester. Keine Pflicht-Ziele.",
+            "teen": "Ein ruhiges Event: Jahresrückblick der Familie, freiwillige Vorsätze als Challenges und ein Feuerwerk an Silvester. Keine Pflicht-Ziele."
+        },
+        "goal": null,
+        "year_review": true,
+        "fireworks_on": "12-31",
+        "drops": {
+            "stardust": 1,
+            "fireworks": 6
+        },
+        "decor": {
+            "colors": ["#1e1b4b", "#fde047"],
+            "items": ["furn_party_garland"]
+        },
+        "ha_actions": {
+            "color": "#a78bfa"
+        },
+        "returns_in_years": 1
+    },
+    {
+        "key": "carnival",
+        "name": "Fasching",
+        "icon": "🎭",
+        "category": "calendar",
+        "trigger": {
+            "type": "easter_offset",
+            "from": -52,
+            "to": -46
+        },
+        "duration_days": 7,
+        "cooldown_days": 0,
+        "priority": 50,
+        "default_enabled": false,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": false,
+        "description": "Kostüme und ein kostenloser Klassen-Probetag. Standardmäßig aus, weil regional sehr unterschiedlich gefeiert wird.",
+        "variants": {
+            "child": "Kostüme und ein kostenloser Klassen-Probetag. Standardmäßig aus, weil regional sehr unterschiedlich gefeiert wird.",
+            "teen": "Kostüme und ein kostenloser Klassen-Probetag. Standardmäßig aus, weil regional sehr unterschiedlich gefeiert wird."
+        },
+        "counts": false,
+        "class_trial": true,
+        "goal": {
+            "points_per_member_day": 10,
+            "tiers": [
+                {
+                    "percent": 25,
+                    "rewards": {
+                        "gold": 8,
+                        "items": {
+                            "confetti_cannon": 1
+                        }
+                    }
+                },
+                {
+                    "percent": 50,
+                    "rewards": {
+                        "gold": 15,
+                        "items": {
+                            "head_jester_cap": 1
+                        }
+                    }
+                },
+                {
+                    "percent": 100,
+                    "rewards": {
+                        "gold": 25,
+                        "xp": 40,
+                        "items": {
+                            "armor_costume_knight": 1
+                        },
+                        "badge": "Narr"
+                    }
+                }
+            ]
+        },
+        "drops": {
+            "paint": 20,
+            "confetti_cannon": 5
+        },
+        "decor": {
+            "colors": ["#f472b6", "#22d3ee"],
+            "items": ["furn_carnival_mask"]
+        },
+        "returns_in_years": 1
+    },
+    {
+        "key": "first_snow",
+        "name": "Erster Schnee",
+        "icon": "❄️",
+        "category": "world",
+        "trigger": {
+            "type": "weather",
+            "signal": "weather_snow",
+            "months": [11, 12, 1, 2, 3],
+            "once_per": "winter"
+        },
+        "duration_days": 3,
+        "cooldown_days": 120,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": false,
+        "description": "Schneemann im Garten bauen, Schneeflocken sammeln und der Eispalast im Dungeon.",
+        "variants": {
+            "child": "Schneemann im Garten bauen, Schneeflocken sammeln und der Eispalast im Dungeon.",
+            "teen": "Schneemann im Garten bauen, Schneeflocken sammeln und der Eispalast im Dungeon."
+        },
+        "quest_key": "collect_snowballs",
+        "dungeon_theme": "ice_palace",
+        "build_projects": ["event_snowman"],
+        "goal": {
+            "points_per_member_day": 10,
+            "tiers": [
+                {
+                    "percent": 25,
+                    "rewards": {
+                        "gold": 8
+                    }
+                },
+                {
+                    "percent": 50,
+                    "rewards": {
+                        "gold": 15,
+                        "items": {
+                            "furn_snowman_deco": 1
+                        }
+                    }
+                },
+                {
+                    "percent": 100,
+                    "rewards": {
+                        "gold": 30,
+                        "xp": 45,
+                        "badge": "Schneeflocke"
+                    }
+                }
+            ]
+        },
+        "drops": {
+            "snowflake": 35
+        },
+        "recipes": ["season_snowman"],
+        "decor": {
+            "colors": ["#e0f2fe", "#ffffff"]
+        },
+        "ha_actions": {
+            "color": "#e0f2fe"
+        },
+        "returns_in_years": 1
+    },
+    {
+        "key": "heatwave",
+        "name": "Hitzewelle",
+        "icon": "🥵",
+        "category": "world",
+        "trigger": {
+            "type": "weather",
+            "signal": "weather_hot",
+            "min_temp": 30,
+            "days": 2
+        },
+        "duration_days": 3,
+        "cooldown_days": 14,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": false,
+        "description": "Die Oase: eine Gewohnheit „Wasser trinken“ als Vorschlag, Dailies im Haushalt zählen 20 % mehr und Eis am Stiel für die Tiere.",
+        "variants": {
+            "child": "Die Oase: eine Gewohnheit „Wasser trinken“ als Vorschlag, Dailies im Haushalt zählen 20 % mehr und Eis am Stiel für die Tiere.",
+            "teen": "Die Oase: eine Gewohnheit „Wasser trinken“ als Vorschlag, Dailies im Haushalt zählen 20 % mehr und Eis am Stiel für die Tiere."
+        },
+        "modifiers": [
+            {
+                "type": "category_bonus",
+                "category": "household",
+                "xp": 0.2,
+                "gold": 0.2
+            }
+        ],
+        "suggest_habit": {
+            "title": "Wasser trinken",
+            "category": "sport"
+        },
+        "goal": {
+            "points_per_member_day": 8,
+            "tiers": [
+                {
+                    "percent": 25,
+                    "rewards": {
+                        "gold": 5
+                    }
+                },
+                {
+                    "percent": 50,
+                    "rewards": {
+                        "gold": 10,
+                        "items": {
+                            "food_ice_cream": 2
+                        }
+                    }
+                },
+                {
+                    "percent": 100,
+                    "rewards": {
+                        "gold": 20,
+                        "xp": 30,
+                        "badge": "Oasenwächter"
+                    }
+                }
+            ]
+        },
+        "drops": {
+            "food_ice_cream": 30
+        },
+        "recipes": ["food_ice_cream"],
+        "decor": {
+            "colors": ["#22d3ee", "#a5f3fc"]
+        },
+        "ha_actions": {
+            "color": "#60a5fa"
+        },
+        "returns_in_years": 1
+    },
+    {
+        "key": "dragon_lord",
+        "name": "Rückkehr des Drachenfürsten",
+        "icon": "🐉",
+        "category": "game",
+        "trigger": {
+            "type": "game",
+            "signal": "boss_streak",
+            "count": 3
+        },
+        "duration_days": 7,
+        "cooldown_days": 30,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": false,
+        "description": "Ein Elite-Boss mit zwei Phasen und wechselnder Schwäche. Belohnung: eine Trophäe und seltene Drachenschuppen.",
+        "variants": {
+            "child": "Ein Elite-Boss mit zwei Phasen und wechselnder Schwäche. Belohnung: eine Trophäe und seltene Drachenschuppen.",
+            "teen": "Ein Elite-Boss mit zwei Phasen und wechselnder Schwäche. Belohnung: eine Trophäe und seltene Drachenschuppen."
+        },
+        "quest_key": "dragon_lord",
+        "phases": [
+            {
+                "below": 1.0,
+                "weakness": "household"
+            },
+            {
+                "below": 0.5,
+                "weakness": "sport"
+            }
+        ],
+        "goal": null,
+        "rewards_on_quest": {
+            "items": {
+                "dragon_scale": 2
+            }
+        },
+        "returns_in_years": 1
+    },
+    {
+        "key": "golden_week",
+        "name": "Goldene Woche",
+        "icon": "✨",
+        "category": "game",
+        "trigger": {
+            "type": "game",
+            "signal": "all_dailies_streak",
+            "days": 3
+        },
+        "duration_days": 4,
+        "cooldown_days": 21,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": false,
+        "description": "Alle haben drei Tage in Folge ihre (Kern-)Dailies geschafft: vier Tage +15 % Gold und goldene Deko.",
+        "variants": {
+            "child": "Alle haben drei Tage in Folge ihre (Kern-)Dailies geschafft: vier Tage +15 % Gold und goldene Deko.",
+            "teen": "Alle haben drei Tage in Folge ihre (Kern-)Dailies geschafft: vier Tage +15 % Gold und goldene Deko."
+        },
+        "modifiers": [
+            {
+                "type": "all_bonus",
+                "gold": 0.15
+            }
+        ],
+        "goal": null,
+        "on_start": {
+            "items": {
+                "furn_golden_garland": 1
+            },
+            "badge": "Goldene Woche"
+        },
+        "decor": {
+            "colors": ["#facc15", "#fef9c3"],
+            "items": ["furn_golden_garland"]
+        },
+        "ha_actions": {
+            "color": "#facc15"
+        },
+        "returns_in_years": 1
+    },
+    {
+        "key": "welcome_party",
+        "name": "Willkommensfest",
+        "icon": "🎉",
+        "category": "family",
+        "trigger": {
+            "type": "game",
+            "signal": "member_joined"
+        },
+        "duration_days": 7,
+        "cooldown_days": 0,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": false,
+        "description": "Ein neues Mitglied ist da! Alle helfen ihm bis Level 3, jede Hilfe bringt einen Mentoren-Bonus.",
+        "variants": {
+            "child": "Ein neues Mitglied ist da! Alle helfen ihm bis Level 3, jede Hilfe bringt einen Mentoren-Bonus.",
+            "teen": "Ein neues Mitglied ist da! Alle helfen ihm bis Level 3, jede Hilfe bringt einen Mentoren-Bonus."
+        },
+        "quest_key": "collect_welcome",
+        "modifiers": [
+            {
+                "type": "mentor_bonus",
+                "gold": 2,
+                "until_level": 3
+            }
+        ],
+        "goal": {
+            "points_per_member_day": 8,
+            "tiers": [
+                {
+                    "percent": 25,
+                    "rewards": {
+                        "gold": 5
+                    }
+                },
+                {
+                    "percent": 50,
+                    "rewards": {
+                        "gold": 10
+                    }
+                },
+                {
+                    "percent": 100,
+                    "rewards": {
+                        "gold": 20,
+                        "xp": 30,
+                        "badge": "Gastgeber"
+                    }
+                }
+            ]
+        },
+        "returns_in_years": 1
+    },
+    {
+        "key": "house_warming",
+        "name": "Hauseinweihung",
+        "icon": "🏡",
+        "category": "family",
+        "trigger": {
+            "type": "game",
+            "signal": "house_stage"
+        },
+        "duration_days": 3,
+        "cooldown_days": 0,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": false,
+        "description": "Das Familienhaus hat eine neue Ausbaustufe: Bündnis-Familien kommen zu Besuch, es gibt Gästebuch-Sticker und Deko-Rezepte.",
+        "variants": {
+            "child": "Das Familienhaus hat eine neue Ausbaustufe: Bündnis-Familien kommen zu Besuch, es gibt Gästebuch-Sticker und Deko-Rezepte.",
+            "teen": "Das Familienhaus hat eine neue Ausbaustufe: Bündnis-Familien kommen zu Besuch, es gibt Gästebuch-Sticker und Deko-Rezepte."
+        },
+        "goal": null,
+        "on_start": {
+            "items": {
+                "furn_housewarming_sticker": 1
+            }
+        },
+        "guestbook_points": 3,
+        "recipes": ["furn_fairy_lights", "furn_vase"],
+        "returns_in_years": 1
+    },
+    {
+        "key": "hero_anniversary",
+        "name": "Heldenjubiläum",
+        "icon": "🏅",
+        "category": "family",
+        "trigger": {
+            "type": "family_date",
+            "date": "family_created"
+        },
+        "duration_days": 1,
+        "cooldown_days": 0,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": false,
+        "description": "Ein Jahr Heldenhaus: Rückblick, Jahres-Abzeichen und Konfetti beim ersten Login.",
+        "variants": {
+            "child": "Ein Jahr Heldenhaus: Rückblick, Jahres-Abzeichen und Konfetti beim ersten Login.",
+            "teen": "Ein Jahr Heldenhaus: Rückblick, Jahres-Abzeichen und Konfetti beim ersten Login."
+        },
+        "goal": null,
+        "year_review": true,
+        "on_start": {
+            "items": {
+                "furn_anniversary_badge": 1
+            },
+            "badge": "Jubiläum"
+        },
+        "returns_in_years": 1
+    },
+    {
+        "key": "birthday",
+        "name": "Geburtstag",
+        "icon": "🎂",
+        "category": "family",
+        "trigger": {
+            "type": "family_date",
+            "date": "birthday"
+        },
+        "duration_days": 1,
+        "cooldown_days": 0,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": true,
+        "description": "Das Geburtstagskind bekommt Konfetti, eine Krone und einen Wunsch-Joker. Jede Aufgabe der anderen schickt einen Gruß.",
+        "variants": {
+            "child": "Das Geburtstagskind bekommt Konfetti, eine Krone und einen Wunsch-Joker. Jede Aufgabe der anderen schickt einen Gruß.",
+            "teen": "Das Geburtstagskind bekommt Konfetti, eine Krone und einen Wunsch-Joker. Jede Aufgabe der anderen schickt einen Gruß."
+        },
+        "goal": null,
+        "joker": true,
+        "on_start": {
+            "items": {
+                "head_birthday_crown": 1
+            }
+        },
+        "greetings": true,
+        "returns_in_years": 1
+    },
+    {
+        "key": "welcome_back",
+        "name": "Willkommen zurück",
+        "icon": "🤗",
+        "category": "game",
+        "trigger": {
+            "type": "game",
+            "signal": "comeback",
+            "inn_days": 3,
+            "pause_days": 5
+        },
+        "duration_days": 5,
+        "cooldown_days": 0,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": null,
+        "requires_ha": false,
+        "personal": true,
+        "description": "Sanfter Wiedereinstieg: drei leichte Aufgaben, Serien bleiben pausiert und lassen sich reparieren.",
+        "variants": {
+            "child": "Sanfter Wiedereinstieg: drei leichte Aufgaben, Serien bleiben pausiert und lassen sich reparieren.",
+            "teen": "Sanfter Wiedereinstieg: drei leichte Aufgaben, Serien bleiben pausiert und lassen sich reparieren."
+        },
+        "counts": false,
+        "quest_key": "collect_comeback",
+        "goal": null,
+        "returns_in_years": 1
+    },
+    {
+        "key": "wandering_merchant",
+        "name": "Wandernder Händler",
+        "icon": "🧳",
+        "category": "world",
+        "trigger": {
+            "type": "random",
+            "per": "month"
+        },
+        "duration_days": 2,
+        "cooldown_days": 20,
+        "priority": 50,
+        "default_enabled": true,
+        "requires_feature": "crafting",
+        "requires_ha": false,
+        "personal": false,
+        "description": "Für 48 Stunden ein besonderer Laden mit seltenen Rezepten und Möbeln – nur für Gold.",
+        "variants": {
+            "child": "Für 48 Stunden ein besonderer Laden mit seltenen Rezepten und Möbeln – nur für Gold.",
+            "teen": "Für 48 Stunden ein besonderer Laden mit seltenen Rezepten und Möbeln – nur für Gold."
+        },
+        "goal": null,
+        "merchant": {
+            "offers": 4,
+            "pool": {
+                "furn_piano": 400,
+                "furn_star_projector": 350,
+                "furn_chandelier": 300,
+                "furn_fountain": 450,
+                "furn_map": 120,
+                "furn_armor_stand": 150,
+                "elixir_wisdom_big": 150,
+                "elixir_luck": 160,
+                "potion_golden": 220,
+                "potion_shadow": 220,
+                "moonstone": 250,
+                "silk": 90,
+                "gold_nugget": 80
+            }
+        },
+        "returns_in_years": 1
+    }
+]

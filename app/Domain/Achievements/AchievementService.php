@@ -2,6 +2,12 @@
 
 namespace App\Domain\Achievements;
 
+use App\Domain\Stats\Counters;
+use App\Models\CraftJob;
+use App\Models\DungeonPosition;
+use App\Models\FocusSession;
+use App\Models\GuestbookEntry;
+use App\Models\EventParticipation;
 use App\Domain\Social\FeedService;
 use App\Enums\CompletionStatus;
 use App\Enums\FamilyRole;
@@ -146,6 +152,15 @@ class AchievementService
             'level' => $user->stats()->value('level') ?? 1,
             'class_chosen' => $user->stats()->whereNotNull('class_key')->exists() ? 1 : 0,
             'equipped_slots' => UserEquipment::where('user_id', $user->id)->count(),
+            'items_crafted' => CraftJob::where('user_id', $user->id)->where('status', 'collected')->sum('quantity'),
+            'dungeons_cleared' => DungeonPosition::where('user_id', $user->id)->whereHas('dungeon', fn (Builder $q) => $q->where('status', 'completed'))->count(),
+            'monsters_defeated' => Counters::get($user->id, 'monsters_defeated'),
+            'harvests' => Counters::get($user->id, 'harvests'),
+            'focus_sessions' => FocusSession::where('user_id', $user->id)->where('result', 'done')->count(),
+            // Beendete Events, bei denen man mit Event-Punkten dabei war
+            'events_joined' => EventParticipation::where('user_id', $user->id)->where('points', '>', 0)
+                ->whereHas('familyEvent', fn ($q) => $q->where('status', 'finished'))->count(),
+            'guestbook' => GuestbookEntry::where('user_id', $user->id)->count(),
             default => 0,
         };
     }

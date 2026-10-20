@@ -8,6 +8,12 @@ use App\Models\UserStats;
 
 final class ScoreResult
 {
+    /** Event-Fortschritt (§12): Punkte, Fund, erreichte Stufen – gesetzt nach dem Abschluss */
+    public ?array $event = null;
+
+    /** Zufallsereignis nur zum Spaß (§12.5) */
+    public ?array $funEvent = null;
+
     public function __construct(
         public readonly TaskCompletion $completion,
         public readonly UserStats $stats,
@@ -30,6 +36,8 @@ final class ScoreResult
             'knocked_out' => $this->knockedOut,
             'drop' => $this->drop?->only(['id', 'key', 'name', 'icon', 'rarity', 'type']),
             'surprise' => $this->completion->surprise,
+            'event' => $this->event,
+            'fun_event' => $this->funEvent,
             'stats' => $this->stats->only(['hp', 'mp', 'xp', 'gold', 'stars', 'level']),
         ];
     }

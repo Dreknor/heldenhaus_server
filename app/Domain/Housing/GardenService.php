@@ -2,9 +2,12 @@
 
 namespace App\Domain\Housing;
 
+use App\Domain\Achievements\AchievementService;
 use App\Domain\Crafting\Catalog;
+use App\Domain\Events\EventEngine;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Inventory\Stock;
+use App\Domain\Stats\Counters;
 use App\Models\GardenPlot;
 use App\Models\Home;
 use App\Models\User;
@@ -20,11 +23,17 @@ class GardenService
         if (! HomeService::hasRoom($home, 'garden')) {
             return collect();
         }
-        for ($slot = 1; $slot <= config('game.housing.garden_slots'); $slot++) {
+        for ($slot = 1; $slot <= self::slots($home); $slot++) {
             GardenPlot::firstOrCreate(['family_id' => $home->family_id, 'slot' => $slot]);
         }
 
         return GardenPlot::where('family_id', $home->family_id)->orderBy('slot')->get();
+    }
+
+    /** Beete: Grundzahl plus Gewächshaus und Erntescheune (Bauprojekte). */
+    public static function slots(Home $home): int
+    {
+        return (int) config('game.housing.garden_slots') + (int) $home->garden_bonus_slots;
     }
 
     public function sow(User $user, int $slot, string $plantKey): GardenPlot
@@ -43,7 +52,8 @@ class GardenService
                 'sown_at' => now(),
                 'watered_on' => null,
                 'waterings' => 0,
-                'ready_at' => now()->addHours((int) $plant['hours']),
+                // Frühlingserwachen: Der Garten wächst doppelt so schnell (§12.4)
+                'ready_at' => now()->addMinutes((int) round($plant['hours'] * 60 / max(1, EventEngine::modifier($user->family_id, 'garden_speed')))),
             ]);
 
             return $plot;
@@ -80,11 +90,16 @@ class GardenService
             if (self::stage($plot, $plant) !== 'ready') {
                 throw new GameException('Das ist noch nicht reif.');
             }
-            Stock::ensureRoom($user->id, collect(Stock::items(array_keys($plant['yield'])))->pluck('id')->all());
-            Stock::addKeys($user->id, $plant['yield']);
+            // Erntefest: doppelte Ernte (§12.4)
+            $factor = EventEngine::modifier($user->family_id, 'garden_yield');
+            $yield = array_map(fn ($q) => (int) round($q * $factor), $plant['yield']);
+            Stock::ensureRoom($user->id, collect(Stock::items(array_keys($yield)))->pluck('id')->all());
+            Stock::addKeys($user->id, $yield);
+            Counters::bump($user->id, 'harvests');
+            app(AchievementService::class)->evaluate($user, ['harvests']);
             $plot->update(['plant_key' => null, 'sown_by' => null, 'sown_at' => null, 'watered_on' => null, 'waterings' => 0, 'ready_at' => null]);
 
-            return $plant['yield'];
+            return $yield;
         });
     }
 
@@ -130,7 +145,7 @@ class GardenService
         if (! HomeService::hasRoom($home, 'garden')) {
             throw new GameException('Baut zuerst einen Garten.');
         }
-        if ($slot < 1 || $slot > config('game.housing.garden_slots')) {
+        if ($slot < 1 || $slot > self::slots($home)) {
             throw new GameException('Dieses Beet gibt es nicht.');
         }
 

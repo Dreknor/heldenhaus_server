@@ -344,5 +344,800 @@
             "xp": 25,
             "item": "potion_health"
         }
+    },
+    {
+        "key": "dish_golem",
+        "type": "boss",
+        "name": "Geschirrberg-Golem",
+        "icon": "🍽️",
+        "scopes": [
+            "family",
+            "solo"
+        ],
+        "description": "Ein Turm aus Tellern, der jeden Abend wächst. Abwasch und Aufräumen bringen ihn zum Einsturz.",
+        "hp": 200,
+        "days": 7,
+        "min_level": 2,
+        "weakness": "household",
+        "rewards": {
+            "gold": 25,
+            "xp": 35,
+            "item": "shield_baking_tray"
+        },
+        "art": {
+            "body": "golem",
+            "color": "#cbd5e1",
+            "accent": "#f8fafc",
+            "eyes": 2,
+            "horns": "none",
+            "mouth": "o",
+            "extra": "spikes"
+        }
+    },
+    {
+        "key": "trash_troll",
+        "type": "boss",
+        "name": "Müll-Troll",
+        "icon": "🗑️",
+        "scopes": [
+            "family",
+            "solo"
+        ],
+        "description": "Wohnt hinter der Tonne und liebt überquellende Eimer.",
+        "hp": 160,
+        "days": 7,
+        "min_level": 1,
+        "weakness": "household",
+        "rewards": {
+            "gold": 20,
+            "xp": 30,
+            "item": "egg_hedgehog"
+        },
+        "art": {
+            "body": "troll",
+            "color": "#65a30d",
+            "accent": "#d9f99d",
+            "eyes": 2,
+            "horns": "two",
+            "mouth": "fangs",
+            "extra": "dust"
+        }
+    },
+    {
+        "key": "grumble_ghost",
+        "type": "boss",
+        "name": "Morgenmuffel-Gespenst",
+        "icon": "👻",
+        "scopes": [
+            "family",
+            "solo"
+        ],
+        "description": "Flüstert jeden Morgen „nur noch fünf Minuten“. Bewegung vertreibt es.",
+        "hp": 120,
+        "days": 5,
+        "min_level": 1,
+        "weakness": "sport",
+        "rewards": {
+            "gold": 15,
+            "xp": 25,
+            "item": "elixir_wisdom"
+        },
+        "art": {
+            "body": "ghost",
+            "color": "#e0e7ff",
+            "accent": "#a5b4fc",
+            "eyes": 2,
+            "horns": "none",
+            "mouth": "frown",
+            "extra": "none"
+        }
+    },
+    {
+        "key": "forget_dragon",
+        "type": "boss",
+        "name": "Vergiss-mein-Drache",
+        "icon": "🐲",
+        "scopes": [
+            "family",
+            "solo"
+        ],
+        "description": "Frisst Hausaufgabenhefte und Zettel. Wer lernt, macht ihn satt – und schwach.",
+        "hp": 280,
+        "days": 10,
+        "min_level": 4,
+        "weakness": "school",
+        "resist": "household",
+        "rewards": {
+            "gold": 40,
+            "xp": 60,
+            "item": "shield_book"
+        },
+        "art": {
+            "body": "dragon",
+            "color": "#7c3aed",
+            "accent": "#ddd6fe",
+            "eyes": 2,
+            "horns": "two",
+            "mouth": "fangs",
+            "extra": "wings"
+        }
+    },
+    {
+        "key": "clutter_beast",
+        "type": "boss",
+        "name": "Krempel-Ungeheuer",
+        "icon": "📦",
+        "scopes": [
+            "family",
+            "solo"
+        ],
+        "description": "Besteht aus allem, was nicht an seinem Platz liegt.",
+        "hp": 240,
+        "days": 7,
+        "min_level": 3,
+        "weakness": "household",
+        "rewards": {
+            "gold": 30,
+            "xp": 45,
+            "item": "furn_wall_shelf"
+        },
+        "art": {
+            "body": "blob",
+            "color": "#a16207",
+            "accent": "#fde68a",
+            "eyes": 3,
+            "horns": "antenna",
+            "mouth": "grin",
+            "extra": "dust"
+        }
+    },
+    {
+        "key": "sugar_goblin",
+        "type": "boss",
+        "name": "Zucker-Kobold",
+        "icon": "🍭",
+        "scopes": [
+            "solo"
+        ],
+        "description": "Will, dass du nur noch naschst. Obst, Gemüse und Bewegung ärgern ihn.",
+        "hp": 140,
+        "days": 5,
+        "min_level": 2,
+        "weakness": "sport",
+        "rewards": {
+            "gold": 18,
+            "xp": 28,
+            "item": "food_berries"
+        },
+        "art": {
+            "body": "round",
+            "color": "#f472b6",
+            "accent": "#fef08a",
+            "eyes": 2,
+            "horns": "antenna",
+            "mouth": "grin",
+            "extra": "none"
+        }
+    },
+    {
+        "key": "time_thief",
+        "type": "boss",
+        "name": "Zeitdieb",
+        "icon": "⏳",
+        "scopes": [
+            "family",
+            "solo"
+        ],
+        "description": "Stiehlt Minuten, wenn niemand hinsieht. Konzentriertes Lernen hält ihn auf.",
+        "hp": 260,
+        "days": 7,
+        "min_level": 5,
+        "weakness": "school",
+        "resist": "creative",
+        "rewards": {
+            "gold": 35,
+            "xp": 55,
+            "item": "accessory_gear_watch"
+        },
+        "art": {
+            "body": "ghost",
+            "color": "#0f172a",
+            "accent": "#facc15",
+            "eyes": 1,
+            "horns": "crown",
+            "mouth": "o",
+            "extra": "none"
+        }
+    },
+    {
+        "key": "sock_king",
+        "type": "boss",
+        "name": "Sockenkönig",
+        "icon": "🧦",
+        "scopes": [
+            "family"
+        ],
+        "description": "Herrscher über alle einzelnen Socken. Verpasste Dailies füttern seine Armee.",
+        "hp": 350,
+        "days": 10,
+        "min_level": 6,
+        "weakness": "household",
+        "rage": 1,
+        "rewards": {
+            "gold": 50,
+            "xp": 80,
+            "item": "potion_candy"
+        },
+        "art": {
+            "body": "king",
+            "color": "#2563eb",
+            "accent": "#fbbf24",
+            "eyes": 2,
+            "horns": "crown",
+            "mouth": "grin",
+            "extra": "none"
+        }
+    },
+    {
+        "key": "lazy_dragon",
+        "type": "boss",
+        "name": "Faulpelz-Drache",
+        "icon": "🛋️",
+        "scopes": [
+            "family"
+        ],
+        "description": "Liegt am liebsten auf dem Sofa und zieht alle mit. Sport und Draußen-Sein wecken die Familie auf.",
+        "hp": 400,
+        "days": 10,
+        "min_level": 8,
+        "weakness": "sport",
+        "rage": 2,
+        "rewards": {
+            "gold": 60,
+            "xp": 90,
+            "item": "elixir_courage"
+        },
+        "art": {
+            "body": "dragon",
+            "color": "#f97316",
+            "accent": "#fed7aa",
+            "eyes": 2,
+            "horns": "two",
+            "mouth": "o",
+            "extra": "wings"
+        }
+    },
+    {
+        "key": "fog_queen",
+        "type": "boss",
+        "name": "Nebelkönigin",
+        "icon": "🌫️",
+        "scopes": [
+            "family"
+        ],
+        "description": "Hüllt alles in grauen Nebel, bis niemand mehr weiß, was zu tun ist.",
+        "hp": 600,
+        "days": 14,
+        "min_level": 12,
+        "rage": 2,
+        "rewards": {
+            "gold": 90,
+            "xp": 140,
+            "item": "potion_shadow"
+        },
+        "art": {
+            "body": "king",
+            "color": "#94a3b8",
+            "accent": "#e2e8f0",
+            "eyes": 3,
+            "horns": "crown",
+            "mouth": "frown",
+            "extra": "spikes"
+        }
+    },
+    {
+        "key": "elder_dust_dragon",
+        "type": "boss",
+        "name": "Uralter Staubdrache",
+        "icon": "🐉",
+        "scopes": [
+            "family"
+        ],
+        "description": "Der Vorfahr aller Staubmonster. Nur eine eingespielte Familie kann ihn besiegen.",
+        "hp": 900,
+        "days": 14,
+        "min_level": 15,
+        "weakness": "household",
+        "rage": 3,
+        "rewards": {
+            "gold": 150,
+            "xp": 220,
+            "item": "egg_phoenix"
+        },
+        "art": {
+            "body": "dragon",
+            "color": "#78716c",
+            "accent": "#e7e5e4",
+            "eyes": 3,
+            "horns": "crown",
+            "mouth": "fangs",
+            "extra": "wings"
+        }
+    },
+    {
+        "key": "collect_shells",
+        "type": "collect",
+        "name": "Muscheln für das Aquarium",
+        "icon": "🐚",
+        "scopes": [
+            "family",
+            "solo"
+        ],
+        "description": "Jede Natur-Aufgabe spült eine Muschel an.",
+        "item_name": "Muscheln",
+        "item_icon": "🐚",
+        "goal": 20,
+        "days": 7,
+        "min_level": 2,
+        "categories": [
+            "nature"
+        ],
+        "rewards": {
+            "gold": 20,
+            "xp": 30,
+            "item": "shell"
+        }
+    },
+    {
+        "key": "collect_gears",
+        "type": "collect",
+        "name": "Zahnräder für die Werkstatt",
+        "icon": "⚙️",
+        "scopes": [
+            "family",
+            "solo"
+        ],
+        "description": "Haushalt und Basteln bringen Zahnräder für den großen Mechanismus.",
+        "item_name": "Zahnräder",
+        "item_icon": "⚙️",
+        "goal": 25,
+        "days": 7,
+        "min_level": 3,
+        "categories": [
+            "household",
+            "creative"
+        ],
+        "rewards": {
+            "gold": 25,
+            "xp": 35,
+            "item": "gears"
+        }
+    },
+    {
+        "key": "collect_flowers",
+        "type": "collect",
+        "name": "Ein Strauß für Oma",
+        "icon": "💐",
+        "scopes": [
+            "family",
+            "solo"
+        ],
+        "description": "Jede Aufgabe für andere oder draußen bringt eine Blume.",
+        "item_name": "Blumen",
+        "item_icon": "🌸",
+        "goal": 15,
+        "days": 7,
+        "min_level": 1,
+        "categories": [
+            "nature",
+            "others"
+        ],
+        "rewards": {
+            "gold": 15,
+            "xp": 25,
+            "item": "furn_vase"
+        }
+    },
+    {
+        "key": "collect_letters",
+        "type": "collect",
+        "name": "Buchstabensuppe",
+        "icon": "🔤",
+        "scopes": [
+            "family",
+            "solo"
+        ],
+        "description": "Lern-Aufgaben fischen Buchstaben aus der Suppe – bis ein ganzer Satz daraus wird.",
+        "item_name": "Buchstaben",
+        "item_icon": "🔤",
+        "goal": 30,
+        "days": 7,
+        "min_level": 2,
+        "categories": [
+            "school"
+        ],
+        "rewards": {
+            "gold": 25,
+            "xp": 40,
+            "item": "elixir_wisdom"
+        }
+    },
+    {
+        "key": "collect_notes",
+        "type": "collect",
+        "name": "Noten fürs Familienkonzert",
+        "icon": "🎵",
+        "scopes": [
+            "family",
+            "solo"
+        ],
+        "description": "Kreative Aufgaben bringen Noten. Am Ende spielt die Familie gemeinsam.",
+        "item_name": "Noten",
+        "item_icon": "🎵",
+        "goal": 20,
+        "days": 7,
+        "min_level": 2,
+        "categories": [
+            "creative"
+        ],
+        "rewards": {
+            "gold": 20,
+            "xp": 30,
+            "item": "weapon_lute"
+        }
+    },
+    {
+        "key": "collect_coins",
+        "type": "collect",
+        "name": "Die Schatztruhe füllen",
+        "icon": "💰",
+        "scopes": [
+            "family"
+        ],
+        "description": "Jede erledigte Aufgabe wirft eine Münze in die Familien-Truhe.",
+        "item_name": "Münzen",
+        "item_icon": "🪙",
+        "goal": 40,
+        "days": 7,
+        "min_level": 3,
+        "rewards": {
+            "gold": 40,
+            "xp": 50,
+            "item": "elixir_gold"
+        }
+    },
+    {
+        "key": "dust_king",
+        "type": "boss",
+        "name": "Staubkönig",
+        "icon": "👑",
+        "scopes": [
+            "family"
+        ],
+        "description": "Zum Frühlingserwachen putzt die Familie das Haus – und den Staubkönig gleich mit.",
+        "hp": 300,
+        "days": 14,
+        "min_level": 1,
+        "weakness": "household",
+        "rewards": {
+            "gold": 40,
+            "xp": 60,
+            "item": "furn_flower_box"
+        },
+        "art": {
+            "body": "king",
+            "color": "#a8a29e",
+            "accent": "#fef3c7",
+            "eyes": 2,
+            "horns": "crown",
+            "mouth": "grin",
+            "extra": "dust"
+        },
+        "event_key": "spring_awakening"
+    },
+    {
+        "key": "collect_easter_eggs",
+        "type": "collect",
+        "name": "Eiersuche",
+        "icon": "🥚",
+        "scopes": [
+            "family"
+        ],
+        "description": "Bei jeder erledigten Aufgabe taucht irgendwo ein Ei auf.",
+        "item_name": "Ostereier",
+        "item_icon": "🥚",
+        "goal": 30,
+        "days": 5,
+        "min_level": 1,
+        "rewards": {
+            "gold": 25,
+            "xp": 40,
+            "item": "egg_bunny"
+        },
+        "event_key": "egg_hunt"
+    },
+    {
+        "key": "collect_postcards",
+        "type": "collect",
+        "name": "Sommerferien-Abenteuer",
+        "icon": "🏖️",
+        "scopes": [
+            "family"
+        ],
+        "description": "Jede Woche ein neues Ziel: Strand, Berge, Burg … Jede Aufgabe bringt euch ein Stück weiter.",
+        "item_name": "Reise-Etappen",
+        "item_icon": "🧭",
+        "goal": 30,
+        "days": 7,
+        "min_level": 1,
+        "rewards": {
+            "gold": 30,
+            "xp": 45,
+            "item": "furn_postcard_beach"
+        },
+        "event_key": "summer_adventure"
+    },
+    {
+        "key": "collect_school_bag",
+        "type": "collect",
+        "name": "Neuer Rucksack",
+        "icon": "🎒",
+        "scopes": [
+            "family"
+        ],
+        "description": "Schulsachen packen, Lern-Dailies anlegen: alles kommt in den Rucksack.",
+        "item_name": "Schulsachen",
+        "item_icon": "✏️",
+        "goal": 20,
+        "days": 10,
+        "min_level": 1,
+        "categories": [
+            "school",
+            "household"
+        ],
+        "rewards": {
+            "gold": 20,
+            "xp": 35,
+            "item": "head_headphones"
+        },
+        "event_key": "school_start"
+    },
+    {
+        "key": "collect_harvest",
+        "type": "collect",
+        "name": "Die Vorratskammer füllen",
+        "icon": "🧺",
+        "scopes": [
+            "family"
+        ],
+        "description": "Garten, Küche und Haushalt füllen die Vorratskammer für den Winter.",
+        "item_name": "Vorräte",
+        "item_icon": "🥕",
+        "goal": 35,
+        "days": 14,
+        "min_level": 1,
+        "categories": [
+            "household",
+            "nature"
+        ],
+        "rewards": {
+            "gold": 30,
+            "xp": 45,
+            "item": "furn_harvest_basket"
+        },
+        "event_key": "harvest_festival"
+    },
+    {
+        "key": "collect_pumpkins",
+        "type": "collect",
+        "name": "Kürbisse sammeln",
+        "icon": "🎃",
+        "scopes": [
+            "family"
+        ],
+        "description": "Jede erledigte Aufgabe bringt einen Kürbis für die Kürbisnacht.",
+        "item_name": "Kürbisse",
+        "item_icon": "🎃",
+        "goal": 25,
+        "days": 8,
+        "min_level": 1,
+        "rewards": {
+            "gold": 25,
+            "xp": 40,
+            "item": "furn_pumpkin_lantern"
+        },
+        "event_key": "pumpkin_night"
+    },
+    {
+        "key": "pumpkin_king",
+        "type": "boss",
+        "name": "Kürbiskönig",
+        "icon": "🎃",
+        "scopes": [
+            "family",
+            "solo"
+        ],
+        "description": "Lacht laut und lässt Bonbons regnen – nur wer fleißig ist, bekommt welche.",
+        "hp": 220,
+        "days": 8,
+        "min_level": 1,
+        "weakness": "creative",
+        "rewards": {
+            "gold": 30,
+            "xp": 45,
+            "item": "potion_spooky"
+        },
+        "art": {
+            "body": "round",
+            "color": "#f97316",
+            "accent": "#fde047",
+            "eyes": 3,
+            "horns": "crown",
+            "mouth": "grin",
+            "extra": "none"
+        },
+        "event_key": "pumpkin_night"
+    },
+    {
+        "key": "collect_lanterns",
+        "type": "collect",
+        "name": "15 Laternen",
+        "icon": "🏮",
+        "scopes": [
+            "family"
+        ],
+        "description": "Teilen und Helfen bringen Licht: jede Aufgabe für andere zündet eine Laterne an.",
+        "item_name": "Laternen",
+        "item_icon": "🏮",
+        "goal": 15,
+        "days": 4,
+        "min_level": 1,
+        "categories": [
+            "others",
+            "household"
+        ],
+        "rewards": {
+            "gold": 20,
+            "xp": 30,
+            "item": "accessory_lantern"
+        },
+        "event_key": "lantern_festival"
+    },
+    {
+        "key": "frost_giant",
+        "type": "boss",
+        "name": "Frostriese",
+        "icon": "🥶",
+        "scopes": [
+            "family"
+        ],
+        "description": "Will Weihnachten einfrieren. Jede gute Tat taut ihn ein Stück auf.",
+        "hp": 350,
+        "days": 24,
+        "min_level": 1,
+        "weakness": "others",
+        "rewards": {
+            "gold": 50,
+            "xp": 80,
+            "item": "potion_frost_star"
+        },
+        "art": {
+            "body": "golem",
+            "color": "#bae6fd",
+            "accent": "#ffffff",
+            "eyes": 2,
+            "horns": "crown",
+            "mouth": "frown",
+            "extra": "spikes"
+        },
+        "event_key": "elf_workshop"
+    },
+    {
+        "key": "collect_snowballs",
+        "type": "collect",
+        "name": "Schneeballschlacht",
+        "icon": "❄️",
+        "scopes": [
+            "family",
+            "solo"
+        ],
+        "description": "Draußen-Aufgaben bringen Schneebälle für die große Schlacht.",
+        "item_name": "Schneebälle",
+        "item_icon": "⚪",
+        "goal": 20,
+        "days": 3,
+        "min_level": 1,
+        "categories": [
+            "sport",
+            "nature"
+        ],
+        "rewards": {
+            "gold": 20,
+            "xp": 30,
+            "item": "furn_snowman_deco"
+        },
+        "event_key": "first_snow"
+    },
+    {
+        "key": "dragon_lord",
+        "type": "boss",
+        "name": "Drachenfürst",
+        "icon": "🐉",
+        "scopes": [
+            "family"
+        ],
+        "description": "Er hat gehört, dass eure Familie drei Bosse besiegt hat – und will es selbst wissen. Seine Schwäche wechselt.",
+        "hp": 650,
+        "days": 7,
+        "min_level": 1,
+        "rage": 2,
+        "rewards": {
+            "gold": 120,
+            "xp": 160,
+            "item": "furn_dragon_trophy"
+        },
+        "art": {
+            "body": "dragon",
+            "color": "#b91c1c",
+            "accent": "#fbbf24",
+            "eyes": 2,
+            "horns": "crown",
+            "mouth": "fangs",
+            "extra": "heads"
+        },
+        "event_key": "dragon_lord",
+        "phases": [
+            {
+                "below": 1.0,
+                "weakness": "household"
+            },
+            {
+                "below": 0.5,
+                "weakness": "sport"
+            }
+        ],
+        "weakness": "household"
+    },
+    {
+        "key": "collect_welcome",
+        "type": "collect",
+        "name": "Zeig mir das Heldenhaus",
+        "icon": "🤝",
+        "scopes": [
+            "family"
+        ],
+        "description": "Alle helfen dem neuen Mitglied: jede Aufgabe zeigt ein Stück vom Heldenhaus.",
+        "item_name": "Rundgang-Stationen",
+        "item_icon": "🏠",
+        "goal": 15,
+        "days": 7,
+        "min_level": 1,
+        "rewards": {
+            "gold": 20,
+            "xp": 30,
+            "item": "furn_pet_bed"
+        },
+        "event_key": "welcome_party"
+    },
+    {
+        "key": "collect_comeback",
+        "type": "collect",
+        "name": "Willkommen zurück",
+        "icon": "🤗",
+        "scopes": [
+            "solo"
+        ],
+        "description": "Drei leichte Aufgaben, und du bist wieder mittendrin.",
+        "item_name": "Schritte",
+        "item_icon": "👣",
+        "goal": 3,
+        "days": 5,
+        "min_level": 1,
+        "rewards": {
+            "gold": 10,
+            "xp": 20,
+            "item": "potion_health"
+        },
+        "event_key": "welcome_back"
     }
 ]

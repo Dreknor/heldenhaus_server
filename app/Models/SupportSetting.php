@@ -15,6 +15,7 @@ class SupportSetting extends Model
     protected $fillable = [
         'user_id', 'gentle_mode', 'focus_mode_default', 'feedback_level', 'reduce_motion', 'sound', 'haptics',
         'timer_style', 'max_steps', 'low_energy_per_week', 'ai_steps', 'set_by',
+        'theme', 'high_contrast', 'text_scale', 'dyslexia_font', 'color_vision',
     ];
 
     protected $attributes = [
@@ -27,6 +28,10 @@ class SupportSetting extends Model
         'max_steps' => 7,
         'low_energy_per_week' => 2,
         'ai_steps' => false,
+        'high_contrast' => false,
+        'text_scale' => 1,
+        'dyslexia_font' => false,
+        'color_vision' => 'normal',
     ];
 
     protected function casts(): array
@@ -40,6 +45,9 @@ class SupportSetting extends Model
             'max_steps' => 'integer',
             'low_energy_per_week' => 'integer',
             'ai_steps' => 'boolean',
+            'high_contrast' => 'boolean',
+            'text_scale' => 'float',
+            'dyslexia_font' => 'boolean',
         ];
     }
 }

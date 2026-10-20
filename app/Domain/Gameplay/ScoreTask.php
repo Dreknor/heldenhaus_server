@@ -4,6 +4,8 @@ namespace App\Domain\Gameplay;
 
 use App\Domain\Classes\ModifierChain;
 use App\Domain\Classes\ScoreContext;
+use App\Domain\Events\EventEngine;
+use App\Domain\Events\FunEventService;
 use App\Domain\Inventory\DropService;
 use App\Domain\Quests\QuestService;
 use App\Domain\Social\FeedService;
@@ -76,6 +78,11 @@ class ScoreTask
 
         if ($result->levelUps > 0) {
             event(new LevelUp($assignment->user, $result->stats->level));
+        }
+
+        // Kleine Zufallsereignisse beim Abhaken (§12.5) – nie beim Wiederholen aus dem Offline-Abgleich
+        if (! $result->replayed && $direction === 'up') {
+            $result->funEvent = app(FunEventService::class)->onScore($result->completion, $result->levelUps > 0);
         }
 
         return $result;
@@ -279,6 +286,7 @@ class ScoreTask
     {
         DropService::revoke($completion);
         SurpriseService::revoke($completion);
+        EventEngine::revert($completion);
         app(QuestService::class)->revert($completion);
         if ($completion->streak_before === $a->streak && $a->streak_paused_at !== null) {
             SupportService::recoveryProgress($a, -1);

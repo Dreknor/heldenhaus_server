@@ -14,6 +14,8 @@ use App\Http\Controllers\DungeonController;
 use App\Http\Controllers\FamilyHubController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\QuestController;
+use App\Http\Controllers\SeasonController;
+use App\Http\Controllers\StatsController;
 use App\Http\Controllers\SocialController;
 use App\Http\Controllers\SupportController;
 use Illuminate\Support\Facades\Route;
@@ -129,6 +131,14 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
             Route::get('dungeons/{dungeon}/log', [DungeonController::class, 'log'])->name('dungeons.log');
             Route::post('dungeons/{dungeon}/{action}', [DungeonController::class, 'act'])->whereIn('action', DungeonService::ACTIONS)
                 ->middleware('throttle:60,1')->name('dungeons.act');
+
+            // Saisonale Events und Statistiken (Phase 8)
+            Route::get('events', [SeasonController::class, 'index'])->name('events.index');
+            Route::post('events/{season}/claim', [SeasonController::class, 'claim'])->middleware('throttle:20,1')->name('events.claim');
+            Route::get('stats/me', [StatsController::class, 'me'])->name('stats.me');
+            Route::get('stats/family', [StatsController::class, 'family'])->name('stats.family');
+            Route::get('members/{member}/stats', [StatsController::class, 'member'])->name('members.stats');
+            Route::get('monsters/{key}.svg', [DungeonController::class, 'monsterArt'])->name('monsters.art');
 
             // Fokus & Alltagshilfen (Konzept §11)
             Route::get('me/support-settings', [SupportController::class, 'settings'])->name('support.settings');

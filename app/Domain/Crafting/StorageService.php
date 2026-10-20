@@ -2,6 +2,7 @@
 
 namespace App\Domain\Crafting;
 
+use App\Domain\Events\EventEngine;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Inventory\Stock;
 use App\Domain\Notifications\PushNotifier;
@@ -70,6 +71,7 @@ class StorageService
             Stock::add($to->id, $item->id, $quantity, $master);
             $this->feed->post($from->family_id, $from, 'gift', '🎁', "{$from->name} hat {$to->name} {$quantity}× {$item->name} geschenkt.");
         });
+        app(EventEngine::class)->gift($from);
         $this->push->notify($to, 'gift');
     }
 

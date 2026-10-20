@@ -11,6 +11,7 @@ class TaskCompletion extends Model
     protected $fillable = [
         'task_id', 'assignment_id', 'user_id', 'direction', 'value_before', 'delta', 'xp', 'gold', 'hp', 'stars', 'drop_item_id', 'quest_progress', 'effects', 'surprise',
         'streak_before', 'status', 'source', 'proof_path', 'reviewed_by', 'reviewed_at', 'review_comment', 'client_uuid',
+        'event_progress', 'event_drop_item_id',
     ];
 
     protected function casts(): array
@@ -18,6 +19,7 @@ class TaskCompletion extends Model
         return [
             'status' => CompletionStatus::class,
             'value_before' => 'float',
+            'event_progress' => 'array',
             'delta' => 'float',
             'xp' => 'integer',
             'gold' => 'float',

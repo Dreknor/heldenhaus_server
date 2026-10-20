@@ -2,6 +2,8 @@
 
 namespace App\Domain\Housing;
 
+use App\Domain\Achievements\AchievementService;
+use App\Domain\Events\EventEngine;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Social\MessageService;
 use App\Models\FamilyAlliance;
@@ -38,7 +40,13 @@ class GuestbookService
             default => throw new GameException('Unbekannte Eintragsart.'),
         };
 
-        return GuestbookEntry::create(['family_id' => $familyId, 'user_id' => $user->id, 'kind' => $kind, 'body' => $body]);
+        $entry = GuestbookEntry::create(['family_id' => $familyId, 'user_id' => $user->id, 'kind' => $kind, 'body' => $body]);
+        app(AchievementService::class)->evaluate($user, ['guestbook']);
+        if ($user->family_id !== $familyId) {
+            app(EventEngine::class)->guestbook($user, $familyId);
+        }
+
+        return $entry;
     }
 
     public function delete(User $user, GuestbookEntry $entry): void

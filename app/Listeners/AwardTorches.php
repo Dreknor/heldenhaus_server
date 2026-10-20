@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Domain\Dungeons\Torches;
+use App\Domain\Events\EventEngine;
 use App\Domain\Integrations\HomeAssistant\HomeAssistantWebhooks;
 use App\Enums\CompletionStatus;
 use App\Enums\TaskType;
@@ -47,6 +48,9 @@ class AwardTorches
                 $amount += config('game.dungeon.torches.all_dailies');
             }
         }
+
+        // Laternenfest: Die Laterne bringt im Dungeon zusätzliche Fackeln (§12.4)
+        $amount += (int) EventEngine::modifier($user->family_id, 'dungeon_torches', 'bonus', 0);
 
         Torches::award($user, $amount);
     }

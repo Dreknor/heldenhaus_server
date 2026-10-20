@@ -2,11 +2,13 @@
 
 namespace App\Domain\Dungeons;
 
+use App\Domain\Events\EventEngine;
 use App\Domain\Gameplay\Attributes;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
 use App\Domain\Integrations\HomeAssistant\HomeAssistantWebhooks;
 use App\Domain\Inventory\Stock;
+use App\Domain\Stats\Counters;
 use App\Domain\Notifications\PushNotifier;
 use App\Domain\Quests\QuestService;
 use App\Domain\Social\FeedService;
@@ -55,7 +57,7 @@ class DungeonService
             $quest = $this->quests->activeFamily($user->family_id);
             $quest = $quest?->isBoss() ? $quest : null;
             $seed = Str::lower(Str::random(16));
-            $theme = DungeonCatalog::themeForQuest($quest?->quest_key) ?? (new Rng($seed, 'theme'))->pick(array_keys(DungeonCatalog::themes()));
+            $theme = DungeonCatalog::themeForQuest($quest?->quest_key) ?? (new Rng($seed, 'theme'))->pick(DungeonCatalog::themeKeysFor($user->family_id));
             $mode = self::familyMode($user->family_id);
 
             return Dungeon::create([
@@ -87,7 +89,7 @@ class DungeonService
         }
 
         $seed = Str::lower(Str::random(16));
-        $theme = (new Rng($seed, 'theme'))->pick(array_keys(DungeonCatalog::themes()));
+        $theme = (new Rng($seed, 'theme'))->pick(DungeonCatalog::themeKeysFor($user->family_id));
         $mode = $user->ageGroup() === AgeGroup::Child ? 'child' : 'teen';
 
         return Dungeon::create([
@@ -412,7 +414,9 @@ class DungeonService
         $used[$t->user->id] = $today;
         $t->state['rooms'][$id]['campfire']['used'] = $used;
 
-        $t->position->hp = $healer ? $t->maxHp() : min($t->maxHp(), $t->position->hp + $t->maxHp() * 0.5);
+        // Mittsommer (§12.4): Lagerfeuer heilen doppelt
+        $heal = $t->maxHp() * 0.5 * EventEngine::modifier($t->user->family_id, 'campfire_heal');
+        $t->position->hp = $healer ? $t->maxHp() : min($t->maxHp(), $t->position->hp + $heal);
         if ($healer) {
             foreach ($t->othersIn($id) as $other) {
                 $t->touch($other)->hp = self::maxHpFor(UserStats::find($other->user_id));
@@ -491,6 +495,7 @@ class DungeonService
         $room = $t->room($id);
         $t->position->fight = null;
         $events = ["{$monster['name']} ist besiegt!"];
+        Counters::bump($t->user->id, 'monsters_defeated');
 
         if ($room['type'] === 'boss') {
             return [array_merge($events, $this->complete($t, 'boss')), []];
@@ -720,7 +725,8 @@ class DungeonService
                 'block_url' => asset("dungeon/blocks/{$r['block']}.tmx"), 'doors' => self::doors($r, $visible->all(), $rooms)];
             if (isset($r['monster'])) {
                 $m = DungeonCatalog::monster($r['monster']['key']);
-                $room['monster'] = ['key' => $m['key'], 'name' => $m['name'], 'icon' => $m['icon'], 'hp' => $r['monster']['hp'], 'max_hp' => $r['monster']['max_hp']];
+                $room['monster'] = ['key' => $m['key'], 'name' => $m['name'], 'icon' => $m['icon'], 'hp' => $r['monster']['hp'], 'max_hp' => $r['monster']['max_hp'],
+                    'art' => DungeonCatalog::monsterArt($m['key']), 'art_url' => route('api.v1.monsters.art', $m['key'])];
             }
             if (isset($r['chest'])) {
                 $room['chest'] = ['opened' => $r['chest']['opened']];

@@ -268,5 +268,125 @@
         "effects": {
             "stage": "castle"
         }
+    },
+    {
+        "key": "room_kitchen",
+        "name": "Familienküche",
+        "icon": "🍳",
+        "description": "Eine große Küche: Kochrezepte gelingen schneller.",
+        "requires": {
+            "stage": "timber"
+        },
+        "items": {
+            "wood": 15,
+            "stone": 15,
+            "iron": 3,
+            "clay": 4
+        },
+        "gold": 120,
+        "hours": 36,
+        "effects": {
+            "room": "kitchen"
+        }
+    },
+    {
+        "key": "room_music",
+        "name": "Musikzimmer",
+        "icon": "🎼",
+        "description": "Für Familienkonzerte – der Barde fühlt sich hier zu Hause.",
+        "requires": {
+            "stage": "manor"
+        },
+        "items": {
+            "wood": 20,
+            "cloth": 6,
+            "gears": 2
+        },
+        "gold": 200,
+        "hours": 48,
+        "effects": {
+            "room": "music"
+        }
+    },
+    {
+        "key": "room_observatory",
+        "name": "Sternwarte",
+        "icon": "🔭",
+        "description": "Ein Turm mit Teleskop, nur für Burgen.",
+        "requires": {
+            "stage": "castle"
+        },
+        "items": {
+            "stone": 40,
+            "glass": 6,
+            "gears": 4,
+            "moonstone": 1
+        },
+        "gold": 400,
+        "hours": 72,
+        "effects": {
+            "room": "observatory"
+        }
+    },
+    {
+        "key": "garden_greenhouse",
+        "name": "Gewächshaus",
+        "icon": "🪴",
+        "description": "Zwei zusätzliche Beete im Garten.",
+        "requires": {
+            "rooms": [
+                "garden"
+            ]
+        },
+        "items": {
+            "glass": 8,
+            "wood": 10,
+            "nails": 4
+        },
+        "gold": 150,
+        "hours": 36,
+        "effects": {
+            "garden_slots": 2
+        }
+    },
+    {
+        "key": "event_harvest_barn",
+        "name": "Erntescheune",
+        "icon": "🛖",
+        "description": "Gibt es zum Erntefest: Platz für die Vorräte des Winters.",
+        "requires": {
+            "rooms": [
+                "garden"
+            ]
+        },
+        "event_key": "harvest_festival",
+        "items": {
+            "wood": 20,
+            "wheat": 10,
+            "nails": 5
+        },
+        "gold": 80,
+        "hours": 24,
+        "effects": {}
+    },
+    {
+        "key": "event_snowman",
+        "name": "Schneemann",
+        "icon": "⛄",
+        "description": "Gibt es nur, wenn der erste Schnee liegt. Hält bis zum Frühling.",
+        "requires": {
+            "rooms": [
+                "garden"
+            ]
+        },
+        "event_key": "first_snow",
+        "items": {
+            "snowflake": 10,
+            "wood": 2,
+            "stone": 2
+        },
+        "gold": 10,
+        "hours": 2,
+        "effects": {}
     }
 ]

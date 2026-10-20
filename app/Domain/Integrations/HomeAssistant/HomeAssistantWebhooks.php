@@ -28,6 +28,11 @@ class HomeAssistantWebhooks
         'focus_started' => 'Fokus-Zeit gestartet',
         'focus_ended' => 'Fokus-Zeit beendet',
         'low_energy_day' => 'Energiespar-Tag',
+        'event_started' => 'Event gestartet (mit event_key und Farbschema)',
+        'event_ended' => 'Event beendet',
+        'event_tier_reached' => 'Event-Stufe erreicht',
+        'event_advent_door' => 'Adventskalender-Türchen geöffnet',
+        'fun_haunt' => 'Spuk im Smart Home (Lampe kurz flackern lassen)',
     ];
 
     /** Zeitfenster, in dem HA eine Signatur akzeptieren sollte (gegen Replay). */

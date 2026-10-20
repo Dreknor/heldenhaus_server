@@ -438,5 +438,1022 @@
         "gold": 30,
         "seconds": 1800,
         "xp": 15
+    },
+    {
+        "key": "furn_rug",
+        "output": "furn_rug",
+        "quantity": 1,
+        "station": "sewing",
+        "station_level": 1,
+        "level": 1,
+        "inputs": {
+            "cloth": 3,
+            "yarn": 2
+        },
+        "gold": 2,
+        "seconds": 90,
+        "xp": 4
+    },
+    {
+        "key": "furn_sofa",
+        "output": "furn_sofa",
+        "quantity": 1,
+        "station": "workbench",
+        "station_level": 1,
+        "level": 3,
+        "inputs": {
+            "wood": 5,
+            "cloth": 4,
+            "nails": 2
+        },
+        "gold": 5,
+        "seconds": 300,
+        "xp": 8
+    },
+    {
+        "key": "furn_desk",
+        "output": "furn_desk",
+        "quantity": 1,
+        "station": "workbench",
+        "station_level": 1,
+        "level": 2,
+        "inputs": {
+            "wood": 5,
+            "nails": 2
+        },
+        "gold": 3,
+        "seconds": 180,
+        "xp": 6
+    },
+    {
+        "key": "furn_wardrobe",
+        "output": "furn_wardrobe",
+        "quantity": 1,
+        "station": "workbench",
+        "station_level": 1,
+        "level": 3,
+        "inputs": {
+            "wood": 6,
+            "nails": 3
+        },
+        "gold": 4,
+        "seconds": 240,
+        "xp": 7
+    },
+    {
+        "key": "furn_aquarium",
+        "output": "furn_aquarium",
+        "quantity": 1,
+        "station": "workbench",
+        "station_level": 2,
+        "level": 5,
+        "inputs": {
+            "glass": 3,
+            "shell": 2,
+            "stone": 2
+        },
+        "gold": 8,
+        "seconds": 600,
+        "xp": 10
+    },
+    {
+        "key": "furn_fireplace",
+        "output": "furn_fireplace",
+        "quantity": 1,
+        "station": "forge",
+        "station_level": 1,
+        "level": 5,
+        "inputs": {
+            "stone": 10,
+            "iron": 2,
+            "wood": 2
+        },
+        "gold": 10,
+        "seconds": 900,
+        "xp": 12
+    },
+    {
+        "key": "furn_clock",
+        "output": "furn_clock",
+        "quantity": 1,
+        "station": "workbench",
+        "station_level": 1,
+        "level": 4,
+        "inputs": {
+            "wood": 2,
+            "gears": 2
+        },
+        "gold": 4,
+        "seconds": 300,
+        "xp": 7
+    },
+    {
+        "key": "furn_mirror",
+        "output": "furn_mirror",
+        "quantity": 1,
+        "station": "workbench",
+        "station_level": 1,
+        "level": 3,
+        "inputs": {
+            "glass": 1,
+            "wood": 1
+        },
+        "gold": 3,
+        "seconds": 120,
+        "xp": 5
+    },
+    {
+        "key": "furn_wall_shelf",
+        "output": "furn_wall_shelf",
+        "quantity": 1,
+        "station": "workbench",
+        "station_level": 1,
+        "level": 1,
+        "inputs": {
+            "wood": 3,
+            "nails": 1
+        },
+        "gold": 1,
+        "seconds": 60,
+        "xp": 3
+    },
+    {
+        "key": "furn_beanbag",
+        "output": "furn_beanbag",
+        "quantity": 1,
+        "station": "sewing",
+        "station_level": 1,
+        "level": 2,
+        "inputs": {
+            "cloth": 3,
+            "wool": 3
+        },
+        "gold": 2,
+        "seconds": 120,
+        "xp": 4
+    },
+    {
+        "key": "furn_gaming_corner",
+        "output": "furn_gaming_corner",
+        "quantity": 1,
+        "station": "workbench",
+        "station_level": 2,
+        "level": 6,
+        "inputs": {
+            "wood": 4,
+            "gears": 2,
+            "glass": 1,
+            "cloth": 2
+        },
+        "gold": 10,
+        "seconds": 900,
+        "xp": 12
+    },
+    {
+        "key": "furn_easel",
+        "output": "furn_easel",
+        "quantity": 1,
+        "station": "workbench",
+        "station_level": 1,
+        "level": 2,
+        "inputs": {
+            "wood": 3,
+            "paint": 1
+        },
+        "gold": 2,
+        "seconds": 90,
+        "xp": 4
+    },
+    {
+        "key": "furn_piano",
+        "output": "furn_piano",
+        "quantity": 1,
+        "station": "workbench",
+        "station_level": 2,
+        "level": 8,
+        "inputs": {
+            "wood": 10,
+            "iron": 2,
+            "gears": 2
+        },
+        "gold": 20,
+        "seconds": 1800,
+        "xp": 18,
+        "learn": {
+            "parchment": 4,
+            "ink": 2
+        }
+    },
+    {
+        "key": "furn_bunk_bed",
+        "output": "furn_bunk_bed",
+        "quantity": 1,
+        "station": "workbench",
+        "station_level": 1,
+        "level": 4,
+        "inputs": {
+            "wood": 8,
+            "cloth": 3,
+            "wool": 2,
+            "nails": 3
+        },
+        "gold": 6,
+        "seconds": 600,
+        "xp": 10
+    },
+    {
+        "key": "furn_hammock",
+        "output": "furn_hammock",
+        "quantity": 1,
+        "station": "sewing",
+        "station_level": 1,
+        "level": 3,
+        "inputs": {
+            "yarn": 4,
+            "cloth": 2
+        },
+        "gold": 3,
+        "seconds": 300,
+        "xp": 6
+    },
+    {
+        "key": "furn_fairy_lights",
+        "output": "furn_fairy_lights",
+        "quantity": 1,
+        "station": "alchemy",
+        "station_level": 1,
+        "level": 2,
+        "inputs": {
+            "glass": 1,
+            "wax": 2
+        },
+        "gold": 2,
+        "seconds": 120,
+        "xp": 4
+    },
+    {
+        "key": "furn_star_projector",
+        "output": "furn_star_projector",
+        "quantity": 1,
+        "station": "alchemy",
+        "station_level": 2,
+        "level": 7,
+        "inputs": {
+            "moonstone": 1,
+            "glass": 2,
+            "gears": 1
+        },
+        "gold": 15,
+        "seconds": 1200,
+        "xp": 15,
+        "learn": {
+            "parchment": 3,
+            "ink": 2
+        }
+    },
+    {
+        "key": "furn_chandelier",
+        "output": "furn_chandelier",
+        "quantity": 1,
+        "station": "forge",
+        "station_level": 2,
+        "level": 8,
+        "inputs": {
+            "iron": 3,
+            "glass": 3,
+            "wax": 2
+        },
+        "gold": 15,
+        "seconds": 1200,
+        "xp": 15
+    },
+    {
+        "key": "furn_globe",
+        "output": "furn_globe",
+        "quantity": 1,
+        "station": "workbench",
+        "station_level": 1,
+        "level": 3,
+        "inputs": {
+            "wood": 2,
+            "paint": 2,
+            "parchment": 1
+        },
+        "gold": 3,
+        "seconds": 180,
+        "xp": 5
+    },
+    {
+        "key": "furn_cat_tree",
+        "output": "furn_cat_tree",
+        "quantity": 1,
+        "station": "sewing",
+        "station_level": 1,
+        "level": 2,
+        "inputs": {
+            "wood": 3,
+            "yarn": 3
+        },
+        "gold": 2,
+        "seconds": 120,
+        "xp": 4
+    },
+    {
+        "key": "furn_pet_bed",
+        "output": "furn_pet_bed",
+        "quantity": 1,
+        "station": "sewing",
+        "station_level": 1,
+        "level": 1,
+        "inputs": {
+            "cloth": 2,
+            "wool": 2
+        },
+        "gold": 1,
+        "seconds": 60,
+        "xp": 3
+    },
+    {
+        "key": "furn_fountain",
+        "output": "furn_fountain",
+        "quantity": 1,
+        "station": "forge",
+        "station_level": 2,
+        "level": 9,
+        "inputs": {
+            "stone": 15,
+            "iron": 2,
+            "shell": 3
+        },
+        "gold": 20,
+        "seconds": 1800,
+        "xp": 18
+    },
+    {
+        "key": "furn_vase",
+        "output": "furn_vase",
+        "quantity": 1,
+        "station": "alchemy",
+        "station_level": 1,
+        "level": 1,
+        "inputs": {
+            "clay": 3
+        },
+        "gold": 1,
+        "seconds": 60,
+        "xp": 3
+    },
+    {
+        "key": "furn_map",
+        "output": "furn_map",
+        "quantity": 1,
+        "station": "sewing",
+        "station_level": 1,
+        "level": 4,
+        "inputs": {
+            "parchment": 3,
+            "ink": 2,
+            "paint": 1
+        },
+        "gold": 3,
+        "seconds": 240,
+        "xp": 6
+    },
+    {
+        "key": "furn_armor_stand",
+        "output": "furn_armor_stand",
+        "quantity": 1,
+        "station": "forge",
+        "station_level": 1,
+        "level": 5,
+        "inputs": {
+            "iron": 2,
+            "wood": 2
+        },
+        "gold": 5,
+        "seconds": 300,
+        "xp": 7
+    },
+    {
+        "key": "weapon_iron_hammer",
+        "output": "weapon_iron_hammer",
+        "quantity": 1,
+        "station": "forge",
+        "station_level": 1,
+        "level": 10,
+        "inputs": {
+            "iron": 4,
+            "wood": 2,
+            "leather": 1
+        },
+        "gold": 15,
+        "seconds": 1200,
+        "xp": 15
+    },
+    {
+        "key": "armor_silk_robe",
+        "output": "armor_silk_robe",
+        "quantity": 1,
+        "station": "sewing",
+        "station_level": 2,
+        "level": 10,
+        "inputs": {
+            "silk": 4,
+            "yarn": 3,
+            "moonstone": 1
+        },
+        "gold": 15,
+        "seconds": 1200,
+        "xp": 15,
+        "learn": {
+            "parchment": 4,
+            "ink": 2
+        }
+    },
+    {
+        "key": "armor_dragon_scale",
+        "output": "armor_dragon_scale",
+        "quantity": 1,
+        "station": "forge",
+        "station_level": 2,
+        "level": 20,
+        "inputs": {
+            "dragon_scale": 4,
+            "iron": 5,
+            "leather": 3
+        },
+        "gold": 60,
+        "seconds": 3600,
+        "xp": 30,
+        "learn": {
+            "parchment": 8,
+            "ink": 4,
+            "dragon_scale": 1
+        }
+    },
+    {
+        "key": "head_phoenix_crown",
+        "output": "head_phoenix_crown",
+        "quantity": 1,
+        "station": "forge",
+        "station_level": 2,
+        "level": 25,
+        "inputs": {
+            "gold_nugget": 5,
+            "moonstone": 2,
+            "stardust": 3
+        },
+        "gold": 80,
+        "seconds": 3600,
+        "xp": 40,
+        "learn": {
+            "parchment": 10,
+            "ink": 5,
+            "moonstone": 1
+        }
+    },
+    {
+        "key": "shield_book",
+        "output": "shield_book",
+        "quantity": 1,
+        "station": "sewing",
+        "station_level": 1,
+        "level": 4,
+        "inputs": {
+            "parchment": 4,
+            "leather": 2,
+            "ink": 1
+        },
+        "gold": 4,
+        "seconds": 300,
+        "xp": 7
+    },
+    {
+        "key": "head_goggles",
+        "output": "head_goggles",
+        "quantity": 1,
+        "station": "forge",
+        "station_level": 1,
+        "level": 5,
+        "inputs": {
+            "glass": 2,
+            "leather": 1,
+            "gears": 1
+        },
+        "gold": 5,
+        "seconds": 300,
+        "xp": 7
+    },
+    {
+        "key": "potion_health_big",
+        "output": "potion_health_big",
+        "quantity": 1,
+        "station": "alchemy",
+        "station_level": 1,
+        "level": 5,
+        "inputs": {
+            "herbs": 5,
+            "flower": 1
+        },
+        "gold": 2,
+        "seconds": 180,
+        "xp": 6
+    },
+    {
+        "key": "potion_mana_big",
+        "output": "potion_mana_big",
+        "quantity": 1,
+        "station": "alchemy",
+        "station_level": 1,
+        "level": 5,
+        "inputs": {
+            "herbs": 3,
+            "crystal_shard": 2
+        },
+        "gold": 2,
+        "seconds": 180,
+        "xp": 6
+    },
+    {
+        "key": "potion_full",
+        "output": "potion_full",
+        "quantity": 1,
+        "station": "alchemy",
+        "station_level": 2,
+        "level": 8,
+        "inputs": {
+            "herbs": 4,
+            "crystal_shard": 2,
+            "flower": 2,
+            "stardust": 1
+        },
+        "gold": 5,
+        "seconds": 600,
+        "xp": 10
+    },
+    {
+        "key": "elixir_wisdom",
+        "output": "elixir_wisdom",
+        "quantity": 1,
+        "station": "alchemy",
+        "station_level": 1,
+        "level": 3,
+        "inputs": {
+            "herbs": 2,
+            "ink": 1,
+            "parchment": 1
+        },
+        "gold": 3,
+        "seconds": 300,
+        "xp": 6
+    },
+    {
+        "key": "elixir_wisdom_big",
+        "output": "elixir_wisdom_big",
+        "quantity": 1,
+        "station": "alchemy",
+        "station_level": 2,
+        "level": 8,
+        "inputs": {
+            "herbs": 3,
+            "moonstone": 1,
+            "parchment": 2
+        },
+        "gold": 8,
+        "seconds": 900,
+        "xp": 12,
+        "learn": {
+            "parchment": 3,
+            "ink": 2
+        }
+    },
+    {
+        "key": "elixir_gold",
+        "output": "elixir_gold",
+        "quantity": 1,
+        "station": "alchemy",
+        "station_level": 1,
+        "level": 4,
+        "inputs": {
+            "herbs": 2,
+            "gold_nugget": 1
+        },
+        "gold": 3,
+        "seconds": 300,
+        "xp": 6
+    },
+    {
+        "key": "elixir_courage",
+        "output": "elixir_courage",
+        "quantity": 1,
+        "station": "alchemy",
+        "station_level": 1,
+        "level": 4,
+        "inputs": {
+            "herbs": 2,
+            "flint": 2,
+            "flower": 1
+        },
+        "gold": 3,
+        "seconds": 300,
+        "xp": 6
+    },
+    {
+        "key": "elixir_luck",
+        "output": "elixir_luck",
+        "quantity": 1,
+        "station": "alchemy",
+        "station_level": 2,
+        "level": 5,
+        "inputs": {
+            "herbs": 3,
+            "flower": 3,
+            "stardust": 1
+        },
+        "gold": 5,
+        "seconds": 600,
+        "xp": 8,
+        "learn": {
+            "parchment": 3,
+            "ink": 1
+        }
+    },
+    {
+        "key": "boss_trap_big",
+        "output": "boss_trap_big",
+        "quantity": 1,
+        "station": "forge",
+        "station_level": 2,
+        "level": 8,
+        "inputs": {
+            "iron": 3,
+            "gears": 2,
+            "nails": 4
+        },
+        "gold": 8,
+        "seconds": 900,
+        "xp": 12
+    },
+    {
+        "key": "food_pancake",
+        "output": "food_pancake",
+        "quantity": 1,
+        "station": "alchemy",
+        "station_level": 1,
+        "level": 1,
+        "inputs": {
+            "wheat": 2,
+            "sugar": 1
+        },
+        "gold": 1,
+        "seconds": 60,
+        "xp": 3
+    },
+    {
+        "key": "food_stardust_cookie",
+        "output": "food_stardust_cookie",
+        "quantity": 1,
+        "station": "alchemy",
+        "station_level": 2,
+        "level": 10,
+        "inputs": {
+            "wheat": 2,
+            "sugar": 2,
+            "stardust": 1
+        },
+        "gold": 5,
+        "seconds": 600,
+        "xp": 10
+    },
+    {
+        "key": "food_honey",
+        "output": "food_honey",
+        "quantity": 1,
+        "station": "alchemy",
+        "station_level": 1,
+        "level": 1,
+        "inputs": {
+            "wax": 1,
+            "flower": 1
+        },
+        "gold": 0,
+        "seconds": 60,
+        "xp": 2
+    },
+    {
+        "key": "potion_golden",
+        "output": "potion_golden",
+        "quantity": 1,
+        "station": "alchemy",
+        "station_level": 2,
+        "level": 6,
+        "inputs": {
+            "gold_nugget": 2,
+            "herbs": 2
+        },
+        "gold": 5,
+        "seconds": 600,
+        "xp": 10,
+        "learn": {
+            "parchment": 3,
+            "ink": 1
+        }
+    },
+    {
+        "key": "potion_shadow",
+        "output": "potion_shadow",
+        "quantity": 1,
+        "station": "alchemy",
+        "station_level": 2,
+        "level": 6,
+        "inputs": {
+            "moonstone": 1,
+            "ink": 3
+        },
+        "gold": 5,
+        "seconds": 600,
+        "xp": 10,
+        "learn": {
+            "parchment": 3,
+            "ink": 1
+        }
+    },
+    {
+        "key": "glass",
+        "output": "glass",
+        "quantity": 2,
+        "station": "forge",
+        "station_level": 1,
+        "level": 2,
+        "inputs": {
+            "sand": 2,
+            "flint": 1
+        },
+        "gold": 0,
+        "seconds": 120,
+        "xp": 3
+    },
+    {
+        "key": "season_pumpkin_lantern",
+        "output": "furn_pumpkin_lantern",
+        "quantity": 1,
+        "station": "workbench",
+        "station_level": 1,
+        "level": 1,
+        "inputs": {
+            "pumpkin": 1,
+            "wax": 1
+        },
+        "gold": 1,
+        "seconds": 60,
+        "xp": 4,
+        "unlock": "event"
+    },
+    {
+        "key": "food_candy",
+        "output": "food_candy",
+        "quantity": 2,
+        "station": "alchemy",
+        "station_level": 1,
+        "level": 1,
+        "inputs": {
+            "candy_corn": 2,
+            "sugar": 1
+        },
+        "gold": 0,
+        "seconds": 60,
+        "xp": 3,
+        "unlock": "event"
+    },
+    {
+        "key": "season_christmas_tree",
+        "output": "furn_christmas_tree",
+        "quantity": 1,
+        "station": "workbench",
+        "station_level": 1,
+        "level": 2,
+        "inputs": {
+            "wood": 2,
+            "fir_branch": 4,
+            "paint": 1
+        },
+        "gold": 4,
+        "seconds": 300,
+        "xp": 8,
+        "unlock": "event"
+    },
+    {
+        "key": "food_gingerbread",
+        "output": "food_gingerbread",
+        "quantity": 2,
+        "station": "alchemy",
+        "station_level": 1,
+        "level": 1,
+        "inputs": {
+            "wheat": 1,
+            "sugar": 1,
+            "food_honey": 1
+        },
+        "gold": 0,
+        "seconds": 60,
+        "xp": 3,
+        "unlock": "event"
+    },
+    {
+        "key": "season_easter_basket",
+        "output": "furn_easter_basket",
+        "quantity": 1,
+        "station": "sewing",
+        "station_level": 1,
+        "level": 1,
+        "inputs": {
+            "wool": 2,
+            "easter_egg_paint": 2
+        },
+        "gold": 1,
+        "seconds": 60,
+        "xp": 4,
+        "unlock": "event"
+    },
+    {
+        "key": "food_chocolate_egg",
+        "output": "food_chocolate_egg",
+        "quantity": 2,
+        "station": "alchemy",
+        "station_level": 1,
+        "level": 1,
+        "inputs": {
+            "sugar": 1,
+            "easter_egg_paint": 1
+        },
+        "gold": 0,
+        "seconds": 60,
+        "xp": 3,
+        "unlock": "event"
+    },
+    {
+        "key": "season_beach_chair",
+        "output": "furn_beach_chair",
+        "quantity": 1,
+        "station": "workbench",
+        "station_level": 1,
+        "level": 2,
+        "inputs": {
+            "wood": 4,
+            "cloth": 2,
+            "sand": 2
+        },
+        "gold": 3,
+        "seconds": 240,
+        "xp": 6,
+        "unlock": "event"
+    },
+    {
+        "key": "food_pumpkin_soup",
+        "output": "food_pumpkin_soup",
+        "quantity": 2,
+        "station": "alchemy",
+        "station_level": 1,
+        "level": 1,
+        "inputs": {
+            "pumpkin": 1,
+            "herbs": 1
+        },
+        "gold": 0,
+        "seconds": 90,
+        "xp": 3,
+        "unlock": "event"
+    },
+    {
+        "key": "food_apple_pie",
+        "output": "food_apple_pie",
+        "quantity": 2,
+        "station": "alchemy",
+        "station_level": 1,
+        "level": 1,
+        "inputs": {
+            "food_apple": 2,
+            "wheat": 1,
+            "sugar": 1
+        },
+        "gold": 0,
+        "seconds": 90,
+        "xp": 3,
+        "unlock": "event"
+    },
+    {
+        "key": "food_ice_cream",
+        "output": "food_ice_cream",
+        "quantity": 2,
+        "station": "alchemy",
+        "station_level": 1,
+        "level": 1,
+        "inputs": {
+            "sugar": 1,
+            "food_berries": 1
+        },
+        "gold": 0,
+        "seconds": 60,
+        "xp": 3,
+        "unlock": "event"
+    },
+    {
+        "key": "food_cookies",
+        "output": "food_cookies",
+        "quantity": 3,
+        "station": "alchemy",
+        "station_level": 1,
+        "level": 1,
+        "inputs": {
+            "wheat": 1,
+            "sugar": 1
+        },
+        "gold": 0,
+        "seconds": 60,
+        "xp": 3,
+        "unlock": "event"
+    },
+    {
+        "key": "season_advent_wreath",
+        "output": "furn_advent_wreath",
+        "quantity": 1,
+        "station": "sewing",
+        "station_level": 1,
+        "level": 1,
+        "inputs": {
+            "fir_branch": 3,
+            "wax": 2
+        },
+        "gold": 1,
+        "seconds": 90,
+        "xp": 4,
+        "unlock": "event"
+    },
+    {
+        "key": "furn_flower_box",
+        "output": "furn_flower_box",
+        "quantity": 1,
+        "station": "workbench",
+        "station_level": 1,
+        "level": 1,
+        "inputs": {
+            "wood": 2,
+            "flower": 2,
+            "seeds": 1
+        },
+        "gold": 1,
+        "seconds": 60,
+        "xp": 4,
+        "unlock": "event"
+    },
+    {
+        "key": "season_paper_lantern",
+        "output": "furn_paper_lantern",
+        "quantity": 1,
+        "station": "sewing",
+        "station_level": 1,
+        "level": 1,
+        "inputs": {
+            "parchment": 2,
+            "wax": 1,
+            "paint": 1
+        },
+        "gold": 1,
+        "seconds": 60,
+        "xp": 4,
+        "unlock": "event"
+    },
+    {
+        "key": "season_lantern",
+        "output": "accessory_lantern",
+        "quantity": 1,
+        "station": "sewing",
+        "station_level": 1,
+        "level": 2,
+        "inputs": {
+            "parchment": 3,
+            "wax": 2,
+            "paint": 1
+        },
+        "gold": 2,
+        "seconds": 120,
+        "xp": 5,
+        "unlock": "event"
+    },
+    {
+        "key": "season_snowman",
+        "output": "furn_snowman_deco",
+        "quantity": 1,
+        "station": "workbench",
+        "station_level": 1,
+        "level": 1,
+        "inputs": {
+            "snowflake": 4,
+            "wood": 1
+        },
+        "gold": 1,
+        "seconds": 60,
+        "xp": 4,
+        "unlock": "event"
     }
 ]

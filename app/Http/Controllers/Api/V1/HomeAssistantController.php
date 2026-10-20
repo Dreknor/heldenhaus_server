@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Domain\Events\EventTrigger;
+use App\Domain\Events\FunEventService;
 use App\Domain\Art\AvatarSvg;
 use App\Domain\Art\MonsterSvg;
 use App\Domain\Dungeons\DungeonService;
@@ -84,6 +86,13 @@ class HomeAssistantController extends Controller
             'user_id' => ['nullable', 'integer'],
         ]);
 
+        // Wetter-Signale lösen Welt-Events (§12.3) und kleine Zufallsereignisse (§12.5) aus
+        $world = [];
+        if (in_array($data['event'], ['weather_snow', 'weather_hot'], true)) {
+            $world = app(EventTrigger::class)->signal($request->user()->family_id, $data['event'], 'ha');
+        }
+        FunEventService::haSignal($request->user()->family_id, $data['event']);
+
         $tasks = Task::with('assignments')
             ->where('family_id', $request->user()->family_id)
             ->where('ha_event_key', $data['event'])
@@ -110,7 +119,7 @@ class HomeAssistantController extends Controller
             }
         }
 
-        return response()->json(['event' => $data['event'], 'handled' => $handled]);
+        return response()->json(['event' => $data['event'], 'handled' => $handled, 'world_events' => $world]);
     }
 
     /**

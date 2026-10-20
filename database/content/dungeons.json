@@ -6,7 +6,16 @@
             "icon": "🐇",
             "hp": 10,
             "attack": 3,
-            "defense": 0
+            "defense": 0,
+            "art": {
+                "body": "round",
+                "color": "#d6d3d1",
+                "accent": "#fafaf9",
+                "eyes": 2,
+                "horns": "antenna",
+                "mouth": "grin",
+                "extra": "dust"
+            }
         },
         {
             "key": "spider",
@@ -14,7 +23,16 @@
             "icon": "🕷️",
             "hp": 14,
             "attack": 4,
-            "defense": 1
+            "defense": 1,
+            "art": {
+                "body": "round",
+                "color": "#44403c",
+                "accent": "#f87171",
+                "eyes": 3,
+                "horns": "antenna",
+                "mouth": "fangs",
+                "extra": "none"
+            }
         },
         {
             "key": "rat",
@@ -22,7 +40,16 @@
             "icon": "🐀",
             "hp": 12,
             "attack": 3,
-            "defense": 1
+            "defense": 1,
+            "art": {
+                "body": "round",
+                "color": "#78716c",
+                "accent": "#fda4af",
+                "eyes": 2,
+                "horns": "none",
+                "mouth": "fangs",
+                "extra": "none"
+            }
         },
         {
             "key": "sock_goblin",
@@ -30,7 +57,16 @@
             "icon": "🧦",
             "hp": 16,
             "attack": 4,
-            "defense": 1
+            "defense": 1,
+            "art": {
+                "body": "troll",
+                "color": "#22c55e",
+                "accent": "#f9a8d4",
+                "eyes": 2,
+                "horns": "two",
+                "mouth": "grin",
+                "extra": "none"
+            }
         },
         {
             "key": "mold_slime",
@@ -38,7 +74,16 @@
             "icon": "🟢",
             "hp": 20,
             "attack": 5,
-            "defense": 2
+            "defense": 2,
+            "art": {
+                "body": "blob",
+                "color": "#84cc16",
+                "accent": "#ecfccb",
+                "eyes": 1,
+                "horns": "none",
+                "mouth": "o",
+                "extra": "none"
+            }
         },
         {
             "key": "crumb_bat",
@@ -46,7 +91,16 @@
             "icon": "🦇",
             "hp": 12,
             "attack": 5,
-            "defense": 0
+            "defense": 0,
+            "art": {
+                "body": "round",
+                "color": "#57534e",
+                "accent": "#fcd34d",
+                "eyes": 2,
+                "horns": "two",
+                "mouth": "fangs",
+                "extra": "wings"
+            }
         },
         {
             "key": "spider_queen",
@@ -55,7 +109,16 @@
             "hp": 30,
             "attack": 7,
             "defense": 2,
-            "elite": true
+            "elite": true,
+            "art": {
+                "body": "round",
+                "color": "#1c1917",
+                "accent": "#a855f7",
+                "eyes": 3,
+                "horns": "crown",
+                "mouth": "fangs",
+                "extra": "spikes"
+            }
         },
         {
             "key": "laundry_wyrm",
@@ -64,7 +127,16 @@
             "hp": 34,
             "attack": 7,
             "defense": 3,
-            "elite": true
+            "elite": true,
+            "art": {
+                "body": "serpent",
+                "color": "#38bdf8",
+                "accent": "#e0f2fe",
+                "eyes": 2,
+                "horns": "antenna",
+                "mouth": "grin",
+                "extra": "none"
+            }
         },
         {
             "key": "dust_lord",
@@ -73,7 +145,16 @@
             "hp": 60,
             "attack": 8,
             "defense": 3,
-            "boss": true
+            "boss": true,
+            "art": {
+                "body": "ghost",
+                "color": "#a8a29e",
+                "accent": "#e7e5e4",
+                "eyes": 2,
+                "horns": "crown",
+                "mouth": "frown",
+                "extra": "dust"
+            }
         },
         {
             "key": "laundry_dragon",
@@ -82,7 +163,16 @@
             "hp": 80,
             "attack": 9,
             "defense": 4,
-            "boss": true
+            "boss": true,
+            "art": {
+                "body": "dragon",
+                "color": "#0ea5e9",
+                "accent": "#bae6fd",
+                "eyes": 2,
+                "horns": "two",
+                "mouth": "fangs",
+                "extra": "wings"
+            }
         },
         {
             "key": "cellar_spider_boss",
@@ -91,6 +181,520 @@
             "hp": 70,
             "attack": 8,
             "defense": 3,
+            "boss": true,
+            "art": {
+                "body": "octopus",
+                "color": "#292524",
+                "accent": "#ef4444",
+                "eyes": 3,
+                "horns": "crown",
+                "mouth": "fangs",
+                "extra": "spikes"
+            }
+        },
+        {
+            "key": "toy_soldier",
+            "name": "Zinnsoldat",
+            "icon": "💂",
+            "hp": 14,
+            "attack": 4,
+            "defense": 1,
+            "art": {
+                "body": "golem",
+                "color": "#dc2626",
+                "accent": "#fde047",
+                "eyes": 2,
+                "horns": "none",
+                "mouth": "frown",
+                "extra": "none"
+            }
+        },
+        {
+            "key": "block_golem",
+            "name": "Bauklotz-Golem",
+            "icon": "🧱",
+            "hp": 20,
+            "attack": 4,
+            "defense": 3,
+            "art": {
+                "body": "golem",
+                "color": "#3b82f6",
+                "accent": "#fbbf24",
+                "eyes": 2,
+                "horns": "none",
+                "mouth": "o",
+                "extra": "none"
+            }
+        },
+        {
+            "key": "marble_snake",
+            "name": "Murmelschlange",
+            "icon": "🐍",
+            "hp": 12,
+            "attack": 5,
+            "defense": 0,
+            "art": {
+                "body": "serpent",
+                "color": "#a855f7",
+                "accent": "#f0abfc",
+                "eyes": 2,
+                "horns": "none",
+                "mouth": "grin",
+                "extra": "none"
+            }
+        },
+        {
+            "key": "wild_teddy",
+            "name": "Wilder Teddy",
+            "icon": "🧸",
+            "hp": 32,
+            "attack": 7,
+            "defense": 2,
+            "art": {
+                "body": "round",
+                "color": "#a16207",
+                "accent": "#fde68a",
+                "eyes": 2,
+                "horns": "two",
+                "mouth": "fangs",
+                "extra": "none"
+            },
+            "elite": true
+        },
+        {
+            "key": "jack_in_box",
+            "name": "Kastenkasper",
+            "icon": "🎁",
+            "hp": 75,
+            "attack": 8,
+            "defense": 4,
+            "art": {
+                "body": "king",
+                "color": "#e11d48",
+                "accent": "#fde047",
+                "eyes": 2,
+                "horns": "crown",
+                "mouth": "grin",
+                "extra": "spikes"
+            },
+            "boss": true
+        },
+        {
+            "key": "weed_creeper",
+            "name": "Unkraut-Ranke",
+            "icon": "🌿",
+            "hp": 13,
+            "attack": 4,
+            "defense": 1,
+            "art": {
+                "body": "serpent",
+                "color": "#16a34a",
+                "accent": "#bbf7d0",
+                "eyes": 1,
+                "horns": "antenna",
+                "mouth": "grin",
+                "extra": "none"
+            }
+        },
+        {
+            "key": "slug_gremlin",
+            "name": "Schneckenkobold",
+            "icon": "🐌",
+            "hp": 18,
+            "attack": 3,
+            "defense": 3,
+            "art": {
+                "body": "blob",
+                "color": "#a3a3a3",
+                "accent": "#fde68a",
+                "eyes": 2,
+                "horns": "antenna",
+                "mouth": "o",
+                "extra": "none"
+            }
+        },
+        {
+            "key": "mole_digger",
+            "name": "Wühlmaus",
+            "icon": "🐁",
+            "hp": 11,
+            "attack": 4,
+            "defense": 0,
+            "art": {
+                "body": "round",
+                "color": "#57534e",
+                "accent": "#fca5a5",
+                "eyes": 2,
+                "horns": "none",
+                "mouth": "fangs",
+                "extra": "none"
+            }
+        },
+        {
+            "key": "thorn_beast",
+            "name": "Dornenbiest",
+            "icon": "🌵",
+            "hp": 34,
+            "attack": 7,
+            "defense": 3,
+            "art": {
+                "body": "troll",
+                "color": "#15803d",
+                "accent": "#fef08a",
+                "eyes": 2,
+                "horns": "two",
+                "mouth": "fangs",
+                "extra": "spikes"
+            },
+            "elite": true
+        },
+        {
+            "key": "weed_king",
+            "name": "Unkrautkönig",
+            "icon": "🌾",
+            "hp": 80,
+            "attack": 9,
+            "defense": 3,
+            "art": {
+                "body": "king",
+                "color": "#4d7c0f",
+                "accent": "#facc15",
+                "eyes": 3,
+                "horns": "crown",
+                "mouth": "frown",
+                "extra": "spikes"
+            },
+            "boss": true
+        },
+        {
+            "key": "crumb_goblin",
+            "name": "Krümelkobold",
+            "icon": "🍞",
+            "hp": 13,
+            "attack": 4,
+            "defense": 1,
+            "art": {
+                "body": "troll",
+                "color": "#d97706",
+                "accent": "#fef3c7",
+                "eyes": 2,
+                "horns": "two",
+                "mouth": "grin",
+                "extra": "none"
+            }
+        },
+        {
+            "key": "grease_slime",
+            "name": "Fettschleim",
+            "icon": "🫒",
+            "hp": 22,
+            "attack": 4,
+            "defense": 2,
+            "art": {
+                "body": "blob",
+                "color": "#ca8a04",
+                "accent": "#fef9c3",
+                "eyes": 2,
+                "horns": "none",
+                "mouth": "o",
+                "extra": "none"
+            }
+        },
+        {
+            "key": "toast_bat",
+            "name": "Toastfledermaus",
+            "icon": "🍞",
+            "hp": 12,
+            "attack": 5,
+            "defense": 0,
+            "art": {
+                "body": "round",
+                "color": "#92400e",
+                "accent": "#fdba74",
+                "eyes": 2,
+                "horns": "two",
+                "mouth": "fangs",
+                "extra": "wings"
+            }
+        },
+        {
+            "key": "fridge_troll",
+            "name": "Kühlschrank-Troll",
+            "icon": "🧊",
+            "hp": 36,
+            "attack": 7,
+            "defense": 3,
+            "art": {
+                "body": "troll",
+                "color": "#e2e8f0",
+                "accent": "#38bdf8",
+                "eyes": 2,
+                "horns": "two",
+                "mouth": "fangs",
+                "extra": "none"
+            },
+            "elite": true
+        },
+        {
+            "key": "dish_dragon",
+            "name": "Geschirrdrache",
+            "icon": "🍽️",
+            "hp": 85,
+            "attack": 9,
+            "defense": 4,
+            "art": {
+                "body": "dragon",
+                "color": "#94a3b8",
+                "accent": "#f1f5f9",
+                "eyes": 2,
+                "horns": "crown",
+                "mouth": "fangs",
+                "extra": "heads"
+            },
+            "boss": true
+        },
+        {
+            "key": "pumpkin_imp",
+            "name": "Kürbiswicht",
+            "icon": "🎃",
+            "hp": 13,
+            "attack": 4,
+            "defense": 1,
+            "art": {
+                "body": "round",
+                "color": "#f97316",
+                "accent": "#166534",
+                "eyes": 2,
+                "horns": "antenna",
+                "mouth": "grin",
+                "extra": "none"
+            }
+        },
+        {
+            "key": "sheet_ghost",
+            "name": "Bettlaken-Gespenst",
+            "icon": "👻",
+            "hp": 15,
+            "attack": 4,
+            "defense": 1,
+            "art": {
+                "body": "ghost",
+                "color": "#f8fafc",
+                "accent": "#cbd5e1",
+                "eyes": 2,
+                "horns": "none",
+                "mouth": "o",
+                "extra": "none"
+            }
+        },
+        {
+            "key": "candy_bat",
+            "name": "Bonbon-Fledermaus",
+            "icon": "🦇",
+            "hp": 12,
+            "attack": 5,
+            "defense": 0,
+            "art": {
+                "body": "round",
+                "color": "#7e22ce",
+                "accent": "#f472b6",
+                "eyes": 2,
+                "horns": "two",
+                "mouth": "grin",
+                "extra": "wings"
+            }
+        },
+        {
+            "key": "witch_cat",
+            "name": "Hexenkater",
+            "icon": "🐈‍⬛",
+            "hp": 32,
+            "attack": 7,
+            "defense": 2,
+            "art": {
+                "body": "round",
+                "color": "#1e1b4b",
+                "accent": "#facc15",
+                "eyes": 2,
+                "horns": "two",
+                "mouth": "grin",
+                "extra": "spikes"
+            },
+            "elite": true
+        },
+        {
+            "key": "pumpkin_lord",
+            "name": "Kürbisfürst",
+            "icon": "🎃",
+            "hp": 75,
+            "attack": 8,
+            "defense": 3,
+            "art": {
+                "body": "king",
+                "color": "#ea580c",
+                "accent": "#fde047",
+                "eyes": 3,
+                "horns": "crown",
+                "mouth": "grin",
+                "extra": "none"
+            },
+            "boss": true
+        },
+        {
+            "key": "snow_imp",
+            "name": "Schneewichtel",
+            "icon": "☃️",
+            "hp": 13,
+            "attack": 4,
+            "defense": 1,
+            "art": {
+                "body": "round",
+                "color": "#f1f5f9",
+                "accent": "#ef4444",
+                "eyes": 2,
+                "horns": "none",
+                "mouth": "grin",
+                "extra": "none"
+            }
+        },
+        {
+            "key": "icicle_bat",
+            "name": "Eiszapfen-Fledermaus",
+            "icon": "🦇",
+            "hp": 12,
+            "attack": 5,
+            "defense": 0,
+            "art": {
+                "body": "round",
+                "color": "#7dd3fc",
+                "accent": "#e0f2fe",
+                "eyes": 2,
+                "horns": "two",
+                "mouth": "fangs",
+                "extra": "wings"
+            }
+        },
+        {
+            "key": "gingerbread_golem",
+            "name": "Lebkuchen-Golem",
+            "icon": "🍪",
+            "hp": 34,
+            "attack": 7,
+            "defense": 3,
+            "art": {
+                "body": "golem",
+                "color": "#b45309",
+                "accent": "#fef3c7",
+                "eyes": 2,
+                "horns": "none",
+                "mouth": "grin",
+                "extra": "none"
+            },
+            "elite": true
+        },
+        {
+            "key": "frost_yeti",
+            "name": "Frost-Yeti",
+            "icon": "🥶",
+            "hp": 85,
+            "attack": 9,
+            "defense": 4,
+            "art": {
+                "body": "troll",
+                "color": "#e0f2fe",
+                "accent": "#38bdf8",
+                "eyes": 2,
+                "horns": "two",
+                "mouth": "fangs",
+                "extra": "spikes"
+            },
+            "boss": true
+        },
+        {
+            "key": "sand_crab",
+            "name": "Sandkrebs",
+            "icon": "🦀",
+            "hp": 14,
+            "attack": 4,
+            "defense": 2,
+            "art": {
+                "body": "round",
+                "color": "#ef4444",
+                "accent": "#fde68a",
+                "eyes": 2,
+                "horns": "antenna",
+                "mouth": "grin",
+                "extra": "spikes"
+            }
+        },
+        {
+            "key": "jelly_blob",
+            "name": "Quallenqualle",
+            "icon": "🪼",
+            "hp": 12,
+            "attack": 5,
+            "defense": 0,
+            "art": {
+                "body": "octopus",
+                "color": "#f0abfc",
+                "accent": "#fdf4ff",
+                "eyes": 2,
+                "horns": "none",
+                "mouth": "o",
+                "extra": "none"
+            }
+        },
+        {
+            "key": "seagull_thief",
+            "name": "Pommes-Möwe",
+            "icon": "🐦",
+            "hp": 11,
+            "attack": 5,
+            "defense": 0,
+            "art": {
+                "body": "round",
+                "color": "#f8fafc",
+                "accent": "#facc15",
+                "eyes": 2,
+                "horns": "none",
+                "mouth": "o",
+                "extra": "wings"
+            }
+        },
+        {
+            "key": "sandcastle_golem",
+            "name": "Sandburg-Golem",
+            "icon": "🏰",
+            "hp": 34,
+            "attack": 7,
+            "defense": 3,
+            "art": {
+                "body": "golem",
+                "color": "#fcd34d",
+                "accent": "#fef9c3",
+                "eyes": 2,
+                "horns": "crown",
+                "mouth": "frown",
+                "extra": "none"
+            },
+            "elite": true
+        },
+        {
+            "key": "sun_serpent",
+            "name": "Sonnenschlange",
+            "icon": "🌞",
+            "hp": 80,
+            "attack": 9,
+            "defense": 3,
+            "art": {
+                "body": "serpent",
+                "color": "#f59e0b",
+                "accent": "#fef08a",
+                "eyes": 2,
+                "horns": "crown",
+                "mouth": "fangs",
+                "extra": "spikes"
+            },
             "boss": true
         }
     ],
@@ -116,7 +720,8 @@
                 "stone": 3,
                 "nails": 2,
                 "flint": 1,
-                "leather": 1
+                "leather": 1,
+                "spider_silk": 2
             }
         },
         {
@@ -140,7 +745,8 @@
                 "ink": 2,
                 "parchment": 2,
                 "crystal_shard": 1,
-                "paint": 1
+                "paint": 1,
+                "bone": 2
             }
         },
         {
@@ -165,6 +771,149 @@
                 "feather": 1,
                 "crystal_shard": 1
             }
+        },
+        {
+            "key": "toy_labyrinth",
+            "name": "Spielzeug-Labyrinth",
+            "icon": "🧸",
+            "monsters": [
+                "toy_soldier",
+                "block_golem",
+                "marble_snake"
+            ],
+            "elite": "wild_teddy",
+            "boss": "jack_in_box",
+            "quests": [
+                "clutter_beast",
+                "time_thief",
+                "sock_king"
+            ],
+            "loot": {
+                "wood": 3,
+                "paint": 2,
+                "gears": 2,
+                "yarn": 1,
+                "glass": 1
+            }
+        },
+        {
+            "key": "weed_burrow",
+            "name": "Unkraut-Bau",
+            "icon": "🌿",
+            "monsters": [
+                "weed_creeper",
+                "slug_gremlin",
+                "mole_digger"
+            ],
+            "elite": "thorn_beast",
+            "boss": "weed_king",
+            "quests": [
+                "sugar_goblin",
+                "grumble_ghost",
+                "lazy_dragon"
+            ],
+            "loot": {
+                "herbs": 3,
+                "seeds": 3,
+                "flower": 2,
+                "clay": 1,
+                "wax": 1
+            }
+        },
+        {
+            "key": "kitchen_catacombs",
+            "name": "Küchen-Katakomben",
+            "icon": "🍳",
+            "monsters": [
+                "crumb_goblin",
+                "grease_slime",
+                "toast_bat"
+            ],
+            "elite": "fridge_troll",
+            "boss": "dish_dragon",
+            "quests": [
+                "dish_golem",
+                "trash_troll",
+                "forget_dragon",
+                "elder_dust_dragon",
+                "fog_queen"
+            ],
+            "loot": {
+                "sugar": 3,
+                "wheat": 2,
+                "iron": 1,
+                "glass": 1,
+                "herbs": 2
+            }
+        },
+        {
+            "key": "pumpkin_crypt",
+            "name": "Kürbis-Gruft",
+            "icon": "🎃",
+            "event_key": "pumpkin_night",
+            "monsters": [
+                "pumpkin_imp",
+                "sheet_ghost",
+                "candy_bat"
+            ],
+            "elite": "witch_cat",
+            "boss": "pumpkin_lord",
+            "quests": [
+                "pumpkin_king",
+                "collect_pumpkins"
+            ],
+            "loot": {
+                "candy_corn": 3,
+                "pumpkin": 2,
+                "wax": 2,
+                "bone": 1,
+                "spider_silk": 1
+            }
+        },
+        {
+            "key": "ice_palace",
+            "name": "Eispalast",
+            "icon": "🏔️",
+            "event_key": "first_snow",
+            "monsters": [
+                "snow_imp",
+                "icicle_bat",
+                "sheet_ghost"
+            ],
+            "elite": "gingerbread_golem",
+            "boss": "frost_yeti",
+            "quests": [
+                "frost_giant",
+                "collect_snowballs"
+            ],
+            "loot": {
+                "snowflake": 3,
+                "crystal_shard": 2,
+                "fir_branch": 2,
+                "glass": 1
+            }
+        },
+        {
+            "key": "sunken_grotto",
+            "name": "Strandgrotte",
+            "icon": "🏖️",
+            "event_key": "summer_adventure",
+            "monsters": [
+                "sand_crab",
+                "jelly_blob",
+                "seagull_thief"
+            ],
+            "elite": "sandcastle_golem",
+            "boss": "sun_serpent",
+            "quests": [
+                "collect_postcards"
+            ],
+            "loot": {
+                "sand": 3,
+                "shell": 3,
+                "glass": 1,
+                "wood": 1
+            }
         }
     ],
     "rare_loot": {
@@ -172,7 +921,12 @@
         "stardust": 1,
         "furn_candle": 3,
         "furn_banner": 2,
-        "dungeon_key": 3
+        "dungeon_key": 3,
+        "moonstone": 1,
+        "gold_nugget": 2,
+        "silk": 2,
+        "elixir_luck": 1,
+        "potion_golden": 1
     },
     "blocks": {
         "entrance": [
@@ -215,7 +969,11 @@
     },
     "merchant": {
         "potion_health": 20,
-        "dungeon_key": 30
+        "dungeon_key": 30,
+        "potion_health_big": 35,
+        "elixir_wisdom": 45,
+        "elixir_courage": 55,
+        "food_pancake": 12
     },
     "art": {
         "tileset": "dungeon/dungeon.tsx",
