@@ -47,5 +47,8 @@ const features = [
                 </div>
             </div>
         </main>
+        <footer class="pb-8 text-center text-sm text-slate-500">
+            <Link :href="route('credits')" class="hover:underline">Credits &amp; Lizenzen</Link>
+        </footer>
     </div>
 </template>

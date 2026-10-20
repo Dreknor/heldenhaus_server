@@ -1,4 +1,7 @@
-// Avatar-Baukasten: Auswahlmöglichkeiten und Standardwerte (selbst erstellte Grafik, siehe Konzept §2.9)
+// Avatar-Baukasten: Auswahlmöglichkeiten, Standardwerte und Umsetzung auf DiceBear „Toon Head“
+// (Grafik: Johan Melin, CC BY 4.0, siehe CREDITS.md). Muss zu app/Domain/Art/AvatarSvg.php passen.
+import { Avatar, Style } from '@dicebear/core';
+import definition from '../../avatars/toon-head.json';
 
 export type AvatarConfig = {
     skin: string;
@@ -7,30 +10,60 @@ export type AvatarConfig = {
     eyes: string;
     outfit: string;
     background: string;
+    /** Neu mit den Toon-Head-Grafiken, daher optional (ältere Clients senden sie nicht) */
+    hair_back?: string;
+    clothes?: string;
+    beard?: string;
 };
 
 export type Equipment = Partial<Record<'head' | 'armor' | 'weapon' | 'shield' | 'accessory', { key: string; rarity: string } | null>>;
 
-export const SKINS = ['#fde0c5', '#f6c89f', '#e0a877', '#c48654', '#8d5a33', '#5c3a21'];
-export const HAIR_COLORS = ['#2b1d14', '#5a3825', '#a0522d', '#d9a441', '#f0d48a', '#c0392b', '#9aa3ad', '#8e44ad', '#2e86c1', '#16a085'];
-export const OUTFITS = ['#e74c3c', '#3498db', '#27ae60', '#f39c12', '#8e44ad', '#16a085', '#34495e', '#e84393'];
+export type Mood = 'normal' | 'happy' | 'hurt';
+
+export const SKINS = ['#f1c3a5', '#e8b48f', '#c68e7a', '#b98e6a', '#a36b4f', '#5c3829'];
+export const HAIR_COLORS = ['#2c1b18', '#724133', '#a55728', '#b58143', '#d6b370', '#c0392b', '#9aa3ad', '#8e44ad', '#2e86c1', '#16a085'];
+export const OUTFITS = ['#b11f1f', '#0b3286', '#147f3c', '#eab308', '#731ac3', '#f97316', '#545454', '#ec4899'];
 export const BACKGROUNDS = ['#fde68a', '#bfdbfe', '#bbf7d0', '#fbcfe8', '#ddd6fe', '#fed7aa', '#e2e8f0', '#99f6e4'];
 
 export const HAIR_STYLES: Record<string, string> = {
-    short: 'Kurz',
+    short: 'Seitenscheitel',
     spiky: 'Stachelig',
-    curly: 'Lockig',
-    long: 'Lang',
-    ponytail: 'Zopf',
+    undercut: 'Undercut',
     bun: 'Dutt',
-    bald: 'Glatze',
+    bald: 'Ohne',
+};
+
+export const HAIR_BACK: Record<string, string> = {
+    none: 'Kurz',
+    neck: 'Nackenlang',
+    shoulder: 'Schulterlang',
+    long: 'Lang',
+    wavy: 'Lang & wellig',
 };
 
 export const EYES: Record<string, string> = {
-    round: 'Rund',
+    round: 'Offen',
     happy: 'Fröhlich',
     wink: 'Zwinkern',
     sleepy: 'Verschlafen',
+    wide: 'Staunend',
+};
+
+export const CLOTHES: Record<string, string> = {
+    tShirt: 'T-Shirt',
+    shirt: 'Hemd',
+    openJacket: 'Jacke',
+    turtleNeck: 'Rollkragen',
+    dress: 'Kleid',
+};
+
+export const BEARDS: Record<string, string> = {
+    none: 'Kein Bart',
+    moustacheTwirl: 'Schnurrbart',
+    chin: 'Kinnbart',
+    chinMoustache: 'Kinn & Schnurrbart',
+    fullBeard: 'Vollbart',
+    longBeard: 'Langer Bart',
 };
 
 export const RARITY_COLORS: Record<string, string> = {
@@ -46,12 +79,71 @@ export function defaultAvatar(seed: number): AvatarConfig {
     const pick = <T>(list: T[], salt: number) => list[(seed * 7 + salt) % list.length];
     return {
         skin: pick(SKINS, 1),
-        hair: pick(Object.keys(HAIR_STYLES).slice(0, 6), 3),
-        hair_color: pick(HAIR_COLORS, 5),
+        hair: pick(Object.keys(HAIR_STYLES).slice(0, 4), 3),
+        hair_color: pick(HAIR_COLORS.slice(0, 5), 5),
         eyes: 'round',
         outfit: pick(OUTFITS, 2),
         background: pick(BACKGROUNDS, 4),
+        hair_back: pick(Object.keys(HAIR_BACK), 6),
+        clothes: 'tShirt',
+        beard: 'none',
     };
+}
+
+// Frisuren der ersten Avatar-Version, die noch gespeichert sein können: [vorne, hinten]
+const LEGACY_HAIR: Record<string, [string, string]> = {
+    long: ['short', 'long'],
+    curly: ['short', 'wavy'],
+    ponytail: ['bun', 'neck'],
+};
+
+/** Alte Frisur-Schlüssel in Frisur + Haarlänge aufteilen (für den Baukasten). */
+export function normalizeAvatar(config: AvatarConfig): AvatarConfig {
+    const legacy = LEGACY_HAIR[config.hair];
+    return legacy ? { ...config, hair: legacy[0], hair_back: legacy[1] } : config;
+}
+
+const FRONT: Record<string, string | null> = { short: 'sideComed', spiky: 'spiky', undercut: 'undercut', bun: 'bun', bald: null };
+const BACK: Record<string, string | null> = { none: null, neck: 'neckHigh', shoulder: 'shoulderHigh', long: 'longStraight', wavy: 'longWavy' };
+const EYE_VARIANTS: Record<string, string> = { round: 'happy', happy: 'bow', wink: 'wink', sleepy: 'humble', wide: 'wide' };
+const MOOD_FACE: Record<Mood, { mouth: string; eyebrows: string }> = {
+    normal: { mouth: 'smile', eyebrows: 'happy' },
+    happy: { mouth: 'laugh', eyebrows: 'happy' },
+    hurt: { mouth: 'sad', eyebrows: 'sad' },
+};
+
+/** Gespeicherte Einstellungen (auch alte oder unvollständige) auf die DiceBear-Optionen abbilden. */
+export function toonHeadOptions(config: AvatarConfig, mood: Mood = 'normal'): Record<string, unknown> {
+    const [front, back] = LEGACY_HAIR[config.hair] ?? [config.hair, config.hair_back ?? 'none'];
+    const hair = FRONT[front] ?? null;
+    const rear = BACK[back] ?? null;
+    const beard = config.beard && config.beard in BEARDS && config.beard !== 'none' ? config.beard : null;
+    const color = (value: string, fallback: string) => (/^#[0-9a-f]{6}$/i.test(value) ? value : fallback);
+
+    return {
+        seed: 'heldenhaus',
+        skinColor: [color(config.skin, SKINS[0])],
+        hairColor: [color(config.hair_color, HAIR_COLORS[0])],
+        clothesColor: [color(config.outfit, OUTFITS[0])],
+        eyesVariant: [EYE_VARIANTS[config.eyes] ?? 'happy'],
+        mouthVariant: [MOOD_FACE[mood].mouth],
+        eyebrowsVariant: [MOOD_FACE[mood].eyebrows],
+        clothesVariant: [config.clothes && config.clothes in CLOTHES ? config.clothes : 'tShirt'],
+        hairProbability: hair ? 100 : 0,
+        ...(hair ? { hairVariant: [hair] } : {}),
+        rearHairProbability: rear ? 100 : 0,
+        ...(rear ? { rearHairVariant: [rear] } : {}),
+        beardProbability: beard ? 100 : 0,
+        ...(beard ? { beardVariant: [beard] } : {}),
+    };
+}
+
+let style: Style | null = null;
+
+/** Avatar als SVG-Text (ohne Hintergrund, den legt die Komponente selbst an). */
+export function avatarSvg(config: AvatarConfig, mood: Mood = 'normal'): string {
+    style ??= new Style(definition as never);
+    return new Avatar(style, toonHeadOptions(config, mood) as never).toString();
 }
 
 /** Etwas dunklere Variante einer Farbe (für Schatten und Konturen innerhalb der Fläche). */

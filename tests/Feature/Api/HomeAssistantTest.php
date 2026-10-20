@@ -1,7 +1,9 @@
 <?php
 
+use App\Domain\Art\AvatarSvg;
 use App\Domain\Quests\QuestService;
 use App\Enums\CompletionStatus;
+use App\Models\Task;
 use App\Models\TaskCompletion;
 use Laravel\Sanctum\Sanctum;
 
@@ -14,7 +16,7 @@ test('ha-zustand enthält streak, offene freigaben, quest und avatar-version', f
         'scope' => 'family', 'type' => 'daily', 'title' => 'Zimmer aufräumen', 'assignment_mode' => 'assigned',
         'assignees' => [$this->child->id], 'approval_mode' => 'required',
     ]);
-    $id = assignmentOf(\App\Models\Task::first(), $this->child)->id;
+    $id = assignmentOf(Task::first(), $this->child)->id;
     Sanctum::actingAs($this->parent, ['ha']);
 
     $this->postJson("/api/v1/ha/members/{$this->child->id}/assignments/{$id}/score/up")->assertOk();
@@ -109,11 +111,25 @@ test('avatar und quest-bild kommen als svg', function () {
 });
 
 test('avatar-svg lässt keine fremden werte in die grafik', function () {
-    $svg = \App\Domain\Art\AvatarSvg::render(
+    $svg = AvatarSvg::render(
         ['skin' => '"/><script>alert(1)</script>', 'hair' => 'long"onload="x', 'outfit' => 'red'],
         [],
         7,
     );
 
     expect($svg)->not->toContain('<script')->not->toContain('onload');
+});
+
+test('avatar-svg nutzt die toon-head-grafik und zeigt die ausrüstung', function () {
+    $svg = AvatarSvg::render(
+        ['skin' => '#f6c89f', 'hair' => 'long', 'hair_color' => '#c0392b', 'eyes' => 'wink', 'outfit' => '#3498db', 'background' => '#bfdbfe', 'beard' => 'chin'],
+        ['head' => ['key' => 'head_cap', 'rarity' => 'rare', 'icon' => '🧢']],
+        7,
+        classIcon: '🛡️',
+    );
+
+    expect($svg)->toContain('#c0392b')->toContain('#3498db')->toContain('Johan Melin')
+        ->toContain('#3b82f6')->toContain('🧢')->toContain('🛡️')
+        ->and(AvatarSvg::options(['hair' => 'long'], 7))
+        ->toMatchArray(['hairVariant' => ['sideComed'], 'rearHairVariant' => ['longStraight']]);
 });

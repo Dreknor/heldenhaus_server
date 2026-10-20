@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import HeroAvatar from '@/components/game/HeroAvatar.vue';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useInitials } from '@/composables/useInitials';
-import type { User } from '@/types';
+import type { SharedData, User } from '@/types';
+import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 interface Props {
@@ -15,13 +17,14 @@ const props = withDefaults(defineProps<Props>(), {
 
 const { getInitials } = useInitials();
 
-// Compute whether we should show the avatar image
-const showAvatar = computed(() => props.user.avatar && props.user.avatar !== '');
+// Eigener Held als Bild, sonst Initialen
+const page = usePage<SharedData>();
+const appearance = computed(() => (page.props.auth.user?.id === props.user.id ? page.props.auth.appearance : null));
 </script>
 
 <template>
-    <Avatar class="h-8 w-8 overflow-hidden rounded-lg">
-        <AvatarImage v-if="showAvatar" :src="user.avatar" :alt="user.name" />
+    <HeroAvatar v-if="appearance" :avatar="appearance.avatar" :seed="appearance.seed" :equipment="appearance.equipment" :size="32" portrait />
+    <Avatar v-else class="h-8 w-8 overflow-hidden rounded-lg">
         <AvatarFallback class="rounded-lg text-black dark:text-white">
             {{ getInitials(user.name) }}
         </AvatarFallback>

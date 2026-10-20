@@ -4,8 +4,11 @@ import PetArt from '@/components/game/PetArt.vue';
 import type { Appearance } from '@/types';
 import { computed } from 'vue';
 
-/** Szene im Heldenpanel (Konzept §2.9, G2): Himmel nach Tageszeit, Heldenhaus, Avatar und Begleiter. */
-const props = defineProps<{
+/**
+ * Szene im Heldenpanel (Konzept §2.9, G2): Himmel nach Tageszeit, Heldenhaus, Avatar und Begleiter.
+ * Landschaftsgrafiken: Microsoft Fluent Emoji (MIT), siehe CREDITS.md.
+ */
+defineProps<{
     appearance: Appearance;
     companion: { egg_key: string; potion_key: string; is_mount: boolean; name: string } | null;
     hurt?: boolean;
@@ -13,78 +16,94 @@ const props = defineProps<{
 
 const hour = new Date().getHours();
 const phase = computed(() => (hour < 6 || hour >= 21 ? 'night' : hour < 9 ? 'morning' : hour >= 18 ? 'evening' : 'day'));
+const night = computed(() => phase.value === 'night');
 const sky = computed(
     () =>
         ({
-            night: ['#0f172a', '#312e81'],
-            morning: ['#fda4af', '#fde68a'],
-            day: ['#7dd3fc', '#e0f2fe'],
-            evening: ['#7c3aed', '#fb923c'],
+            night: 'linear-gradient(180deg, #0b1026 0%, #1e1b4b 55%, #3b2f6b 100%)',
+            morning: 'linear-gradient(180deg, #fbc2c8 0%, #fde2b6 55%, #fef3c7 100%)',
+            day: 'linear-gradient(180deg, #4fb3f6 0%, #8fd3fe 55%, #d6f0ff 100%)',
+            evening: 'linear-gradient(180deg, #5b3a9e 0%, #c2549a 50%, #fb9a5b 100%)',
         })[phase.value],
 );
-const ink = '#1f2937';
+const hills = computed(() =>
+    night.value
+        ? ['#1f4a3a', '#173d30', '#10302a']
+        : phase.value === 'evening'
+          ? ['#6aa86b', '#4f9a5b', '#3d8a4c']
+          : ['#9be27f', '#6fd16a', '#4cbf5a'],
+);
+const img = (name: string) => `/images/scene/${name}.webp`;
 const stars = [
-    [40, 20],
-    [110, 34],
-    [190, 16],
-    [260, 40],
-    [330, 22],
-    [420, 30],
-    [500, 14],
-    [560, 38],
+    [6, 12],
+    [18, 30],
+    [31, 8],
+    [44, 22],
+    [58, 10],
+    [70, 28],
+    [83, 14],
 ];
 </script>
 
 <template>
-    <div class="relative overflow-hidden rounded-2xl border">
-        <svg class="absolute inset-0 h-full w-full" viewBox="0 0 600 180" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-            <defs>
-                <linearGradient id="scene-sky" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0" :stop-color="sky[0]" />
-                    <stop offset="1" :stop-color="sky[1]" />
-                </linearGradient>
-            </defs>
-            <rect width="600" height="180" fill="url(#scene-sky)" />
-
+    <div class="scene relative min-h-48 overflow-hidden rounded-2xl border sm:min-h-52" :style="{ background: sky }">
+        <div class="pointer-events-none absolute inset-0 select-none" aria-hidden="true">
             <!-- Sonne / Mond / Sterne -->
-            <template v-if="phase === 'night'">
-                <circle v-for="([x, y], i) in stars" :key="i" :cx="x" :cy="y" r="1.8" fill="#fef9c3" class="twinkle" :style="{ animationDelay: `${i * 0.4}s` }" />
-                <circle cx="520" cy="44" r="18" fill="#fef9c3" />
-                <circle cx="528" cy="38" r="16" :fill="sky[0]" />
+            <template v-if="night">
+                <img
+                    v-for="([x, y], i) in stars"
+                    :key="i"
+                    :src="img('star')"
+                    alt=""
+                    class="twinkle absolute w-4 sm:w-5"
+                    :style="{ left: `${x}%`, top: `${y}%`, animationDelay: `${i * 0.4}s` }"
+                />
+                <img :src="img('moon')" alt="" class="absolute right-[8%] top-3 w-14 sm:w-16" />
             </template>
-            <circle v-else :cx="phase === 'evening' ? 470 : phase === 'morning' ? 90 : 500" :cy="phase === 'day' ? 40 : 70" r="22" fill="#fde047" :stroke="ink" stroke-width="3" />
+            <img
+                v-else
+                :src="img('sun')"
+                alt=""
+                class="absolute w-16 sm:w-20"
+                :class="phase === 'morning' ? 'left-[38%] top-[22%]' : phase === 'evening' ? 'right-[30%] top-[28%]' : 'right-[8%] top-3'"
+            />
 
             <!-- Wolken -->
-            <g v-if="phase !== 'night'" fill="#fff" opacity=".85" class="clouds">
-                <ellipse cx="180" cy="40" rx="30" ry="11" />
-                <ellipse cx="200" cy="32" rx="20" ry="11" />
-                <ellipse cx="380" cy="56" rx="26" ry="9" />
-            </g>
+            <div v-if="!night" class="clouds absolute inset-x-0 top-0 h-1/2">
+                <img :src="img('cloud')" alt="" class="absolute left-[16%] top-[12%] w-20 opacity-95 sm:w-24" />
+                <img :src="img('cloud')" alt="" class="absolute left-[56%] top-[34%] w-14 opacity-90" />
+            </div>
+
+            <!-- Berge am Horizont -->
+            <div
+                class="absolute inset-x-0 bottom-[16%] h-32"
+                :class="night ? 'brightness-50 saturate-50' : phase === 'evening' ? 'brightness-90' : ''"
+            >
+                <img :src="img('mountain')" alt="" class="absolute bottom-0 left-[20%] w-32 sm:w-40" />
+                <img :src="img('mountain')" alt="" class="absolute bottom-0 left-[36%] w-24 sm:w-28" />
+                <img :src="img('castle')" alt="" class="absolute bottom-[24%] left-[60%] w-12 sm:w-14" />
+            </div>
 
             <!-- Hügel -->
-            <path d="M0 130 Q120 90 250 125 T600 110 V180 H0 Z" :fill="phase === 'night' ? '#14532d' : '#86efac'" :stroke="ink" stroke-width="3" />
-            <path d="M0 150 Q160 120 320 150 T600 140 V180 H0 Z" :fill="phase === 'night' ? '#166534' : '#4ade80'" :stroke="ink" stroke-width="3" />
+            <svg class="absolute inset-x-0 bottom-0 h-[42%] w-full" viewBox="0 0 600 100" preserveAspectRatio="none">
+                <path d="M0 38 Q90 6 200 30 T420 22 T600 30 V100 H0 Z" :fill="hills[0]" />
+                <path d="M0 62 Q140 34 300 58 T600 50 V100 H0 Z" :fill="hills[1]" />
+                <path d="M0 84 Q180 66 360 82 T600 78 V100 H0 Z" :fill="hills[2]" />
+            </svg>
 
-            <!-- Das Heldenhaus -->
-            <g transform="translate(470 78)" :stroke="ink" stroke-width="3">
-                <rect x="0" y="30" width="70" height="46" fill="#fde68a" />
-                <path d="M-8 32 L35 0 L78 32 Z" fill="#ef4444" />
-                <rect x="28" y="50" width="16" height="26" fill="#92400e" />
-                <rect x="8" y="40" width="14" height="12" :fill="phase === 'night' || phase === 'evening' ? '#fde047' : '#bae6fd'" />
-                <rect x="50" y="40" width="14" height="12" :fill="phase === 'night' || phase === 'evening' ? '#fde047' : '#bae6fd'" />
-                <path d="M54 12 v-12 h10 v20" fill="#a8a29e" />
-            </g>
+            <!-- Das Heldenhaus, Bäume, Blumen -->
+            <div class="absolute inset-0" :class="night ? 'saturate-75 brightness-[.6]' : ''">
+                <img :src="img('fir')" alt="" class="absolute bottom-[26%] left-[34%] hidden w-12 sm:block" />
+                <img :src="img('tree')" alt="" class="absolute bottom-[22%] right-[24%] w-16 sm:w-20" />
+                <img :src="img('house')" alt="" class="absolute bottom-[14%] right-[3%] w-24 sm:w-28" />
+                <img :src="img('fir')" alt="" class="absolute bottom-[30%] right-[1%] hidden w-10 md:block" />
+                <img :src="img('tulip')" alt="" class="absolute bottom-[4%] left-[44%] w-7" />
+                <img :src="img('mushroom')" alt="" class="absolute bottom-[3%] right-[30%] w-8" />
+                <img :src="img('tulip')" alt="" class="absolute bottom-[8%] right-[36%] hidden w-6 sm:block" />
+            </div>
+        </div>
 
-            <!-- Bäume -->
-            <g :stroke="ink" stroke-width="3">
-                <rect x="38" y="112" width="8" height="26" fill="#92400e" />
-                <circle cx="42" cy="104" r="20" :fill="phase === 'night' ? '#15803d' : '#22c55e'" />
-                <rect x="420" y="122" width="6" height="18" fill="#92400e" />
-                <circle cx="423" cy="116" r="13" :fill="phase === 'night' ? '#15803d' : '#22c55e'" />
-            </g>
-        </svg>
-
-        <div class="relative flex min-h-44 items-end gap-2 px-4 pt-4 pb-2 sm:px-8">
+        <div class="relative flex min-h-48 items-end gap-1 px-2 pt-4 sm:min-h-52 sm:px-6">
             <HeroAvatar
                 :avatar="appearance.avatar"
                 :seed="appearance.seed"
@@ -92,11 +111,18 @@ const stars = [
                 :class-icon="appearance.class_icon"
                 :mood="hurt ? 'hurt' : 'happy'"
                 :backdrop="false"
-                :size="112"
-                class="shrink-0 drop-shadow"
+                :size="156"
+                class="-mb-1 drop-shadow-lg"
             />
-            <PetArt v-if="companion" :egg="companion.egg_key" :potion="companion.potion_key" :mount="companion.is_mount" :size="64" class="mb-1 shrink-0" />
-            <div class="mb-2 ml-auto max-w-[55%] text-right sm:mr-24">
+            <PetArt
+                v-if="companion"
+                :egg="companion.egg_key"
+                :potion="companion.potion_key"
+                :mount="companion.is_mount"
+                :size="64"
+                class="mb-3 shrink-0"
+            />
+            <div class="mb-4 ml-auto max-w-[55%] text-right sm:mr-36">
                 <slot />
             </div>
         </div>
@@ -112,7 +138,8 @@ const stars = [
 }
 @keyframes twinkle {
     50% {
-        opacity: 0.3;
+        opacity: 0.35;
+        transform: scale(0.8);
     }
 }
 @keyframes drift {

@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', fn () => auth()->check() ? to_route('dashboard') : Inertia::render('Welcome'))->name('home');
+Route::get('credits', fn () => Inertia::render('Credits', ['credits' => json_decode(file_get_contents(resource_path('game-assets/credits.json')), true)]))->name('credits');
 
 Route::middleware('guest')->group(function () {
     Route::get('family-login', [FamilyLoginController::class, 'show'])->name('family-login');

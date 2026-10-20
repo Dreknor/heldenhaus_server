@@ -1,0 +1,44 @@
+[
+    {
+        "title": "Avatare: „ToonHead“",
+        "author": "Johan Melin",
+        "author_url": "https://www.johanmelin.com",
+        "source_url": "https://www.figma.com/community/file/1589627891082866389",
+        "license": "CC BY 4.0",
+        "license_url": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "Als DiceBear-Stil „toon-head“ (dicebear/styles 10.6.0) übernommen; Farben und Teile werden je Held kombiniert.",
+        "files": ["resources/avatars/toon-head.json"]
+    },
+    {
+        "title": "Avatar-Bibliothek DiceBear",
+        "author": "Florian Körner und Mitwirkende",
+        "author_url": "https://www.dicebear.com",
+        "source_url": "https://github.com/dicebear/dicebear",
+        "license": "MIT",
+        "license_url": "https://github.com/dicebear/dicebear/blob/main/LICENSE",
+        "changes": "Unverändert als Bibliothek eingebunden (npm @dicebear/core, Composer dicebear/core).",
+        "files": []
+    },
+    {
+        "title": "Szenen-Grafiken: Fluent Emoji (3D)",
+        "author": "Microsoft Corporation",
+        "author_url": "https://github.com/microsoft/fluentui-emoji",
+        "source_url": "https://github.com/microsoft/fluentui-emoji",
+        "license": "MIT",
+        "license_url": "https://github.com/microsoft/fluentui-emoji/blob/main/LICENSE",
+        "changes": "Einzelne 3D-Motive (Sonne, Mond, Stern, Wolke, Berg, Burg, Haus, Bäume, Tulpe, Pilz) als WebP umgewandelt.",
+        "files": [
+            "public/images/scene/castle.webp",
+            "public/images/scene/cloud.webp",
+            "public/images/scene/fir.webp",
+            "public/images/scene/house.webp",
+            "public/images/scene/moon.webp",
+            "public/images/scene/mountain.webp",
+            "public/images/scene/mushroom.webp",
+            "public/images/scene/star.webp",
+            "public/images/scene/sun.webp",
+            "public/images/scene/tree.webp",
+            "public/images/scene/tulip.webp"
+        ]
+    }
+]

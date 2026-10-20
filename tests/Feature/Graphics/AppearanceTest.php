@@ -31,6 +31,14 @@ it('lehnt ungültige Avatar-Werte ab', function () {
         ->assertSessionHasErrors(['hair', 'skin']);
 });
 
+it('nimmt die neuen Toon-Head-Optionen an und lässt sie für ältere Clients weg', function () {
+    $look = [...$this->look, 'hair' => 'undercut', 'hair_back' => 'shoulder', 'clothes' => 'openJacket', 'beard' => 'chin', 'eyes' => 'wide'];
+    $this->actingAs($this->child)->put('/hero/avatar', $look)->assertSessionHasNoErrors();
+    expect($this->child->refresh()->avatar)->toBe($look);
+
+    $this->put('/hero/avatar', [...$this->look, 'beard' => 'goatee'])->assertSessionHasErrors(['beard']);
+});
+
 it('speichert den Avatar auch über die API', function () {
     Sanctum::actingAs($this->child, ['app']);
 
@@ -45,4 +53,18 @@ it('liefert für jeden Boss eine eigene Grafik-Beschreibung', function () {
 
     $quest = app(QuestService::class)->start($this->parent, 'chaos_dragon', 'family');
     expect(QuestService::present($quest)['art']['body'])->toBe('dragon');
+});
+
+it('zeigt die Credits der verwendeten Grafiken öffentlich an', function () {
+    $credits = json_decode(file_get_contents(resource_path('game-assets/credits.json')), true);
+
+    foreach (collect($credits)->pluck('files')->flatten() as $file) {
+        expect(base_path($file))->toBeFile();
+    }
+    expect(collect(glob(public_path('images/scene/*.webp')))->map(fn ($f) => 'public/images/scene/'.basename($f))->diff(collect($credits)->pluck('files')->flatten()))->toBeEmpty();
+
+    $this->get('/credits')->assertOk()->assertInertia(fn ($page) => $page
+        ->component('Credits')
+        ->where('credits.0.author', 'Johan Melin')
+        ->where('credits.0.license', 'CC BY 4.0'));
 });

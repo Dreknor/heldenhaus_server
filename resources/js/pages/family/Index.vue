@@ -88,6 +88,7 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
                             :equipment="m.appearance?.equipment"
                             :class-icon="m.appearance?.class_icon"
                             :size="72"
+                            portrait
                             class="shrink-0"
                         />
                         <div class="min-w-0 flex-1 space-y-1.5">
