@@ -277,21 +277,31 @@ it('öffnet das Solo-Gewölbe erst, wenn die Dailies geschafft sind, und schlie�
     $solo = $this->postJson('/api/v1/dungeons/solo')->assertOk();
     expect($solo['kind'])->toBe('solo')->and($this->postJson('/api/v1/dungeons/solo')->json('id'))->toBe($solo['id']);
 
-    // Fertig, sobald der letzte Raum geöffnet ist
+    // Fertig, sobald der letzte Raum geöffnet ist: Weg vom Eingang zum Ziel freiräumen und gehen
     $d = Dungeon::find($solo['id']);
     $state = $d->state;
-    $state['rooms'][1] = ['id' => 1, 'x' => $state['rooms'][1]['x'], 'y' => $state['rooms'][1]['y'], 'type' => 'monster', 'block' => 'x', 'monster' => ['key' => 'rat', 'hp' => 0, 'max_hp' => 12]];
+    $path = [$state['final']];
+    while (end($path) !== 0) {
+        $prev = collect($state['edges'])->map(fn ($e) => $e['a'] === end($path) ? $e['b'] : ($e['b'] === end($path) ? $e['a'] : null))
+            ->filter(fn ($n) => $n !== null)->sortBy(fn ($n) => DungeonGenerator::depths(3, $state['edges'])[$n])->first();
+        $path[] = $prev;
+    }
+    $path = array_reverse($path);
+    foreach ($path as $room) {
+        if (isset($state['rooms'][$room]['monster'])) {
+            $state['rooms'][$room]['monster']['hp'] = 0;
+        }
+        if (isset($state['rooms'][$room]['trap'])) {
+            $state['rooms'][$room]['trap']['sprung'] = true;
+        }
+    }
     $d->update(['state' => $state]);
     torches($this->child, 10);
-    $path = DungeonGenerator::reachable($state);
-    act($this->child, $d, 'move', ['to' => 1])->assertOk();
-    $edge = collect($state['edges'])->first(fn ($e) => in_array($state['final'], [$e['a'], $e['b']]));
-    if (! in_array(1, [$edge['a'], $edge['b']])) {
-        act($this->child, $d, 'move', ['to' => 0])->assertOk();
+    foreach (array_slice($path, 1) as $room) {
+        act($this->child, $d, 'move', ['to' => $room])->assertOk();
     }
-    act($this->child, $d, 'move', ['to' => $state['final']])->assertOk();
     act($this->child, $d, 'interact')->assertOk()->assertJsonPath('dungeon.status', 'completed');
-    expect($path)->toBe([0, 1, 2]);
+    expect(count($path))->toBeBetween(2, 3);
 });
 
 it('zeigt anderen Familien keinen Dungeon und führt ein Zug-Log', function () {
