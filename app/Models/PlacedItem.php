@@ -14,6 +14,11 @@ class PlacedItem extends Model
         return ['x' => 'integer', 'y' => 'integer', 'rotation' => 'integer', 'mirrored' => 'boolean', 'master' => 'boolean'];
     }
 
+    public function room(): BelongsTo
+    {
+        return $this->belongsTo(Room::class);
+    }
+
     public function item(): BelongsTo
     {
         return $this->belongsTo(Item::class);

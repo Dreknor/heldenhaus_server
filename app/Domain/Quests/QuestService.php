@@ -199,6 +199,27 @@ class QuestService
         return $total;
     }
 
+    /** Direkter Schaden bzw. Fortschritt ohne Aufgabe (Boss-Falle, Dungeon-Kampf). Gibt den angerechneten Wert zurück. */
+    public function damage(Quest $quest, User $user, float $amount): float
+    {
+        return DB::transaction(function () use ($quest, $user, $amount) {
+            $quest = Quest::lockForUpdate()->find($quest->id);
+            if ($quest === null || $quest->status !== 'active' || $amount <= 0) {
+                return 0.0;
+            }
+
+            $applied = round(min($amount, $quest->remaining()), 2);
+            $quest->progress = round($quest->progress + $applied, 2);
+            $quest->contributions()->create(['user_id' => $user->id, 'amount' => $applied]);
+            if ($quest->remaining() <= 0) {
+                $this->finish($quest);
+            }
+            $quest->save();
+
+            return $applied;
+        });
+    }
+
     /** Rückgängig/Ablehnung: Beiträge zurücknehmen, solange die Quest läuft. */
     public function revert(TaskCompletion $completion): void
     {

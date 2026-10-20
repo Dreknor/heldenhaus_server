@@ -108,11 +108,12 @@ class CraftingService
                 throw new GameException('Dafür reicht dein Gold noch nicht.');
             }
 
+            $item = Item::where('key', $recipe['output'])->firstOrFail();
+            Stock::ensureRoom($user->id, [$item->id]);
             Stock::takeKeys($user->id, $recipe['inputs']);
             Progression::changeGold($stats, -($recipe['gold'] ?? 0));
             $stats->save();
 
-            $item = Item::where('key', $recipe['output'])->firstOrFail();
             $quality = $this->rollQuality($crafting->level);
             $consumable = ! in_array($item->type, ['equipment', 'furniture'], true);
 

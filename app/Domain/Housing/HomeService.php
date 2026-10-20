@@ -10,9 +10,12 @@ use App\Models\GuestbookEntry;
 use App\Models\Home;
 use App\Models\Item;
 use App\Models\PlacedItem;
+use App\Models\Quest;
 use App\Models\Room;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\UserAchievement;
+use App\Models\UserItem;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -136,6 +139,30 @@ class HomeService
         });
     }
 
+    public static function hasBed(User $user): bool
+    {
+        return PlacedItem::whereHas('item', fn ($q) => $q->where('key', 'furn_bed'))
+            ->whereHas('room', fn ($q) => $q->where('type', 'bedroom')->where('owner_user_id', $user->id))->exists();
+    }
+
+    /** Trophäenhalle: besiegte Familien-Bosse und meisterhafte Stücke der Familie. */
+    public static function trophies(Home $home): ?array
+    {
+        if (! self::hasRoom($home, 'trophy')) {
+            return null;
+        }
+
+        return [
+            'bosses' => Quest::where('family_id', $home->family_id)->where('scope', 'family')->where('type', 'boss')->where('status', 'completed')
+                ->latest('completed_at')->limit(30)->get()
+                ->map(fn (Quest $q) => ['key' => $q->quest_key, 'name' => $q->name, 'icon' => $q->icon, 'completed_at' => $q->completed_at?->toDateString()])->values(),
+            'master_items' => UserItem::with('item')->where('master_quantity', '>', 0)
+                ->whereIn('user_id', User::where('family_id', $home->family_id)->select('id'))->get()
+                ->map(fn (UserItem $u) => ['key' => $u->item->key, 'name' => $u->item->name, 'icon' => $u->item->icon, 'owner_id' => $u->user_id])->values(),
+            'achievements' => UserAchievement::whereIn('user_id', User::where('family_id', $home->family_id)->select('id'))->count(),
+        ];
+    }
+
     /** Grundfläche prüfen und im Raster belegen: innerhalb des Zimmers, erlaubte Ebene, keine Überlappung. */
     private function occupy(array &$grid, Room $room, Item $item, array $row): void
     {
@@ -206,6 +233,7 @@ class HomeService
                 ->filter(fn (Room $r) => $r->type !== 'bedroom' || $r->owner?->family_id === $home->family_id)
                 ->map(fn (Room $r) => self::presentRoom($r))->values(),
             'clutter' => self::clutter($home->family_id),
+            'trophies' => self::trophies($home),
             'guestbook' => GuestbookEntry::with('user')->where('family_id', $home->family_id)->latest('id')->limit(30)->get()
                 ->map(fn (GuestbookEntry $e) => GuestbookService::presentEntry($e))->values(),
         ];

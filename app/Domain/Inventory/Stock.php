@@ -4,6 +4,8 @@ namespace App\Domain\Inventory;
 
 use App\Domain\Gameplay\GameException;
 use App\Models\Item;
+use App\Models\Room;
+use App\Models\User;
 use App\Models\UserItem;
 
 /**
@@ -19,6 +21,33 @@ class Stock
         }
         $row = UserItem::firstOrCreate(['user_id' => $userId, 'item_id' => $itemId]);
         $row->increment('quantity', $quantity, $master ? ['master_quantity' => $row->master_quantity + $quantity] : []);
+    }
+
+    /**
+     * Inventarplätze (§2.5): begrenzt ist die Zahl verschiedener Sorten, der Lagerraum im Familienhaus gibt mehr.
+     * Belohnungen (Funde, Quests) kommen immer an; geprüft wird nur, wo man selbst etwas hereinholt.
+     *
+     * @return array{used: int, max: int}
+     */
+    public static function slots(int $userId): array
+    {
+        $familyId = User::whereKey($userId)->value('family_id');
+        $storage = $familyId && Room::where('type', 'storage')->whereHas('home', fn ($q) => $q->where('family_id', $familyId))->exists();
+
+        return [
+            'used' => UserItem::where('user_id', $userId)->where('quantity', '>', 0)->count(),
+            'max' => config('game.housing.inventory_slots') + ($storage ? config('game.housing.storage_room_slots') : 0),
+        ];
+    }
+
+    /** @param  list<int>  $itemIds */
+    public static function ensureRoom(int $userId, array $itemIds): void
+    {
+        $new = count(array_diff(array_unique($itemIds), UserItem::where('user_id', $userId)->where('quantity', '>', 0)->pluck('item_id')->all()));
+        $slots = self::slots($userId);
+        if ($new > 0 && $slots['max'] < $slots['used'] + $new) {
+            throw new GameException('Dein Inventar ist voll. Leg etwas ins Familienlager, verschenke es oder baut einen Lagerraum.');
+        }
     }
 
     /** Wirft eine GameException, wenn nicht genug da ist. */

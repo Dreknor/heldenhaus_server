@@ -391,5 +391,52 @@
             "ink": 4,
             "crystal_shard": 2
         }
+    },
+    {
+        "key": "boss_trap",
+        "output": "boss_trap",
+        "quantity": 1,
+        "station": "forge",
+        "station_level": 1,
+        "level": 4,
+        "inputs": {
+            "stone": 3,
+            "nails": 3,
+            "flint": 1
+        },
+        "gold": 15,
+        "seconds": 900,
+        "xp": 10
+    },
+    {
+        "key": "fireworks",
+        "output": "fireworks",
+        "quantity": 1,
+        "station": "alchemy",
+        "station_level": 1,
+        "level": 3,
+        "inputs": {
+            "paint": 2,
+            "flint": 1
+        },
+        "gold": 10,
+        "seconds": 300,
+        "xp": 8
+    },
+    {
+        "key": "amulet_streak",
+        "output": "amulet_streak",
+        "quantity": 1,
+        "station": "sewing",
+        "station_level": 1,
+        "level": 4,
+        "inputs": {
+            "crystal_shard": 2,
+            "yarn": 2,
+            "feather": 1
+        },
+        "gold": 30,
+        "seconds": 1800,
+        "xp": 15
     }
 ]

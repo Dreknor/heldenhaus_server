@@ -52,5 +52,9 @@
   { "key": "furn_window", "name": "Fenster", "type": "furniture", "rarity": "common", "icon": "🪟", "stats": { "w": 2, "h": 2, "layers": ["wall"] } },
   { "key": "furn_banner", "name": "Banner", "type": "furniture", "rarity": "uncommon", "icon": "🚩", "stats": { "w": 1, "h": 2, "layers": ["wall"] } },
   { "key": "furn_trophy", "name": "Pokal", "type": "furniture", "rarity": "rare", "icon": "🏆", "stats": { "w": 1, "h": 1, "layers": ["floor", "wall"] } },
-  { "key": "furn_dragon_statue", "name": "Drachenstatue", "type": "furniture", "rarity": "epic", "icon": "🐉", "stats": { "w": 2, "h": 2, "layers": ["floor"] } }
+  { "key": "furn_dragon_statue", "name": "Drachenstatue", "type": "furniture", "rarity": "epic", "icon": "🐉", "stats": { "w": 2, "h": 2, "layers": ["floor"] } },
+  { "key": "boss_trap", "name": "Boss-Falle", "type": "potion", "rarity": "uncommon", "icon": "🪤", "stats": { "boss_damage": 15 }, "description": "Macht dem Familien-Boss 15 Schaden." },
+  { "key": "fireworks", "name": "Feuerwerk", "type": "potion", "rarity": "uncommon", "icon": "🎆", "stats": { "fireworks": true }, "description": "Ein Feuerwerk im Familien-Feed für alle." },
+  { "key": "amulet_streak", "name": "Serien-Amulett", "type": "potion", "rarity": "rare", "icon": "🧿", "stats": { "streak_shield": 1 }, "description": "Schützt eine Serie. Wirkt einmal pro Woche." },
+  { "key": "dungeon_key", "name": "Dungeon-Schlüssel", "type": "material", "rarity": "uncommon", "icon": "🗝️", "description": "Öffnet verschlossene Türen im Dungeon." }
 ]

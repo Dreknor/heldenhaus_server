@@ -80,6 +80,7 @@ class GardenService
             if (self::stage($plot, $plant) !== 'ready') {
                 throw new GameException('Das ist noch nicht reif.');
             }
+            Stock::ensureRoom($user->id, collect(Stock::items(array_keys($plant['yield'])))->pluck('id')->all());
             Stock::addKeys($user->id, $plant['yield']);
             $plot->update(['plant_key' => null, 'sown_by' => null, 'sown_at' => null, 'watered_on' => null, 'waterings' => 0, 'ready_at' => null]);
 

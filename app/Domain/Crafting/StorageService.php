@@ -38,6 +38,7 @@ class StorageService
             if ($row === null || $row->quantity < $quantity) {
                 throw new GameException("Im Familienlager ist nicht genug „{$item->name}“.");
             }
+            Stock::ensureRoom($user->id, [$item->id]);
             $row->decrement('quantity', $quantity);
             Stock::add($user->id, $item->id, $quantity);
 

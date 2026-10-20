@@ -65,6 +65,8 @@ return [
     'community_rhythm_gold' => 15,
     'focus_hour' => 12,
 
+    'max_streak_shields' => 3,
+
     // Haustiere
     'pet_growth_per_food' => 10,
     'pet_growth_mount' => 50,
@@ -97,6 +99,9 @@ return [
         'max_active_projects' => 2,
         'garden_slots' => 4,
         'stable_feed_bonus' => 2,                // zusätzliches Wachstum je Futter, wenn es einen Stall gibt
+        'bed_heal' => 3,                         // nächtliche HP-Regeneration mit Bett im eigenen Zimmer
+        'inventory_slots' => 40,                 // Sorten im Inventar
+        'storage_room_slots' => 20,              // zusätzlich mit Lagerraum
     ],
 
     'categories' => [

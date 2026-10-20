@@ -9,6 +9,7 @@ use App\Domain\Housing\BuildService;
 use App\Domain\Housing\HomeService;
 use App\Domain\Inventory\InventoryService;
 use App\Domain\Inventory\Stock;
+use App\Domain\Quests\QuestService;
 use App\Domain\Social\AllianceService;
 use App\Models\BuildProject;
 use App\Models\CraftJob;
@@ -443,4 +444,44 @@ it('enthält nur Rezepte, Bauprojekte und Pflanzen mit vorhandenen Gegenständen
         expect(array_diff(array_merge(array_keys($p['cost']), array_keys($p['yield'])), $keys))->toBeEmpty();
     }
     expect(TradeOffer::count())->toBe(0);
+});
+
+it('begrenzt Inventarplätze, der Lagerraum gibt mehr', function () {
+    config(['game.housing.inventory_slots' => 2, 'game.housing.storage_room_slots' => 1]);
+    give($this->child, ['wood' => 5, 'stone' => 1]);
+    setGold($this->child, 10);
+    Sanctum::actingAs($this->child, ['app']);
+
+    $this->postJson('/api/v1/craft', ['recipe' => 'furn_chair'])->assertStatus(422)->assertJsonPath('message', fn ($m) => str_contains($m, 'Inventar ist voll'));
+    homeWith($this->family->id, ['storage']);
+    $this->postJson('/api/v1/craft', ['recipe' => 'furn_chair'])->assertCreated();
+    expect($this->getJson('/api/v1/inventory')->json('slots'))->toBe(['used' => 2, 'max' => 3]);
+});
+
+it('stellt Familien-Gegenstände her: Boss-Falle, Feuerwerk und Serien-Amulett (1× pro Woche)', function () {
+    $quest = app(QuestService::class)->start($this->parent, 'dust_monster', 'family');
+    give($this->child, ['boss_trap' => 1, 'fireworks' => 1, 'amulet_streak' => 2]);
+    Sanctum::actingAs($this->child, ['app']);
+
+    $this->postJson('/api/v1/inventory/'.Item::firstWhere('key', 'boss_trap')->id.'/use')->assertOk();
+    expect($quest->refresh()->progress)->toBe(15.0);
+
+    $this->postJson('/api/v1/inventory/'.Item::firstWhere('key', 'fireworks')->id.'/use')->assertOk();
+    expect(FeedEntry::where('type', 'fireworks')->exists())->toBeTrue();
+
+    $amulet = Item::firstWhere('key', 'amulet_streak')->id;
+    $this->postJson("/api/v1/inventory/{$amulet}/use")->assertOk();
+    $this->postJson("/api/v1/inventory/{$amulet}/use")->assertStatus(422);
+    expect(UserStats::find($this->child->id)->streak_shields)->toBe(1)->and(have($this->child, 'amulet_streak'))->toBe(1);
+});
+
+it('heilt nachts etwas mehr mit Bett im eigenen Zimmer und zeigt die Trophäenhalle', function () {
+    give($this->child, ['furn_bed' => 1]);
+    $room = HomeService::home($this->family->id)->rooms()->where('owner_user_id', $this->child->id)->first();
+    app(HomeService::class)->saveLayout($this->child, $room, 0, [['item_id' => Item::firstWhere('key', 'furn_bed')->id, 'x' => 0, 'y' => 0]]);
+    expect(HomeService::hasBed($this->child))->toBeTrue()->and(HomeService::hasBed($this->parent))->toBeFalse();
+
+    homeWith($this->family->id, ['trophy']);
+    Sanctum::actingAs($this->child, ['app']);
+    expect($this->getJson('/api/v1/home')->json('trophies'))->toHaveKeys(['bosses', 'master_items', 'achievements']);
 });
