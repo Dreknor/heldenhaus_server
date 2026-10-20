@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import BackgroundUpload from '@/components/admin/BackgroundUpload.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
@@ -72,6 +73,8 @@ const props = defineProps<{
     state: State;
     log: string;
     maintenance: boolean;
+    backgrounds: { title: string; author: string | null; count: number } | null;
+    uploadChunkBytes: number;
 }>();
 
 const state = ref<State>(props.state);
@@ -343,6 +346,8 @@ function endMaintenance() {
                     >
                 </details>
             </section>
+
+            <BackgroundUpload :backgrounds="backgrounds" :chunk-bytes="uploadChunkBytes" />
 
             <p class="flex gap-2 text-xs text-muted-foreground">
                 <CircleAlert class="size-4 shrink-0" />

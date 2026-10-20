@@ -44,8 +44,14 @@ Artisan::command('heldenhaus:create-family {family} {name} {email}', function (F
  * Gemalte Szenen-Hintergründe aus einem gekauften Paket (ZIP) importieren.
  * Sie bleiben auf diesem Server und kommen nicht ins Repository.
  */
-Artisan::command('heldenhaus:import-backgrounds {zip} {--title=Fantasy Forest Backgrounds} {--author=Lornn} {--url=https://lornn.itch.io/fantasy-forest-backgrounds} {--indoor : Auch Innenräume übernehmen}', function () {
-    $count = SceneBackgrounds::import($this->argument('zip'), $this->option('title'), $this->option('author'), $this->option('url'), $this->option('indoor'));
+Artisan::command('heldenhaus:import-backgrounds {zip} {--title=} {--author=} {--url=} {--indoor : Auch Innenräume übernehmen}', function () {
+    $count = SceneBackgrounds::import(
+        $this->argument('zip'),
+        $this->option('title') ?: SceneBackgrounds::DEFAULTS['title'],
+        $this->option('author') ?: SceneBackgrounds::DEFAULTS['author'],
+        $this->option('url') ?: SceneBackgrounds::DEFAULTS['url'],
+        $this->option('indoor'),
+    );
 
     $this->info("{$count} Hintergründe importiert. Sie erscheinen ab sofort in der Heldenszene und unter /credits.");
 })->purpose('Szenen-Hintergründe aus einem ZIP importieren');

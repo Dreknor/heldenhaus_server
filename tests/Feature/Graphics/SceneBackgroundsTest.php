@@ -1,7 +1,9 @@
 <?php
 
 use App\Domain\Art\SceneBackgrounds;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 beforeEach(function () {
     Storage::fake('public');
@@ -46,4 +48,46 @@ it('importiert Hintergründe ohne Innenräume und nennt sie in den Credits', fun
     $this->get('/credits')->assertInertia(fn ($page) => $page
         ->where('credits.2.title', 'Szenen-Hintergründe: Fantasy Forest Backgrounds')
         ->where('credits.2.author', 'Lornn'));
+});
+
+it('nimmt das ZIP im Online-Updater in Stücken an und entpackt es in Portionen', function () {
+    Storage::fake('local');
+    $this->parent->forceFill(['is_admin' => true])->save();
+    $zip = file_get_contents(backgroundZip(array_map(fn ($i) => "Trees {$i}", range(1, 10))));
+    $upload = (string) Str::uuid();
+    $chunks = str_split($zip, (int) ceil(strlen($zip) / 3));
+
+    $this->actingAs($this->child)->post('/admin/updates/backgrounds/chunk')->assertForbidden();
+    $this->actingAs($this->parent);
+
+    $offset = 0;
+    foreach ($chunks as $chunk) {
+        $this->post('/admin/updates/backgrounds/chunk', ['upload' => $upload, 'offset' => $offset, 'chunk' => UploadedFile::fake()->createWithContent('chunk', $chunk)])
+            ->assertOk()->assertJson(['received' => $offset += strlen($chunk)]);
+    }
+    // Ein doppelt gesendetes Stück wird abgelehnt, die Seite erfährt den richtigen Stand
+    $this->post('/admin/updates/backgrounds/chunk', ['upload' => $upload, 'offset' => 0, 'chunk' => UploadedFile::fake()->createWithContent('chunk', $chunks[0])])
+        ->assertStatus(409)->assertJson(['received' => strlen($zip)]);
+
+    $this->post('/admin/updates/backgrounds/import', ['upload' => $upload, 'from' => 0])->assertOk()->assertJson(['total' => 10, 'next' => 8, 'finished' => false]);
+    Storage::disk('public')->assertMissing('scenes/index.json');
+    $this->post('/admin/updates/backgrounds/import', ['upload' => $upload, 'from' => 8])->assertOk()
+        ->assertJson(['next' => 10, 'finished' => true, 'summary' => ['title' => 'Fantasy Forest Backgrounds', 'count' => 10]]);
+
+    expect(SceneBackgrounds::summary()['count'])->toBe(10)
+        ->and(Storage::disk('local')->files('scene-uploads'))->toBeEmpty();
+
+    $this->delete('/admin/updates/backgrounds')->assertRedirect();
+    expect(SceneBackgrounds::summary())->toBeNull();
+});
+
+it('meldet ein kaputtes Paket verständlich', function () {
+    Storage::fake('local');
+    $this->parent->forceFill(['is_admin' => true])->save();
+    $upload = (string) Str::uuid();
+
+    $this->actingAs($this->parent)
+        ->post('/admin/updates/backgrounds/chunk', ['upload' => $upload, 'offset' => 0, 'chunk' => UploadedFile::fake()->createWithContent('chunk', 'kein zip')])->assertOk();
+    $this->post('/admin/updates/backgrounds/import', ['upload' => $upload, 'from' => 0])
+        ->assertStatus(422)->assertJson(['message' => 'Die Datei ist kein lesbares ZIP-Archiv.']);
 });

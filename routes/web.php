@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AchievementController;
 use App\Http\Controllers\Admin\ItemController;
+use App\Http\Controllers\Admin\SceneBackgroundController;
 use App\Http\Controllers\Admin\UpdateController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\CharacterController;
@@ -97,6 +98,9 @@ Route::middleware(['auth', 'can:admin'])->prefix('admin')->name('admin.')->group
     Route::post('updates/start', [UpdateController::class, 'start'])->name('updates.start');
     Route::post('updates/cancel', [UpdateController::class, 'cancel'])->name('updates.cancel');
     Route::post('updates/up', [UpdateController::class, 'up'])->name('updates.up');
+    Route::post('updates/backgrounds/chunk', [SceneBackgroundController::class, 'chunk'])->name('updates.backgrounds.chunk');
+    Route::post('updates/backgrounds/import', [SceneBackgroundController::class, 'import'])->name('updates.backgrounds.import');
+    Route::delete('updates/backgrounds', [SceneBackgroundController::class, 'destroy'])->name('updates.backgrounds.destroy');
 
     Route::get('items', [ItemController::class, 'index'])->name('items.index');
     Route::post('items', [ItemController::class, 'store'])->name('items.store');
