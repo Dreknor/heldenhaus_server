@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\GameController;
 use App\Http\Controllers\Api\V1\HomeAssistantController;
 use App\Http\Controllers\FamilyHubController;
 use App\Http\Controllers\QuestController;
+use App\Http\Controllers\SocialController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -78,6 +79,17 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
 
             Route::get('shop', [FamilyController::class, 'shop'])->name('shop');
             Route::post('shop/items/{item}/redeem', [FamilyController::class, 'redeem'])->name('shop.redeem');
+
+            Route::get('social', [SocialController::class, 'index'])->name('social');
+            Route::post('alliances', [SocialController::class, 'invite'])->name('alliances.invite');
+            Route::post('alliances/join', [SocialController::class, 'join'])->middleware('throttle:10,1')->name('alliances.join');
+            Route::delete('alliances/{alliance}', [SocialController::class, 'endAlliance'])->name('alliances.destroy');
+            Route::post('challenges', [SocialController::class, 'storeChallenge'])->name('challenges.store');
+            Route::post('challenges/{challenge}/join', [SocialController::class, 'joinChallenge'])->name('challenges.join');
+            Route::post('challenges/{challenge}/leave', [SocialController::class, 'leaveChallenge'])->name('challenges.leave');
+            Route::delete('challenges/{challenge}', [SocialController::class, 'destroyChallenge'])->name('challenges.destroy');
+            Route::get('messages', [SocialController::class, 'messages'])->name('messages');
+            Route::post('messages', [SocialController::class, 'sendMessage'])->middleware('throttle:30,1')->name('messages.store');
         });
     });
 

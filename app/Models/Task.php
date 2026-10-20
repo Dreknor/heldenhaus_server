@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Task extends Model
 {
     protected $fillable = [
-        'family_id', 'owner_id', 'created_by', 'scope', 'type', 'title', 'notes', 'category', 'difficulty',
+        'family_id', 'challenge_id', 'owner_id', 'created_by', 'scope', 'type', 'title', 'notes', 'category', 'difficulty',
         'up', 'down', 'repeat', 'start_date', 'due_date', 'checklist', 'is_private', 'approval_mode',
         'assignment_mode', 'rotation', 'star_reward', 'team_bonus_gold', 'gold_cost', 'ha_event_key', 'sort', 'archived_at',
     ];

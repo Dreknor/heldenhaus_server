@@ -110,6 +110,8 @@ class FamilyController extends Controller
             'birth_year' => ['nullable', 'integer', 'between:1900,'.now()->year],
             'pin' => ['nullable', 'digits_between:4,6'],
             'avatar_color' => ['nullable', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            // Freitext im Familienbündnis für Teens (Kinder unter 13 nie, Konzept §3.6)
+            'chat_allowed' => ['nullable', 'boolean'],
         ]);
 
         $member->update(array_filter($data, fn ($v) => $v !== null));

@@ -154,6 +154,21 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
                                     </button>
                                 </div>
                             </template>
+                            <label v-if="isParent && m.age_group === 'teen'" class="flex items-center gap-2 pt-1 text-xs text-muted-foreground">
+                                <input
+                                    type="checkbox"
+                                    class="size-3.5"
+                                    :checked="m.chat_allowed"
+                                    @change="
+                                        router.put(
+                                            route('family.members.update', { member: m.id }),
+                                            { name: m.name, chat_allowed: ($event.target as HTMLInputElement).checked },
+                                            { preserveScroll: true },
+                                        )
+                                    "
+                                />
+                                Freitext im Familienbündnis erlauben
+                            </label>
                         </div>
                     </CardContent>
                 </Card>

@@ -12,6 +12,7 @@ use App\Http\Controllers\HeroController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\QuestController;
 use App\Http\Controllers\RewardShopController;
+use App\Http\Controllers\SocialController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -85,6 +86,16 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
     Route::get('quests', [QuestController::class, 'index'])->name('quests.index');
     Route::post('quests', [QuestController::class, 'start'])->name('quests.start');
     Route::post('quests/{quest}/abandon', [QuestController::class, 'abandon'])->name('quests.abandon');
+    Route::get('social', [SocialController::class, 'index'])->name('social.index');
+    Route::post('alliances', [SocialController::class, 'invite'])->name('alliances.invite');
+    Route::post('alliances/join', [SocialController::class, 'join'])->middleware('throttle:10,1')->name('alliances.join');
+    Route::delete('alliances/{alliance}', [SocialController::class, 'endAlliance'])->name('alliances.destroy');
+    Route::post('challenges', [SocialController::class, 'storeChallenge'])->name('challenges.store');
+    Route::post('challenges/{challenge}/join', [SocialController::class, 'joinChallenge'])->name('challenges.join');
+    Route::post('challenges/{challenge}/leave', [SocialController::class, 'leaveChallenge'])->name('challenges.leave');
+    Route::delete('challenges/{challenge}', [SocialController::class, 'destroyChallenge'])->name('challenges.destroy');
+    Route::post('messages', [SocialController::class, 'sendMessage'])->middleware('throttle:30,1')->name('messages.store');
+
     Route::get('shop', [RewardShopController::class, 'index'])->name('shop.index');
     Route::post('shop/items', [RewardShopController::class, 'store'])->name('shop.items.store');
     Route::put('shop/items/{item}', [RewardShopController::class, 'update'])->name('shop.items.update');

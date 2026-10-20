@@ -5,7 +5,22 @@ import StatsPanel from '@/components/game/StatsPanel.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Backpack, ChartColumn, Trophy, Dices, Download, Gift, Inbox, ListChecks, PiggyBank, ScrollText, Sparkles, Swords, Users } from 'lucide-vue-next';
+import {
+    Backpack,
+    ChartColumn,
+    Dices,
+    Download,
+    Gift,
+    Handshake,
+    Inbox,
+    ListChecks,
+    PiggyBank,
+    ScrollText,
+    Sparkles,
+    Swords,
+    Trophy,
+    Users,
+} from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
@@ -19,6 +34,7 @@ const mainNavItems = computed<NavItem[]>(() => [
     { title: 'Erfolge', href: '/achievements', icon: Trophy },
     { title: 'Inventar', href: '/inventory', icon: Backpack },
     { title: 'Familie', href: '/family', icon: Users },
+    { title: 'Bündnisse & Challenges', href: '/social', icon: Handshake },
     { title: 'Belohnungsshop', href: '/shop', icon: Gift },
     { title: 'Taschengeld', href: '/allowance', icon: PiggyBank },
     ...(isParent.value

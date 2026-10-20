@@ -3,6 +3,7 @@
 namespace App\Http\Presenters;
 
 use App\Domain\Gameplay\Formulas;
+use App\Enums\AgeGroup;
 use App\Enums\CompletionStatus;
 use App\Enums\TaskType;
 use App\Models\Task;
@@ -43,6 +44,7 @@ class GamePresenter
             'birth_year' => $user->birth_year,
             'avatar_color' => $user->avatar_color,
             'has_email' => $user->email !== null,
+            'chat_allowed' => $user->ageGroup() === AgeGroup::Teen ? (bool) $user->chat_allowed : null,
             'stats' => $withStats && $user->stats ? self::stats($user->stats) : null,
             'appearance' => $withStats ? CharacterSheet::appearance($user) : null,
         ], fn ($v) => $v !== null);

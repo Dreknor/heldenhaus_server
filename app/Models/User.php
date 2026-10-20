@@ -32,6 +32,7 @@ class User extends Authenticatable
         'theme',
         'avatar_color',
         'avatar',
+        'chat_allowed',
     ];
 
     protected $hidden = [
@@ -53,6 +54,7 @@ class User extends Authenticatable
             'day_start' => 'integer',
             'is_admin' => 'boolean',
             'avatar' => 'array',
+            'chat_allowed' => 'boolean',
         ];
     }
 
