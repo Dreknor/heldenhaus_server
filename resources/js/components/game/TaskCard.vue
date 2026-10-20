@@ -171,7 +171,14 @@ function scoreNextStep() {
                 <span v-if="task.type === 'daily'" class="text-muted-foreground"
                     >{{ notDue ? 'heute frei · ' : '' }}{{ repeatLabel(task.repeat) }}</span
                 >
-                <span v-if="task.type === 'habit' && (task.counter_up || task.counter_down)" class="text-muted-foreground">
+                <span
+                    v-if="task.type === 'habit' && task.habit_today && (task.habit_today.up || task.habit_today.down)"
+                    class="text-muted-foreground"
+                >
+                    heute +{{ task.habit_today.up }}/{{ task.habit_today.limit }}<template v-if="task.down"> · −{{ task.habit_today.down }}</template>
+                    <template v-if="task.up && task.habit_today.next_factor === 0"> · Tageslimit erreicht</template>
+                </span>
+                <span v-else-if="task.type === 'habit' && (task.counter_up || task.counter_down)" class="text-muted-foreground">
                     heute +{{ task.counter_up }}<template v-if="task.down"> / −{{ task.counter_down }}</template>
                 </span>
                 <span v-if="task.type === 'todo' && task.due_date" class="text-muted-foreground"
