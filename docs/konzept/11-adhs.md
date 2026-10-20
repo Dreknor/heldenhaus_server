@@ -10,7 +10,7 @@ Die Grundregeln aus §1 (sanfte Strafen, kein Streak-Stress, Kooperation vor Kon
 |---|---|---|
 | **Keine Scham-Schleifen** | Inaktivität und vergessene Tage werden nicht bestraft. Charaktere sterben nicht, Serien brechen nicht ersatzlos ab. | **Sanfter Modus** ohne HP-Schaden (§11.3), Serien pausieren statt zurückzufallen und lassen sich reparieren (§11.3), das K.O. aus §1 bleibt die härteste Folge |
 | **Sofortige Rückmeldung** | Jede Aktion gibt sofort sichtbares und hörbares Feedback. | Optimistische Anzeige in App und Web (Offline-first, §6), kurze Animation, Ton und Haptik bei jedem Abhaken, auch bei jedem Teilschritt |
-| **Weniger kognitive Last** | Die Oberfläche lässt sich auf einen reizarmen Fokus-Modus reduzieren. | **Fokus-Modus** (§11.4), Animationen und Töne einzeln abschaltbar |
+| **Weniger kognitive Last** | Die Oberfläche lässt sich auf einen reizarmen Fokus-Modus reduzieren. | **Fokus-Modus** (§11.4), Animationen und Töne einzeln abschaltbar, Funktionen kommen schrittweise nach Level dazu (§13) |
 | **Hilfe bei Zeitblindheit** | Zeit wird nie nur als Zahl gezeigt, sondern grafisch. | **Visuelle Timer**, Fälligkeiten als Balken oder „noch 2× schlafen“ (§11.4) |
 | **Autonomie vor Zwang** | Aufgaben bieten Wahlmöglichkeiten und passen sich der Tagesform an. | **Energiespar-Tag** mit Kern-Aufgaben (§11.2), Wahl zwischen mehreren kleinen Schritten, Aufgabenbörse statt Zuweisung, wo es geht |
 

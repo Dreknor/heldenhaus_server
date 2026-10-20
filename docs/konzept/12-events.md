@@ -9,6 +9,7 @@ Events sind **zeitlich begrenzte Spielphasen mit eigenem Thema**: Das Familienha
 - **Kein Echtgeld, keine Sterne aus dem Zufall** (§1): Events belohnen mit Gold, XP, Materialien, Rezepten, Möbeln, Kosmetik und Abzeichen. Sterne gibt es nur, wenn die Eltern ein reales Familienziel an das Event knüpfen (wie bei Familien-Quests, §3.5).
 - **Nicht zu viel auf einmal**: Gleichzeitig laufen höchstens **ein Kalender-Event und zwei weitere Events**. Ein Event, das nicht starten kann, wartet bis zu 3 Tage und verfällt sonst.
 - **Eltern behalten die Kontrolle**: Jedes Event lässt sich pro Familie abschalten (z. B. Halloween oder religiöse Feste), Familien-Anlässe wie Geburtstage sind nur aktiv, wenn die Eltern sie einrichten.
+- **Nur Freigeschaltetes**: Ein Event zeigt jeder Person nur die Teile, die sie schon freigeschaltet hat (§13), das Familienziel aber immer.
 - **Altersgerecht**: Jedes Event hat Varianten für 9–12 und 13–16 (z. B. Halloween für Jüngere „lustig-schaurig“ statt gruselig).
 - **Region**: Feiertage und Schulferien hängen vom Bundesland ab. Die Familie wählt Land und Bundesland in den Einstellungen (Standard: Deutschland, Sachsen).
 
@@ -82,7 +83,7 @@ Ergänzend (eher als Variante von bestehenden Events): **Fasching** (`easter_off
 | 18 | 🏅 **Heldenjubiläum** | Jahrestag der Familiengründung in Heldenhaus (`family_date`) | 1 Tag: Rückblick „Ein Jahr Heldenhaus“, Jahres-Abzeichen, Konfetti beim ersten Login |
 | 19 | 🎂 **Geburtstag** | Geburtstag eines Mitglieds, nur wenn die Eltern ihn eingetragen haben (`family_date`) | Geburtstagskind bekommt Konfetti, eine Krone als Kosmetik und einen **Wunsch-Joker** (eine eigene Aufgabe an diesem Tag aussetzen). Jede Aufgabe der anderen schickt ihm einen kleinen Gruß |
 | 20 | 🤗 **Willkommen zurück** | Rückkehr aus dem Gasthaus nach ≥ 3 Tagen oder erste Aktivität nach ≥ 5 Tagen Pause (`game`), nur persönlich | Sanfter Wiedereinstieg (§11): Mini-Quest mit 3 leichten Aufgaben, Serien bleiben pausiert und lassen sich reparieren, kein Hinweis auf die verpassten Tage |
-| 21 | 🧳 **Wandernder Händler** | Zufall (`random`), etwa einmal im Monat, nur ab Familien-Level 5 | 48 h ein besonderer Laden mit seltenen Rezepten und Möbeln **nur für Gold** (wichtiger Gold-Verbraucher gegen Inflation, §2.5), Angebot je Familie gleich |
+| 21 | 🧳 **Wandernder Händler** | Zufall (`random`), etwa einmal im Monat, erst wenn die Werkstatt freigeschaltet ist (§13) | 48 h ein besonderer Laden mit seltenen Rezepten und Möbeln **nur für Gold** (wichtiger Gold-Verbraucher gegen Inflation, §2.5), Angebot je Familie gleich |
 
 **Jahresverlauf** (Beispiel 2027, Sachsen): Erntefest und Kürbisnacht im Herbst, Laternenfest und Wichtelwerkstatt bis Weihnachten, Raunächte zum Jahreswechsel, Frühlingserwachen und Eiersuche (28.03.) im Frühling, Rollentausch-Tag im Mai, Mittsommer und Sommerferien-Abenteuer im Sommer, danach der Schulstart. Ereignis-Events füllen die Lücken.
 
@@ -119,7 +120,7 @@ Neben den großen Events gibt es **kleine Zufallsereignisse**, die einfach Freud
 ## 12.6 Datenmodell, Ablauf und API
 
 **Inhalt** (`database/content/events.json`, Import mit `game:content-sync`, im Admin-Backend bearbeitbar wie Items & Drops):
-`key`, `name`, `icon`, `category` (`calendar|game|family|world`), `trigger` (Typ und Parameter), `duration_days`, `cooldown_days`, `priority`, `default_enabled`, `min_family_level`, `requires_ha`, `variants` (Texte je Altersgruppe), `quest_key`, `goal` (Punkte und Stufen), `modifiers` (Effekt-Typen der Modifikator-Kette), `drops`, `recipes`, `decor`, `badge`, `ha_actions`, `returns_in_years`
+`key`, `name`, `icon`, `category` (`calendar|game|family|world`), `trigger` (Typ und Parameter), `duration_days`, `cooldown_days`, `priority`, `default_enabled`, `requires_feature` (Freischaltung aus §13, z. B. `crafting`), `requires_ha`, `variants` (Texte je Altersgruppe), `quest_key`, `goal` (Punkte und Stufen), `modifiers` (Effekt-Typen der Modifikator-Kette), `drops`, `recipes`, `decor`, `badge`, `ha_actions`, `returns_in_years`
 
 **Tabellen**
 - `family_event_settings`: `family_id`, `country`, `subdivision` (z. B. `DE-SN`), `disabled_events` (JSON), `weather_source` (`none|ha|open_meteo`), `weather_location` (auf 0,1° gerundet)

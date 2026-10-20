@@ -19,6 +19,7 @@
 - **Sanfter Modus und Energiespar-Tag** (§11.3, §11.2): Im sanften Modus verursachen verpasste Dailies keinen HP-Schaden. Am Energiespar-Tag zählen nur Kern-Dailies. Verpasste Dailies pausieren die Serie, statt sie auf 0 zu setzen, eine Erholungs-Quest kann sie wiederherstellen.
 
 ## 2.3 Progression
+- **Freischaltungen nach Level** (§13): Shop ab 3, Funde und Haustiere ab 4, Quests ab 5, Familienhaus ab 6, Garten ab 7, Werkstatt ab 8, Bauprojekte ab 9, Dungeons ab 10, Familien-Dungeon ab 12, Bündnis-Funktionen ab 14, jeweils mit kurzer Erklärung und Mini-Aufgabe
 - **Level & Attribute** mit kindgerechten Namen: **Kraft** (Boss-Schaden), **Köpfchen** (XP), **Ausdauer** (weniger Schaden), **Spürsinn** (Gold und Drops). Punkte verteilt man ab Level 2.
 - **Eigene Spielklassen** statt Krieger/Magier/Heiler/Schurke, siehe §2.4
 - **Avatar-Editor**: Körper, Haare, Hautfarbe, Hintergründe; Ausrüstung pro Slot (Kopf, Rüstung, Waffe, Schild, Accessoire)
