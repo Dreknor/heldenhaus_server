@@ -5,7 +5,7 @@ import type { Appearance } from '@/types';
 import { computed } from 'vue';
 
 /** Szene im Heldenpanel (Konzept §2.9, G2): Himmel nach Tageszeit, Heldenhaus, Avatar und Begleiter. */
-const props = defineProps<{
+defineProps<{
     appearance: Appearance;
     companion: { egg_key: string; potion_key: string; is_mount: boolean; name: string } | null;
     hurt?: boolean;
