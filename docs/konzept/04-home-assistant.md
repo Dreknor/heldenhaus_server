@@ -53,6 +53,7 @@ X-Heldenhaus-Signature: sha256=<HMAC-SHA256(secret, "<timestamp>.<body>")>
 ```
 
 - Ereignisse: `task_completed`, `approval_requested`, `all_dailies_done` (einmal pro Tag), `level_up`, `reward_redeemed`, `boss_defeated`, `quest_completed`, `ping` (Test-Knopf)
+- Fokus & Alltagshilfen (§11.5): `step_completed`, `focus_started`, `focus_ended` (mit `remaining_minutes` und `result`), `low_energy_day`
 - Private Aufgaben werden ohne Titel und Kategorie gemeldet (§3.7)
 - Empfänger prüfen die Signatur und verwerfen Zeitstempel, die mehr als 5 Minuten abweichen
 - Fehler (Timeout, kein 2xx) → bis zu 5 Versuche über die Queue (30 s, 2 min, 10 min, 30 min), Ergebnis im Prüfprotokoll
