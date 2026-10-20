@@ -14,6 +14,7 @@ Regeln, die überall gelten:
 - **Kein Streak-Stress**: Es gibt Streak-Schutz (verdienbar), einen Pausen-/Krank-/Ferienmodus („Gasthaus“) und **Wochenziele** statt täglicher Perfektion.
 - **Kein Echtgeld, keine Glücksspielmechanik mit Geld**: Zufallsdrops gibt es nur für verdiente Spielwährung, keine Werbung, kein Tracking.
 - **Ruhezeiten**: Keine Pushes nachts und während der Schulzeit (einstellbar).
+- **Fokus & Alltagshilfen für alle**: Für ADHS und ähnliche Muster gibt es einen sanften Modus ohne HP-Schaden, Serien, die pausieren statt abzubrechen, Mikro-Schritte mit Sofort-Belohnung, Energiespar-Tage, visuelle Timer und einen reizarmen Fokus-Modus. Sie stehen allen offen, ohne Diagnose oder Etikett (§11).
 - **Überrechtfertigungs-Effekt vermeiden**: Nicht jede Kleinigkeit wird real belohnt. Reale Belohnungen gibt es über eine eigene Währung (Sterne), Spielfortschritt über Gold/XP.
 
 
