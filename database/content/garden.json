@@ -55,5 +55,93 @@
             "crystal_shard": 3,
             "flower": 1
         }
+    },
+    {
+        "key": "wheat",
+        "name": "Weizenfeld",
+        "icon": "🌾",
+        "cost": {
+            "seeds": 1
+        },
+        "waterings": 1,
+        "hours": 16,
+        "yield": {
+            "wheat": 4,
+            "seeds": 1
+        }
+    },
+    {
+        "key": "pumpkin",
+        "name": "Kürbisbeet",
+        "icon": "🎃",
+        "cost": {
+            "seeds": 2
+        },
+        "waterings": 3,
+        "hours": 48,
+        "yield": {
+            "pumpkin": 2,
+            "seeds": 1
+        }
+    },
+    {
+        "key": "berries",
+        "name": "Beerenstrauch",
+        "icon": "🫐",
+        "cost": {
+            "seeds": 1
+        },
+        "waterings": 2,
+        "hours": 24,
+        "yield": {
+            "food_berries": 4,
+            "seeds": 1
+        }
+    },
+    {
+        "key": "lettuce",
+        "name": "Salatbeet",
+        "icon": "🥬",
+        "cost": {
+            "seeds": 1
+        },
+        "waterings": 1,
+        "hours": 12,
+        "yield": {
+            "food_lettuce": 3,
+            "seeds": 1
+        }
+    },
+    {
+        "key": "beehive",
+        "name": "Bienenwiese",
+        "icon": "🐝",
+        "cost": {
+            "seeds": 2,
+            "flower": 1
+        },
+        "waterings": 2,
+        "hours": 36,
+        "yield": {
+            "food_honey": 2,
+            "wax": 2,
+            "flower": 1
+        }
+    },
+    {
+        "key": "moonflower",
+        "name": "Mondblume",
+        "icon": "🌙",
+        "cost": {
+            "seeds": 3,
+            "stardust": 1
+        },
+        "waterings": 4,
+        "hours": 72,
+        "yield": {
+            "moonstone": 1,
+            "flower": 2,
+            "seeds": 2
+        }
     }
 ]

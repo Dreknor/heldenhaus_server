@@ -2,15 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Achievements\AchievementService;
+use App\Domain\Art\MonsterSvg;
+use App\Domain\Dungeons\DungeonCatalog;
 use App\Domain\Dungeons\DungeonService;
+use App\Domain\Features\Features;
 use App\Models\Dungeon;
+use App\Models\DungeonPosition;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /** Dungeon-Quests (Konzept §2.7, API §5.4): Absichten schicken, der Server entscheidet. */
 class DungeonController extends Controller
 {
-    public function __construct(private readonly DungeonService $dungeons) {}
+    public function __construct(private readonly DungeonService $dungeons, private readonly AchievementService $achievements) {}
 
     public function current(Request $request): JsonResponse
     {
@@ -39,13 +46,34 @@ class DungeonController extends Controller
             'buy' => ['sometimes', 'string', 'max:40'],
             'item_id' => ['sometimes', 'integer'],
         ]);
+        // Freischaltung (§13): Solo-Gewölbe ab „dungeons“, Familien-Dungeon ab „family_dungeon“
+        $feature = $dungeon->kind === 'family' ? 'family_dungeon' : 'dungeons';
+        if (! Features::has($request->user(), $feature)) {
+            return response()->json(['error' => 'feature_locked', 'feature' => $feature, 'unlocks_at_level' => Features::levelFor($feature, $request->user())], 403);
+        }
         $outcome = $this->dungeons->act($request->user(), $dungeon, $action, $input, $input['client_uuid'] ?? null);
+        Features::starterDone($request->user(), $feature);
+
+        // Erfolge nach dem Zug (außerhalb der Zug-Transaktion)
+        $dungeon->refresh();
+        $users = $dungeon->status === 'completed'
+            ? User::whereIn('id', DungeonPosition::where('dungeon_id', $dungeon->id)->pluck('user_id'))->get()
+            : collect([$request->user()]);
+        $users->each(fn (User $u) => $this->achievements->evaluate($u, ['dungeons_cleared', 'monsters_defeated']));
 
         return response()->json([
             'result' => $outcome['result'],
             'replayed' => $outcome['replayed'],
             'dungeon' => DungeonService::present($dungeon->refresh(), $request->user()),
         ]);
+    }
+
+    /** Monster-Grafik aus dem Baukasten (dungeons.json „art“, sonst Quest-Boss), als SVG. */
+    public function monsterArt(string $key): Response
+    {
+        $art = DungeonCatalog::monsterArt($key) ?? abort(404);
+
+        return response(MonsterSvg::render($art), 200, ['Content-Type' => 'image/svg+xml', 'Cache-Control' => 'public, max-age=86400']);
     }
 
     public function log(Request $request, Dungeon $dungeon): JsonResponse

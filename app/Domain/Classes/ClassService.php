@@ -3,6 +3,7 @@
 namespace App\Domain\Classes;
 
 use App\Domain\Achievements\AchievementService;
+use App\Domain\Features\Features;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
@@ -120,6 +121,8 @@ class ClassService
             $stats->save();
 
             SkillCast::create(['user_id' => $user->id, 'skill_key' => $skillKey, 'target_user_id' => $target?->id, 'mana_cost' => $skill['mana']]);
+
+            Features::starterDone($user, 'classes');
 
             return match ($skillKey) {
                 'ancestral_wisdom' => $this->familyBuff($user, 'ancestral_wisdom', 0.2, $skill['hours'], 'Die ganze Familie bekommt 24 Stunden lang +20 % XP!'),

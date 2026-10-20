@@ -33,6 +33,8 @@ class PushNotifier
         'trade' => ['Tauschangebot', 'Es gibt Neuigkeiten zu einem Tausch.'],
         'gift' => ['Geschenk', 'Du hast ein Geschenk bekommen.'],
         'dungeon' => ['Dungeon', 'Im Familien-Dungeon wartet der Endboss auf euch!'],
+        'event_started' => ['Ein Event beginnt', 'Im Heldenhaus ist etwas Besonderes los.'],
+        'event_tier' => ['Event-Stufe geschafft!', 'Ihr habt gemeinsam eine Event-Stufe erreicht.'],
     ];
 
     /** @param  User|iterable<User>  $users */

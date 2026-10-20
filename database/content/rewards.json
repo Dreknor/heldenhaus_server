@@ -1,0 +1,383 @@
+[
+    {
+        "key": "story_extra",
+        "title": "Eine Geschichte mehr",
+        "icon": "📖",
+        "star_cost": 3,
+        "requires_approval": false,
+        "ages": [
+            "child"
+        ],
+        "starter": true
+    },
+    {
+        "key": "dessert_extra",
+        "title": "Nachtisch extra",
+        "icon": "🍮",
+        "star_cost": 4,
+        "limit_per_week": 3,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen"
+        ],
+        "starter": false
+    },
+    {
+        "key": "car_music",
+        "title": "Musik im Auto aussuchen",
+        "icon": "🎶",
+        "star_cost": 3,
+        "requires_approval": false,
+        "ages": [
+            "child",
+            "teen",
+            "adult"
+        ],
+        "starter": true
+    },
+    {
+        "key": "screen_time_30",
+        "title": "30 Minuten Bildschirmzeit extra",
+        "icon": "📺",
+        "star_cost": 5,
+        "limit_per_week": 3,
+        "requires_approval": true,
+        "ha_action_key": "screen_time_30",
+        "ages": [
+            "child",
+            "teen"
+        ],
+        "starter": true
+    },
+    {
+        "key": "stay_up_15",
+        "title": "15 Minuten länger aufbleiben",
+        "icon": "🌙",
+        "star_cost": 5,
+        "limit_per_week": 2,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen"
+        ],
+        "starter": true
+    },
+    {
+        "key": "choose_dinner",
+        "title": "Abendessen aussuchen",
+        "icon": "🍝",
+        "star_cost": 8,
+        "limit_per_week": 1,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen",
+            "adult"
+        ],
+        "starter": true
+    },
+    {
+        "key": "swap_chore",
+        "title": "Eine Pflichtaufgabe tauschen",
+        "icon": "🔄",
+        "star_cost": 8,
+        "limit_per_week": 1,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen"
+        ],
+        "starter": true
+    },
+    {
+        "key": "no_dishes",
+        "title": "Einen Abend spülfrei",
+        "icon": "🍽️",
+        "star_cost": 8,
+        "limit_per_week": 1,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen",
+            "adult"
+        ],
+        "starter": false
+    },
+    {
+        "key": "video_game_parents",
+        "title": "Eine Runde Videospiel mit den Eltern",
+        "icon": "🎮",
+        "star_cost": 8,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen"
+        ],
+        "starter": false
+    },
+    {
+        "key": "board_game_night",
+        "title": "Spieleabend mit dem Lieblingsspiel",
+        "icon": "🎲",
+        "star_cost": 10,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen",
+            "adult"
+        ],
+        "starter": false
+    },
+    {
+        "key": "pocket_money_1",
+        "title": "1 € extra Taschengeld",
+        "icon": "💶",
+        "star_cost": 10,
+        "limit_per_week": 2,
+        "requires_approval": true,
+        "allowance_cents": 100,
+        "ages": [
+            "child",
+            "teen"
+        ],
+        "starter": false
+    },
+    {
+        "key": "sleep_in",
+        "title": "Ausschlafen ohne Wecken",
+        "icon": "😴",
+        "star_cost": 10,
+        "limit_per_week": 1,
+        "requires_approval": true,
+        "ages": [
+            "teen",
+            "adult"
+        ],
+        "starter": false
+    },
+    {
+        "key": "quiet_hour",
+        "title": "Eine Stunde Ruhe für mich",
+        "icon": "☕",
+        "star_cost": 10,
+        "limit_per_week": 2,
+        "requires_approval": true,
+        "ages": [
+            "adult"
+        ],
+        "starter": false
+    },
+    {
+        "key": "breakfast_in_bed",
+        "title": "Frühstück im Bett",
+        "icon": "🥐",
+        "star_cost": 12,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen",
+            "adult"
+        ],
+        "starter": false
+    },
+    {
+        "key": "bake_together",
+        "title": "Zusammen backen",
+        "icon": "🧁",
+        "star_cost": 12,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen"
+        ],
+        "starter": false
+    },
+    {
+        "key": "playground_trip",
+        "title": "Ausflug zum Lieblingsspielplatz",
+        "icon": "🛝",
+        "star_cost": 12,
+        "requires_approval": true,
+        "ages": [
+            "child"
+        ],
+        "starter": false
+    },
+    {
+        "key": "movie_night",
+        "title": "Filmabend: Film aussuchen",
+        "icon": "🍿",
+        "star_cost": 15,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen",
+            "adult"
+        ],
+        "starter": true
+    },
+    {
+        "key": "one_on_one",
+        "title": "Eine Stunde nur mit einem Elternteil",
+        "icon": "💛",
+        "star_cost": 15,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen"
+        ],
+        "starter": false
+    },
+    {
+        "key": "friends_visit",
+        "title": "Besuch von Freunden",
+        "icon": "🧑‍🤝‍🧑",
+        "star_cost": 15,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen"
+        ],
+        "starter": false
+    },
+    {
+        "key": "later_home",
+        "title": "30 Minuten später nach Hause",
+        "icon": "🕘",
+        "star_cost": 15,
+        "limit_per_week": 1,
+        "requires_approval": true,
+        "ages": [
+            "teen"
+        ],
+        "starter": false
+    },
+    {
+        "key": "pizza_night",
+        "title": "Pizza-Abend",
+        "icon": "🍕",
+        "star_cost": 18,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen",
+            "adult"
+        ],
+        "starter": false
+    },
+    {
+        "key": "ice_cream",
+        "title": "Eis essen gehen",
+        "icon": "🍦",
+        "star_cost": 20,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen",
+            "adult"
+        ],
+        "starter": true
+    },
+    {
+        "key": "pyjama_day",
+        "title": "Schlafanzugtag am Wochenende",
+        "icon": "🛌",
+        "star_cost": 20,
+        "limit_per_week": 1,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen",
+            "adult"
+        ],
+        "starter": false
+    },
+    {
+        "key": "swimming",
+        "title": "Schwimmbad-Besuch",
+        "icon": "🏊",
+        "star_cost": 25,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen"
+        ],
+        "starter": false
+    },
+    {
+        "key": "new_book",
+        "title": "Ein neues Buch",
+        "icon": "📚",
+        "star_cost": 30,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen",
+            "adult"
+        ],
+        "starter": false
+    },
+    {
+        "key": "weekend_trip",
+        "title": "Wochenendausflug aussuchen",
+        "icon": "🗺️",
+        "star_cost": 30,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen",
+            "adult"
+        ],
+        "starter": false
+    },
+    {
+        "key": "cinema",
+        "title": "Kinobesuch",
+        "icon": "🎬",
+        "star_cost": 35,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen"
+        ],
+        "starter": false
+    },
+    {
+        "key": "sleepover",
+        "title": "Übernachtungsparty",
+        "icon": "⛺",
+        "star_cost": 40,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen"
+        ],
+        "starter": false
+    },
+    {
+        "key": "small_surprise",
+        "title": "Kleines Überraschungsgeschenk",
+        "icon": "🎁",
+        "star_cost": 40,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen"
+        ],
+        "starter": false
+    },
+    {
+        "key": "day_off_chores",
+        "title": "Einen Tag ohne Pflichtaufgaben",
+        "icon": "🏖️",
+        "star_cost": 50,
+        "requires_approval": true,
+        "ages": [
+            "child",
+            "teen",
+            "adult"
+        ],
+        "starter": false
+    }
+]

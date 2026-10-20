@@ -2,6 +2,7 @@
 
 namespace App\Http\Presenters;
 
+use App\Domain\Art\PetArt;
 use App\Domain\Gameplay\RunDayCron;
 use App\Domain\Support\FocusService;
 use App\Domain\Support\SupportService;
@@ -53,7 +54,8 @@ class HeroBoard
             'quests' => CharacterSheet::quests($user),
             // Begleiter in der Szene: bevorzugt ein Reittier, sonst das neueste Haustier
             'companion' => ($pet = UserPet::with('egg', 'potion')->where('user_id', $user->id)->orderByDesc('is_mount')->latest('id')->first())
-                ? ['egg_key' => $pet->egg->key, 'potion_key' => $pet->potion->key, 'is_mount' => $pet->is_mount, 'name' => $pet->name]
+                ? ['egg_key' => $pet->egg->key, 'potion_key' => $pet->potion->key, 'is_mount' => $pet->is_mount, 'name' => $pet->name,
+                    'art_url' => PetArt::url($pet->egg->key), 'palette' => PetArt::palette($pet->potion)]
                 : null,
             'recentPending' => $user->completions()->where('status', CompletionStatus::Pending)->count(),
             // Fokus & Alltagshilfen

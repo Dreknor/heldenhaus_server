@@ -3,6 +3,7 @@
 namespace App\Domain\Housing;
 
 use App\Domain\Crafting\StorageService;
+use App\Domain\Features\Features;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Inventory\Stock;
 use App\Enums\AgeGroup;
@@ -167,6 +168,10 @@ class HomeService
             }
 
             $room->increment('version');
+
+            if ($room->owner_user_id === $user->id) {
+                Features::starterDone($user, 'home');
+            }
 
             return $room->refresh();
         });

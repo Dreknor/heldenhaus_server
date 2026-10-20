@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Domain\Achievements\AchievementService;
+use App\Domain\Art\SceneBackgrounds;
+use App\Domain\Events\EventService;
+use App\Domain\Events\FunEventService;
+use App\Domain\Features\Features;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\RunDayCron;
 use App\Domain\Gameplay\ScoreTask;
@@ -34,6 +38,11 @@ class GameController extends Controller
             'stats' => GamePresenter::stats($user->stats()->first()),
             'appearance' => CharacterSheet::appearance($user),
             'achievements_new' => AchievementService::unseen($user),
+            // Laufende Events (Deko, Modifikatoren offline), offene Zufallsereignisse und Freischaltungen
+            'events' => EventService::summary($user),
+            'fun_events' => app(FunEventService::class)->visible($user),
+            'features' => Features::summary($user),
+            'scene_background' => SceneBackgrounds::forToday($user->id),
             'server_time' => now()->toIso8601String(),
         ]);
     }
@@ -106,6 +115,8 @@ class GameController extends Controller
         return response()->json([
             'results' => $results,
             'stats' => GamePresenter::stats($request->user()->stats()->first()),
+            'events' => EventService::summary($request->user()),
+            'features' => Features::summary($request->user()),
         ]);
     }
 

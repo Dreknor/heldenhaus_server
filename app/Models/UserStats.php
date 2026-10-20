@@ -13,7 +13,7 @@ class UserStats extends Model
 
     protected $fillable = [
         'user_id', 'hp', 'mp', 'xp', 'gold', 'stars', 'level', 'class_key', 'class_changed_at',
-        'str', 'int', 'con', 'per', 'unspent_points', 'streak_shields', 'sleeping', 'last_cron_on',
+        'str', 'int', 'con', 'per', 'unspent_points', 'streak_shields', 'sleeping', 'sleeping_since', 'last_cron_on',
         'surprise_pity', 'surprises_today', 'surprises_on', 'torches', 'torches_today', 'torches_on',
     ];
 
@@ -33,6 +33,7 @@ class UserStats extends Model
             'unspent_points' => 'integer',
             'streak_shields' => 'integer',
             'sleeping' => 'boolean',
+            'sleeping_since' => 'datetime',
             'last_cron_on' => 'date',
             'torches' => 'integer',
             'torches_today' => 'integer',

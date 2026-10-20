@@ -2,6 +2,7 @@
 
 namespace App\Domain\Crafting;
 
+use App\Domain\Events\EventEngine;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Inventory\Stock;
 use App\Domain\Notifications\PushNotifier;
@@ -189,6 +190,9 @@ class TradeService
         $this->refund($trade->accepted_by, $trade->offer);  // Angebot geht an die annehmende Person …
         $this->refund($trade->user_id, $trade->want);       // … und das Gewünschte an die anbietende
         $trade->update(['status' => 'done', 'completed_at' => now()]);
+        // Teilen mit Bündnis-Familien zählt beim Laternenfest (§12.4)
+        app(EventEngine::class)->gift($trade->user()->first());
+        app(EventEngine::class)->gift($trade->acceptor()->first());
 
         $trade->loadMissing('user', 'acceptor');
         $this->feed->post($trade->family_id, $trade->user, 'trade', '🤝', "{$trade->user->name} hat mit {$trade->acceptor->name} getauscht.");

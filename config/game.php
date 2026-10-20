@@ -127,4 +127,47 @@ return [
         'creative' => 'Kreativ',
         'others' => 'Für andere',
     ],
+
+    /*
+     * Darstellungs-Themes (Phase 8). „ages“: für welche Altersgruppen das Theme angeboten wird.
+     * Teens wählen ihr Theme selbst; Eltern stellen es nur für Kinder unter 13 ein.
+     */
+    'themes' => [
+        'classic' => ['name' => 'Heldenhaus', 'dark' => false, 'ages' => ['child', 'teen', 'adult']],
+        'candy' => ['name' => 'Zuckerwatte', 'dark' => false, 'ages' => ['child', 'teen', 'adult']],
+        'forest' => ['name' => 'Zauberwald', 'dark' => false, 'ages' => ['child', 'teen', 'adult']],
+        'ocean' => ['name' => 'Meeresgrund', 'dark' => false, 'ages' => ['child', 'teen', 'adult']],
+        'midnight' => ['name' => 'Mitternacht', 'dark' => true, 'ages' => ['teen', 'adult']],
+        'neon' => ['name' => 'Neon-Arcade', 'dark' => true, 'ages' => ['teen', 'adult']],
+        'minimal' => ['name' => 'Schlicht', 'dark' => false, 'ages' => ['teen', 'adult']],
+        'retro' => ['name' => 'Retro-Pixel', 'dark' => true, 'ages' => ['teen', 'adult']],
+        'graphite' => ['name' => 'Graphit', 'dark' => true, 'ages' => ['teen', 'adult']],
+    ],
+    'default_theme' => ['child' => 'classic', 'teen' => 'midnight', 'adult' => 'classic'],
+
+    // Events (§12) und Zufallsereignisse (§12.5)
+    'events' => [
+        'plan_days' => 60,           // Kalender-Events so weit im Voraus planen
+        'upcoming_days' => 7,        // „Demnächst“-Vorschau
+        'drop_chance' => 0.3,        // Chance auf einen Event-Fund je Aufgabe
+        'drop_daily_limit' => 3,
+        'comeback_pause_days' => 5,  // „Willkommen zurück“ nach so vielen Tagen ohne Aktivität
+        'comeback_inn_days' => 3,    // … oder nach so vielen Tagen im Gasthaus
+        'gift_points_daily' => 3,    // Laternenfest: Geschenke mit Event-Punkten pro Tag
+        'openholidays_url' => env('OPENHOLIDAYS_URL', 'https://openholidaysapi.org'),
+        'open_meteo_url' => env('OPEN_METEO_URL', 'https://api.open-meteo.com/v1/forecast'),
+    ],
+
+    'fun_events' => [
+        'enabled' => env('FUN_EVENTS', true),
+        'per_user_daily' => 2,
+        'per_family_daily' => 4,
+        'reward_daily_limit' => 3,   // so oft am Tag gibt es eine winzige Belohnung
+        'echo_minutes' => 10,
+    ],
+
+    // Freischaltung von Funktionen nach Level (§13)
+    'features' => [
+        'enforce' => env('FEATURE_UNLOCKS', true),
+    ],
 ];

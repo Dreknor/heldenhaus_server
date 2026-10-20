@@ -4,11 +4,14 @@ namespace App\Domain\Housing;
 
 use App\Domain\Crafting\Catalog;
 use App\Domain\Crafting\StorageService;
+use App\Domain\Events\EventEngine;
+use App\Domain\Features\Features;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
 use App\Domain\Inventory\Stock;
 use App\Domain\Notifications\PushNotifier;
 use App\Domain\Social\FeedService;
+use App\Events\BuildProjectCompleted;
 use App\Models\BuildContribution;
 use App\Models\BuildProject;
 use App\Models\Home;
@@ -30,6 +33,15 @@ class BuildService
     {
         $e = $project['effects'];
 
+        // Projekte ohne Raum/Stufe/Station (Gewächshaus, Schneemann) gelten als gebaut, sobald eins fertig ist –
+        // Event-Projekte nur innerhalb des laufenden Events
+        if (! isset($e['room']) && ! isset($e['stage']) && empty($e['stations'])) {
+            $event = isset($project['event_key']) ? EventEngine::find($home->family_id, $project['event_key']) : null;
+
+            return BuildProject::where('family_id', $home->family_id)->where('project_key', $project['key'])->where('status', 'done')
+                ->when($event, fn ($q) => $q->where('completed_at', '>=', $event->starts_at))->exists();
+        }
+
         return (! isset($e['room']) || HomeService::hasRoom($home, $e['room']))
             && (! isset($e['stage']) || $home->stageAtLeast($e['stage']))
             && collect($e['stations'] ?? [])->every(fn ($level, $station) => $home->station($station) >= $level);
@@ -38,6 +50,10 @@ class BuildService
     public static function requirementsMet(Home $home, array $project): bool
     {
         $r = $project['requires'] ?? [];
+        // Event-Bauprojekte (Erntescheune, Schneemann) gibt es nur, solange ihr Event läuft
+        if (isset($project['event_key']) && ! EventEngine::isRunning($home->family_id, $project['event_key'])) {
+            return false;
+        }
 
         return (! isset($r['stage']) || $home->stageAtLeast($r['stage']))
             && collect($r['rooms'] ?? [])->every(fn ($room) => HomeService::hasRoom($home, $room))
@@ -56,7 +72,9 @@ class BuildService
             throw new GameException('Das habt ihr schon gebaut.');
         }
         if (! self::requirementsMet($home, $project)) {
-            throw new GameException('Dafür fehlt noch ein anderes Bauprojekt.');
+            throw new GameException(isset($project['event_key']) && ! EventEngine::isRunning($home->family_id, $project['event_key'])
+                ? 'Dieses Bauprojekt gibt es nur während seines Events.'
+                : 'Dafür fehlt noch ein anderes Bauprojekt.');
         }
 
         return DB::transaction(function () use ($parent, $project, $rewardText) {
@@ -147,6 +165,8 @@ class BuildService
             }
             $build->save();
 
+            Features::starterDone($user, 'building');
+
             return $build;
         });
     }
@@ -191,6 +211,7 @@ class BuildService
                     ['project_key' => $build->project_key]);
             });
             $this->push->notify(User::where('family_id', $build->family_id)->get(), 'build_done');
+            event(new BuildProjectCompleted($build->refresh(), Catalog::project($build->project_key)));
             $count++;
         });
 
@@ -209,6 +230,9 @@ class BuildService
             [$w, $h] = config("game.housing.room_size.{$e['stage']}");
             // Gemeinschaftsräume wachsen mit; eigene Zimmer behalten ihre Größe
             $home->rooms()->where('type', '!=', 'bedroom')->where('width', '<', $w)->update(['width' => $w, 'height' => $h]);
+        }
+        if (! empty($e['garden_slots'])) {
+            $home->garden_bonus_slots += (int) $e['garden_slots'];
         }
         if (! empty($e['stations'])) {
             $stations = $home->stations ?? [];

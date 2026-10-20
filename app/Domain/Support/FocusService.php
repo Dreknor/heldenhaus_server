@@ -2,6 +2,7 @@
 
 namespace App\Domain\Support;
 
+use App\Domain\Achievements\AchievementService;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
 use App\Domain\Integrations\HomeAssistant\HomeAssistantWebhooks;
@@ -108,6 +109,9 @@ class FocusService
             }
 
             $this->event($session->refresh(), 'focus_ended');
+            if ($result === 'done') {
+                app(AchievementService::class)->evaluate($session->user, ['focus_sessions']);
+            }
 
             return $session;
         });

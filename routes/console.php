@@ -5,6 +5,10 @@ use App\Domain\Art\SceneBackgrounds;
 use App\Domain\Classes\ClassService;
 use App\Domain\Crafting\CraftingService;
 use App\Domain\Dungeons\DungeonService;
+use App\Domain\Events\EventEngine;
+use App\Domain\Events\EventPlanner;
+use App\Domain\Events\EventTrigger;
+use App\Domain\Events\HolidaySource;
 use App\Domain\Family\FamilyService;
 use App\Domain\Family\WeeklyReport;
 use App\Domain\Gameplay\Formulas;
@@ -17,6 +21,7 @@ use App\Domain\Updater\UpdaterException;
 use App\Domain\Updater\UpdateService;
 use App\Mail\WeeklyReportMail;
 use App\Models\Family;
+use App\Models\FamilyEventSetting;
 use App\Models\Item;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -120,6 +125,39 @@ Artisan::command('heldenhaus:auto-approve', function (ReviewCompletion $review) 
 })->purpose('Offene Freigaben nach Ablauf der Frist bestätigen');
 
 /*
+ * Events (§12.6): Kalender planen, Instanzen starten/beenden, Ferien laden.
+ */
+Artisan::command('heldenhaus:events-plan', function (EventPlanner $planner) {
+    $planned = 0;
+    Family::chunkById(100, function ($families) use ($planner, &$planned) {
+        foreach ($families as $family) {
+            $planned += $planner->plan($family)['planned'];
+        }
+    });
+    $this->info("{$planned} Kalender-Events eingeplant.");
+})->purpose('Kalender-Events der nächsten 60 Tage planen und tägliche Auslöser prüfen');
+
+Artisan::command('heldenhaus:events-tick', function (EventEngine $engine) {
+    $c = $engine->tick();
+    $this->info("{$c['started']} Events gestartet, {$c['finished']} beendet, {$c['skipped']} verfallen.");
+})->purpose('Events starten, beenden und Belohnungen auszahlen');
+
+Artisan::command('heldenhaus:holidays-sync', function (HolidaySource $holidays, EventPlanner $planner) {
+    $regions = FamilyEventSetting::query()->get(['country', 'subdivision'])->map(fn ($s) => [$s->country, $s->subdivision])
+        ->push(['DE', 'DE-SN'])->unique(fn ($r) => implode('|', $r));
+    foreach ($regions as [$country, $subdivision]) {
+        $count = $holidays->sync($country, $subdivision);
+        $count < 0 ? $this->warn("{$country}/{$subdivision}: OpenHolidays nicht erreichbar, bisherige Daten bleiben.") : $this->info("{$country}/{$subdivision}: {$count} Zeiträume.");
+    }
+    Family::all()->each(fn (Family $f) => $planner->planCalendar($f, CarbonImmutable::now($f->timezone ?: 'Europe/Berlin')->startOfDay()));
+})->purpose('Feiertage und Schulferien von der OpenHolidays API laden');
+
+Artisan::command('heldenhaus:event-start {family} {event} {--member=}', function (EventTrigger $trigger) {
+    $event = $trigger->consider((int) $this->argument('family'), $this->argument('event'), ['manual' => true, 'subject_user_id' => $this->option('member') ? (int) $this->option('member') : null]);
+    $event ? $this->info("„{$event->event_key}“ ist {$event->status}.") : $this->error('Konnte nicht starten (läuft schon oder unbekannt).');
+})->purpose('Event für eine Familie von Hand starten (z. B. auf Staging)');
+
+/*
  * Spielinhalte aus database/content/*.json übernehmen. Bestehende Items bleiben unverändert
  * (Admins pflegen sie im Backend), außer mit --force.
  */
@@ -134,6 +172,10 @@ Artisan::command('game:content-sync {--force : Bestehende Items mit den Dateiwer
             $created++;
         } elseif ($this->option('force')) {
             $item->update($data);
+            $updated++;
+        } elseif ($item->stats === null && isset($data['stats'])) {
+            // Neue Werte (Farben der Schlüpfpulver, Lieblingsfutter) ergänzen, Änderungen aus dem Admin-Backend bleiben
+            $item->update(['stats' => $data['stats']]);
             $updated++;
         }
     }
@@ -240,6 +282,9 @@ Schedule::command('heldenhaus:housing-tick')->everyFiveMinutes()->withoutOverlap
 Schedule::command('heldenhaus:dungeons-close')->hourly()->withoutOverlapping();
 Schedule::command('heldenhaus:community-rhythm')->hourly()->withoutOverlapping();
 Schedule::command('heldenhaus:weekly-reports')->weeklyOn(0, '18:00')->timezone('Europe/Berlin');
+Schedule::command('heldenhaus:events-plan')->dailyAt('00:10')->timezone('Europe/Berlin')->withoutOverlapping();
+Schedule::command('heldenhaus:events-tick')->everyFifteenMinutes()->withoutOverlapping();
+Schedule::command('heldenhaus:holidays-sync')->monthlyOn(1, '04:00')->withoutOverlapping();
 Schedule::command('heldenhaus:challenges-close')->dailyAt('03:30')->withoutOverlapping();
 Schedule::command('model:prune')->daily();
 Schedule::command('queue:prune-failed --hours=168')->daily();

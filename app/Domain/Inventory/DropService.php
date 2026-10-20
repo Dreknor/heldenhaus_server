@@ -3,6 +3,7 @@
 namespace App\Domain\Inventory;
 
 use App\Domain\Gameplay\Attributes;
+use App\Models\ActiveBuff;
 use App\Models\GameSetting;
 use App\Models\Item;
 use App\Models\Task;
@@ -40,9 +41,9 @@ class DropService
     }
 
     /** @return Collection<int, Item> mögliche Funde für Kategorie und Level */
-    public static function pool(?string $category, int $level): Collection
+    public static function pool(?string $category, int $level, ?int $familyId = null): Collection
     {
-        return Item::droppable($level)->get()->filter(fn (Item $i) => $i->dropsFor($category))->values();
+        return Item::droppable($level, $familyId)->get()->filter(fn (Item $i) => $i->dropsFor($category))->values();
     }
 
     public function roll(TaskCompletion $completion, Task $task, UserStats $stats): ?Item
@@ -58,11 +59,13 @@ class DropService
             return null;
         }
 
-        if ($this->random->nextFloat() >= self::chanceFor($task->difficulty, Attributes::for($stats)['per'], $settings)) {
+        // Glückselixier: höhere Fundchance, solange es wirkt
+        $luck = (float) ActiveBuff::current()->where('user_id', $stats->user_id)->where('key', 'elixir_luck')->max('value');
+        if ($this->random->nextFloat() >= min(0.95, self::chanceFor($task->difficulty, Attributes::for($stats)['per'], $settings) * (1 + $luck))) {
             return null;
         }
 
-        $item = $this->pickWeighted(self::pool($task->category, $stats->level));
+        $item = $this->pickWeighted(self::pool($task->category, $stats->level, $task->family_id ?? $stats->user?->family_id));
         if ($item === null) {
             return null;
         }

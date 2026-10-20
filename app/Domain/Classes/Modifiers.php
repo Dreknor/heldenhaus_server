@@ -101,6 +101,55 @@ final class Modifiers
         };
     }
 
+    /** Elixier-Buffs (Tränke mit Laufzeit): +X % EP, Gold oder Boss-Schaden. */
+    public static function elixir(ActiveBuff $buff): Modifier
+    {
+        return new class($buff) extends Modifier
+        {
+            public function __construct(private readonly ActiveBuff $buff) {}
+
+            public function onScore(ScoreContext $c): void
+            {
+                match ($this->buff->key) {
+                    'elixir_xp' => $c->xpMultiplier *= 1 + $this->buff->value,
+                    'elixir_gold' => $c->goldMultiplier *= 1 + $this->buff->value,
+                    'elixir_boss' => $c->bossMultiplier *= 1 + $this->buff->value,
+                    default => null,
+                };
+                $c->effects[] = $this->buff->key;
+            }
+        };
+    }
+
+    /**
+     * Event-Boni (§12.2): category_bonus (+X % XP/Gold in einer Kategorie), all_bonus (für alle Aufgaben),
+     * parent_bonus (Rollentausch: Bonus-XP für Eltern). Andere Event-Effekte wirken an ihrer eigenen Stelle.
+     */
+    public static function event(string $eventKey, array $modifier): Modifier
+    {
+        return new class($eventKey, $modifier) extends Modifier
+        {
+            public function __construct(private readonly string $eventKey, private readonly array $m) {}
+
+            public function onScore(ScoreContext $c): void
+            {
+                $applies = match ($this->m['type']) {
+                    'category_bonus' => $c->task->category === ($this->m['category'] ?? null),
+                    'all_bonus' => true,
+                    'parent_bonus' => $c->user->isParent(),
+                    default => false,
+                };
+                if (! $applies) {
+                    return;
+                }
+
+                $c->xpMultiplier *= 1 + (float) ($this->m['xp'] ?? 0);
+                $c->goldMultiplier *= 1 + (float) ($this->m['gold'] ?? 0);
+                $c->effects[] = "event:{$this->eventKey}";
+            }
+        };
+    }
+
     /** Familien-Buff (Barde „Anfeuern“): +X % Boss-Schaden. */
     public static function bossBuff(ActiveBuff $buff): Modifier
     {

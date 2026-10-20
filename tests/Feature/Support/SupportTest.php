@@ -310,14 +310,14 @@ it('Fokus-Zeit: starten, verlängern, gemeinsam schaffen gibt beiden einen Bonus
     $this->postJson("/api/v1/focus-sessions/{$session['id']}/extend", ['minutes' => 5])->assertOk()->assertJsonPath('planned_minutes', 20);
     $this->postJson("/api/v1/focus-sessions/{$session['id']}/invite", ['member_id' => $this->parent->id])->assertOk()->assertJsonPath('shared', true);
 
-    $goldBefore = (float) $this->child->stats()->first()->gold;
+    $goldBefore = goldWithoutAchievements($this->child);
     $this->postJson("/api/v1/focus-sessions/{$session['id']}/finish")->assertOk()->assertJsonPath('bonus_gold', 0);
 
     Sanctum::actingAs($this->parent, ['app']);
     $partner = FocusSession::where('user_id', $this->parent->id)->first();
     $this->postJson("/api/v1/focus-sessions/{$partner->id}/finish")->assertOk()->assertJsonPath('bonus_gold', 3);
 
-    expect((float) $this->child->stats()->first()->gold)->toBe($goldBefore + 3)
+    expect(goldWithoutAchievements($this->child))->toBe($goldBefore + 3)
         ->and(FocusSession::where('user_id', $this->child->id)->first()->bonus_gold)->toBe(3.0);
 
     // Abbrechen hat keine Folgen, fremde Fokus-Zeiten sind tabu

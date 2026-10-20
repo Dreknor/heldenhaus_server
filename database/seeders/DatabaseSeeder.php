@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Domain\Family\FamilyService;
 use App\Domain\Inventory\InventoryService;
+use App\Domain\Rewards\RewardTemplates;
 use App\Domain\Tasks\TaskService;
 use App\Models\Item;
 use App\Models\User;
@@ -71,13 +72,8 @@ class DatabaseSeeder extends Seeder
             'assignment_mode' => 'pool', 'approval_mode' => 'required', 'star_reward' => 5,
         ]);
 
-        // Belohnungsshop
-        $family->rewardItems()->createMany([
-            ['title' => '30 Minuten Konsole', 'star_cost' => 5, 'limit_per_week' => 3, 'ha_action_key' => 'screen_time_30'],
-            ['title' => 'Kino-Abend: Film aussuchen', 'star_cost' => 15],
-            ['title' => 'Einmal Spülen aussetzen', 'star_cost' => 8, 'limit_per_week' => 1],
-            ['title' => 'Eis essen gehen', 'star_cost' => 20],
-        ]);
+        // Belohnungsshop: Start-Belohnungen kommen mit der Familie, dazu ein paar weitere Vorlagen
+        RewardTemplates::adopt($family, ['no_dishes', 'board_game_night', 'pizza_night', 'sleepover', 'pocket_money_1']);
 
         $this->demoInventory($lea, $ben);
     }

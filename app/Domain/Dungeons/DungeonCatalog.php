@@ -2,6 +2,9 @@
 
 namespace App\Domain\Dungeons;
 
+use App\Domain\Events\EventEngine;
+use App\Domain\Quests\QuestService;
+
 /** Monster, Themen, Bausteine und Händlerware aus database/content/dungeons.json (Konzept §2.7). */
 class DungeonCatalog
 {
@@ -17,9 +20,35 @@ class DungeonCatalog
         return collect(self::all()['monsters'])->firstWhere('key', $key) ?? ['key' => $key, 'name' => $key, 'icon' => '👾', 'hp' => 20, 'attack' => 5, 'defense' => 1];
     }
 
+    /** Baukasten-Grafik eines Monsters; Endbosse, die Quest-Bosse sind, nutzen deren Grafik. */
+    public static function monsterArt(string $key): ?array
+    {
+        $monster = collect(self::all()['monsters'])->firstWhere('key', $key);
+        if ($monster === null) {
+            return QuestService::catalog()[$key]['art'] ?? null;
+        }
+
+        return $monster['art'] ?? null;
+    }
+
     public static function themes(): array
     {
         return collect(self::all()['themes'])->keyBy('key')->all();
+    }
+
+    /**
+     * Themen für einen neuen Dungeon: Event-Themen (Kürbis-Gruft, Eispalast …) nur, solange ihr Event
+     * in der Familie läuft – und dann bevorzugt (§12.2).
+     *
+     * @return list<string>
+     */
+    public static function themeKeysFor(?int $familyId): array
+    {
+        $active = EventEngine::activeKeys($familyId);
+        $themes = collect(self::all()['themes']);
+        $seasonal = $themes->filter(fn ($t) => isset($t['event_key']) && in_array($t['event_key'], $active, true))->pluck('key')->all();
+
+        return $seasonal ?: $themes->reject(fn ($t) => isset($t['event_key']))->pluck('key')->values()->all();
     }
 
     public static function theme(string $key): array

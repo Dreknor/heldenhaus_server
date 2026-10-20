@@ -7,6 +7,8 @@ Heldenhaus verwendet nur Grafiken mit freier Lizenz (Konzept §2.8). Die maschin
 |---|---|---|---|---|
 | Heldenfiguren (LPC) | Liberated Pixel Cup und Mitwirkende, siehe unten | [OGA-BY 3.0](https://static.opengameart.org/OGA-BY-3.0.txt), [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)/[4.0](https://creativecommons.org/licenses/by/4.0/), [CC0](https://creativecommons.org/publicdomain/zero/1.0/) | [Universal LPC Spritesheet Character Generator](https://github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator) | `public/avatar/lpc/*.png`, `resources/avatars/lpc*.json` |
 | Szenen-Grafiken Fluent Emoji (3D) | Microsoft Corporation | [MIT](https://github.com/microsoft/fluentui-emoji/blob/main/LICENSE) | [GitHub](https://github.com/microsoft/fluentui-emoji) | `public/images/scene/*.webp` |
+| Haustiere Fluent Emoji (3D) | Microsoft Corporation | [MIT](https://github.com/microsoft/fluentui-emoji/blob/main/LICENSE) | [GitHub](https://github.com/microsoft/fluentui-emoji) | `public/images/pets/*.webp` |
+| Dungeon-Bausteine *Isometric Miniature Dungeon* | [Kenney](https://kenney.nl) | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | [kenney.nl](https://kenney.nl/assets/isometric-miniature-dungeon) | `public/dungeon/` |
 
 Optional können auf dem eigenen Server gemalte Szenen-Hintergründe importiert werden (z. B. *Fantasy Forest Backgrounds* von
 [Lornn](https://lornn.itch.io/fantasy-forest-backgrounds), siehe `docs/deployment.md`). Sie sind nicht Teil des Repositorys und
@@ -99,4 +101,4 @@ nach ihrem Teil (z. B. `hair_bob-…png`); welche Quelle dazugehört, steht in d
 
 ## Fluent Emoji
 
-MIT License, Copyright (c) Microsoft Corporation. Die Bilder wurden von PNG nach WebP umgewandelt.
+MIT License, Copyright (c) Microsoft Corporation. Die Bilder wurden von PNG nach WebP umgewandelt, die Haustiere zusätzlich auf 256 Pixel verkleinert (`tools/pets/build_pets.py`).

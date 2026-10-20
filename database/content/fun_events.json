@@ -1,0 +1,483 @@
+[
+    {
+        "key": "magpie",
+        "name": "Diebische Elster",
+        "icon": "🐦",
+        "scope": "user",
+        "contexts": [
+            "score"
+        ],
+        "chance": 0.05,
+        "cooldown_hours": 48,
+        "calm": false,
+        "default_enabled": true,
+        "first_wins": false,
+        "minutes": 3,
+        "reward": {
+            "gold": 3
+        },
+        "action": "tap",
+        "text": {
+            "child": "Eine Elster hat sich eine Münze geschnappt! Tipp sie an, dann gibt sie dir drei zurück.",
+            "teen": "Eine Elster klaut dir eine Münze. Erwischst du sie, gibt's drei zurück.",
+            "adult": "Eine Elster hat eine Münze stibitzt. Antippen gibt drei zurück."
+        }
+    },
+    {
+        "key": "runaway_chicken",
+        "name": "Ausgebüxtes Huhn",
+        "icon": "🐔",
+        "scope": "family",
+        "contexts": [
+            "score",
+            "home"
+        ],
+        "hours": [
+            8,
+            19
+        ],
+        "chance": 0.04,
+        "cooldown_hours": 72,
+        "calm": false,
+        "default_enabled": true,
+        "first_wins": true,
+        "minutes": 120,
+        "reward": {
+            "items": {
+                "food_fresh_egg": 1
+            }
+        },
+        "feed": "{name} hat das Huhn eingefangen! 🐔",
+        "action": "tap",
+        "text": {
+            "child": "Ein Huhn rennt durchs Familienhaus! Wer es zuerst antippt, bekommt ein Ei.",
+            "teen": "Ein Huhn ist ausgebüxt. Wer zuerst fängt, kriegt das Ei.",
+            "adult": "Ein Huhn läuft durchs Haus. Wer es zuerst fängt, bekommt ein Ei."
+        }
+    },
+    {
+        "key": "rainbow",
+        "name": "Regenbogen",
+        "icon": "🌈",
+        "scope": "user",
+        "contexts": [
+            "score",
+            "ha_rain"
+        ],
+        "hours": [
+            14,
+            19
+        ],
+        "chance": 0.04,
+        "cooldown_hours": 96,
+        "calm": true,
+        "default_enabled": true,
+        "first_wins": false,
+        "minutes": 60,
+        "reward": {
+            "sticker": "🌈"
+        },
+        "action": "save_sticker",
+        "text": {
+            "child": "Ein Regenbogen über deinem Helden! Willst du ihn als Sticker ins Gästebuch kleben?",
+            "teen": "Regenbogen über der Szene. Als Sticker fürs Gästebuch speichern?",
+            "adult": "Ein Regenbogen. Als Sticker ins Gästebuch?"
+        }
+    },
+    {
+        "key": "hiccup",
+        "name": "Schluckauf",
+        "icon": "🐾",
+        "scope": "user",
+        "contexts": [
+            "stable"
+        ],
+        "chance": 0.15,
+        "cooldown_hours": 72,
+        "calm": false,
+        "default_enabled": true,
+        "first_wins": false,
+        "minutes": 30,
+        "requires": "pet",
+        "reward": {
+            "gold": 1
+        },
+        "action": "pet",
+        "taps": 3,
+        "text": {
+            "child": "Hicks! {pet} hat Schluckauf. Dreimal streicheln hilft!",
+            "teen": "{pet} hat Schluckauf. Dreimal streicheln.",
+            "adult": "{pet} hat Schluckauf – dreimal streicheln hilft."
+        }
+    },
+    {
+        "key": "house_ghost",
+        "name": "Kleiner Hausgeist",
+        "icon": "👻",
+        "scope": "user",
+        "contexts": [
+            "home",
+            "score"
+        ],
+        "hours": [
+            18,
+            22
+        ],
+        "chance": 0.05,
+        "cooldown_hours": 96,
+        "calm": false,
+        "default_enabled": true,
+        "first_wins": false,
+        "minutes": 2,
+        "reward": null,
+        "action": "none",
+        "text": {
+            "child": "Huch! Ein kleiner, freundlicher Geist blinzelt hinter dem Schrank hervor – und kichert.",
+            "teen": "Hinter dem Schrank blinzelt kurz ein Geist hervor. Dann ist er weg.",
+            "adult": "Ein kleiner Hausgeist schaut kurz vorbei."
+        }
+    },
+    {
+        "key": "shooting_star",
+        "name": "Sternschnuppe",
+        "icon": "🌠",
+        "scope": "user",
+        "contexts": [
+            "last_task"
+        ],
+        "hours": [
+            17,
+            21
+        ],
+        "chance": 0.25,
+        "cooldown_hours": 72,
+        "calm": false,
+        "default_enabled": true,
+        "first_wins": false,
+        "minutes": 10,
+        "reward": null,
+        "action": "wish",
+        "wishes": [
+            "Ein Tag ohne Regen",
+            "Pfannkuchen zum Frühstück",
+            "Ein Drache als Haustier",
+            "Dass morgen alle gut gelaunt sind",
+            "Eine Kissenschlacht",
+            "Einmal fliegen können"
+        ],
+        "text": {
+            "child": "Eine Sternschnuppe! Du darfst dir etwas wünschen.",
+            "teen": "Sternschnuppe. Wünsch dir was.",
+            "adult": "Eine Sternschnuppe – such dir einen Wunsch aus."
+        }
+    },
+    {
+        "key": "monster_post",
+        "name": "Post vom Monster",
+        "icon": "📮",
+        "scope": "family",
+        "contexts": [
+            "boss_defeated"
+        ],
+        "chance": 1.0,
+        "cooldown_hours": 0,
+        "calm": true,
+        "default_enabled": true,
+        "first_wins": false,
+        "delay_days": [
+            1,
+            3
+        ],
+        "minutes": 2880,
+        "reward": {
+            "postcard": true
+        },
+        "action": "save_postcard",
+        "postcards": [
+            "Grüße aus dem Staubsauger-Spa! Hier ist es herrlich ruhig. Euer {boss}",
+            "Ich mache jetzt Urlaub am Meer. Ihr habt mich ganz schön geschafft! Euer {boss}",
+            "Liebe Familie, ich übe jetzt Yoga statt Unordnung. Viele Grüße, {boss}",
+            "Wetter gut, Essen gut, nur ihr fehlt mir ein bisschen. Euer {boss}"
+        ],
+        "text": {
+            "child": "Post für euch! {boss} schickt eine Urlaubskarte.",
+            "teen": "{boss} schickt euch eine Postkarte aus dem Urlaub.",
+            "adult": "Eine Urlaubskarte von {boss} ist angekommen."
+        }
+    },
+    {
+        "key": "jelly_hour",
+        "name": "Wackelpudding-Stunde",
+        "icon": "🍮",
+        "scope": "family",
+        "contexts": [
+            "monthly_hour"
+        ],
+        "hours": [
+            15,
+            19
+        ],
+        "chance": 1.0,
+        "cooldown_hours": 0,
+        "calm": false,
+        "default_enabled": true,
+        "first_wins": false,
+        "minutes": 60,
+        "reward": null,
+        "action": "none",
+        "text": {
+            "child": "Wackelpudding-Stunde! Eine Stunde lang wackeln alle Helden bei jeder Bewegung.",
+            "teen": "Wackelpudding-Stunde: Alle Avatare wackeln.",
+            "adult": "Wackelpudding-Stunde – alle Avatare wackeln eine Stunde lang."
+        }
+    },
+    {
+        "key": "headstand",
+        "name": "Kopfstand-Minute",
+        "icon": "🙃",
+        "scope": "user",
+        "contexts": [
+            "level_up",
+            "score"
+        ],
+        "chance": 0.02,
+        "level_up_chance": 0.5,
+        "cooldown_hours": 48,
+        "calm": false,
+        "default_enabled": true,
+        "first_wins": false,
+        "minutes": 1,
+        "reward": null,
+        "action": "none",
+        "text": {
+            "child": "Vor Freude steht dein Held eine Minute auf dem Kopf!",
+            "teen": "Dein Avatar macht eine Minute Kopfstand.",
+            "adult": "Kopfstand-Minute!"
+        }
+    },
+    {
+        "key": "wind_gust",
+        "name": "Windstoß",
+        "icon": "💨",
+        "scope": "user",
+        "contexts": [
+            "score",
+            "ha_wind"
+        ],
+        "chance": 0.03,
+        "cooldown_hours": 96,
+        "calm": false,
+        "default_enabled": true,
+        "first_wins": false,
+        "minutes": 240,
+        "reward": {
+            "gold": 2
+        },
+        "action": "find",
+        "rooms": [
+            "living",
+            "bedroom",
+            "garden",
+            "workshop",
+            "stable",
+            "library"
+        ],
+        "text": {
+            "child": "Ein Windstoß hat deinen Hut weggeweht! Er liegt irgendwo im Familienhaus.",
+            "teen": "Windstoß – dein Hut ist weg. Er liegt irgendwo im Haus.",
+            "adult": "Der Wind hat den Hut weggeweht. Er liegt irgendwo im Familienhaus."
+        }
+    },
+    {
+        "key": "furniture_goblin",
+        "name": "Möbel-Kobold",
+        "icon": "🧌",
+        "scope": "family",
+        "contexts": [
+            "home",
+            "score"
+        ],
+        "chance": 0.03,
+        "cooldown_hours": 96,
+        "calm": false,
+        "default_enabled": true,
+        "first_wins": true,
+        "minutes": 480,
+        "reward": {
+            "pool": {
+                "wood": 5,
+                "nails": 4,
+                "cloth": 3,
+                "paint": 3,
+                "feather": 3,
+                "wool": 2,
+                "crystal_shard": 1
+            }
+        },
+        "feed": "{name} hat das Möbelstück zurückgestellt und etwas darunter gefunden.",
+        "action": "tap",
+        "text": {
+            "child": "Ein Kobold hat ein Möbelstück verschoben! Wer es zurückstellt, findet darunter etwas.",
+            "teen": "Ein Kobold hat Möbel verrückt. Zurückstellen lohnt sich.",
+            "adult": "Ein Möbel-Kobold war hier. Wer aufräumt, findet etwas."
+        }
+    },
+    {
+        "key": "campfire_wanderer",
+        "name": "Wanderer am Lagerfeuer",
+        "icon": "🔥",
+        "scope": "user",
+        "contexts": [
+            "campfire"
+        ],
+        "chance": 0.5,
+        "cooldown_hours": 24,
+        "calm": true,
+        "default_enabled": true,
+        "first_wins": false,
+        "minutes": 10,
+        "reward": null,
+        "action": "none",
+        "jokes": {
+            "child": [
+                "Warum können Geister so schlecht lügen? Weil man durch sie hindurchsieht!",
+                "Was ist grün und klopft an die Tür? Ein Klopfsalat!",
+                "Was sagt ein Drache zum Ritter? Schön, dass du zum Essen kommst!",
+                "Welcher Ritter ist am leisesten? Sir Psst.",
+                "Rätsel: Es hat einen Kopf und einen Fuß, aber keine Beine. Was ist es? – Ein Bett!"
+            ],
+            "teen": [
+                "Rätsel: Je mehr du wegnimmst, desto größer wird es. – Ein Loch.",
+                "Warum nehmen Skelette nie an Rennen teil? Sie haben keinen Mumm.",
+                "Rätsel: Was kann man fangen, aber nicht werfen? – Eine Erkältung.",
+                "Ich wollte einen Witz über Dungeons machen, aber der war zu tief.",
+                "Rätsel: Was gehört dir, aber andere benutzen es öfter? – Dein Name."
+            ],
+            "adult": [
+                "Rätsel: Was wird nasser, je mehr es trocknet? – Ein Handtuch.",
+                "Warum hat der Magier aufgehört? Er hatte keine Zauberlust mehr."
+            ]
+        },
+        "text": {
+            "child": "Am Lagerfeuer sitzt ein Wanderer und erzählt:",
+            "teen": "Ein Wanderer am Feuer erzählt:",
+            "adult": "Ein Wanderer am Feuer erzählt:"
+        }
+    },
+    {
+        "key": "family_echo",
+        "name": "Familien-Echo",
+        "icon": "🙌",
+        "scope": "user",
+        "contexts": [
+            "echo"
+        ],
+        "chance": 0.5,
+        "cooldown_hours": 12,
+        "calm": false,
+        "default_enabled": true,
+        "first_wins": false,
+        "minutes": 30,
+        "reward": null,
+        "action": "high_five",
+        "text": {
+            "child": "{partner} war auch gerade fleißig! Abklatschen?",
+            "teen": "{partner} war gerade auch dran. High five?",
+            "adult": "{partner} hat auch gerade etwas geschafft. Abklatschen?"
+        }
+    },
+    {
+        "key": "fortune_cookie",
+        "name": "Glückskeks",
+        "icon": "🥠",
+        "scope": "user",
+        "contexts": [
+            "first_task"
+        ],
+        "chance": 0.3,
+        "cooldown_hours": 48,
+        "calm": true,
+        "default_enabled": true,
+        "first_wins": false,
+        "minutes": 720,
+        "reward": null,
+        "action": "none",
+        "fortunes": {
+            "child": [
+                "Heute findest du etwas, das du verloren glaubtest.",
+                "Ein Lächeln von dir macht heute jemanden froh.",
+                "Wusstest du? Oktopusse haben drei Herzen.",
+                "Wusstest du? Eine Schnecke kann drei Jahre schlafen.",
+                "Mutige Helden fangen klein an.",
+                "Wusstest du? Kühe haben beste Freundinnen."
+            ],
+            "teen": [
+                "Der beste Zeitpunkt anzufangen war gestern. Der zweitbeste ist jetzt.",
+                "Wusstest du? Honig wird nie schlecht.",
+                "Kleine Schritte sind auch Schritte.",
+                "Wusstest du? Ein Tag auf der Venus dauert länger als ein Jahr dort.",
+                "Heute wird besser als du denkst."
+            ],
+            "adult": [
+                "Was du heute erledigst, musst du morgen nicht mehr tun.",
+                "Wusstest du? Bananen sind botanisch Beeren, Erdbeeren nicht.",
+                "Ruhe ist auch eine Leistung."
+            ]
+        },
+        "text": {
+            "child": "Ein Glückskeks! Darin steht:",
+            "teen": "Glückskeks:",
+            "adult": "Glückskeks:"
+        }
+    },
+    {
+        "key": "soap_bubbles",
+        "name": "Seifenblasen",
+        "icon": "🫧",
+        "scope": "user",
+        "contexts": [
+            "score_household"
+        ],
+        "chance": 0.08,
+        "cooldown_hours": 24,
+        "calm": false,
+        "default_enabled": true,
+        "first_wins": false,
+        "minutes": 2,
+        "reward": null,
+        "action": "pop",
+        "text": {
+            "child": "Seifenblasen! Zerplatz sie alle!",
+            "teen": "Seifenblasen über der Liste. Ploppen erlaubt.",
+            "adult": "Ein paar Seifenblasen zum Zerplatzen."
+        }
+    },
+    {
+        "key": "smart_home_spook",
+        "name": "Spuk im Smart Home",
+        "icon": "💡",
+        "scope": "family",
+        "contexts": [
+            "score"
+        ],
+        "hours": [
+            17,
+            21
+        ],
+        "chance": 0.02,
+        "cooldown_hours": 168,
+        "calm": false,
+        "default_enabled": false,
+        "first_wins": false,
+        "requires_ha": true,
+        "minutes": 10,
+        "reward": null,
+        "action": "none",
+        "ha": "flicker",
+        "text": {
+            "child": "Der Hausgeist war hier! Hast du die Lampe flackern sehen?",
+            "teen": "Der Hausgeist war hier. Die Lampe hat geflackert.",
+            "adult": "Der Hausgeist hat kurz die Lampe flackern lassen."
+        }
+    }
+]

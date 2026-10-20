@@ -3,12 +3,15 @@
 namespace App\Domain\Quests;
 
 use App\Domain\Achievements\AchievementService;
+use App\Domain\Events\EventEngine;
+use App\Domain\Features\Features;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
 use App\Domain\Social\FeedService;
 use App\Enums\FamilyRole;
 use App\Events\QuestCompleted;
+use App\Models\FamilyEvent;
 use App\Models\Item;
 use App\Models\Quest;
 use App\Models\QuestContribution;
@@ -81,13 +84,16 @@ class QuestService
             ->when($scope === 'solo', fn ($q) => $q->where('user_id', $user->id))
             ->latest('id')->limit(2)->pluck('quest_key')->all();
 
+        // Event-Quests (§12.2) gibt es nur, solange ihr Event in der Familie läuft
+        $active = EventEngine::activeKeys($user->family_id);
         $eligible = collect(self::catalog())
             ->filter(fn ($q) => in_array($scope, $q['scopes'], true) && $q['min_level'] <= $level)
+            ->filter(fn ($q) => ! isset($q['event_key']) || in_array($q['event_key'], $active, true))
             ->reject(fn ($q) => in_array($q['key'], $recent, true));
 
-        // Pro Woche stabil gemischt (Familie bzw. Person als Startwert)
+        // Pro Woche stabil gemischt (Familie bzw. Person als Startwert), Event-Quests stehen immer vorne
         $seed = crc32($scope.'|'.($scope === 'family' ? $user->family_id : $user->id).'|'.now()->format('o-W'));
-        $picked = $eligible->sortBy(fn ($q) => crc32($seed.$q['key']))->take(self::OFFERS);
+        $picked = $eligible->sortBy(fn ($q) => [isset($q['event_key']) ? 0 : 1, crc32($seed.$q['key'])])->take(self::OFFERS);
 
         return $picked->map(fn ($q) => [...$q, 'goal' => $this->scaledGoal($q, $scope, $user)])->values()->all();
     }
@@ -104,8 +110,15 @@ class QuestService
         if ($scope === 'family' && ! $user->isParent()) {
             throw new GameException('Familien-Quests starten die Eltern.');
         }
+        // Solo-Quests kommen mit der Freischaltung „Quests“ (§13); Familien-Quests starten Eltern immer
+        if ($scope === 'solo') {
+            Features::ensure($user, 'quests');
+        }
 
         $level = $scope === 'family' ? $this->familyLevel($user) : (int) $user->stats()->value('level');
+        if (isset($definition['event_key']) && ! EventEngine::isRunning($user->family_id, $definition['event_key'])) {
+            throw new GameException('Diese Quest gibt es nur während ihres Events.');
+        }
         if ($definition['min_level'] > $level) {
             throw new GameException("Diese Quest gibt es erst ab Level {$definition['min_level']}.");
         }
@@ -115,12 +128,57 @@ class QuestService
             throw new GameException($scope === 'family' ? 'Es läuft schon eine Familien-Quest.' : 'Du hast schon eine Solo-Quest.');
         }
 
-        $quest = Quest::create([
-            'family_id' => $user->family_id,
-            'user_id' => $scope === 'solo' ? $user->id : null,
+        $quest = $this->create($definition, $scope, $user->family_id, $scope === 'solo' ? $user->id : null, $user, $rewardText);
+
+        if ($scope === 'solo') {
+            Features::starterDone($user, 'quests');
+        }
+        $who = $scope === 'family' ? 'Die Familie' : $user->name;
+        $this->feed->post($user->family_id, $user, 'quest_started', $quest->icon, "{$who} startet die Quest „{$quest->name}“");
+
+        return $quest;
+    }
+
+    /**
+     * Event-Quest zum Start eines Events (§12.2): Familien-Quest, wenn gerade keine läuft,
+     * bei persönlichen Events eine Solo-Quest für die Hauptperson. Sonst steht sie vorne auf der Quest-Tafel.
+     */
+    public function startForEvent(FamilyEvent $event, string $key): ?Quest
+    {
+        $definition = self::catalog()[$key] ?? null;
+        if ($definition === null) {
+            return null;
+        }
+
+        $subject = $event->subject;
+        $solo = ($event->definition()['personal'] ?? false) || ! in_array('family', $definition['scopes'], true);
+        if ($solo && ($subject === null || $this->activeSolo($subject) !== null)) {
+            return null;
+        }
+        if (! $solo && $this->activeFamily($event->family_id) !== null) {
+            return null;
+        }
+
+        $anchor = $subject ?? User::where('family_id', $event->family_id)->first();
+        if ($anchor === null) {
+            return null;
+        }
+        $quest = $this->create($definition, $solo ? 'solo' : 'family', $event->family_id, $solo ? $subject->id : null, $anchor, null, $event->ends_at);
+        if (! ($event->definition()['personal'] ?? false)) {
+            $this->feed->post($event->family_id, null, 'quest_started', $quest->icon, "Zum Event: Die Familie startet die Quest „{$quest->name}“");
+        }
+
+        return $quest;
+    }
+
+    private function create(array $definition, string $scope, int $familyId, ?int $userId, User $user, ?string $rewardText, $endsAt = null): Quest
+    {
+        return Quest::create([
+            'family_id' => $familyId,
+            'user_id' => $userId,
             'scope' => $scope,
             'type' => $definition['type'],
-            'quest_key' => $key,
+            'quest_key' => $definition['key'],
             'name' => $definition['name'],
             'icon' => $definition['icon'],
             'goal' => $this->scaledGoal($definition, $scope, $user),
@@ -131,20 +189,17 @@ class QuestService
                 'weakness' => $definition['weakness'] ?? null,
                 'resist' => $definition['resist'] ?? null,
                 'rage' => $definition['rage'] ?? null,
+                'phases' => $definition['phases'] ?? null,
                 'categories' => $definition['categories'] ?? null,
                 'item_name' => $definition['item_name'] ?? null,
                 'item_icon' => $definition['item_icon'] ?? null,
+                'event_key' => $definition['event_key'] ?? null,
             ]),
             'rewards' => $definition['rewards'] ?? [],
             'reward_text' => $scope === 'family' ? $rewardText : null,
-            'ends_at' => now()->addDays($definition['days']),
-            'started_by' => $user->id,
+            'ends_at' => $endsAt ? min($endsAt, now()->addDays($definition['days'])) : now()->addDays($definition['days']),
+            'started_by' => $endsAt ? null : $user->id,
         ]);
-
-        $who = $scope === 'family' ? 'Die Familie' : $user->name;
-        $this->feed->post($user->family_id, $user, 'quest_started', $quest->icon, "{$who} startet die Quest „{$quest->name}“");
-
-        return $quest;
     }
 
     public function abandon(User $user, Quest $quest): void
@@ -270,7 +325,9 @@ class QuestService
             'goal' => $quest->goal,
             'progress' => round($quest->progress, 1),
             'remaining' => round($quest->remaining(), 1),
-            'weakness' => isset($quest->data['weakness']) ? $categories[$quest->data['weakness']] ?? null : null,
+            'weakness' => ($w = self::weakness($quest)) ? $categories[$w] ?? null : null,
+            'phase' => isset($quest->data['phases']) ? collect($quest->data['phases'])->filter(fn ($p) => $quest->goal > 0 && $quest->remaining() / $quest->goal <= $p['below'])->count() : null,
+            'event_key' => $quest->data['event_key'] ?? null,
             'resist' => isset($quest->data['resist']) ? $categories[$quest->data['resist']] ?? null : null,
             'rage' => $quest->data['rage'] ?? null,
             'categories' => array_map(fn ($c) => $categories[$c] ?? $c, $quest->data['categories'] ?? []),
@@ -338,10 +395,23 @@ class QuestService
     private function categoryFactor(Quest $quest, Task $task): float
     {
         return match ($task->category) {
-            $quest->data['weakness'] ?? null => 1.5,
+            self::weakness($quest) => 1.5,
             $quest->data['resist'] ?? null => 0.5,
             default => 1.0,
         };
+    }
+
+    /** Bosse mit Phasen (Drachenfürst): Die Schwäche wechselt mit der verbleibenden Lebensleiste. */
+    public static function weakness(Quest $quest): ?string
+    {
+        $phases = $quest->data['phases'] ?? null;
+        if (! $phases || $quest->goal <= 0) {
+            return $quest->data['weakness'] ?? null;
+        }
+        $ratio = $quest->remaining() / $quest->goal;
+        $phase = collect($phases)->filter(fn ($p) => $ratio <= $p['below'])->sortBy('below')->first();
+
+        return $phase['weakness'] ?? ($quest->data['weakness'] ?? null);
     }
 
     /** Sammel-Quests: nur passende Kategorien; schwere Aufgaben bringen 2 Stück. */

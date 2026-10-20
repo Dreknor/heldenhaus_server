@@ -11,7 +11,7 @@ class Home extends Model
 {
     public const STAGES = ['hut' => 'Hütte', 'timber' => 'Fachwerkhaus', 'manor' => 'Gutshof', 'castle' => 'Burg'];
 
-    protected $fillable = ['family_id', 'stage', 'stations'];
+    protected $fillable = ['family_id', 'stage', 'stations', 'garden_bonus_slots'];
 
     protected function casts(): array
     {

@@ -14,6 +14,16 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 /** App-Updater: Version prüfen, APK laden, neue APK hochladen (Admin/CI). */
 class AppReleaseController extends Controller
 {
+    /** Öffentliche Laufzeit-Konfiguration der App (ohne Login): Firebase-Client nur, wenn vollständig gesetzt. */
+    public function config(): JsonResponse
+    {
+        $firebase = config('services.fcm.client');
+
+        return response()->json([
+            'firebase' => collect($firebase)->every(fn ($v) => filled($v)) ? array_map('strval', $firebase) : null,
+        ]);
+    }
+
     public function version(Request $request): JsonResponse
     {
         $data = $request->validate(['channel' => ['nullable', 'in:stable,beta'], 'build' => ['nullable', 'integer']]);

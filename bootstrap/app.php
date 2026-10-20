@@ -3,6 +3,7 @@
 use App\Domain\Gameplay\GameException;
 use App\Http\Middleware\ActAsFamilyMember;
 use App\Http\Middleware\EnsureFamily;
+use App\Http\Middleware\EnsureFeature;
 use App\Http\Middleware\EnsureSupportedAppVersion;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\LogHomeAssistantRequest;
@@ -33,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'family' => EnsureFamily::class,
+            'feature' => EnsureFeature::class,
             'day-cron' => RunDayCronIfDue::class,
             'ha-member' => ActAsFamilyMember::class,
             'ha-audit' => LogHomeAssistantRequest::class,

@@ -47,6 +47,11 @@ class SupportController extends Controller
             'max_steps' => ['sometimes', 'integer', 'between:2,10'],
             'low_energy_per_week' => ['sometimes', 'integer', 'between:0,7'],
             'ai_steps' => ['sometimes', 'boolean'],
+            'theme' => ['sometimes', 'nullable', Rule::in(array_column(SupportService::themesFor($target), 'key'))],
+            'high_contrast' => ['sometimes', 'boolean'],
+            'text_scale' => ['sometimes', 'numeric', 'between:0.8,1.6'],
+            'dyslexia_font' => ['sometimes', 'boolean'],
+            'color_vision' => ['sometimes', Rule::in(['normal', 'protan', 'deutan', 'tritan'])],
         ]);
 
         $this->support->update($request->user(), $target, $data);

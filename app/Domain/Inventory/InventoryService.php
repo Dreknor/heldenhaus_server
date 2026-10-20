@@ -3,12 +3,14 @@
 namespace App\Domain\Inventory;
 
 use App\Domain\Achievements\AchievementService;
+use App\Domain\Features\Features;
 use App\Domain\Gameplay\Attributes;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
 use App\Domain\Quests\QuestService;
 use App\Domain\Social\FeedService;
+use App\Models\ActiveBuff;
 use App\Models\Item;
 use App\Models\Room;
 use App\Models\SkillCast;
@@ -22,10 +24,15 @@ use Illuminate\Support\Facades\DB;
 /** Gold-Shop, Ausrüstung, Tränke, Haustiere (Konzept §2.3). */
 class InventoryService
 {
+    public const ELIXIRS = ['elixir_xp', 'elixir_gold', 'elixir_boss', 'elixir_luck'];
+
     public function buy(User $user, Item $item, int $quantity = 1): UserStats
     {
         if (! $item->active || $item->price_gold === null) {
             throw new GameException('Das gibt es nicht im Shop.');
+        }
+        if (! $item->availableFor($user->family_id)) {
+            throw new GameException('Das gibt es nur während des passenden Events.');
         }
 
         return DB::transaction(function () use ($user, $item, $quantity) {
@@ -65,6 +72,7 @@ class InventoryService
         UserEquipment::updateOrCreate(['user_id' => $user->id, 'slot' => $item->slot], ['item_id' => $item->id]);
         $this->clampToMax($user);
         app(AchievementService::class)->evaluate($user, ['equipped_slots']);
+        Features::starterDone($user, 'shop');
     }
 
     public function unequip(User $user, string $slot): void
@@ -76,6 +84,7 @@ class InventoryService
     /**
      * Trank benutzen: stats.heal (HP), stats.mana (Mana). Familien-Gegenstände (§2.5): stats.boss_damage
      * (Boss-Falle gegen den Familien-Boss), stats.fireworks (Feed-Effekt für alle), stats.streak_shield (Amulett, 1× pro Woche).
+     * Elixiere: stats.buff = {key, value, hours} (elixir_xp|elixir_gold|elixir_boss|elixir_luck); ein zweites verlängert nur die Laufzeit.
      */
     public function use(User $user, Item $item): string
     {
@@ -103,6 +112,16 @@ class InventoryService
             Progression::heal($stats, $heal);
             $stats->mp = min(Formulas::maxMp($stats), $stats->mp + $mana);
             $messages = [$heal ? "+{$heal} HP" : null, $mana ? "+{$mana} Mana" : null];
+
+            $buff = $item->stats['buff'] ?? null;
+            if (is_array($buff) && in_array($buff['key'] ?? null, self::ELIXIRS, true)) {
+                $hours = (int) ($buff['hours'] ?? 24);
+                $active = ActiveBuff::current()->where('user_id', $user->id)->where('key', $buff['key'])->first();
+                $active
+                    ? $active->update(['expires_at' => $active->expires_at->addHours($hours), 'value' => max($active->value, (float) $buff['value'])])
+                    : ActiveBuff::create(['user_id' => $user->id, 'key' => $buff['key'], 'value' => (float) $buff['value'], 'armed' => false, 'expires_at' => now()->addHours($hours), 'source_user_id' => $user->id]);
+                $messages[] = $item->description ?: 'Das Elixier wirkt.';
+            }
 
             if ($shield > 0) {
                 $stats->streak_shields = min(config('game.max_streak_shields', 3), $stats->streak_shields + $shield);
@@ -149,6 +168,8 @@ class InventoryService
             ]);
             app(AchievementService::class)->evaluate($user, ['pets']);
 
+            Features::starterDone($user, 'pets');
+
             return $pet;
         });
     }
@@ -170,6 +191,11 @@ class InventoryService
             // Mit Stall im Familienhaus (§2.6) wächst das Tier etwas schneller
             $stable = $user->family_id && Room::where('type', 'stable')->whereHas('home', fn ($q) => $q->where('family_id', $user->family_id))->exists();
             $growth = config('game.pet_growth_per_food') + ($stable ? config('game.housing.stable_feed_bonus') : 0);
+            // Lieblingsfutter (stats.likes: Tierarten) zählt doppelt
+            $species = str_replace('egg_', '', $pet->egg?->key ?? '');
+            if (in_array($species, $food->stats['likes'] ?? [], true)) {
+                $growth *= 2;
+            }
             $pet->growth = min(config('game.pet_growth_mount'), $pet->growth + $growth);
             $pet->is_mount = $pet->growth >= config('game.pet_growth_mount');
             $pet->save();
@@ -195,6 +221,8 @@ class InventoryService
             $stats->unspent_points--;
             $stats->{$attribute}++;
             $stats->save();
+
+            Features::starterDone($user, 'attributes');
 
             return $stats;
         });
