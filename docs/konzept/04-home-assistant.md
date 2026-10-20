@@ -37,4 +37,24 @@ Belohnungen können ebenfalls einen **Aktions-Schlüssel** tragen (`screen_time_
 - Ratenbegrenzung pro Token, Prüfprotokoll aller HA-Aktionen
 - Ausgehende Webhooks mit `X-Heldenhaus-Signature` (HMAC-SHA256) und Zeitstempel gegen Replay-Angriffe
 
+## 4.6 Webhook-Format (Server → HA)
+Eltern tragen unter **Familie → Home Assistant** die Webhook-URL ein (z. B. `https://…ui.nabu.casa/api/webhook/heldenhaus`) und wählen die Ereignisse. Das Secret wird einmal angezeigt.
+
+```http
+POST <webhook-url>
+Content-Type: application/json
+X-Heldenhaus-Event: reward_redeemed
+X-Heldenhaus-Delivery: <uuid>
+X-Heldenhaus-Timestamp: 1760950000
+X-Heldenhaus-Signature: sha256=<HMAC-SHA256(secret, "<timestamp>.<body>")>
+
+{"id": "<uuid>", "event": "reward_redeemed", "family_id": 1, "occurred_at": "…",
+ "data": {"member_id": 3, "member_name": "Lea", "reward_title": "30 Minuten Konsole", "stars": 5, "action_key": "screen_time_30"}}
+```
+
+- Ereignisse: `task_completed`, `approval_requested`, `all_dailies_done` (einmal pro Tag), `level_up`, `reward_redeemed`, `boss_defeated`, `quest_completed`, `ping` (Test-Knopf)
+- Private Aufgaben werden ohne Titel und Kategorie gemeldet (§3.7)
+- Empfänger prüfen die Signatur und verwerfen Zeitstempel, die mehr als 5 Minuten abweichen
+- Fehler (Timeout, kein 2xx) → bis zu 5 Versuche über die Queue (30 s, 2 min, 10 min, 30 min), Ergebnis im Prüfprotokoll
+- Eltern-Dienste über HA (`approvals`, `completions/{id}/approve|reject`, `redemptions/{id}/approve|reject`, `stars/{member}`) brauchen ein Token mit der Fähigkeit `ha:approve`
 
