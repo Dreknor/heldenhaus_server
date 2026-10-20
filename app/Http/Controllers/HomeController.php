@@ -32,7 +32,11 @@ class HomeController extends Controller
         $user = $request->user();
         $home = HomeService::home($user->family_id);
 
-        return response()->json(HomeService::present($home) + [
+        $data = HomeService::present($home);
+        $rooms = $home->rooms->keyBy('id');
+        $data['rooms'] = collect($data['rooms'])->map(fn (array $r) => $r + ['can_edit' => HomeService::canEdit($user, $rooms[$r['id']])])->values();
+
+        return response()->json($data + [
             'can_start_projects' => $user->isParent(),
             'presets' => MessageService::PRESETS,
             'emojis' => MessageService::EMOJIS,
@@ -55,7 +59,20 @@ class HomeController extends Controller
         $room->loadMissing('home');
         GuestbookService::visitAlliance($request->user(), $room->home->family_id);
 
-        return response()->json(HomeService::presentRoom($room) + ['can_edit' => HomeService::canEdit($request->user(), $room)]);
+        $visitor = $room->home->family_id !== $request->user()->family_id;
+
+        return response()->json(HomeService::presentRoom($room, $visitor) + ['can_edit' => HomeService::canEdit($request->user(), $room)]);
+    }
+
+    public function customize(Request $request, Room $room): JsonResponse
+    {
+        $data = $request->validate([
+            'name' => ['sometimes', 'nullable', 'string', 'max:40'],
+            'wall' => ['sometimes', 'string', Rule::in(array_keys(config('game.housing.walls')))],
+            'floor' => ['sometimes', 'string', Rule::in(array_keys(config('game.housing.floors')))],
+        ]);
+
+        return response()->json(HomeService::presentRoom($this->homes->customize($request->user(), $room, $data)));
     }
 
     public function layout(Request $request, Room $room): JsonResponse

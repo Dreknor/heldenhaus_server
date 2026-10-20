@@ -5,6 +5,7 @@ namespace App\Domain\Housing;
 use App\Domain\Crafting\StorageService;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Inventory\Stock;
+use App\Enums\AgeGroup;
 use App\Enums\FamilyRole;
 use App\Models\GuestbookEntry;
 use App\Models\Home;
@@ -59,7 +60,39 @@ class HomeService
             return false;
         }
 
-        return $room->owner_user_id === null || $room->owner_user_id === $user->id || $user->isParent();
+        if ($room->owner_user_id === null || $room->owner_user_id === $user->id) {
+            return true;
+        }
+
+        // Eigene Zimmer gestaltet jede Person selbst. Eltern helfen nur bei Kindern unter 13.
+        $room->loadMissing('owner');
+
+        return $user->isParent() && $room->owner?->ageGroup() === AgeGroup::Child;
+    }
+
+    /** Eigenes bzw. gemeinsames Zimmer umbenennen und Wand/Boden wählen. */
+    public function customize(User $user, Room $room, array $data): Room
+    {
+        if (! self::canEdit($user, $room)) {
+            throw new GameException('Dieses Zimmer darfst du nicht gestalten.');
+        }
+
+        $style = $room->style ?? [];
+        foreach (['wall' => 'walls', 'floor' => 'floors'] as $key => $options) {
+            if (array_key_exists($key, $data)) {
+                if (! array_key_exists($data[$key], config("game.housing.{$options}"))) {
+                    throw new GameException('Diese Gestaltung gibt es nicht.');
+                }
+                $style[$key] = $data[$key];
+            }
+        }
+        if (array_key_exists('name', $data)) {
+            $room->name = trim((string) $data['name']) ?: null;
+        }
+        $room->style = $style ?: null;
+        $room->save();
+
+        return $room;
     }
 
     /**
@@ -231,7 +264,8 @@ class HomeService
             'stations' => (object) ($home->stations ?? []),
             'rooms' => $home->rooms
                 ->filter(fn (Room $r) => $r->type !== 'bedroom' || $r->owner?->family_id === $home->family_id)
-                ->map(fn (Room $r) => self::presentRoom($r))->values(),
+                ->map(fn (Room $r) => self::presentRoom($r, $visitor))->values(),
+            'styles' => ['walls' => config('game.housing.walls'), 'floors' => config('game.housing.floors')],
             'clutter' => self::clutter($home->family_id),
             'trophies' => self::trophies($home),
             'guestbook' => GuestbookEntry::with('user')->where('family_id', $home->family_id)->latest('id')->limit(30)->get()
@@ -247,14 +281,19 @@ class HomeService
         return $data;
     }
 
-    public static function presentRoom(Room $room): array
+    /** Besuch (§2.6): eigene Zimmernamen von Kindern unter 13 sieht nur die eigene Familie. */
+    public static function presentRoom(Room $room, bool $visitor = false): array
     {
         $room->loadMissing('placedItems.item', 'owner');
+        $default = $room->type === 'bedroom' && $room->owner ? "Zimmer von {$room->owner->name}" : Room::TYPES[$room->type];
+        $hideName = $visitor && $room->owner?->ageGroup() === AgeGroup::Child;
 
         return [
             'id' => $room->id,
             'type' => $room->type,
-            'name' => $room->name ?? ($room->type === 'bedroom' && $room->owner ? "Zimmer von {$room->owner->name}" : Room::TYPES[$room->type]),
+            'name' => $hideName ? $default : ($room->name ?? $default),
+            'own' => $room->type === 'bedroom',
+            'style' => ['wall' => $room->style['wall'] ?? 'stone', 'floor' => $room->style['floor'] ?? 'planks'],
             'owner_id' => $room->owner_user_id,
             'width' => $room->width,
             'height' => $room->height,

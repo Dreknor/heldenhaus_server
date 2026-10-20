@@ -11,6 +11,7 @@ use App\Domain\Inventory\InventoryService;
 use App\Domain\Inventory\Stock;
 use App\Domain\Quests\QuestService;
 use App\Domain\Social\AllianceService;
+use App\Enums\FamilyRole;
 use App\Models\BuildProject;
 use App\Models\CraftJob;
 use App\Models\FamilyAlliance;
@@ -484,4 +485,36 @@ it('heilt nachts etwas mehr mit Bett im eigenen Zimmer und zeigt die Trophäenha
     homeWith($this->family->id, ['trophy']);
     Sanctum::actingAs($this->child, ['app']);
     expect($this->getJson('/api/v1/home')->json('trophies'))->toHaveKeys(['bosses', 'master_items', 'achievements']);
+});
+
+it('lässt jede Person ihr eigenes Zimmer gestalten, die Gemeinschaftsräume alle', function () {
+    $teen = joinFamily($this->family, FamilyRole::Child, ['name' => 'Ben', 'birth_year' => (int) now()->year - 14]);
+    $home = HomeService::home($this->family->id);
+    $own = fn ($user) => $home->rooms()->where('owner_user_id', $user->id)->first();
+    $living = $home->rooms()->where('type', 'living')->first();
+
+    Sanctum::actingAs($this->child, ['app']);
+    $this->putJson("/api/v1/rooms/{$own($this->child)->id}", ['name' => 'Leas Drachenhöhle', 'wall' => 'stars', 'floor' => 'carpet'])->assertOk()
+        ->assertJsonPath('name', 'Leas Drachenhöhle')->assertJsonPath('style.wall', 'stars');
+    $this->putJson("/api/v1/rooms/{$living->id}", ['floor' => 'tiles'])->assertOk();
+    $this->putJson("/api/v1/rooms/{$own($teen)->id}", ['wall' => 'wood'])->assertStatus(422);       // fremdes Zimmer
+    $this->putJson("/api/v1/rooms/{$own($this->child)->id}", ['wall' => 'gold'])->assertStatus(422); // gibt es nicht
+
+    $rooms = collect($this->getJson('/api/v1/home')->json('rooms'));
+    expect($rooms->firstWhere('owner_id', $this->child->id)['can_edit'])->toBeTrue()
+        ->and($rooms->firstWhere('owner_id', $teen->id)['can_edit'])->toBeFalse()
+        ->and($rooms->firstWhere('type', 'living')['can_edit'])->toBeTrue();
+
+    // Eltern helfen bei Kindern unter 13, das Zimmer von Teens bleibt privat
+    Sanctum::actingAs($this->parent, ['app']);
+    $this->putJson("/api/v1/rooms/{$own($this->child)->id}", ['floor' => 'grass'])->assertOk();
+    $this->putJson("/api/v1/rooms/{$own($teen)->id}", ['floor' => 'grass'])->assertStatus(422);
+
+    // Besuch sieht den eigenen Zimmernamen eines Kindes nicht
+    [, $otherParent] = makeFamily();
+    alliedFamilies($this->parent, $otherParent);
+    Sanctum::actingAs($otherParent, ['app']);
+    $visit = collect($this->getJson("/api/v1/families/{$this->family->id}/home")->json('rooms'));
+    expect($visit->firstWhere('owner_id', $this->child->id)['name'])->toBe('Zimmer von Lea')
+        ->and($visit->firstWhere('owner_id', $this->child->id)['style']['floor'])->toBe('grass');
 });
