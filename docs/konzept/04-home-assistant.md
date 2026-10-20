@@ -11,7 +11,7 @@ Home Assistant läuft zu Hause hinter NAT, der Laravel-Server im Internet. Desha
    - **Entitäten pro Familienmitglied**: `sensor` (Level, XP, Gold, Sterne, HP, offene Aufgaben, Streak), `binary_sensor` (alle Dailies erledigt, Freigaben ausstehend), **`todo`-Entität** (HA-Aufgabenliste ↔ To-Dos/Dailies, auch in der HA-App abhakbar), `image` (Avatar)
    - **Familien-Entitäten**: Boss-HP, Wochenfortschritt, offene Freigaben
    - **Dienste**: `heldenhaus.complete_task`, `create_task`, `score_habit`, `trigger_event`, `approve`, `grant_stars`
-   - **HA-Ereignisse**: `heldenhaus_task_completed`, `_reward_redeemed`, `_level_up`, `_all_dailies_done`, `_boss_defeated`
+   - **HA-Ereignisse**: `heldenhaus_task_completed`, `_reward_redeemed`, `_level_up`, `_all_dailies_done`, `_boss_defeated`, für die Fokus-Hilfen (§11.5) außerdem `_step_completed`, `_focus_started`, `_focus_ended`, `_low_energy_day` und ein Sensor „Fokus-Zeit“ je Mitglied
 3. **Ausgehende Webhooks** (Laravel → HA): HMAC-signiert, Wiederholung bei Fehlern über die Queue
 
 ## 4.3 Ereignis-Zuordnung (Kernidee)
@@ -29,6 +29,7 @@ Belohnungen können ebenfalls einen **Aktions-Schlüssel** tragen (`screen_time_
 - Hausaufgaben-Daily nicht erledigt → Konsolensteckdose bleibt aus (von Eltern einstellbar)
 - Wandtablet mit Lovelace-Karte (Familienstatus, Boss-HP); später eventuell eine eigene Lovelace-Karte
 - Level-up → Sprachansage im Wohnzimmer
+- Fokus-Zeit läuft → Schreibtischlampe wechselt langsam von Grün nach Orange, am Ende ein sanftes Signal; offene Hausaufgaben-Daily → Lampe statt Handy erinnert (§11.4)
 - Abschlüsse über HA zählen mit `source = ha` und verstärken die Klasse **Tüftler** (Smart-Connect, Überlastung, §2.4)
 
 ## 4.5 Sicherheit

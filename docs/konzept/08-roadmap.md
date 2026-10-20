@@ -1,4 +1,4 @@
-# 9. Umsetzungsplan (Phasen)
+# 8. Umsetzungsplan (Phasen)
 
 | Phase | Inhalt | Ergebnis |
 |---|---|---|
@@ -7,6 +7,7 @@
 | **2 – Flutter-App** | **App-Updater** (APK-Kanäle, Pflicht-Update per 426, Play In-App Updates für den Store-Flavor), API v1, Kopplung per QR, Offline-Abgleich, Aufgaben/Stats/Freigaben, FCM-Push, Widget | App im geschlossenen Test |
 | **3 – Spieltiefe** | **Asset-Pipeline** (Palette, Blender-Render-Skript, `credits.json` + CI-Check, Credits-Bildschirm), Avatar + Ausrüstung + Shop, Drops/Haustiere/Reittiere, Erfolge, 6 Klassen (Krieger, Magier, Schurke, Heiler, Tüftler, Barde) mit Modifikator-Kette für Passiv- und Aktiv-Fähigkeiten, Inhalte als JSON | „Spielgefühl“ |
 | **4 – Familie+** | Ämterplan-Rotation, Teamaufgaben, Familien-Boss, Feed/Reaktionen, Wochenbericht, Familienbündnisse, Challenges, Taschengeld-Konto | Vollständige Familienfunktionen |
+| **4a – Fokus & Alltagshilfen** (§11) | Server zuerst: sanfter Modus, Serien pausieren + Erholungs-Quests, Kern-Dailies + Energiespar-Tag, Schritt-Belohnung für Checklisten, Kopf-Ablage (`inbox`), Überraschungen mit Pech-Schutz, Schritt-Vorlagen, optional KI-Aufteilung über OpenRouter, Fokus-Zeiten-API. Danach App/Web: Fokus-Modus, visueller Timer, reizarme Einstellungen, Schnell-Eingabe im Widget. Mit Phase 5: HA-Ereignisse und Lichtsignale | Heldenhaus ist ADHS-freundlich ohne Etikett |
 | **5 – Home Assistant** | HA-API + Ereignis-Zuordnung + YAML-Vorlagen → HACS-Integration (Sensoren, todo, Dienste) → ausgehende Webhooks + Belohnungsaktionen | Smart-Home-Kopplung |
 | **6 – Crafting & Housing** | Materialien als Drops (Kategorie bei Aufgaben gibt es schon ab Phase 1), Rezepte, Stationen, Herstellungsaufträge, Familienlager/Tausch; Familienhaus + eigene Zimmer, Editor (Flame/Web), Bauprojekte, Garten, Unordnung-Mechanik, Besuche/Gästebuch | Sammeln, Bauen, Gestalten |
 | **7 – Dungeon-Quests** | Tiled-Bausteine + Dungeon-Erzeugung, Fackel-Energie, Flame-Isometrie-Client, rundenbasierte Kämpfe, Klassen-Interaktionen, Familien-Dungeon mit Endboss, Solo-Gewölbe, Web-Kartenansicht, HA-Mechanismen | Quests als Mini-Dungeons |
@@ -34,6 +35,7 @@ Legende: ✅ fertig · 🟡 teilweise · ⬜ offen
 | 2 – Flutter-App | 🟡 | Login (E-Mail, Familiencode, QR, PIN), Heldenpanel mit Offline-Sync, Quests, Inventar/Shop/Stall, Familie, Belohnungsshop, Freigaben, **App-Updater**, alle Spielgrafiken | FCM-Push, Home-Screen-Widget, Avatar-Editor und Klassen-/Held-Ansicht in der App, Test auf echtem Gerät, signierter Release-Build |
 | 3 – Spieltiefe | 🟡 | Admin-Backend „Items & Drops“ (Items + Fund-Wahrscheinlichkeiten), Drop-Engine, Inventar, Gold-Shop, Ausrüstung, Attribute, Tränke, Haustiere/Reittiere, 6 Klassen mit Modifikator-Kette, Avatar-Editor, **Erfolge** (15 Stufen-Erfolge mit eigenen Abzeichen, Feier, Gold je Stufe, Feed, Familienansicht, API) | Erfolge in der App anzeigen, Asset-Pipeline (`credits.json` + CI-Check, Blender-Skript), saisonale Inhalte |
 | 4 – Familie+ | 🟡 | **Quest-System** (Boss- und Sammel-Quests, solo und gemeinsam, Schwächen/Resistenzen/Wut, wechselnde Quest-Tafel, Monster-Lexikon), Ämterplan-Rotation, Teamaufgaben mit Bonus, Familien-Feed mit Reaktionen, Wochenbericht (Seite + E-Mail), Taschengeld-Konto | Familienbündnisse, Challenges, Chat für Teens |
+| 4a – Fokus & Alltagshilfen | ⬜ | Grundlagen vorhanden: Checklisten, Streak-Schutz, K.O. statt Tod, Pausen-Modus im Konzept, Quests gemeinsam | Alles aus §11 (Server zuerst, dann App/Web, dann HA) |
 | 5 – Home Assistant | 🟡 | REST-API (Zustand, Ereignisse), Ereignis-Schlüssel an Aufgaben, YAML-Vorlage, **HACS-Integration** (Sensoren je Mitglied, „alle Dailies erledigt“, Dienst `trigger_event`, Spielen stellvertretend für Familienmitglieder, Avatar-/Boss-Bilder), Tüftler-Klasse | Ausgehende Webhooks (Server → HA), Belohnungsaktionen (`ha_action_key` auslösen), HA-Repo auf GitHub, Test mit echter HA-Instanz |
 | G – Grafik | 🟡 | G1 Avatar-, Monster- und Haustier-Baukasten mit Animationen · G2 eigene Item-Grafiken, Helden-Szene mit Tageszeit · alles auch in der Flutter-App (gleiche Optik) | G3 isometrische Grafiken für Housing/Dungeons, G4 Sound |
 | 6 – Crafting & Housing | ⬜ | Materialien fallen bereits als Funde | Rezepte, Stationen, Familienhaus, Zimmer-Editor, Bauprojekte, Garten |
@@ -48,5 +50,6 @@ Legende: ✅ fertig · 🟡 teilweise · ⬜ offen
 **Nächste sinnvolle Schritte**
 1. Auf Hetzner live gehen (Staging zuerst) und den Online-Updater mit einem ersten Update aus dem Repository durchspielen
 2. App auf einem echten Gerät testen, signierten Release-Build anlegen, Push-Benachrichtigungen (FCM)
-3. Phase 5 abschließen: ausgehende Webhooks und Belohnungsaktionen
-4. Phase 6 starten: Crafting & Housing (mit Grafik G3)
+3. Phase 4a (§11) serverseitig: sanfter Modus, Serien-Pause mit Erholungs-Quest, Energiespar-Tag, Schritt-Belohnung, Kopf-Ablage
+4. Phase 5 abschließen: ausgehende Webhooks und Belohnungsaktionen
+5. Phase 6 starten: Crafting & Housing (mit Grafik G3)

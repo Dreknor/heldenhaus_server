@@ -1,6 +1,6 @@
 # Heldenhaus – Gesamtkonzept
 
-> Habitica-inspiriertes Aufgaben-Rollenspiel für Familien (Kinder 9–16 + Eltern) · Laravel + Inertia/Vue · Flutter-App · Home Assistant · Stand: 2026-10-19
+> Habitica-inspiriertes Aufgaben-Rollenspiel für Familien (Kinder 9–16 + Eltern) · Laravel + Inertia/Vue · Flutter-App · Home Assistant · Stand: 2026-10-20
 
 ## Ausgangslage
 
@@ -24,6 +24,7 @@ Festgelegte Rahmenbedingungen:
 | 5 | [Architektur](konzept/05-architektur.md) | Hetzner-Webhosting-Setup, Deployment, Domänen-Module, Datenmodell, API |
 | 6 | [App & Web](konzept/06-app-und-web.md) | Flutter-App (Offline-first, Flame) und Inertia/Vue-Frontend |
 | 7 | [Datenschutz](konzept/07-datenschutz.md) | DSGVO, Datensparsamkeit bei Kindern, Sicherheit |
-| 8 | [Roadmap](konzept/08-roadmap.md) | Phasen 0–8, Repositories |
+| 8 | [Roadmap](konzept/08-roadmap.md) | Phasen 0–8 (mit 4a Fokus & Alltagshilfen), Repositories |
 | 9 | [Tests](konzept/09-tests.md) | Teststrategie und Abnahme |
 | 10 | [Online-Updater](konzept/10-online-updater.md) | Server-Selbst-Update aus dem Git-Repository, APK-Updater in der App, Inhalts-Updates |
+| 11 | [ADHS-Optimierung](konzept/11-adhs.md) | Fokus & Alltagshilfen: sanfter Modus, Serien reparieren, Mikro-Schritte, Energiespar-Tag, Kopf-Ablage, visuelle Timer, Fokus-Modus, HA-Signale, KI-Aufteilung über OpenRouter |
