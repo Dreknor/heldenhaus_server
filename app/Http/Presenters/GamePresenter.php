@@ -3,6 +3,8 @@
 namespace App\Http\Presenters;
 
 use App\Domain\Gameplay\Formulas;
+use App\Domain\Support\StepService;
+use App\Enums\AgeGroup;
 use App\Enums\CompletionStatus;
 use App\Enums\TaskType;
 use App\Models\Task;
@@ -43,6 +45,7 @@ class GamePresenter
             'birth_year' => $user->birth_year,
             'avatar_color' => $user->avatar_color,
             'has_email' => $user->email !== null,
+            'chat_allowed' => $user->ageGroup() === AgeGroup::Teen ? (bool) $user->chat_allowed : null,
             'stats' => $withStats && $user->stats ? self::stats($user->stats) : null,
             'appearance' => $withStats ? CharacterSheet::appearance($user) : null,
         ], fn ($v) => $v !== null);
@@ -59,6 +62,9 @@ class GamePresenter
             'assignment_id' => $a->id,
             'value' => round($a->value, 2),
             'streak' => $a->streak,
+            'streak_paused' => $a->streak_paused_at !== null,
+            'streak_best' => $a->streak_best,
+            'steps' => $task->checklist ? StepService::present($a) : [],
             'completed' => $a->completed,
             'counter_up' => $a->counter_up,
             'counter_down' => $a->counter_down,
@@ -76,6 +82,8 @@ class GamePresenter
         return [
             'id' => $task->id,
             'type' => $task->type->value,
+            'status' => $task->status,
+            'is_core' => $task->is_core,
             'scope' => $task->scope,
             'title' => $task->title,
             'notes' => $task->notes,

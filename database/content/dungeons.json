@@ -1,0 +1,251 @@
+{
+    "monsters": [
+        {
+            "key": "dust_bunny",
+            "name": "Staubhase",
+            "icon": "🐇",
+            "hp": 10,
+            "attack": 3,
+            "defense": 0
+        },
+        {
+            "key": "spider",
+            "name": "Kellerspinne",
+            "icon": "🕷️",
+            "hp": 14,
+            "attack": 4,
+            "defense": 1
+        },
+        {
+            "key": "rat",
+            "name": "Vorratsratte",
+            "icon": "🐀",
+            "hp": 12,
+            "attack": 3,
+            "defense": 1
+        },
+        {
+            "key": "sock_goblin",
+            "name": "Sockenkobold",
+            "icon": "🧦",
+            "hp": 16,
+            "attack": 4,
+            "defense": 1
+        },
+        {
+            "key": "mold_slime",
+            "name": "Schimmelschleim",
+            "icon": "🟢",
+            "hp": 20,
+            "attack": 5,
+            "defense": 2
+        },
+        {
+            "key": "crumb_bat",
+            "name": "Krümelfledermaus",
+            "icon": "🦇",
+            "hp": 12,
+            "attack": 5,
+            "defense": 0
+        },
+        {
+            "key": "spider_queen",
+            "name": "Spinnenkönigin",
+            "icon": "🕸️",
+            "hp": 30,
+            "attack": 7,
+            "defense": 2,
+            "elite": true
+        },
+        {
+            "key": "laundry_wyrm",
+            "name": "Wäschewurm",
+            "icon": "🐛",
+            "hp": 34,
+            "attack": 7,
+            "defense": 3,
+            "elite": true
+        },
+        {
+            "key": "dust_lord",
+            "name": "Staubfürst",
+            "icon": "🌪️",
+            "hp": 60,
+            "attack": 8,
+            "defense": 3,
+            "boss": true
+        },
+        {
+            "key": "laundry_dragon",
+            "name": "Wäschedrache",
+            "icon": "🐉",
+            "hp": 80,
+            "attack": 9,
+            "defense": 4,
+            "boss": true
+        },
+        {
+            "key": "cellar_spider_boss",
+            "name": "Riesenspinne",
+            "icon": "🕷️",
+            "hp": 70,
+            "attack": 8,
+            "defense": 3,
+            "boss": true
+        }
+    ],
+    "themes": [
+        {
+            "key": "spider_cellar",
+            "name": "Spinnenkeller",
+            "icon": "🕸️",
+            "monsters": [
+                "spider",
+                "rat",
+                "crumb_bat"
+            ],
+            "elite": "spider_queen",
+            "boss": "cellar_spider_boss",
+            "quests": [
+                "procrastination_troll",
+                "shadow_king",
+                "screen_kraken"
+            ],
+            "loot": {
+                "wood": 3,
+                "stone": 3,
+                "nails": 2,
+                "flint": 1,
+                "leather": 1
+            }
+        },
+        {
+            "key": "dust_crypt",
+            "name": "Staubmonster-Gruft",
+            "icon": "⚰️",
+            "monsters": [
+                "dust_bunny",
+                "mold_slime",
+                "crumb_bat"
+            ],
+            "elite": "spider_queen",
+            "boss": "dust_lord",
+            "quests": [
+                "dust_monster",
+                "couch_golem",
+                "boredom_ghost"
+            ],
+            "loot": {
+                "stone": 3,
+                "ink": 2,
+                "parchment": 2,
+                "crystal_shard": 1,
+                "paint": 1
+            }
+        },
+        {
+            "key": "laundry_cave",
+            "name": "Wäschedrachen-Höhle",
+            "icon": "🧺",
+            "monsters": [
+                "sock_goblin",
+                "mold_slime",
+                "rat"
+            ],
+            "elite": "laundry_wyrm",
+            "boss": "laundry_dragon",
+            "quests": [
+                "laundry_hydra",
+                "chaos_dragon"
+            ],
+            "loot": {
+                "cloth": 3,
+                "yarn": 2,
+                "wool": 2,
+                "feather": 1,
+                "crystal_shard": 1
+            }
+        }
+    ],
+    "rare_loot": {
+        "dragon_scale": 1,
+        "stardust": 1,
+        "furn_candle": 3,
+        "furn_banner": 2,
+        "dungeon_key": 3
+    },
+    "blocks": {
+        "entrance": [
+            "entrance_stairs",
+            "entrance_gate"
+        ],
+        "monster": [
+            "hall_pillars",
+            "corridor_bend",
+            "storeroom"
+        ],
+        "elite": [
+            "arena_small"
+        ],
+        "treasure": [
+            "vault_chests",
+            "alcove_chest"
+        ],
+        "trap": [
+            "trap_floor",
+            "trap_darts"
+        ],
+        "puzzle": [
+            "rune_door",
+            "sliding_tiles"
+        ],
+        "campfire": [
+            "camp_ruins"
+        ],
+        "merchant": [
+            "merchant_nook"
+        ],
+        "lever": [
+            "lever_room"
+        ],
+        "boss": [
+            "boss_throne",
+            "boss_lair"
+        ]
+    },
+    "merchant": {
+        "potion_health": 20,
+        "dungeon_key": 30
+    },
+    "art": {
+        "tileset": "dungeon/dungeon.tsx",
+        "block": "dungeon/blocks/{block}.tmx",
+        "sprites": "dungeon/sprites/{sprite}_{suffix}.png",
+        "room_size": 5,
+        "side_suffix": {
+            "N": "S",
+            "W": "E",
+            "S": "N",
+            "E": "W"
+        },
+        "edges": {
+            "none_back": "stoneWall",
+            "none_front": "stoneWallHalf",
+            "open": "stoneWallArchway",
+            "locked": "stoneWallDoorClosed",
+            "gate": "stoneWallGateClosed",
+            "cracked": "stoneWallBroken",
+            "opened_locked": "stoneWallDoorOpen",
+            "opened_gate": "stoneWallGateOpen",
+            "opened_cracked": "stoneWallHole"
+        },
+        "spots": {
+            "chest_closed": "chestClosed",
+            "chest_open": "chestOpen",
+            "trap_hidden": "stoneInset",
+            "trap_sprung": "stoneMissingTiles",
+            "lever": "switchFloorOn"
+        },
+        "credits": "Kenney, Isometric Miniature Dungeon (CC0), kenney.nl"
+    }
+}

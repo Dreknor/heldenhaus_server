@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserItem extends Model
 {
-    protected $fillable = ['user_id', 'item_id', 'quantity'];
+    protected $fillable = ['user_id', 'item_id', 'quantity', 'master_quantity'];
 
     protected function casts(): array
     {
-        return ['quantity' => 'integer'];
+        return ['quantity' => 'integer', 'master_quantity' => 'integer'];
     }
 
     public function item(): BelongsTo

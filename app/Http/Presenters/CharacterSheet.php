@@ -5,6 +5,7 @@ namespace App\Http\Presenters;
 use App\Domain\Classes\ClassCatalog;
 use App\Domain\Classes\ClassService;
 use App\Domain\Gameplay\Attributes;
+use App\Domain\Inventory\Stock;
 use App\Domain\Quests\QuestService;
 use App\Models\ActiveBuff;
 use App\Models\DayLog;
@@ -62,8 +63,9 @@ class CharacterSheet
         return [
             'items' => UserItem::with('item')->where('user_id', $user->id)->where('quantity', '>', 0)->get()
                 ->sortBy(fn (UserItem $u) => [$u->item->type, $u->item->name])
-                ->map(fn (UserItem $u) => [...self::item($u->item), 'quantity' => $u->quantity, 'equipped' => in_array($u->item_id, $equipped, true)])
+                ->map(fn (UserItem $u) => [...self::item($u->item), 'quantity' => $u->quantity, 'master_quantity' => $u->master_quantity, 'equipped' => in_array($u->item_id, $equipped, true)])
                 ->values(),
+            'slots' => Stock::slots($user->id),
             'shop' => Item::where('active', true)->whereNotNull('price_gold')->orderBy('type')->orderBy('price_gold')->get()
                 ->map(fn (Item $i) => self::item($i))->values(),
             'pets' => UserPet::with('egg', 'potion')->where('user_id', $user->id)->orderBy('name')->get()

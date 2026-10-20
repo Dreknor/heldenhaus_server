@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class TaskAssignment extends Model
 {
     protected $fillable = [
-        'task_id', 'user_id', 'value', 'streak', 'completed', 'completed_at', 'counter_up', 'counter_down', 'checklist_done',
+        'task_id', 'user_id', 'value', 'streak', 'streak_best', 'streak_paused_at', 'completed', 'completed_at', 'counter_up', 'counter_down', 'checklist_done',
     ];
 
     protected function casts(): array
@@ -23,6 +23,8 @@ class TaskAssignment extends Model
             'counter_up' => 'integer',
             'counter_down' => 'integer',
             'checklist_done' => 'array',
+            'streak_paused_at' => 'datetime',
+            'streak_best' => 'integer',
         ];
     }
 

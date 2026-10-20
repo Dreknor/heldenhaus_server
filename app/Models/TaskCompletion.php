@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class TaskCompletion extends Model
 {
     protected $fillable = [
-        'task_id', 'assignment_id', 'user_id', 'direction', 'value_before', 'delta', 'xp', 'gold', 'hp', 'stars', 'drop_item_id', 'quest_progress', 'effects',
+        'task_id', 'assignment_id', 'user_id', 'direction', 'value_before', 'delta', 'xp', 'gold', 'hp', 'stars', 'drop_item_id', 'quest_progress', 'effects', 'surprise',
         'streak_before', 'status', 'source', 'proof_path', 'reviewed_by', 'reviewed_at', 'review_comment', 'client_uuid',
     ];
 
@@ -27,6 +27,7 @@ class TaskCompletion extends Model
             'reviewed_at' => 'datetime',
             'quest_progress' => 'float',
             'effects' => 'array',
+            'surprise' => 'array',
         ];
     }
 

@@ -1,0 +1,272 @@
+[
+    {
+        "key": "room_workshop",
+        "name": "Werkstatt",
+        "icon": "🔨",
+        "description": "Platz für Schmiede, Alchemietisch und Nähtisch.",
+        "items": {
+            "wood": 20,
+            "stone": 10,
+            "nails": 5
+        },
+        "gold": 50,
+        "hours": 24,
+        "effects": {
+            "room": "workshop",
+            "stations": {
+                "alchemy": 1,
+                "sewing": 1
+            }
+        }
+    },
+    {
+        "key": "station_forge_1",
+        "name": "Schmiede",
+        "icon": "⚒️",
+        "description": "Hier entstehen Waffen und Rüstungen.",
+        "requires": {
+            "rooms": [
+                "workshop"
+            ]
+        },
+        "items": {
+            "stone": 20,
+            "flint": 5,
+            "wood": 5
+        },
+        "gold": 80,
+        "hours": 24,
+        "effects": {
+            "stations": {
+                "forge": 1
+            }
+        }
+    },
+    {
+        "key": "room_garden",
+        "name": "Garten",
+        "icon": "🌻",
+        "description": "Beete zum Säen, Gießen und Ernten.",
+        "items": {
+            "wood": 10,
+            "stone": 5,
+            "seeds": 5
+        },
+        "gold": 30,
+        "hours": 24,
+        "effects": {
+            "room": "garden"
+        }
+    },
+    {
+        "key": "room_library",
+        "name": "Bibliothek",
+        "icon": "📚",
+        "description": "Neue Rezepte lernen und Erfolge ins Regal stellen.",
+        "items": {
+            "wood": 15,
+            "parchment": 10,
+            "ink": 5
+        },
+        "gold": 60,
+        "hours": 24,
+        "effects": {
+            "room": "library"
+        }
+    },
+    {
+        "key": "room_stable",
+        "name": "Stall",
+        "icon": "🐴",
+        "description": "Haustiere und Reittiere wohnen sichtbar hier. Füttern wirkt etwas besser.",
+        "items": {
+            "wood": 25,
+            "nails": 10,
+            "herbs": 5
+        },
+        "gold": 60,
+        "hours": 48,
+        "effects": {
+            "room": "stable"
+        }
+    },
+    {
+        "key": "room_storage",
+        "name": "Lagerraum",
+        "icon": "📦",
+        "description": "Ein Raum für das Familienlager.",
+        "items": {
+            "wood": 15,
+            "stone": 10,
+            "nails": 5
+        },
+        "gold": 40,
+        "hours": 24,
+        "effects": {
+            "room": "storage"
+        }
+    },
+    {
+        "key": "stage_timber",
+        "name": "Fachwerkhaus",
+        "icon": "🏡",
+        "description": "Aus der Hütte wird ein Fachwerkhaus mit größerem Wohnraum.",
+        "items": {
+            "wood": 40,
+            "stone": 20,
+            "nails": 15
+        },
+        "gold": 150,
+        "hours": 48,
+        "effects": {
+            "stage": "timber"
+        }
+    },
+    {
+        "key": "station_workbench_2",
+        "name": "Werkbank Stufe 2",
+        "icon": "🪚",
+        "requires": {
+            "stage": "timber"
+        },
+        "items": {
+            "wood": 20,
+            "nails": 10
+        },
+        "gold": 80,
+        "hours": 24,
+        "effects": {
+            "stations": {
+                "workbench": 2
+            }
+        }
+    },
+    {
+        "key": "station_alchemy_2",
+        "name": "Alchemietisch Stufe 2",
+        "icon": "⚗️",
+        "requires": {
+            "stage": "timber",
+            "stations": {
+                "alchemy": 1
+            }
+        },
+        "items": {
+            "crystal_shard": 5,
+            "herbs": 10,
+            "stone": 5
+        },
+        "gold": 100,
+        "hours": 24,
+        "effects": {
+            "stations": {
+                "alchemy": 2
+            }
+        }
+    },
+    {
+        "key": "station_sewing_2",
+        "name": "Nähtisch Stufe 2",
+        "icon": "🧵",
+        "requires": {
+            "stage": "timber",
+            "stations": {
+                "sewing": 1
+            }
+        },
+        "items": {
+            "wood": 10,
+            "yarn": 10,
+            "cloth": 5
+        },
+        "gold": 80,
+        "hours": 24,
+        "effects": {
+            "stations": {
+                "sewing": 2
+            }
+        }
+    },
+    {
+        "key": "station_forge_2",
+        "name": "Schmiede Stufe 2",
+        "icon": "🔥",
+        "requires": {
+            "stage": "timber",
+            "stations": {
+                "forge": 1
+            }
+        },
+        "items": {
+            "stone": 30,
+            "flint": 10,
+            "leather": 5
+        },
+        "gold": 150,
+        "hours": 48,
+        "effects": {
+            "stations": {
+                "forge": 2
+            }
+        }
+    },
+    {
+        "key": "stage_manor",
+        "name": "Gutshof",
+        "icon": "🏘️",
+        "description": "Ein richtiger Gutshof – Platz für die Trophäenhalle.",
+        "requires": {
+            "stage": "timber"
+        },
+        "items": {
+            "wood": 60,
+            "stone": 60,
+            "nails": 30,
+            "cloth": 10
+        },
+        "gold": 400,
+        "hours": 72,
+        "effects": {
+            "stage": "manor"
+        }
+    },
+    {
+        "key": "room_trophy",
+        "name": "Trophäenhalle",
+        "icon": "🏆",
+        "description": "Besiegte Bosse, Abzeichen und meisterhafte Stücke.",
+        "requires": {
+            "stage": "manor"
+        },
+        "items": {
+            "stone": 30,
+            "paint": 10,
+            "crystal_shard": 3
+        },
+        "gold": 120,
+        "hours": 48,
+        "effects": {
+            "room": "trophy"
+        }
+    },
+    {
+        "key": "stage_castle",
+        "name": "Burg",
+        "icon": "🏰",
+        "description": "Die eigene Familienburg!",
+        "requires": {
+            "stage": "manor"
+        },
+        "items": {
+            "stone": 150,
+            "flint": 30,
+            "crystal_shard": 10,
+            "dragon_scale": 2
+        },
+        "gold": 1000,
+        "hours": 72,
+        "effects": {
+            "stage": "castle"
+        }
+    }
+]

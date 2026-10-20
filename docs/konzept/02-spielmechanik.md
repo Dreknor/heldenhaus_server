@@ -2,8 +2,9 @@
 
 ## 2.1 Aufgabentypen
 - **Gewohnheiten (Habits)**: +/− beliebig oft, Wert verschiebt die Farbe (rot → blau)
-- **Tägliche Aufgaben (Dailies)**: Wiederholungsregeln (täglich, Wochentage, alle n Tage, monatlich), Checklisten, Streak
-- **To-Dos**: einmalig, optional mit Fälligkeit und Checkliste
+- **Tägliche Aufgaben (Dailies)**: Wiederholungsregeln (täglich, Wochentage, alle n Tage, monatlich), Checklisten, Streak, optional als **Kern-Daily** markiert (zählt auch am Energiespar-Tag, §11.2)
+- **To-Dos**: einmalig, optional mit Fälligkeit und Checkliste. Schnell notierte Einträge aus der **Kopf-Ablage** warten als `inbox` ohne Kategorie aufs Einsortieren (§11.2).
+- **Checklisten als Mikro-Schritte**: Jeder abgehakte Schritt bringt sofort seinen Anteil `1/n` der Belohnung, die Summe bleibt gleich (§11.2).
 - **Belohnungen**: persönliche Belohnungen (für Gold) und **Familienbelohnungen** (für Sterne, siehe §3)
 
 ## 2.2 Werte und Formeln (in `config/game.php` einstellbar)
@@ -15,12 +16,13 @@
 - XP bis zum nächsten Level: `round((L² × 0,25 + 10L + 139,75) / 10) × 10`
 - Max. 50 HP; verpasste Dailies verursachen Schaden `delta × Schwierigkeit × 2 × (1 − KON-Bonus) × Altersfaktor`, wobei der Altersfaktor für 9–12 bei 0,5 und für 13–16 bei 0,75 liegt (von Eltern änderbar)
 - **Tageswechsel („Cron“)** pro Person mit eigener Zeitzone und einstellbarem Tagesbeginn (z. B. 04:00). Er wird beim ersten App- oder Webaufruf des Tages ausgeführt (lazy) und zusätzlich per Scheduler-Batch. Vor der Auswertung kommt der Dialog „Gestern noch erledigt?“ (wie im Original).
+- **Sanfter Modus und Energiespar-Tag** (§11.3, §11.2): Im sanften Modus verursachen verpasste Dailies keinen HP-Schaden. Am Energiespar-Tag zählen nur Kern-Dailies. Verpasste Dailies pausieren die Serie, statt sie auf 0 zu setzen, eine Erholungs-Quest kann sie wiederherstellen.
 
 ## 2.3 Progression
 - **Level & Attribute** mit kindgerechten Namen: **Kraft** (Boss-Schaden), **Köpfchen** (XP), **Ausdauer** (weniger Schaden), **Spürsinn** (Gold und Drops). Punkte verteilt man ab Level 2.
 - **Eigene Spielklassen** statt Krieger/Magier/Heiler/Schurke, siehe §2.4
 - **Avatar-Editor**: Körper, Haare, Hautfarbe, Hintergründe; Ausrüstung pro Slot (Kopf, Rüstung, Waffe, Schild, Accessoire)
-- **Drops**: Eier + Schlüsselpulver → Haustiere → füttern → Reittiere. Die Drop-Chance ist begrenzt (Tageslimit).
+- **Drops**: Eier + Schlüsselpulver → Haustiere → füttern → Reittiere. Die Drop-Chance ist begrenzt (Tageslimit). Dazu kommen bei Routineaufgaben kleine **Überraschungen** mit Pech-Schutz, nur in Spielwährung (§11.3).
 - **Erfolge/Abzeichen** in Stufen (z. B. „Fleißige Hände I–VII“, „Feuer und Flamme“ für Serien, „Monsterjäger“, „Tierfreund“). Sie werden aus vorhandenen Spieldaten berechnet, bringen je Stufe etwas Gold, erscheinen im Familien-Feed und bleiben erhalten, auch wenn ein Abschluss später zurückgenommen wird. Familienaufgaben mit Freigabe zählen erst nach der Bestätigung. Der Katalog liegt in `database/content/achievements.json`; neue Stufen vergibt `php artisan heldenhaus:achievements-sync` nachträglich (ohne Feier).
 - Saisonale Events (Ferien, Weihnachten, Ostern)
 - **Spielinhalte als versionierte JSON-Dateien** (`database/content/*.json`) mit dem Import-Befehl `php artisan game:content-sync`. Neue Items brauchen keine Code-Änderung.
@@ -147,6 +149,8 @@ Die Aufgabenkategorie wählt man beim Anlegen (Pflichtfeld mit Vorschlag). Schwe
 | Barde | Bonus, wenn mehrere Mitglieder im selben Raum stehen; „Lied“ senkt die Fackelkosten der Gruppe |
 
 **Dungeon-Erzeugung**: Der Server erzeugt den Dungeon aus einem **Seed** und **Raum-Bausteinen**, die im **Tiled**-Editor gebaut werden (isometrische `.tmx`-Dateien plus Inhalts-JSON für Monster, Beute und Thema). Themen: Spinnenkeller, Staubmonster-Gruft, Wäschedrachen-Höhle usw., passend zu Haushaltsthemen.
+
+**Bausteine (Stand Server)**: Jeder Raumtyp hat 1–3 Bausteine (`blocks` in `database/content/dungeons.json`), je eine isometrische Tiled-Karte mit 5×5 Feldern unter `public/dungeon/blocks/<key>.tmx` (Tileset `public/dungeon/dungeon.tsx`, Grafiken aus Kenney „Isometric Miniature Dungeon“, CC0). Ebenen: `floor`, `walls_back`, `props`, `walls_front` und die Objektebene `spots` mit `door_N/E/S/W`, `spawn` und je nach Typ `monster`, `chest`, `trap`, `puzzle`, `lever`, `campfire`, `merchant`, `boss`. Norden ist im Dungeon-Raster `y-1` und liegt oben rechts. Die Türlücken bleiben frei: Die API liefert je Raum `doors` mit Art und fertigem Sprite-Namen (Torbogen, verschlossene/geöffnete Tür, Tor, Riss/Loch, sonst Wand), dazu `block_url` und unter `art` die Sprite-Zuordnung. Neu erzeugen mit `python3 tools/dungeon/build_blocks.py <entpacktes Kenney-Paket>`.
 
 **Technik**:
 - **Server-autoritativ**: Die App sendet nur Absichten (`move`, `interact`, `fight`). Der Server prüft Fackeln, Wege und Zufall (deterministischer Zufallsgenerator aus Seed + Aktionszähler, dadurch testbar und schwer zu schummeln). Es gibt kein Echtzeit-Protokoll. Andere Mitglieder sehen Züge per Polling oder Push („Lea hat die Schatzkammer gefunden!“).

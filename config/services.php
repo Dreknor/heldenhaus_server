@@ -35,4 +35,17 @@ return [
         ],
     ],
 
+    // Firebase Cloud Messaging HTTP v1: Pfad zur Dienstkonto-JSON aus der Firebase-Konsole.
+    // Ohne Datei bleibt Push einfach aus.
+    // Optional: KI-Aufteilung großer Aufgaben in Schritte (Konzept §11.6). Ohne Schlüssel aus.
+    'openrouter' => [
+        'key' => env('OPENROUTER_API_KEY'),
+        'model' => env('OPENROUTER_MODEL', 'openai/gpt-4o-mini'),
+    ],
+
+    'fcm' => [
+        'credentials' => env('FCM_CREDENTIALS', storage_path('app/private/firebase.json')),
+        'channel' => env('FCM_ANDROID_CHANNEL', 'heldenhaus'),
+    ],
+
 ];

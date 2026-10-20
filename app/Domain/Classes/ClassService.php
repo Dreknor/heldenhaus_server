@@ -12,6 +12,7 @@ use App\Models\ActiveBuff;
 use App\Models\DayLog;
 use App\Models\Family;
 use App\Models\FamilyDay;
+use App\Models\RecoveryQuest;
 use App\Models\SkillCast;
 use App\Models\TaskAssignment;
 use App\Models\User;
@@ -167,7 +168,8 @@ class ClassService
             Progression::heal($stats, (float) $entry['damage']);
             $stats->save();
 
-            $assignment->update(['streak' => $entry['streak'], 'value' => $entry['value'] ?? $assignment->value]);
+            $assignment->update(['streak' => $entry['streak'], 'value' => $entry['value'] ?? $assignment->value, 'streak_paused_at' => null]);
+            RecoveryQuest::where('assignment_id', $assignment->id)->where('status', 'active')->update(['status' => 'restored']);
             $log->update(['missed' => collect($log->missed)->reject(fn ($m) => $m['assignment_id'] === $assignment->id)->values()->all()]);
 
             SkillCast::create(['user_id' => $healer->id, 'skill_key' => 'second_chance', 'target_user_id' => $assignment->user_id]);

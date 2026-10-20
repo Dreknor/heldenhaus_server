@@ -139,6 +139,7 @@ export interface Member {
     name: string;
     role: 'parent' | 'child' | 'guest';
     role_label: string;
+    chat_allowed?: boolean;
     age_group: 'child' | 'teen' | 'adult';
     birth_year?: number;
     avatar_color: string;
