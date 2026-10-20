@@ -76,10 +76,22 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
         });
     });
 
-    Route::middleware(['auth:sanctum', 'abilities:ha', 'family', 'throttle:120,1'])->prefix('ha')->name('ha.')->group(function () {
+    Route::middleware(['auth:sanctum', 'abilities:ha', 'family', 'throttle:120,1', 'ha-audit'])->prefix('ha')->name('ha.')->group(function () {
         Route::get('state', [HomeAssistantController::class, 'state'])->name('state');
         Route::post('events', [HomeAssistantController::class, 'event'])->name('events');
         Route::get('quest.svg', [HomeAssistantController::class, 'questImage'])->name('quest.image');
+        Route::post('tasks', [HomeAssistantController::class, 'createTask'])->name('tasks.store');
+        Route::post('tasks/{task}/complete', [HomeAssistantController::class, 'completeTask'])->name('tasks.complete');
+
+        // Eltern-Funktionen nur mit Token-Fähigkeit „ha:approve“ (beim Erzeugen des Tokens wählbar)
+        Route::middleware('abilities:ha:approve')->group(function () {
+            Route::get('approvals', [FamilyController::class, 'approvals'])->name('approvals');
+            Route::post('completions/{completion}/{decision}', [FamilyController::class, 'reviewCompletion'])
+                ->whereIn('decision', ['approve', 'reject'])->name('completions.review');
+            Route::post('redemptions/{redemption}/{decision}', [FamilyController::class, 'reviewRedemption'])
+                ->whereIn('decision', ['approve', 'reject'])->name('redemptions.review');
+            Route::post('stars/{member}', [HomeAssistantController::class, 'grantStars'])->whereNumber('member')->name('stars');
+        });
 
         // Spielen über Home Assistant: dieselben Aktionen wie in der App, stellvertretend für ein
         // Familienmitglied. Eltern-Funktionen (Freigaben, Aufgabenverwaltung, Taschengeld) fehlen bewusst.

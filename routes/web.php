@@ -48,6 +48,10 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
     Route::post('family/invites', [FamilyController::class, 'storeInvite'])->name('family.invites.store');
     Route::delete('family/invites/{invite}', [FamilyController::class, 'destroyInvite'])->name('family.invites.destroy');
     Route::post('family/ha-token', [FamilyController::class, 'createHaToken'])->name('family.ha-token');
+    Route::put('family/ha-webhook', [FamilyController::class, 'saveHaWebhook'])->name('family.ha-webhook.save');
+    Route::post('family/ha-webhook/test', [FamilyController::class, 'testHaWebhook'])->name('family.ha-webhook.test');
+    Route::delete('family/ha-webhook', [FamilyController::class, 'destroyHaWebhook'])->name('family.ha-webhook.destroy');
+    Route::post('family/members/{member}/stars', [FamilyController::class, 'grantStars'])->name('family.members.stars');
     Route::put('family/settings', [FamilyController::class, 'updateSettings'])->name('family.settings.update');
 
     Route::get('approvals', [ApprovalController::class, 'index'])->name('approvals.index');

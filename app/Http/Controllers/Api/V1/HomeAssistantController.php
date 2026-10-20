@@ -7,6 +7,8 @@ use App\Domain\Art\MonsterSvg;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\ScoreTask;
 use App\Domain\Quests\QuestService;
+use App\Domain\Rewards\RewardService;
+use App\Domain\Tasks\TaskService;
 use App\Enums\CompletionStatus;
 use App\Enums\TaskType;
 use App\Http\Controllers\Controller;
@@ -21,6 +23,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Validation\Rule;
 
 /**
  * Home-Assistant-Schnittstelle (Konzept §4). HA fragt den Zustand ab und sendet Ereignis-Schlüssel;
@@ -105,6 +108,83 @@ class HomeAssistantController extends Controller
         }
 
         return response()->json(['event' => $data['event'], 'handled' => $handled]);
+    }
+
+    /**
+     * Dienst heldenhaus.create_task: Familienaufgabe anlegen, z. B. „Wäsche aufhängen“, wenn die Waschmaschine fertig ist.
+     * Ohne member_id ist sie in der Aufgabenbörse, mit „rotation_of“ bekommt sie, wer im Ämterplan dieser Aufgabe heute dran ist.
+     */
+    public function createTask(Request $request, TaskService $tasks): JsonResponse
+    {
+        $familyId = $request->user()->family_id;
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:120'],
+            'notes' => ['nullable', 'string', 'max:2000'],
+            'member_id' => ['nullable', 'integer', Rule::exists('users', 'id')->where('family_id', $familyId)],
+            'rotation_of' => ['nullable', 'integer', Rule::exists('tasks', 'id')->where('family_id', $familyId)],
+            'category' => ['nullable', Rule::in(array_keys(config('game.categories')))],
+            'difficulty' => ['nullable', Rule::in(array_values(config('game.difficulties')))],
+            'star_reward' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'approval_mode' => ['nullable', Rule::in(['none', 'required', 'photo'])],
+            'due_date' => ['nullable', 'date'],
+        ]);
+
+        $memberId = $data['member_id'] ?? null;
+        if ($memberId === null && isset($data['rotation_of'])) {
+            $plan = Task::find($data['rotation_of']);
+            $memberId = $plan->dutyUserId($request->user()->gameDate());
+        }
+
+        $task = $tasks->create($request->user(), [
+            'scope' => 'family',
+            'type' => TaskType::Todo->value,
+            'title' => $data['title'],
+            'notes' => $data['notes'] ?? null,
+            'category' => $data['category'] ?? 'household',
+            'difficulty' => $data['difficulty'] ?? 1,
+            'star_reward' => $data['star_reward'] ?? 1,
+            'approval_mode' => $data['approval_mode'] ?? 'none',
+            'assignment_mode' => $memberId ? 'assigned' : 'pool',
+            'assignees' => $memberId ? [$memberId] : [],
+            'due_date' => $data['due_date'] ?? null,
+        ]);
+
+        return response()->json([
+            'id' => $task->id,
+            'title' => $task->title,
+            'assigned_to' => $task->assignments()->pluck('user_id'),
+        ], 201);
+    }
+
+    /** Dienst heldenhaus.complete_task: eine bestimmte Aufgabe verifiziert erledigen (Quelle „ha“, keine Freigabe nötig). */
+    public function completeTask(Request $request, Task $task, ScoreTask $score): JsonResponse
+    {
+        abort_unless($task->family_id === $request->user()->family_id && $task->archived_at === null, 404);
+        abort_if($task->type === TaskType::Reward, 422, 'Belohnungen werden gekauft, nicht abgehakt.');
+
+        $memberId = $request->validate(['member_id' => ['nullable', 'integer']])['member_id'] ?? null;
+        $assignment = $task->assignments()->with('user')->get()
+            ->when($memberId, fn ($c, $id) => $c->where('user_id', $id))
+            ->first(fn (TaskAssignment $a) => ($task->type === TaskType::Habit || ! $a->completed)
+                && $task->isOnDuty($a->user_id, $a->user->gameDate()));
+
+        abort_if($assignment === null, 422, 'Niemand hat diese Aufgabe gerade offen.');
+
+        return response()->json($score($assignment, 'up', 'ha')->toArray());
+    }
+
+    /** Dienst heldenhaus.grant_stars: Lob mit Sternen, z. B. per Knopf am Wandtablet. Braucht die Fähigkeit „ha:approve“. */
+    public function grantStars(Request $request, User $member, RewardService $rewards): JsonResponse
+    {
+        abort_unless($request->user()->sameFamilyAs($member), 404);
+        $data = $request->validate([
+            'stars' => ['required', 'integer', 'between:1,20'],
+            'reason' => ['nullable', 'string', 'max:120'],
+        ]);
+
+        $stats = $rewards->grantStars($request->user(), $member, $data['stars'], $data['reason'] ?? null);
+
+        return response()->json(['member_id' => $member->id, 'stars' => $stats->stars]);
     }
 
     /** Avatar mit sichtbarer Ausrüstung als SVG (für die image-Entität in HA). */

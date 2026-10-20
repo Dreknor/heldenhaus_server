@@ -12,6 +12,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import type { Member } from '@/types';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { Coins, Copy, Star, Trash2, UserPlus } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 const props = defineProps<{
     family: {
@@ -27,8 +28,46 @@ const props = defineProps<{
     feed: FeedEntryView[];
     haToken: string | null;
     haConnected: boolean;
+    haWebhook: {
+        url: string;
+        events: string[] | null;
+        active: boolean;
+        last_sent_at: string | null;
+        last_status: number | null;
+        last_error: string | null;
+        failures: number;
+    } | null;
+    haWebhookSecret: string | null;
+    haEvents: Record<string, string>;
+    haAudit: {
+        id: number;
+        direction: 'in' | 'out';
+        action: string;
+        status: number | null;
+        member: string | null;
+        details: Record<string, unknown> | null;
+        created_at: string;
+    }[];
     apiUrl: string;
 }>();
+
+const haTokenApprove = ref(false);
+const webhook = useForm({
+    url: props.haWebhook?.url ?? '',
+    events: props.haWebhook?.events ?? Object.keys(props.haEvents),
+    active: props.haWebhook?.active ?? true,
+    regenerate_secret: false,
+});
+const saveWebhook = () =>
+    webhook.put(route('family.ha-webhook.save'), { preserveScroll: true, onSuccess: () => (webhook.regenerate_secret = false) });
+
+const starGift = useForm({ member: 0, stars: 1, reason: '' });
+const giveStars = (memberId: number) => {
+    starGift.member = memberId;
+    starGift.post(route('family.members.stars', { member: memberId }), { preserveScroll: true, onSuccess: () => starGift.reset() });
+};
+
+const formatTime = (iso: string) => new Date(iso).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' });
 
 const haYaml = () => `rest:
   - resource: ${props.apiUrl}/ha/state
@@ -101,7 +140,18 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
                                 <StatBar label="Erfahrung" :value="m.stats.xp" :max="m.stats.xp_to_next" color="xp" />
                                 <div class="flex gap-3 pt-1 text-sm font-bold">
                                     <span class="flex items-center gap-1 text-amber-600"><Coins class="size-4" />{{ m.stats.gold.toFixed(0) }}</span>
-                                    <span class="flex items-center gap-1 text-violet-600"><Star class="size-4 fill-current" />{{ m.stats.stars }}</span>
+                                    <span class="flex items-center gap-1 text-violet-600"
+                                        ><Star class="size-4 fill-current" />{{ m.stats.stars }}</span
+                                    >
+                                    <button
+                                        v-if="isParent && m.role !== 'guest'"
+                                        class="ml-auto rounded-full border px-2 text-xs font-semibold text-violet-700 hover:bg-violet-50 dark:text-violet-300 dark:hover:bg-violet-950/40"
+                                        title="Sterne als Lob schenken"
+                                        :disabled="starGift.processing"
+                                        @click="giveStars(m.id)"
+                                    >
+                                        +1 ⭐
+                                    </button>
                                 </div>
                             </template>
                         </div>
@@ -156,11 +206,16 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
                             <p class="text-xs font-semibold text-muted-foreground">Familiencode</p>
                             <div class="flex items-center gap-2">
                                 <span class="font-mono text-2xl font-extrabold tracking-widest">{{ family.login_code }}</span>
-                                <button class="ml-auto rounded-md p-1.5 hover:bg-background" title="Link kopieren" @click="copy(familyLoginUrl())"><Copy class="size-4" /></button>
+                                <button class="ml-auto rounded-md p-1.5 hover:bg-background" title="Link kopieren" @click="copy(familyLoginUrl())">
+                                    <Copy class="size-4" />
+                                </button>
                             </div>
                         </div>
 
-                        <form class="flex flex-wrap items-end gap-2" @submit.prevent="invite.post(route('family.invites.store'), { onSuccess: () => invite.reset() })">
+                        <form
+                            class="flex flex-wrap items-end gap-2"
+                            @submit.prevent="invite.post(route('family.invites.store'), { onSuccess: () => invite.reset() })"
+                        >
                             <div class="grid gap-1.5">
                                 <Label for="role">Rolle</Label>
                                 <select id="role" v-model="invite.role" class="h-9 rounded-md border border-input bg-background px-3 text-sm">
@@ -179,9 +234,19 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
                         <ul v-if="invites.length" class="divide-y rounded-xl border">
                             <li v-for="i in invites" :key="i.id" class="flex items-center gap-3 p-3 text-sm">
                                 <span class="font-mono font-bold">{{ i.code }}</span>
-                                <span class="text-muted-foreground">{{ i.role_label }}<template v-if="i.email"> · {{ i.email }}</template> · bis {{ i.expires_at }}</span>
-                                <button class="ml-auto rounded-md p-1 hover:bg-muted" title="Kopieren" @click="copy(i.code)"><Copy class="size-4" /></button>
-                                <button class="rounded-md p-1 text-rose-600 hover:bg-muted" title="Löschen" @click="router.delete(route('family.invites.destroy', { invite: i.id }))"><Trash2 class="size-4" /></button>
+                                <span class="text-muted-foreground"
+                                    >{{ i.role_label }}<template v-if="i.email"> · {{ i.email }}</template> · bis {{ i.expires_at }}</span
+                                >
+                                <button class="ml-auto rounded-md p-1 hover:bg-muted" title="Kopieren" @click="copy(i.code)">
+                                    <Copy class="size-4" />
+                                </button>
+                                <button
+                                    class="rounded-md p-1 text-rose-600 hover:bg-muted"
+                                    title="Löschen"
+                                    @click="router.delete(route('family.invites.destroy', { invite: i.id }))"
+                                >
+                                    <Trash2 class="size-4" />
+                                </button>
                             </li>
                         </ul>
                     </CardContent>
@@ -198,19 +263,105 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
                     </CardHeader>
                     <CardContent class="grid gap-3">
                         <div class="flex flex-wrap items-center gap-3">
-                            <span class="text-sm" :class="haConnected ? 'text-emerald-600' : 'text-muted-foreground'">{{ haConnected ? 'Token vorhanden' : 'Noch nicht verbunden' }}</span>
-                            <Button variant="outline" @click="router.post(route('family.ha-token'))">{{ haConnected ? 'Neues Token erzeugen' : 'Token erzeugen' }}</Button>
+                            <span class="text-sm" :class="haConnected ? 'text-emerald-600' : 'text-muted-foreground'">{{
+                                haConnected ? 'Token vorhanden' : 'Noch nicht verbunden'
+                            }}</span>
+                            <label class="flex items-center gap-2 text-sm">
+                                <input v-model="haTokenApprove" type="checkbox" class="size-4" />
+                                darf Freigaben bestätigen und Sterne schenken
+                            </label>
+                            <Button variant="outline" @click="router.post(route('family.ha-token'), { approve: haTokenApprove })">{{
+                                haConnected ? 'Neues Token erzeugen' : 'Token erzeugen'
+                            }}</Button>
                         </div>
                         <div v-if="haToken" class="rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm dark:bg-amber-950/30">
                             <p class="font-semibold">Dein Token – wird nur jetzt angezeigt:</p>
                             <div class="mt-1 flex items-center gap-2">
                                 <code class="break-all">{{ haToken }}</code>
-                                <button class="rounded-md p-1.5 hover:bg-background" title="Kopieren" @click="copy(haToken)"><Copy class="size-4" /></button>
+                                <button class="rounded-md p-1.5 hover:bg-background" title="Kopieren" @click="copy(haToken)">
+                                    <Copy class="size-4" />
+                                </button>
                             </div>
                         </div>
                         <details class="text-sm">
                             <summary class="cursor-pointer font-semibold">Vorlage für configuration.yaml</summary>
                             <pre class="mt-2 overflow-x-auto rounded-lg bg-muted p-3 text-xs">{{ haYaml() }}</pre>
+                        </details>
+
+                        <div class="grid gap-3 border-t pt-4">
+                            <div>
+                                <p class="font-semibold">Rückweg: Webhook an Home Assistant</p>
+                                <p class="text-sm text-muted-foreground">
+                                    Ist Home Assistant von außen erreichbar (Nabu Casa oder eigener Reverse Proxy), meldet das Heldenhaus Ereignisse
+                                    sofort, etwa „Belohnung eingelöst“ mit dem Aktions-Schlüssel aus dem Belohnungsshop. Jede Nachricht ist mit
+                                    HMAC-SHA256 signiert (<code>X-Heldenhaus-Signature</code> über <code>Zeitstempel.Body</code>).
+                                </p>
+                            </div>
+                            <form class="grid gap-3" @submit.prevent="saveWebhook">
+                                <div class="grid gap-1.5">
+                                    <Label for="wh-url">Webhook-URL</Label>
+                                    <Input id="wh-url" v-model="webhook.url" placeholder="https://xyz.ui.nabu.casa/api/webhook/heldenhaus" />
+                                    <InputError :message="webhook.errors.url" />
+                                </div>
+                                <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                                    <label v-for="(label, key) in haEvents" :key="key" class="flex items-center gap-2">
+                                        <input v-model="webhook.events" type="checkbox" :value="key" class="size-4" />
+                                        {{ label }}
+                                    </label>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-3 text-sm">
+                                    <label class="flex items-center gap-2"
+                                        ><input v-model="webhook.active" type="checkbox" class="size-4" /> aktiv</label
+                                    >
+                                    <label v-if="haWebhook" class="flex items-center gap-2"
+                                        ><input v-model="webhook.regenerate_secret" type="checkbox" class="size-4" /> neues Secret</label
+                                    >
+                                    <Button type="submit" :disabled="webhook.processing">Speichern</Button>
+                                    <Button
+                                        v-if="haWebhook"
+                                        type="button"
+                                        variant="outline"
+                                        @click="router.post(route('family.ha-webhook.test'), {}, { preserveScroll: true })"
+                                        >Test senden</Button
+                                    >
+                                    <Button
+                                        v-if="haWebhook"
+                                        type="button"
+                                        variant="ghost"
+                                        class="text-rose-600"
+                                        @click="router.delete(route('family.ha-webhook.destroy'), { preserveScroll: true })"
+                                        >Entfernen</Button
+                                    >
+                                </div>
+                            </form>
+                            <div v-if="haWebhookSecret" class="rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm dark:bg-amber-950/30">
+                                <p class="font-semibold">Webhook-Secret – wird nur jetzt angezeigt (in der HA-Integration eintragen):</p>
+                                <div class="mt-1 flex items-center gap-2">
+                                    <code class="break-all">{{ haWebhookSecret }}</code>
+                                    <button class="rounded-md p-1.5 hover:bg-background" title="Kopieren" @click="copy(haWebhookSecret)">
+                                        <Copy class="size-4" />
+                                    </button>
+                                </div>
+                            </div>
+                            <p v-if="haWebhook?.last_sent_at" class="text-xs" :class="haWebhook.last_error ? 'text-rose-600' : 'text-emerald-600'">
+                                Zuletzt gesendet {{ formatTime(haWebhook.last_sent_at) }}: {{ haWebhook.last_error ?? `HTTP ${haWebhook.last_status}`
+                                }}<template v-if="haWebhook.failures > 1"> ({{ haWebhook.failures }} Fehler in Folge)</template>
+                            </p>
+                        </div>
+
+                        <details v-if="haAudit.length" class="text-sm">
+                            <summary class="cursor-pointer font-semibold">Prüfprotokoll (letzte Aktionen)</summary>
+                            <ul class="mt-2 divide-y rounded-xl border text-xs">
+                                <li v-for="e in haAudit" :key="e.id" class="flex flex-wrap items-center gap-2 p-2">
+                                    <span class="font-mono">{{ formatTime(e.created_at) }}</span>
+                                    <span class="rounded bg-muted px-1.5">{{ e.direction === 'in' ? 'HA → Heldenhaus' : 'Heldenhaus → HA' }}</span>
+                                    <span class="font-semibold">{{ e.action }}</span>
+                                    <span v-if="e.member" class="text-muted-foreground">für {{ e.member }}</span>
+                                    <span class="ml-auto" :class="e.status && e.status < 300 ? 'text-emerald-600' : 'text-rose-600'">{{
+                                        e.status ?? 'kein Kontakt'
+                                    }}</span>
+                                </li>
+                            </ul>
                         </details>
                     </CardContent>
                 </Card>

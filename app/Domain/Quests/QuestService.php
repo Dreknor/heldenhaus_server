@@ -8,6 +8,7 @@ use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
 use App\Domain\Social\FeedService;
 use App\Enums\FamilyRole;
+use App\Events\QuestCompleted;
 use App\Models\Item;
 use App\Models\Quest;
 use App\Models\QuestContribution;
@@ -303,6 +304,8 @@ class QuestService
         $verb = $quest->isBoss() ? "hat {$quest->name} besiegt" : "hat die Quest „{$quest->name}“ geschafft";
         $extra = $quest->reward_text ? " – {$quest->reward_text}!" : '!';
         $this->feed->post($quest->family_id, $quest->user, 'quest_completed', $quest->icon, "Sieg! {$winner} {$verb}{$extra}");
+
+        event(new QuestCompleted($quest));
     }
 
     private function expire(int $familyId): void

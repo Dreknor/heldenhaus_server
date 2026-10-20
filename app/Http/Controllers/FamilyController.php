@@ -3,15 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Family\FamilyService;
+use App\Domain\Integrations\HomeAssistant\HomeAssistantWebhooks;
+use App\Domain\Rewards\RewardService;
 use App\Domain\Social\FeedService;
 use App\Enums\FamilyRole;
 use App\Http\Presenters\CharacterSheet;
 use App\Http\Presenters\GamePresenter;
 use App\Models\FamilyInvite;
+use App\Models\HaAuditEntry;
+use App\Models\HaWebhook;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -53,6 +58,14 @@ class FamilyController extends Controller
             'feed' => FeedService::present($family->id, $user->id),
             'haToken' => $request->session()->get('haToken'),
             'haConnected' => $isParent && $user->tokens()->where('name', 'home-assistant')->exists(),
+            'haWebhook' => $isParent ? $this->webhookView($family->id) : null,
+            'haWebhookSecret' => $request->session()->get('haWebhookSecret'),
+            'haEvents' => HomeAssistantWebhooks::EVENTS,
+            'haAudit' => $isParent ? HaAuditEntry::with('member:id,name')->where('family_id', $family->id)->latest('id')->limit(15)->get()
+                ->map(fn (HaAuditEntry $e) => [
+                    'id' => $e->id, 'direction' => $e->direction, 'action' => $e->action, 'status' => $e->status,
+                    'member' => $e->member?->name, 'details' => $e->details, 'created_at' => $e->created_at->toIso8601String(),
+                ]) : [],
             'apiUrl' => url('/api/v1'),
         ]);
     }
@@ -131,10 +144,92 @@ class FamilyController extends Controller
     {
         $this->authorize('manage', $request->user()->family);
 
+        $abilities = $request->boolean('approve') ? ['ha', 'ha:approve'] : ['ha'];
         $request->user()->tokens()->where('name', 'home-assistant')->delete();
-        $token = $request->user()->createToken('home-assistant', ['ha'])->plainTextToken;
+        $token = $request->user()->createToken('home-assistant', $abilities)->plainTextToken;
 
         return back()->with('haToken', $token);
+    }
+
+    /** Rückweg zu Home Assistant: Webhook-URL (z. B. Nabu Casa) und Auswahl der Ereignisse. Das Secret wird nur einmal angezeigt. */
+    public function saveHaWebhook(Request $request): RedirectResponse
+    {
+        $family = $request->user()->family;
+        $this->authorize('manage', $family);
+
+        $data = $request->validate([
+            'url' => ['required', 'url:https,http', 'max:500'],
+            'events' => ['nullable', 'array'],
+            'events.*' => [Rule::in(array_keys(HomeAssistantWebhooks::EVENTS))],
+            'active' => ['boolean'],
+            'regenerate_secret' => ['boolean'],
+        ], [], ['url' => 'Webhook-URL']);
+
+        $webhook = HaWebhook::firstOrNew(['family_id' => $family->id]);
+        $newSecret = ! $webhook->exists || $request->boolean('regenerate_secret') ? Str::random(40) : null;
+
+        $webhook->fill([
+            'url' => $data['url'],
+            'events' => isset($data['events']) && count($data['events']) < count(HomeAssistantWebhooks::EVENTS) ? array_values($data['events']) : null,
+            'active' => $data['active'] ?? true,
+        ]);
+        if ($newSecret) {
+            $webhook->secret = $newSecret;
+            $webhook->failures = 0;
+        }
+        $webhook->save();
+
+        return back()->with('success', 'Webhook gespeichert.')->with('haWebhookSecret', $newSecret);
+    }
+
+    public function testHaWebhook(Request $request, HomeAssistantWebhooks $webhooks): RedirectResponse
+    {
+        $this->authorize('manage', $request->user()->family);
+
+        $sent = $webhooks->send($request->user()->family_id, 'ping', HomeAssistantWebhooks::member($request->user()) + ['message' => 'Hallo aus dem Heldenhaus!']);
+
+        return $sent
+            ? back()->with('success', 'Test-Ereignis „heldenhaus_ping“ ist unterwegs.')
+            : back()->withErrors(['game' => 'Es ist noch kein Webhook eingerichtet.']);
+    }
+
+    public function destroyHaWebhook(Request $request): RedirectResponse
+    {
+        $this->authorize('manage', $request->user()->family);
+        HaWebhook::where('family_id', $request->user()->family_id)->delete();
+
+        return back()->with('success', 'Webhook entfernt.');
+    }
+
+    /** Eltern loben mit Sternen. */
+    public function grantStars(Request $request, User $member, RewardService $rewards): RedirectResponse
+    {
+        $this->authorize('manage', $request->user()->family);
+        abort_unless($request->user()->sameFamilyAs($member), 403);
+
+        $data = $request->validate([
+            'stars' => ['required', 'integer', 'between:1,20'],
+            'reason' => ['nullable', 'string', 'max:120'],
+        ], [], ['stars' => 'Sterne', 'reason' => 'Grund']);
+
+        $rewards->grantStars($request->user(), $member, $data['stars'], $data['reason'] ?? null);
+
+        return back()->with('success', "{$member->name} hat {$data['stars']} ".($data['stars'] === 1 ? 'Stern' : 'Sterne').' bekommen.');
+    }
+
+    private function webhookView(int $familyId): ?array
+    {
+        $webhook = HaWebhook::where('family_id', $familyId)->first();
+
+        return $webhook ? [
+            'url' => $webhook->url,
+            'events' => $webhook->events,
+            'active' => $webhook->active,
+            'last_sent_at' => $webhook->last_sent_at?->toIso8601String(),
+            'last_status' => $webhook->last_status,
+            'last_error' => $webhook->last_error,
+            'failures' => $webhook->failures,
+        ] : null;
     }
 
     public function updateSettings(Request $request): RedirectResponse

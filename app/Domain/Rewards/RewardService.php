@@ -6,6 +6,7 @@ use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
 use App\Domain\Social\FeedService;
 use App\Enums\TaskType;
+use App\Events\RewardRedeemed;
 use App\Models\AllowanceEntry;
 use App\Models\RewardItem;
 use App\Models\RewardRedemption;
@@ -115,6 +116,29 @@ class RewardService
         });
     }
 
+    /** Eltern loben mit Sternen (Web, App oder Home Assistant). */
+    public function grantStars(User $parent, User $member, int $stars, ?string $reason = null): UserStats
+    {
+        if (! $parent->isParent() || ! $parent->sameFamilyAs($member)) {
+            throw new GameException('Nur Eltern können Sterne verschenken.');
+        }
+        if ($stars < 1) {
+            throw new GameException('Mindestens ein Stern.');
+        }
+
+        $stats = DB::transaction(function () use ($member, $stars) {
+            $stats = UserStats::lockForUpdate()->findOrFail($member->id);
+            $stats->increment('stars', $stars);
+
+            return $stats;
+        });
+
+        $text = "{$member->name} bekommt {$stars} ".($stars === 1 ? 'Stern' : 'Sterne').($reason ? ": {$reason}" : '!');
+        app(FeedService::class)->post($member->family_id, $member, 'stars_granted', '⭐', $text);
+
+        return $stats->refresh();
+    }
+
     /** Feed-Eintrag und ggf. Buchung auf dem Taschengeld-Konto. */
     private function afterApproval(RewardRedemption $redemption): void
     {
@@ -132,5 +156,8 @@ class RewardService
         }
 
         app(FeedService::class)->post($item->family_id, $user, 'reward_redeemed', '🎁', "{$user->name} hat „{$item->title}“ eingelöst");
+
+        // Belohnungsaktion: Home Assistant bekommt den Aktions-Schlüssel (z. B. Konsole 30 min freischalten)
+        event(new RewardRedeemed($redemption));
     }
 }
