@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Domain\Art\SceneBackgrounds;
 use App\Domain\Updater\UpdaterException;
 use App\Domain\Updater\UpdateService;
 use App\Http\Controllers\Controller;
@@ -45,6 +46,8 @@ class UpdateController extends Controller implements HasMiddleware
             'state' => $this->updater->publicState(),
             'log' => $this->updater->logTail(),
             'maintenance' => app()->isDownForMaintenance(),
+            'backgrounds' => SceneBackgrounds::summary(),
+            'uploadChunkBytes' => SceneBackgroundController::chunkBytes(),
         ]);
     }
 

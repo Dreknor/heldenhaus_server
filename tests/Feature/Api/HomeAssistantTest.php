@@ -1,7 +1,9 @@
 <?php
 
+use App\Domain\Art\AvatarSvg;
 use App\Domain\Quests\QuestService;
 use App\Enums\CompletionStatus;
+use App\Models\Task;
 use App\Models\TaskCompletion;
 use Laravel\Sanctum\Sanctum;
 
@@ -14,7 +16,7 @@ test('ha-zustand enthält streak, offene freigaben, quest und avatar-version', f
         'scope' => 'family', 'type' => 'daily', 'title' => 'Zimmer aufräumen', 'assignment_mode' => 'assigned',
         'assignees' => [$this->child->id], 'approval_mode' => 'required',
     ]);
-    $id = assignmentOf(\App\Models\Task::first(), $this->child)->id;
+    $id = assignmentOf(Task::first(), $this->child)->id;
     Sanctum::actingAs($this->parent, ['ha']);
 
     $this->postJson("/api/v1/ha/members/{$this->child->id}/assignments/{$id}/score/up")->assertOk();
@@ -97,7 +99,7 @@ test('avatar und quest-bild kommen als svg', function () {
 
     $avatar = $this->get("/api/v1/ha/members/{$this->child->id}/avatar.svg")->assertOk();
     expect($avatar->headers->get('Content-Type'))->toStartWith('image/svg+xml')
-        ->and($avatar->getContent())->toStartWith('<svg')->toContain('#c0392b')->toEndWith('</svg>');
+        ->and($avatar->getContent())->toStartWith('<svg')->toContain('#bfdbfe')->toContain('data:image/png;base64,')->toEndWith('</svg>');
 
     $this->get('/api/v1/ha/quest.svg')->assertNotFound();
 
@@ -109,11 +111,29 @@ test('avatar und quest-bild kommen als svg', function () {
 });
 
 test('avatar-svg lässt keine fremden werte in die grafik', function () {
-    $svg = \App\Domain\Art\AvatarSvg::render(
+    $svg = AvatarSvg::render(
         ['skin' => '"/><script>alert(1)</script>', 'hair' => 'long"onload="x', 'outfit' => 'red'],
         [],
         7,
     );
 
     expect($svg)->not->toContain('<script')->not->toContain('onload');
+});
+
+test('avatar-svg setzt die pixelfigur aus klasse und ausrüstung zusammen', function () {
+    $look = ['skin' => '#f6c89f', 'hair' => 'long', 'hair_color' => '#c0392b', 'eyes' => 'wink', 'outfit' => '#3498db', 'background' => '#bfdbfe', 'beard' => 'chin'];
+    $layers = fn (...$args) => collect(AvatarSvg::layers($look, 7, ...$args))->map(fn ($f) => explode('-', $f)[0]);
+
+    expect($layers())->toContain('body', 'head', 'hair_long_straight', 'face_happy', 'beard_trimmed', 'shirt_tshirt')
+        ->and($layers('mage'))->toContain('hat_wizard', 'cape', 'staff_diamond')
+        ->and($layers('mage', ['head' => ['key' => 'head_cap', 'rarity' => 'rare']]))->toContain('cap_bonnie')->not->toContain('hat_wizard')
+        ->and($layers(null, ['armor' => ['key' => 'armor_neu', 'rarity' => 'legendary']]))->toContain('armour_plate', 'arms_plate')
+        ->and($layers(null, [], 'hurt'))->toContain('face_sad');
+
+    foreach (AvatarSvg::layers($look, 7, 'warrior') as $file) {
+        expect(public_path("avatar/lpc/{$file}"))->toBeFile();
+    }
+
+    $svg = AvatarSvg::render($look, [], 7, portrait: true, classKey: 'warrior');
+    expect($svg)->toContain('viewBox="17 4 30 30"')->toContain('#bfdbfe')->toContain('data:image/png;base64,');
 });

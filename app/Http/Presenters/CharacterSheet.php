@@ -105,7 +105,8 @@ class CharacterSheet
             'seed' => $user->id,
             'equipment' => UserEquipment::with('item:id,key,rarity')->where('user_id', $user->id)->get()
                 ->mapWithKeys(fn (UserEquipment $e) => [$e->slot => $e->item?->only(['key', 'rarity'])]),
-            'class_icon' => ClassCatalog::get($user->stats?->class_key ?? $user->stats()->value('class_key'))['icon'] ?? null,
+            'class_key' => $classKey = $user->stats?->class_key ?? $user->stats()->value('class_key'),
+            'class_icon' => ClassCatalog::get($classKey)['icon'] ?? null,
         ];
     }
 

@@ -1,0 +1,39 @@
+[
+    {
+        "title": "Heldenfiguren: Universal LPC Spritesheet Character Generator",
+        "author": "Liberated Pixel Cup und Mitwirkende",
+        "author_url": "https://opengameart.org/content/lpc-collection",
+        "source_url": "https://github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator",
+        "license": "OGA-BY 3.0, CC BY 3.0/4.0, CC0",
+        "license_url": "https://static.opengameart.org/OGA-BY-3.0.txt",
+        "changes": "Nur Teile mit OGA-BY-, CC-BY- oder CC0-Lizenz. Das jeweils erste Laufbild nach vorn ausgeschnitten, Farben über die LPC-Paletten eingefärbt (tools/avatar/build_lpc.py). Urheber und Lizenz jeder Datei stehen in der Liste unten.",
+        "details_file": "resources/avatars/lpc-credits.json",
+        "files": [
+            "public/avatar/lpc",
+            "resources/avatars/lpc.json",
+            "resources/avatars/lpc-credits.json"
+        ]
+    },
+    {
+        "title": "Szenen-Grafiken: Fluent Emoji (3D)",
+        "author": "Microsoft Corporation",
+        "author_url": "https://github.com/microsoft/fluentui-emoji",
+        "source_url": "https://github.com/microsoft/fluentui-emoji",
+        "license": "MIT",
+        "license_url": "https://github.com/microsoft/fluentui-emoji/blob/main/LICENSE",
+        "changes": "Einzelne 3D-Motive (Sonne, Mond, Stern, Wolke, Berg, Burg, Haus, Bäume, Tulpe, Pilz) als WebP umgewandelt.",
+        "files": [
+            "public/images/scene/castle.webp",
+            "public/images/scene/cloud.webp",
+            "public/images/scene/fir.webp",
+            "public/images/scene/house.webp",
+            "public/images/scene/moon.webp",
+            "public/images/scene/mountain.webp",
+            "public/images/scene/mushroom.webp",
+            "public/images/scene/star.webp",
+            "public/images/scene/sun.webp",
+            "public/images/scene/tree.webp",
+            "public/images/scene/tulip.webp"
+        ]
+    }
+]

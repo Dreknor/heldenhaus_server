@@ -103,7 +103,7 @@ const hoursLeft = (iso: string) => Math.max(0, Math.round((new Date(iso).getTime
                     :avatar="page.props.auth.appearance.avatar"
                     :seed="page.props.auth.appearance.seed"
                     :equipment="page.props.auth.appearance.equipment"
-                    :class-icon="page.props.auth.appearance.class_icon"
+                    :class-key="page.props.auth.appearance.class_key"
                 />
             </section>
 

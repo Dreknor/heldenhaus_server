@@ -227,12 +227,12 @@ Grafik ist kein Feinschliff am Ende, sondern läuft als **eigener Strang paralle
 **Stufen**:
 | Stufe | Inhalt | Technik | Wann |
 |---|---|---|---|
-| G1 | **Avatar-Baukasten**: Körper, Hautton, Frisur, Haarfarbe, Augen, Kleidung; angelegte Ausrüstung erscheint sichtbar am Avatar; Klassen-Abzeichen | selbst erstellte, geschichtete SVGs (Web) bzw. dieselben SVGs in Flutter (`flutter_svg`) | jetzt |
+| G1 | **Avatar-Baukasten**: Körper, Hautton, Frisur, Haarfarbe, Augen, Kleidung; Klassen-Kostüm und jede angelegte Ausrüstung erscheinen sichtbar am Körper (wie bei Habitica) | LPC-Pixelfiguren aus dem Universal LPC Spritesheet Character Generator (nur OGA-BY/CC-BY/CC0, Credits je Datei), Ebenen in `public/avatar/lpc`, Regeln in `resources/avatars/lpc-rules.json` für Web und Server-SVG; dieselben Spritesheets liefern später die Laufanimation im Dungeon | umgesetzt |
 | G1 | **Monster-Baukasten** für alle Quest-Bosse: Körperform, Farbe, Augen, Hörner/Stacheln, Mund – jeder Boss sieht anders aus | parametrisches SVG, Werte je Boss in `quests.json` | jetzt |
 | G1 | **Haustiere und Reittiere**: je Tierart eine Vorlage, gefärbt nach Schlüpfpulver (Feuer, Eis, Regenbogen …), Reittiere größer mit Sattel | parametrisches SVG | jetzt |
 | G1 | **Effekte**: Treffer am Boss, Level-up, Fund, Abhaken | CSS-/Flutter-Animationen | jetzt |
 | G2 | **Item-Icons** einheitlich statt Emoji (Eier, Pulver, Futter, Material, Tränke, Ausrüstung) | game-icons.net (CC BY) eingefärbt + eigene SVGs | nach G1 |
-| G2 | **Szenen**: Hintergrund des Heldenpanels mit Tag/Nacht, Boss-Arena, Stall | SVG/CSS | nach G1 |
+| G2 | **Szenen**: Hintergrund des Heldenpanels mit Tag/Nacht, Boss-Arena, Stall | Fluent Emoji 3D (Microsoft, MIT) vor CSS-Himmel, Credits in `CREDITS.md` | nach G1 |
 | G3 | **Isometrische Sprites** für Housing und Dungeons | Blender-Pipeline mit Kenney/KayKit (CC0), Flame in der App (§2.8) | mit Phase 6/7 |
 | G4 | **Sound** | jsfxr/ChipTone, Kenney Audio (CC0) | mit Phase 8 |
 

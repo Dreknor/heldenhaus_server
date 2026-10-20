@@ -35,6 +35,16 @@ $PHP artisan optimize
 $PHP artisan heldenhaus:create-family "Familie Muster" "Mama" "mama@example.de"
 ```
 
+Optional: gemalte Hintergründe für die Heldenszene. Das Paket [Fantasy Forest Backgrounds von Lornn](https://lornn.itch.io/fantasy-forest-backgrounds) darf genutzt, aber nicht weitergegeben werden und liegt deshalb nicht im Repository. Am einfachsten im Admin-Bereich unter **System-Updates → Szenen-Hintergründe** das ZIP hochladen; es wird in kleinen Stücken übertragen (passt zu jeder `upload_max_filesize`) und anschließend portionsweise entpackt. Alternativ per SSH:
+
+```bash
+$PHP artisan heldenhaus:import-backgrounds ~/Fantasy\ Forests.zip
+```
+
+Innenräume werden ausgelassen, die Bilder landen verkleinert in `storage/app/public/scenes` (dafür `storage:link`) und erscheinen automatisch unter `/credits`.
+
+Ohne Import zeigt die Szene die mitgelieferte Fluent-Landschaft.
+
 ## 4. Domain auf `public` zeigen lassen
 
 In der konsoleH unter *Einstellungen → Domain* das Verzeichnis auf `/heldenhaus/public` setzen. HTTPS (Let's Encrypt) aktivieren.

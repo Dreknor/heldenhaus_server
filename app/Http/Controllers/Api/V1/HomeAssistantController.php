@@ -211,7 +211,7 @@ class HomeAssistantController extends Controller
         $appearance = CharacterSheet::appearance($request->user());
         $equipment = collect($appearance['equipment'])->filter()->map(fn ($e) => ['key' => (string) $e['key'], 'rarity' => (string) $e['rarity']])->all();
 
-        return $this->svg(AvatarSvg::render($appearance['avatar'], $equipment, $appearance['seed'], $request->boolean('portrait')));
+        return $this->svg(AvatarSvg::render($appearance['avatar'], $equipment, $appearance['seed'], $request->boolean('portrait'), classKey: $appearance['class_key']));
     }
 
     /** Bild der laufenden Familien-Quest: der Boss bzw. das gesuchte Sammelobjekt. */

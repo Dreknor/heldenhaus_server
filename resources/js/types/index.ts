@@ -21,6 +21,7 @@ export interface Appearance {
     seed: number;
     equipment: import('@/lib/avatar').Equipment;
     class_icon: string | null;
+    class_key: string | null;
 }
 
 export interface Auth {
