@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import CollectArt from '@/components/game/CollectArt.vue';
+import MonsterArt, { type MonsterArtConfig } from '@/components/game/MonsterArt.vue';
 import StatBar from '@/components/game/StatBar.vue';
 import { Link } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 export interface ActiveQuest {
     id: number;
@@ -10,6 +12,7 @@ export interface ActiveQuest {
     key: string;
     name: string;
     icon: string;
+    art: MonsterArtConfig | null;
     description: string | null;
     goal: number;
     progress: number;
@@ -29,6 +32,18 @@ export interface ActiveQuest {
 
 const props = defineProps<{ quest: ActiveQuest; compact?: boolean }>();
 
+// Treffer-Animation, wenn der Fortschritt steigt
+const hit = ref(false);
+watch(
+    () => props.quest.progress,
+    (now, before) => {
+        if (before !== undefined && now > before) {
+            hit.value = true;
+            setTimeout(() => (hit.value = false), 600);
+        }
+    },
+);
+
 const daysLeft = computed(() => Math.max(0, Math.ceil((new Date(props.quest.ends_at).getTime() - Date.now()) / 86_400_000)));
 const isBoss = computed(() => props.quest.type === 'boss');
 const theme = computed(() =>
@@ -40,7 +55,8 @@ const theme = computed(() =>
 
 <template>
     <section class="flex flex-col gap-3 rounded-2xl border-2 bg-gradient-to-br p-4 sm:flex-row sm:items-center" :class="theme">
-        <span class="text-6xl leading-none" aria-hidden="true">{{ quest.icon }}</span>
+        <MonsterArt v-if="isBoss" :art="quest.art" :hit="hit" :defeated="quest.status === 'completed'" :size="compact ? 96 : 150" class="shrink-0 self-center" />
+        <CollectArt v-else :icon="quest.item_icon" :ratio="quest.progress / quest.goal" :size="compact ? 96 : 150" class="shrink-0 self-center" />
         <div class="min-w-0 flex-1 space-y-2">
             <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <span class="rounded-full px-2 py-0.5 text-[11px] font-bold uppercase" :class="quest.scope === 'family' ? 'bg-violet-600 text-white' : 'bg-sky-600 text-white'">

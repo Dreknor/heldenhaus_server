@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\AgeGroup;
 use App\Enums\FamilyRole;
 use Carbon\CarbonImmutable;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,7 +16,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
@@ -30,6 +31,7 @@ class User extends Authenticatable
         'day_start',
         'theme',
         'avatar_color',
+        'avatar',
     ];
 
     protected $hidden = [
@@ -50,6 +52,7 @@ class User extends Authenticatable
             'birth_year' => 'integer',
             'day_start' => 'integer',
             'is_admin' => 'boolean',
+            'avatar' => 'array',
         ];
     }
 

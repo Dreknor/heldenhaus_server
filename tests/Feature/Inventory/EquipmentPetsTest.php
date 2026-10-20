@@ -75,7 +75,9 @@ it('brütet Haustiere aus und füttert sie zum Reittier', function () {
     giveItem($this->child, $apple, 5);
 
     $pet = $this->inventory->hatch($this->child, $egg, $fire);
-    expect($pet->name)->toBe('Feuer-Wolf')
+    expect(InventoryService::petName(new Item(['name' => 'Katzenei']), $fire))->toBe('Feuer-Katze')
+        ->and(InventoryService::petName(new Item(['name' => 'Drachenei']), $fire))->toBe('Feuer-Drache')
+        ->and($pet->name)->toBe('Feuer-Wolf')
         ->and(fn () => $this->inventory->hatch($this->child, $egg, $fire))->toThrow(GameException::class, 'schon');
 
     foreach (range(1, 5) as $i) {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import HeroAvatar from '@/components/game/HeroAvatar.vue';
 import QuestCard, { type ActiveQuest } from '@/components/game/QuestCard.vue';
 import CronDialog from '@/components/game/CronDialog.vue';
 import StatsPanel from '@/components/game/StatsPanel.vue';
@@ -97,12 +98,16 @@ const greeting = computed(() => {
             <!-- Kopf -->
             <div class="flex flex-col gap-4 lg:flex-row lg:items-center">
                 <div class="flex flex-1 items-center gap-4">
-                    <div
-                        class="flex size-16 shrink-0 items-center justify-center rounded-2xl text-3xl font-extrabold text-white shadow-md"
-                        :style="{ background: page.props.auth.user.avatar_color }"
-                    >
-                        {{ page.props.auth.user.name.charAt(0) }}
-                    </div>
+                    <HeroAvatar
+                        v-if="page.props.auth.appearance"
+                        :avatar="page.props.auth.appearance.avatar"
+                        :seed="page.props.auth.appearance.seed"
+                        :equipment="page.props.auth.appearance.equipment"
+                        :class-icon="page.props.auth.appearance.class_icon"
+                        :mood="(stats?.hp ?? 50) < 15 ? 'hurt' : 'happy'"
+                        :size="88"
+                        class="shrink-0"
+                    />
                     <div>
                         <h1 class="text-2xl font-extrabold tracking-tight">{{ greeting }}, {{ page.props.auth.user.name }}!</h1>
                         <p class="text-sm text-muted-foreground">

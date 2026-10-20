@@ -44,6 +44,7 @@ class GamePresenter
             'avatar_color' => $user->avatar_color,
             'has_email' => $user->email !== null,
             'stats' => $withStats && $user->stats ? self::stats($user->stats) : null,
+            'appearance' => $withStats ? CharacterSheet::appearance($user) : null,
         ], fn ($v) => $v !== null);
     }
 

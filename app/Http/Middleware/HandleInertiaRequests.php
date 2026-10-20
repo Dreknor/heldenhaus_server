@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Enums\CompletionStatus;
+use App\Http\Presenters\CharacterSheet;
 use App\Http\Presenters\GamePresenter;
 use App\Models\RewardRedemption;
 use App\Models\TaskCompletion;
@@ -39,6 +40,7 @@ class HandleInertiaRequests extends Middleware
                     'created_at' => $user->created_at,
                     'updated_at' => $user->updated_at,
                 ] : null,
+                'appearance' => fn () => $user ? CharacterSheet::appearance($user) : null,
                 'stats' => fn () => $user?->stats ? GamePresenter::stats($user->stats()->first()) : null,
                 'family' => fn () => $user?->family ? ['id' => $user->family->id, 'name' => $user->family->name] : null,
             ],

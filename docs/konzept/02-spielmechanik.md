@@ -212,3 +212,23 @@ Die Aufgabenkategorie wählt man beim Anlegen (Pflichtfeld mit Vorschlag). Schwe
 **Technische Vorgaben**: isometrische Kachel 128×64 px (@2x), Spritesheets als WebP plus Atlas-JSON (TexturePacker-Format, das Flame lesen kann), Icons 64 px als SVG und PNG, Sounds als OGG (unter 100 KB je Effekt).
 
 
+
+## 2.9 Grafik-Fahrplan und Stil (ohne Grafik kein Spiel)
+
+Grafik ist kein Feinschliff am Ende, sondern läuft als **eigener Strang parallel zu allen Phasen** (Roadmap: Strang G). Jede neue Spielfunktion bekommt ihre Grafik gleich mit, Emojis sind nur Platzhalter.
+
+**Stil**: flacher Cartoon-Look mit kräftigen, dunklen Konturen, runden Formen und leichten Schatten. Kindgerecht, aber nicht babyhaft. Eine feste Palette (ca. 32 Farben) für alles; für Teens dieselben Figuren auf dunklerem Theme. Gegner wirken frech statt gruselig.
+
+**Stufen**:
+| Stufe | Inhalt | Technik | Wann |
+|---|---|---|---|
+| G1 | **Avatar-Baukasten**: Körper, Hautton, Frisur, Haarfarbe, Augen, Kleidung; angelegte Ausrüstung erscheint sichtbar am Avatar; Klassen-Abzeichen | selbst erstellte, geschichtete SVGs (Web) bzw. dieselben SVGs in Flutter (`flutter_svg`) | jetzt |
+| G1 | **Monster-Baukasten** für alle Quest-Bosse: Körperform, Farbe, Augen, Hörner/Stacheln, Mund – jeder Boss sieht anders aus | parametrisches SVG, Werte je Boss in `quests.json` | jetzt |
+| G1 | **Haustiere und Reittiere**: je Tierart eine Vorlage, gefärbt nach Schlüpfpulver (Feuer, Eis, Regenbogen …), Reittiere größer mit Sattel | parametrisches SVG | jetzt |
+| G1 | **Effekte**: Treffer am Boss, Level-up, Fund, Abhaken | CSS-/Flutter-Animationen | jetzt |
+| G2 | **Item-Icons** einheitlich statt Emoji (Eier, Pulver, Futter, Material, Tränke, Ausrüstung) | game-icons.net (CC BY) eingefärbt + eigene SVGs | nach G1 |
+| G2 | **Szenen**: Hintergrund des Heldenpanels mit Tag/Nacht, Boss-Arena, Stall | SVG/CSS | nach G1 |
+| G3 | **Isometrische Sprites** für Housing und Dungeons | Blender-Pipeline mit Kenney/KayKit (CC0), Flame in der App (§2.8) | mit Phase 6/7 |
+| G4 | **Sound** | jsfxr/ChipTone, Kenney Audio (CC0) | mit Phase 8 |
+
+**Regeln**: Alle Grafiken liegen als Code bzw. Datei im Repo, sind lizenzfrei bzw. CC0/CC BY mit Eintrag in `credits.json`, und funktionieren in Web und App gleich.

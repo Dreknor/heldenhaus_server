@@ -16,9 +16,17 @@ export interface Stats {
     class_key: string | null;
 }
 
+export interface Appearance {
+    avatar: Partial<import('@/lib/avatar').AvatarConfig> | null;
+    seed: number;
+    equipment: import('@/lib/avatar').Equipment;
+    class_icon: string | null;
+}
+
 export interface Auth {
     user: User;
     stats: Stats | null;
+    appearance: Appearance | null;
     family: { id: number; name: string } | null;
 }
 
@@ -123,6 +131,7 @@ export interface Member {
     avatar_color: string;
     has_email?: boolean;
     stats?: Stats;
+    appearance?: Appearance;
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;

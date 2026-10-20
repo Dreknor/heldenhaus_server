@@ -242,6 +242,7 @@ class QuestService
             'key' => $quest->quest_key,
             'name' => $quest->name,
             'icon' => $quest->icon,
+            'art' => self::catalog()[$quest->quest_key]['art'] ?? null,
             'description' => $quest->data['description'] ?? null,
             'goal' => $quest->goal,
             'progress' => round($quest->progress, 1),

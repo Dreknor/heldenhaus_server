@@ -47,6 +47,7 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
             Route::post('redemptions/{redemption}/{decision}', [FamilyController::class, 'reviewRedemption'])
                 ->whereIn('decision', ['approve', 'reject'])->name('redemptions.review');
             Route::get('hero', [CharacterController::class, 'hero'])->name('hero');
+            Route::put('hero/avatar', [CharacterController::class, 'saveAvatar'])->name('hero.avatar');
             Route::post('hero/allocate', [CharacterController::class, 'allocate'])->name('hero.allocate');
             Route::post('hero/class', [CharacterController::class, 'chooseClass'])->name('hero.class');
             Route::post('hero/cast', [CharacterController::class, 'cast'])->name('hero.cast');

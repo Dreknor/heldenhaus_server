@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PetArt from '@/components/game/PetArt.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { SharedData } from '@/types';
@@ -24,7 +25,7 @@ interface Item {
 const props = defineProps<{
     items: Item[];
     shop: Item[];
-    pets: { id: number; name: string; egg_icon: string; potion_icon: string; growth: number; growth_max: number; is_mount: boolean }[];
+    pets: { id: number; name: string; egg_icon: string; potion_icon: string; egg_key: string; potion_key: string; growth: number; growth_max: number; is_mount: boolean }[];
     types: Record<string, string>;
     rarities: Record<string, string>;
     level: number;
@@ -161,9 +162,7 @@ const tabClass = (active: boolean) => `rounded-lg px-4 py-2 text-sm font-bold tr
                 <p v-if="!pets.length" class="rounded-2xl border border-dashed p-10 text-center text-muted-foreground">Dein Stall ist noch leer.</p>
                 <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
                     <div v-for="pet in pets" :key="pet.id" class="flex flex-col items-center gap-2 rounded-2xl border bg-card p-4 text-center">
-                        <span class="relative text-5xl">
-                            {{ pet.egg_icon }}<span class="absolute -bottom-1 -right-3 text-xl">{{ pet.potion_icon }}</span>
-                        </span>
+                        <PetArt :egg="pet.egg_key" :potion="pet.potion_key" :mount="pet.is_mount" :size="96" />
                         <p class="font-bold">{{ pet.name }}</p>
                         <p v-if="pet.is_mount" class="rounded-full bg-amber-100 px-2 text-xs font-bold text-amber-700">Reittier 🏇</p>
                         <template v-else>

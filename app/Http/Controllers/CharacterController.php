@@ -6,6 +6,7 @@ use App\Domain\Classes\ClassCatalog;
 use App\Domain\Classes\ClassService;
 use App\Domain\Inventory\InventoryService;
 use App\Http\Presenters\CharacterSheet;
+use App\Http\Requests\AvatarRules;
 use App\Models\Item;
 use App\Models\User;
 use App\Models\UserPet;
@@ -31,6 +32,13 @@ class CharacterController extends Controller
     public function inventory(Request $request): Response
     {
         return Inertia::render('Inventory', CharacterSheet::inventory($request->user()));
+    }
+
+    public function saveAvatar(Request $request): RedirectResponse
+    {
+        $request->user()->update(['avatar' => AvatarRules::validate($request)]);
+
+        return back()->with('success', 'Neuer Look gespeichert!');
     }
 
     public function allocate(Request $request): RedirectResponse

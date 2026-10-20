@@ -71,6 +71,8 @@ class CharacterSheet
                     'id' => $p->id,
                     'name' => $p->name,
                     'egg_icon' => $p->egg->icon,
+                    'egg_key' => $p->egg->key,
+                    'potion_key' => $p->potion->key,
                     'potion_icon' => $p->potion->icon,
                     'growth' => $p->growth,
                     'growth_max' => (int) config('game.pet_growth_mount'),
@@ -90,6 +92,18 @@ class CharacterSheet
         return [
             'family' => QuestService::present($service->activeFamily($user->family_id)),
             'solo' => QuestService::present($service->activeSolo($user)),
+        ];
+    }
+
+    /** Aussehen für den Avatar-Baukasten: Einstellungen, sichtbare Ausrüstung, Klassen-Abzeichen. */
+    public static function appearance(User $user): array
+    {
+        return [
+            'avatar' => $user->avatar,
+            'seed' => $user->id,
+            'equipment' => UserEquipment::with('item:id,key,rarity')->where('user_id', $user->id)->get()
+                ->mapWithKeys(fn (UserEquipment $e) => [$e->slot => $e->item?->only(['key', 'rarity'])]),
+            'class_icon' => ClassCatalog::get($user->stats?->class_key ?? $user->stats()->value('class_key'))['icon'] ?? null,
         ];
     }
 

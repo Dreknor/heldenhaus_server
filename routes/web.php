@@ -56,6 +56,7 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
         ->whereIn('decision', ['approve', 'reject'])->name('redemptions.review');
 
     Route::get('hero', [CharacterController::class, 'hero'])->name('hero');
+    Route::put('hero/avatar', [CharacterController::class, 'saveAvatar'])->name('hero.avatar');
     Route::post('hero/allocate', [CharacterController::class, 'allocate'])->name('hero.allocate');
     Route::post('hero/class', [CharacterController::class, 'chooseClass'])->name('hero.class');
     Route::post('hero/cast', [CharacterController::class, 'cast'])->name('hero.cast');

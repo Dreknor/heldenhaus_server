@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
 import FeedList, { type FeedEntryView } from '@/components/game/FeedList.vue';
+import HeroAvatar from '@/components/game/HeroAvatar.vue';
 import QuestCard, { type ActiveQuest } from '@/components/game/QuestCard.vue';
 import StatBar from '@/components/game/StatBar.vue';
 import { Button } from '@/components/ui/button';
@@ -81,9 +82,14 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 <Card v-for="m in members" :key="m.id">
                     <CardContent class="flex gap-4 pt-6">
-                        <div class="flex size-14 shrink-0 items-center justify-center rounded-2xl text-2xl font-extrabold text-white" :style="{ background: m.avatar_color }">
-                            {{ m.name.charAt(0) }}
-                        </div>
+                        <HeroAvatar
+                            :avatar="m.appearance?.avatar"
+                            :seed="m.id"
+                            :equipment="m.appearance?.equipment"
+                            :class-icon="m.appearance?.class_icon"
+                            :size="72"
+                            class="shrink-0"
+                        />
                         <div class="min-w-0 flex-1 space-y-1.5">
                             <div class="flex items-baseline justify-between gap-2">
                                 <p class="truncate text-lg font-bold">{{ m.name }}</p>

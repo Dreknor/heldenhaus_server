@@ -158,7 +158,8 @@ class InventoryService
     /** „Feuer-Schlüpfpulver“ + „Wolfsei“ → „Feuer-Wolf“ */
     public static function petName(Item $egg, Item $potion): string
     {
-        $animal = preg_replace('/(s?ei)$/u', '', $egg->name);
+        // „Wolfsei“ → Wolf, „Katzenei“ → Katze, „Drachenei“ → Drache (Fugen-s bzw. -n entfernen)
+        $animal = preg_replace('/(s|n)?ei$/u', '', $egg->name);
         $color = preg_replace('/-?Schlüpfpulver$/u', '', $potion->name);
 
         return trim($color).'-'.trim($animal);

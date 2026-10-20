@@ -7,6 +7,7 @@ use App\Domain\Inventory\InventoryService;
 use App\Http\Controllers\Controller;
 use App\Http\Presenters\CharacterSheet;
 use App\Http\Presenters\GamePresenter;
+use App\Http\Requests\AvatarRules;
 use App\Models\Item;
 use App\Models\User;
 use App\Models\UserPet;
@@ -29,6 +30,13 @@ class CharacterController extends Controller
     public function inventory(Request $request): JsonResponse
     {
         return response()->json(CharacterSheet::inventory($request->user()));
+    }
+
+    public function saveAvatar(Request $request): JsonResponse
+    {
+        $request->user()->update(['avatar' => AvatarRules::validate($request)]);
+
+        return response()->json(CharacterSheet::appearance($request->user()));
     }
 
     public function allocate(Request $request): JsonResponse

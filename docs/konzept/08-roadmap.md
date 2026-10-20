@@ -10,6 +10,7 @@
 | **5 – Home Assistant** | HA-API + Ereignis-Zuordnung + YAML-Vorlagen → HACS-Integration (Sensoren, todo, Dienste) → ausgehende Webhooks + Belohnungsaktionen | Smart-Home-Kopplung |
 | **6 – Crafting & Housing** | Materialien als Drops (Kategorie bei Aufgaben gibt es schon ab Phase 1), Rezepte, Stationen, Herstellungsaufträge, Familienlager/Tausch; Familienhaus + eigene Zimmer, Editor (Flame/Web), Bauprojekte, Garten, Unordnung-Mechanik, Besuche/Gästebuch | Sammeln, Bauen, Gestalten |
 | **7 – Dungeon-Quests** | Tiled-Bausteine + Dungeon-Erzeugung, Fackel-Energie, Flame-Isometrie-Client, rundenbasierte Kämpfe, Klassen-Interaktionen, Familien-Dungeon mit Endboss, Solo-Gewölbe, Web-Kartenansicht, HA-Mechanismen | Quests als Mini-Dungeons |
+| **G – Grafik (parallel)** | Läuft neben allen Phasen, siehe §2.9: G1 Avatar-, Monster- und Haustier-Baukasten + Effekte, G2 einheitliche Item-Icons und Szenen, G3 isometrische Sprites für Housing/Dungeons, G4 Sound | Es sieht aus wie ein Spiel |
 | **8 – Feinschliff** | Themes für Teens, saisonale Events (saisonale Rezepte/Möbel), Statistiken, Barrierefreiheit, Leistung, iOS-Build (optional) | Version 1.0 |
 
 Die REST-Endpunkte für HA (`ha/state`, `ha/events`) entstehen bereits in Phase 1/2, damit früh experimentiert werden kann.
@@ -30,5 +31,6 @@ Die REST-Endpunkte für HA (`ha/state`, `ha/events`) entstehen bereits in Phase 
 | 2 – Flutter-App | ✅ Grundversion (Login, Board, Offline-Sync, Freigaben, Shop, App-Updater); Push und Widget fehlen noch |
 | 3 – Spieltiefe | ✅ Items & Drops (Admin), Inventar, Gold-Shop, Ausrüstung, Attribute, Haustiere/Reittiere, 6 Klassen mit Modifikator-Kette · offen: Avatar-Editor, Erfolge, Asset-Pipeline |
 | 4 – Familie+ | 🟡 Quest-System (Boss- und Sammel-Quests, solo und gemeinsam, wechselnde Quest-Tafel), Ämterplan-Rotation, Teamaufgaben, Feed (Backend), Taschengeld-Buchung · offen: Feed- und Rotations-Oberfläche, Wochenbericht, Bündnisse, Challenges |
+| G – Grafik | 🟡 G1 fertig: Avatar-Baukasten mit Editor und sichtbarer Ausrüstung, Monster-Baukasten (8 verschiedene Bosse, Treffer-Animation, Monster-Lexikon), Sammel-Korb, Haustiere/Reittiere je Art × Schlüpfpulver · offen: G2 Item-Icons statt Emoji, Szenen; G3 Isometrie; G4 Sound |
 | 5 – Home Assistant | 🟡 REST-API + YAML-Vorlage · offen: HACS-Integration, ausgehende Webhooks |
 | 6–8 | offen |

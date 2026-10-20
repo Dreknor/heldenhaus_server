@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import AvatarEditor from '@/components/game/AvatarEditor.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { Stats } from '@/types';
-import { Head, router } from '@inertiajs/vue3';
+import type { SharedData } from '@/types';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import { Lock, Plus, Sparkles, X } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
@@ -58,6 +60,7 @@ const attributeInfo = [
     { key: 'per', name: 'Spürsinn', hint: 'mehr Gold und Funde', color: 'text-amber-600' },
 ];
 
+const page = usePage<SharedData>();
 const choosing = ref(false);
 const target = ref<number | null>(null);
 const unlocked = computed(() => props.stats.level >= props.unlock_level);
@@ -91,6 +94,16 @@ const hoursLeft = (iso: string) => Math.max(0, Math.round((new Date(iso).getTime
     <AppLayout :breadcrumbs="[{ title: 'Held & Klasse', href: '/hero' }]">
         <div class="flex min-w-0 flex-1 flex-col gap-6 p-4 md:p-6">
             <h1 class="text-2xl font-extrabold tracking-tight">Held & Klasse</h1>
+
+            <section v-if="page.props.auth.appearance" class="rounded-2xl border bg-card p-5">
+                <h2 class="mb-3 font-extrabold">Aussehen</h2>
+                <AvatarEditor
+                    :avatar="page.props.auth.appearance.avatar"
+                    :seed="page.props.auth.appearance.seed"
+                    :equipment="page.props.auth.appearance.equipment"
+                    :class-icon="page.props.auth.appearance.class_icon"
+                />
+            </section>
 
             <div class="grid gap-6 lg:grid-cols-2">
                 <!-- Attribute -->

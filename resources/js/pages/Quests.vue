@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import CollectArt from '@/components/game/CollectArt.vue';
+import MonsterArt, { type MonsterArtConfig } from '@/components/game/MonsterArt.vue';
 import QuestCard, { type ActiveQuest } from '@/components/game/QuestCard.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +14,7 @@ interface Offer {
     type: 'boss' | 'collect';
     name: string;
     icon: string;
+    art?: MonsterArtConfig;
     description: string;
     goal: number;
     days: number;
@@ -32,6 +35,7 @@ const props = defineProps<{
     canStartFamily: boolean;
     categories: Record<string, string>;
     history: { id: number; name: string; icon: string; scope: string; status: string; date: string }[];
+    bestiary: { key: string; name: string; art: MonsterArtConfig | null; min_level: number; defeated: number }[];
 }>();
 
 const rewardText = ref('');
@@ -81,7 +85,8 @@ const cat = (key?: string) => (key ? (props.categories[key] ?? key) : '');
                     <div class="grid gap-3 md:grid-cols-3">
                         <article v-for="o in familyOffers" :key="o.key" class="flex flex-col gap-2 rounded-2xl border bg-card p-4">
                             <div class="flex items-center gap-3">
-                                <span class="text-5xl">{{ o.icon }}</span>
+                                <MonsterArt v-if="o.type === 'boss'" :art="o.art" :size="84" class="shrink-0" />
+                                <CollectArt v-else :icon="o.item_icon" :ratio="0.6" :size="84" class="shrink-0" />
                                 <div>
                                     <p class="font-extrabold">{{ o.name }}</p>
                                     <p class="text-xs text-muted-foreground">
@@ -117,7 +122,8 @@ const cat = (key?: string) => (key ? (props.categories[key] ?? key) : '');
                 <div v-else class="grid gap-3 md:grid-cols-3">
                     <article v-for="o in soloOffers" :key="o.key" class="flex flex-col gap-2 rounded-2xl border bg-card p-4">
                         <div class="flex items-center gap-3">
-                            <span class="text-5xl">{{ o.icon }}</span>
+                            <MonsterArt v-if="o.type === 'boss'" :art="o.art" :size="84" class="shrink-0" />
+                                <CollectArt v-else :icon="o.item_icon" :ratio="0.6" :size="84" class="shrink-0" />
                             <div>
                                 <p class="font-extrabold">{{ o.name }}</p>
                                 <p class="text-xs text-muted-foreground">
@@ -138,6 +144,20 @@ const cat = (key?: string) => (key ? (props.categories[key] ?? key) : '');
                         <Button variant="outline" @click="start(o, 'solo')">Solo starten</Button>
                     </article>
                     <p v-if="!soloOffers.length" class="text-sm text-muted-foreground">Gerade keine Solo-Quests verfügbar.</p>
+                </div>
+            </section>
+
+            <section class="grid gap-3">
+                <h2 class="text-lg font-extrabold">Monster-Lexikon</h2>
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <div v-for="b in bestiary" :key="b.key" class="flex flex-col items-center gap-1 rounded-2xl border bg-card p-3 text-center">
+                        <MonsterArt :art="b.art" :size="110" :class="b.defeated ? '' : 'opacity-80'" />
+                        <p class="text-sm font-bold">{{ b.name }}</p>
+                        <p class="text-xs text-muted-foreground">
+                            <template v-if="b.defeated">✅ {{ b.defeated }}× besiegt</template>
+                            <template v-else>noch nicht besiegt · ab Lvl {{ b.min_level }}</template>
+                        </p>
+                    </div>
                 </div>
             </section>
 

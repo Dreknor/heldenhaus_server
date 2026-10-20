@@ -55,6 +55,15 @@ class QuestController extends Controller
             'familyOffers' => $this->quests->offers($user, 'family'),
             'soloOffers' => $this->quests->offers($user, 'solo'),
             'canStartFamily' => $user->isParent(),
+            // Monster-Lexikon: alle Bosse, besiegte markiert
+            'bestiary' => collect(QuestService::catalog())->where('type', 'boss')->map(fn ($q) => [
+                'key' => $q['key'],
+                'name' => $q['name'],
+                'art' => $q['art'] ?? null,
+                'min_level' => $q['min_level'],
+                'defeated' => Quest::where('family_id', $user->family_id)->where('quest_key', $q['key'])->where('status', 'completed')
+                    ->where(fn ($w) => $w->where('scope', 'family')->orWhere('user_id', $user->id))->count(),
+            ])->values(),
             'categories' => config('game.categories'),
             'history' => Quest::where('family_id', $user->family_id)
                 ->where(fn ($q) => $q->where('scope', 'family')->orWhere('user_id', $user->id))
