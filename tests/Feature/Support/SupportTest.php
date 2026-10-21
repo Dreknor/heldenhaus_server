@@ -7,6 +7,7 @@ use App\Domain\Support\OpenRouterClient;
 use App\Domain\Support\StepService;
 use App\Domain\Support\SupportService;
 use App\Domain\Support\SurpriseService;
+use App\Http\Presenters\GamePresenter;
 use App\Models\AiRequest;
 use App\Models\DayLog;
 use App\Models\FocusSession;
@@ -298,6 +299,16 @@ it('übernimmt bei aktivierter persönlicher KI-Freigabe beim Anlegen automatisc
         'assignees' => [$this->parent->id],
     ])->assertCreated()
         ->assertJsonPath('checklist', ['Unterlagen zusammensuchen', 'Formular ausfüllen']);
+
+    $createdTask = Task::where('title', 'Versicherungsformular ausfüllen')->firstOrFail();
+    $assignment = $createdTask->assignments()->with('task', 'completions')->firstOrFail();
+    $presentedAssignment = GamePresenter::assignment($assignment);
+    expect($presentedAssignment['checklist'])->toBe(['Unterlagen zusammensuchen', 'Formular ausfüllen'])
+        ->and($presentedAssignment['steps'][0])->toBe([
+            'index' => 0,
+            'title' => 'Unterlagen zusammensuchen',
+            'done' => false,
+        ]);
 
     Http::assertSent(fn ($request) => $request['model'] === config('services.openrouter.model'));
     expect(AiRequest::first())->ok->toBeTrue()->prompt_tokens->toBe(40);

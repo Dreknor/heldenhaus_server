@@ -123,6 +123,7 @@ export interface Task {
 
 export interface AssignedTask extends Task {
     assignment_id: number;
+    steps: { index: number; title: string; done: boolean }[];
     value: number;
     streak: number;
     completed: boolean;
