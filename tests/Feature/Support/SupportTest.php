@@ -233,6 +233,7 @@ it('fragt OpenRouter nur mit Freigabe, ohne Namen und mit Budget', function () {
     Http::assertNothingSent();
 
     $this->family->update(['settings' => ['ai_enabled' => true]]);
+    SupportSetting::create(['user_id' => $this->parent->id, 'ai_steps' => true]);
     Sanctum::actingAs($this->parent->refresh(), ['app']);
     $this->postJson("/api/v1/tasks/{$task->id}/steps/suggest")->assertOk()
         ->assertJsonPath('suggestion.source', 'ai')->assertJsonPath('suggestion.steps.2', 'Unterschreiben');
@@ -255,6 +256,44 @@ it('fragt OpenRouter nur mit Freigabe, ohne Namen und mit Budget', function () {
 
     expect(OpenRouterClient::parse('kein json', 5))->toBeNull()
         ->and(OpenRouterClient::parse('{"steps": ["nur einer"]}', 5))->toBeNull();
+});
+
+it('übernimmt bei aktivierter persönlicher KI-Freigabe beim Anlegen automatisch Schrittvorschläge', function () {
+    config(['services.openrouter.key' => 'sk-test']);
+    $this->family->update(['settings' => ['ai_enabled' => true]]);
+    SupportSetting::create(['user_id' => $this->parent->id, 'ai_steps' => true]);
+    Http::fake(['openrouter.ai/*' => Http::response([
+        'choices' => [['message' => ['content' => '{"steps": ["Unterlagen zusammensuchen", "Formular ausfüllen"]}']]],
+        'usage' => ['prompt_tokens' => 40, 'completion_tokens' => 15, 'cost' => 0.0002],
+    ])]);
+    Sanctum::actingAs($this->parent, ['app']);
+
+    $this->postJson('/api/v1/tasks', [
+        'type' => 'todo',
+        'scope' => 'family',
+        'title' => 'Pflanzen gießen',
+        'category' => 'others',
+        'difficulty' => 1,
+        'approval_mode' => 'none',
+        'assignment_mode' => 'assigned',
+        'assignees' => [$this->parent->id],
+    ])->assertCreated()->assertJsonPath('checklist', []);
+    Http::assertNothingSent();
+
+    $this->postJson('/api/v1/tasks', [
+        'type' => 'todo',
+        'scope' => 'family',
+        'title' => 'Versicherungsunterlagen ordnen',
+        'category' => 'others',
+        'difficulty' => 1.5,
+        'approval_mode' => 'none',
+        'assignment_mode' => 'assigned',
+        'assignees' => [$this->parent->id],
+    ])->assertCreated()
+        ->assertJsonPath('checklist', ['Unterlagen zusammensuchen', 'Formular ausfüllen']);
+
+    Http::assertSent(fn ($request) => $request['model'] === config('services.openrouter.model'));
+    expect(AiRequest::first())->ok->toBeTrue();
 });
 
 // ---------- Kopf-Ablage ----------

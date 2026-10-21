@@ -122,7 +122,7 @@ class GameController extends Controller
 
     public function storeTask(TaskRequest $request): JsonResponse
     {
-        $task = $this->tasks->create($request->user(), $request->validated());
+        $task = $this->tasks->create($request->user(), $request->validated(), autoSuggestSteps: true);
 
         return response()->json(GamePresenter::task($task->load('assignments')), 201);
     }

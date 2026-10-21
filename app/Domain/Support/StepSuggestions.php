@@ -32,7 +32,7 @@ class StepSuggestions
     }
 
     /** @return array{source: string, steps: list<string>}|null */
-    public function suggest(User $user, Task $task, bool $allowAi = true): ?array
+    public function suggest(User $user, Task $task, bool $allowAi = true, bool $ignoreRateLimit = false): ?array
     {
         $max = SupportService::settings($user)->max_steps;
         $max = $user->ageGroup() === AgeGroup::Child ? min($max, 5) : $max;
@@ -57,6 +57,10 @@ class StepSuggestions
 
         $limiter = 'ai-steps:'.$user->id;
         if (RateLimiter::tooManyAttempts($limiter, (int) config('game.ai.requests_per_hour'))) {
+            if ($ignoreRateLimit) {
+                return null;
+            }
+
             throw new GameException('Gerade zu viele Vorschläge – probier es später noch einmal.');
         }
         RateLimiter::hit($limiter, 3600);
@@ -64,6 +68,23 @@ class StepSuggestions
         $steps = $this->ai->steps($user, $task->title, $task->notes, $max);
 
         return $steps ? ['source' => 'ai', 'steps' => $steps] : null;
+    }
+
+    /** KI-Schritte bei aktivierter persönlicher Freigabe direkt an neu erstellte Aufgaben übernehmen. */
+    public function suggestOnCreate(User $user, Task $task): ?array
+    {
+        if (! SupportService::settings($user)->ai_steps || ! $this->aiAllowed($user)) {
+            return null;
+        }
+
+        $suggestion = $this->suggest($user, $task, ignoreRateLimit: true);
+        if ($suggestion === null) {
+            return null;
+        }
+
+        $this->save($user, $task, $suggestion['steps'], $suggestion['source']);
+
+        return $suggestion;
     }
 
     /** Übernommene Schritte an der Aufgabe speichern und als Familienvorlage merken. */
@@ -85,11 +106,7 @@ class StepSuggestions
     public function aiAllowed(User $user): bool
     {
         $family = $user->family;
-        if (! OpenRouterClient::configured() || ! $family?->setting('ai_enabled', false)) {
-            return false;
-        }
-        // Kinder unter 13 nur mit zusätzlicher Freigabe der Eltern
-        if ($user->ageGroup() === AgeGroup::Child && ! SupportService::settings($user)->ai_steps) {
+        if (! OpenRouterClient::configured() || ! $family?->setting('ai_enabled', false) || ! SupportService::settings($user)->ai_steps) {
             return false;
         }
 

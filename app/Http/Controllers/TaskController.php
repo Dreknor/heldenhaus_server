@@ -17,7 +17,7 @@ class TaskController extends Controller
 
     public function store(TaskRequest $request): RedirectResponse
     {
-        $this->tasks->create($request->user(), $request->validated());
+        $this->tasks->create($request->user(), $request->validated(), autoSuggestSteps: true);
 
         return back()->with('success', 'Aufgabe angelegt.');
     }
