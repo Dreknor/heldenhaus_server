@@ -48,6 +48,7 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
         ->whereIn('direction', ['up', 'down'])->name('assignments.score');
 
     Route::get('family', [FamilyController::class, 'index'])->name('family.index');
+    Route::get('family/settings', [FamilyController::class, 'settings'])->name('family.settings');
     Route::get('family/tasks', [FamilyController::class, 'tasks'])->name('family.tasks');
     Route::post('family/children', [FamilyController::class, 'storeChild'])->name('family.children.store');
     Route::put('family/members/{member}', [FamilyController::class, 'updateMember'])->name('family.members.update');
@@ -59,6 +60,7 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
     Route::delete('family/ha-webhook', [FamilyController::class, 'destroyHaWebhook'])->name('family.ha-webhook.destroy');
     Route::post('family/members/{member}/stars', [FamilyController::class, 'grantStars'])->name('family.members.stars');
     Route::put('family/settings', [FamilyController::class, 'updateSettings'])->name('family.settings.update');
+    Route::put('family/settings/weather', [FamilyController::class, 'updateWeatherSettings'])->name('family.weather.update');
 
     Route::get('approvals', [ApprovalController::class, 'index'])->name('approvals.index');
     Route::post('completions/{completion}/{decision}', [ApprovalController::class, 'reviewCompletion'])

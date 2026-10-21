@@ -385,8 +385,8 @@ it('Eltern verwalten die Familien-KI-Freigabe und Support-Einstellungen ihrer Ki
         ->and(SupportSetting::find($this->child->id))->ai_steps->toBeTrue()
         ->and(SupportSetting::find($this->child->id))->max_steps->toBe(6);
 
-    $this->get('/family')->assertInertia(fn (Assert $page) => $page
-        ->component('family/Index')
+    $this->get('/family/settings')->assertInertia(fn (Assert $page) => $page
+        ->component('family/Settings')
         ->where('family.settings.ai_enabled', true)
         ->where('openrouterConfigured', false)
         ->has('members.0.supportSettings.ai_steps'));

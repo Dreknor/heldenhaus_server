@@ -9,9 +9,9 @@ use App\Domain\Social\FeedService;
 use App\Domain\Support\OpenRouterClient;
 use App\Domain\Support\SupportService;
 use App\Enums\FamilyRole;
-use App\Http\Presenters\CharacterSheet;
 use App\Http\Presenters\GamePresenter;
 use App\Models\FamilyInvite;
+use App\Models\FamilyEventSetting;
 use App\Models\HaAuditEntry;
 use App\Models\HaWebhook;
 use App\Models\Task;
@@ -32,9 +32,21 @@ class FamilyController extends Controller
         $user = $request->user();
         $family = $user->family;
         $this->authorize('view', $family);
-        $isParent = $user->isParent();
 
         return Inertia::render('family/Index', [
+            'family' => ['name' => $family->name],
+            'feed' => FeedService::present($family->id, $user->id),
+        ]);
+    }
+
+    public function settings(Request $request): Response
+    {
+        $user = $request->user();
+        $family = $user->family;
+        $this->authorize('manage', $family);
+        $isParent = $user->isParent();
+
+        return Inertia::render('family/Settings', [
             'family' => [
                 'id' => $family->id,
                 'name' => $family->name,
@@ -60,8 +72,6 @@ class FamilyController extends Controller
                 : [],
             'isParent' => $isParent,
             'openrouterConfigured' => $isParent && OpenRouterClient::configured(),
-            'familyQuest' => CharacterSheet::quests($user)['family'],
-            'feed' => FeedService::present($family->id, $user->id),
             'haToken' => $request->session()->get('haToken'),
             'haConnected' => $isParent && $user->tokens()->where('name', 'home-assistant')->exists(),
             'haWebhook' => $isParent ? $this->webhookView($family->id) : null,
@@ -73,6 +83,11 @@ class FamilyController extends Controller
                     'member' => $e->member?->name, 'details' => $e->details, 'created_at' => $e->created_at->toIso8601String(),
                 ]) : [],
             'apiUrl' => url('/api/v1'),
+            'weatherSetting' => [
+                'source' => ($setting = FamilyEventSetting::for($family->id))->weather_source,
+                'lat' => $setting->weather_lat,
+                'lon' => $setting->weather_lon,
+            ],
         ]);
     }
 
@@ -263,5 +278,26 @@ class FamilyController extends Controller
         ]);
 
         return back()->with('success', 'Familien-Einstellungen gespeichert.');
+    }
+
+    public function updateWeatherSettings(Request $request): RedirectResponse
+    {
+        $family = $request->user()->family;
+        $this->authorize('manage', $family);
+
+        $data = $request->validate([
+            'weather_source' => ['required', Rule::in(['none', 'ha', 'open_meteo'])],
+            'weather_lat' => ['required_if:weather_source,open_meteo', 'nullable', 'numeric', 'between:-90,90'],
+            'weather_lon' => ['required_if:weather_source,open_meteo', 'nullable', 'numeric', 'between:-180,180'],
+        ]);
+
+        $setting = FamilyEventSetting::for($family->id);
+        $setting->family_id = $family->id;
+        $setting->weather_source = $data['weather_source'];
+        $setting->weather_lat = $data['weather_source'] === 'open_meteo' ? round((float) $data['weather_lat'], 1) : null;
+        $setting->weather_lon = $data['weather_source'] === 'open_meteo' ? round((float) $data['weather_lon'], 1) : null;
+        $setting->save();
+
+        return back()->with('success', 'Wetter-Einstellungen gespeichert.');
     }
 }

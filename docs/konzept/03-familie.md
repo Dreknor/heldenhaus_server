@@ -37,6 +37,7 @@
 - **Belohnung**: Gold, XP und ein Item für alle Beteiligten, bei Familien-Quests zusätzlich ein reales Familienziel, das die Eltern festlegen (z. B. Pizza-Abend).
 - Ab Phase 7 werden Boss-Quests zu Mini-Dungeons (§2.7), deren Endgegner dann ein solcher Boss ist.
 - **Familien-Feed**: wer hat was geschafft, Lob/Reaktionen (👍🔥⭐), Level-ups
+- Die Familienseite konzentriert sich auf den Feed; Eltern verwalten Mitglieder, Spielregeln, Integrationen und optionales Szenenwetter unter „Familieneinstellungen“.
 - **Wochenbericht** (Sonntag, Push und E-Mail an Eltern): Verteilung der Aufgaben (Fairness-Diagramm), Streaks, offene Freigaben. Energiespar-Tage erscheinen nur als Anzahl, pausierte Serien als „pausiert“, nie als Versagen (§11).
 - Im **sanften Modus** (§11.3) nennt der Feed nie, wer eine Daily verpasst hat.
 
@@ -50,5 +51,4 @@
 
 ## 3.7 Privatsphäre für Teens
 Aufgaben können als `privat` markiert werden. Eltern sehen dann nur „1 private Gewohnheit erledigt“, nicht den Inhalt. Familienaufgaben sind nie privat.
-
 

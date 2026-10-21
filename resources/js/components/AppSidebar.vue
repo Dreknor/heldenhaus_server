@@ -16,6 +16,7 @@ import {
     ListChecks,
     PiggyBank,
     ScrollText,
+    Settings,
     Sparkles,
     Swords,
     Trophy,
@@ -40,6 +41,7 @@ const mainNavItems = computed<NavItem[]>(() => [
     ...(isParent.value
         ? [
               { title: 'Familienaufgaben', href: '/family/tasks', icon: ListChecks },
+              { title: 'Familieneinstellungen', href: '/family/settings', icon: Settings },
               { title: 'Freigaben', href: '/approvals', icon: Inbox, badge: page.props.counts?.approvals ?? 0 },
               { title: 'Wochenbericht', href: '/family/report', icon: ChartColumn },
           ]
