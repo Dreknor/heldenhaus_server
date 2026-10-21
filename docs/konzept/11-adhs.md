@@ -33,7 +33,7 @@ Zielkonflikt: „Sofortiges Feedback“ und „reizarm“ widersprechen sich tei
   1. **Vorlagen** in `database/content/chunk_templates.json` (z. B. „Zimmer aufräumen“ → Wäsche aufheben, Stifte einsammeln, Bett machen, Boden frei). Sie funktionieren ohne Internet und ohne KI.
   2. Gespeicherte Schritte der Familie, wenn dieselbe Aufgabe schon einmal zerlegt wurde
   3. **KI-Aufteilung über OpenRouter** (§11.6), nur wenn sie für die Familie und die Person freigeschaltet ist
-- Ist `ai_steps` für die Person aktiviert und KI für die Familie freigeschaltet, werden beim Anlegen einer mittelschweren oder schweren Aufgabe passende Vorschläge automatisch gesucht und an der Aufgabe gespeichert. Vorlagen und gespeicherte Familienvorschläge haben weiterhin Vorrang; Aufgaben mit bereits eingetragenen Schritten bleiben unverändert.
+- Ist `ai_steps` für die Person aktiviert und KI für die Familie freigeschaltet, wird beim Anlegen einer mittelschweren oder schweren Aufgabe OpenRouter direkt angefragt und die Antwort an der Aufgabe gespeichert. Das gilt auch dann, wenn ein Titel zu einer lokalen Vorlage passt. Aufgaben mit bereits eingetragenen Schritten bleiben unverändert. Ohne gültige Serverkonfiguration, Budget oder verfügbares Ratenlimit wird keine Anfrage gesendet.
 - Automatisch gespeicherte Schritte bleiben editierbar und können verworfen werden. Manuell angeforderte Vorschläge können übernommen, geändert oder verworfen werden. Wie viele Schritte es höchstens gibt, ist einstellbar (Standard 3–7, für 9–12 Jahre eher 3–5).
 
 **Energiespar-Tag („Schlechter-Tag-Joker“)**

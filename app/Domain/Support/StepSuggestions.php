@@ -55,17 +55,7 @@ class StepSuggestions
             return null;
         }
 
-        $limiter = 'ai-steps:'.$user->id;
-        if (RateLimiter::tooManyAttempts($limiter, (int) config('game.ai.requests_per_hour'))) {
-            if ($ignoreRateLimit) {
-                return null;
-            }
-
-            throw new GameException('Gerade zu viele Vorschläge – probier es später noch einmal.');
-        }
-        RateLimiter::hit($limiter, 3600);
-
-        $steps = $this->ai->steps($user, $task->title, $task->notes, $max);
+        $steps = $this->requestAiSteps($user, $task, $max, $ignoreRateLimit);
 
         return $steps ? ['source' => 'ai', 'steps' => $steps] : null;
     }
@@ -77,14 +67,33 @@ class StepSuggestions
             return null;
         }
 
-        $suggestion = $this->suggest($user, $task, ignoreRateLimit: true);
-        if ($suggestion === null) {
+        $max = SupportService::settings($user)->max_steps;
+        $max = $user->ageGroup() === AgeGroup::Child ? min($max, 5) : $max;
+        $steps = $this->requestAiSteps($user, $task, $max, ignoreRateLimit: true);
+
+        if ($steps === null) {
             return null;
         }
 
-        $this->save($user, $task, $suggestion['steps'], $suggestion['source']);
+        $this->save($user, $task, $steps, 'ai');
 
-        return $suggestion;
+        return ['source' => 'ai', 'steps' => $steps];
+    }
+
+    /** @return list<string>|null */
+    private function requestAiSteps(User $user, Task $task, int $max, bool $ignoreRateLimit): ?array
+    {
+        $limiter = 'ai-steps:'.$user->id;
+        if (RateLimiter::tooManyAttempts($limiter, (int) config('game.ai.requests_per_hour'))) {
+            if ($ignoreRateLimit) {
+                return null;
+            }
+
+            throw new GameException('Gerade zu viele Vorschläge – probier es später noch einmal.');
+        }
+        RateLimiter::hit($limiter, 3600);
+
+        return $this->ai->steps($user, $task->title, $task->notes, $max);
     }
 
     /** Übernommene Schritte an der Aufgabe speichern und als Familienvorlage merken. */

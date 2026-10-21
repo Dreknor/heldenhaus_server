@@ -33,6 +33,7 @@ const props = defineProps<{
     members: Member[];
     invites: { id: number; code: string; role: string; role_label: string; email: string | null; expires_at: string }[];
     isParent: boolean;
+    openrouterConfigured: boolean;
     familyQuest: ActiveQuest | null;
     feed: FeedEntryView[];
     haToken: string | null;
@@ -198,7 +199,13 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
                 <Card class="lg:col-span-2">
                     <CardHeader>
                         <CardTitle>Familienweite Support-Einstellungen</CardTitle>
-                        <CardDescription>Die KI-Freigabe gilt zusätzlich zu den persönlichen Einstellungen der einzelnen Mitglieder.</CardDescription>
+                        <CardDescription>
+                            Die KI-Freigabe gilt zusätzlich zu den persönlichen Einstellungen der einzelnen Mitglieder.
+                            <template v-if="openrouterConfigured"> OpenRouter ist auf dem Server konfiguriert.</template>
+                            <template v-else>
+                                Auf dem Server fehlt noch der OpenRouter-API-Schlüssel; bis dahin werden keine KI-Anfragen gesendet.</template
+                            >
+                        </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form

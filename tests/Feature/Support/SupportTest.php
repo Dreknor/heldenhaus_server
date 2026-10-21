@@ -284,7 +284,7 @@ it('übernimmt bei aktivierter persönlicher KI-Freigabe beim Anlegen automatisc
     $this->postJson('/api/v1/tasks', [
         'type' => 'todo',
         'scope' => 'family',
-        'title' => 'Versicherungsunterlagen ordnen',
+        'title' => 'Versicherungsformular ausfüllen',
         'category' => 'others',
         'difficulty' => 1.5,
         'approval_mode' => 'none',
@@ -294,7 +294,7 @@ it('übernimmt bei aktivierter persönlicher KI-Freigabe beim Anlegen automatisc
         ->assertJsonPath('checklist', ['Unterlagen zusammensuchen', 'Formular ausfüllen']);
 
     Http::assertSent(fn ($request) => $request['model'] === config('services.openrouter.model'));
-    expect(AiRequest::first())->ok->toBeTrue();
+    expect(AiRequest::first())->ok->toBeTrue()->prompt_tokens->toBe(40);
 });
 
 it('Eltern verwalten die Familien-KI-Freigabe und Support-Einstellungen ihrer Kinder', function () {
@@ -317,6 +317,7 @@ it('Eltern verwalten die Familien-KI-Freigabe und Support-Einstellungen ihrer Ki
     $this->get('/family')->assertInertia(fn (Assert $page) => $page
         ->component('family/Index')
         ->where('family.settings.ai_enabled', true)
+        ->where('openrouterConfigured', false)
         ->has('members.0.supportSettings.ai_steps'));
 });
 

@@ -6,6 +6,7 @@ use App\Domain\Family\FamilyService;
 use App\Domain\Integrations\HomeAssistant\HomeAssistantWebhooks;
 use App\Domain\Rewards\RewardService;
 use App\Domain\Social\FeedService;
+use App\Domain\Support\OpenRouterClient;
 use App\Domain\Support\SupportService;
 use App\Enums\FamilyRole;
 use App\Http\Presenters\CharacterSheet;
@@ -58,6 +59,7 @@ class FamilyController extends Controller
                     ])
                 : [],
             'isParent' => $isParent,
+            'openrouterConfigured' => $isParent && OpenRouterClient::configured(),
             'familyQuest' => CharacterSheet::quests($user)['family'],
             'feed' => FeedService::present($family->id, $user->id),
             'haToken' => $request->session()->get('haToken'),
