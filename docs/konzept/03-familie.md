@@ -40,6 +40,7 @@
 - **Wochenbericht** (Sonntag, Push und E-Mail an Eltern): Verteilung der Aufgaben (Fairness-Diagramm), Streaks, offene Freigaben. Energiespar-Tage erscheinen nur als Anzahl, pausierte Serien als „pausiert“, nie als Versagen (§11).
 - Im **sanften Modus** (§11.3) nennt der Feed nie, wer eine Daily verpasst hat.
 
+- **Familienrat und Mitbestimmung** (§14.4): Kinder schlagen Belohnungen und Aufgaben vor, alle stimmen über die nächste Familien-Quest ab, wöchentlicher Familienrat mit Rückblick, Danke-Runde und Entscheidungen. Eltern-Hilfen (§14.9): Aufgaben-Vorlagen nach Alter, Startassistent, Preis-Hilfe, Eltern-Anleitung.
 - **Freischaltungen** (§13): Eltern schalten Funktionen für ihre Kinder früher frei, lassen sie für Kinder unter 13 später kommen oder geben neuen Mitgliedern einen Schnellstart. Freigaben, Sterne und Familienaufgaben sind nie gesperrt.
 - **Familien-Events** (§12): Willkommensfest für neue Mitglieder, Hauseinweihung, Heldenjubiläum und auf Wunsch Geburtstage (nur Tag und Monat, von den Eltern eingetragen). Eltern schalten einzelne Events ab und wählen das Bundesland für Feiertage und Schulferien.
 
