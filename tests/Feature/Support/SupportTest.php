@@ -239,6 +239,7 @@ it('fragt OpenRouter nur mit Freigabe, ohne Namen und mit Budget', function () {
 
     Http::assertSent(fn ($r) => ! str_contains($r->body(), $this->parent->name)
         && ! str_contains($r->body(), 'Familie Test')
+        && str_starts_with($r['messages'][0]['content'], 'Du hilfst Erwachsenen')
         && $r['provider']['data_collection'] === 'deny');
     expect(AiRequest::first())->ok->toBeTrue()->prompt_tokens->toBe(80);
 
