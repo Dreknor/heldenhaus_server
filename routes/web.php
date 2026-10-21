@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AchievementController;
+use App\Http\Controllers\Admin\AiRequestController;
 use App\Http\Controllers\Admin\ItemController;
 use App\Http\Controllers\Admin\SceneBackgroundController;
 use App\Http\Controllers\Admin\UpdateController;
@@ -127,6 +128,7 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
 });
 
 Route::middleware(['auth', 'can:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('ai-requests', [AiRequestController::class, 'index'])->name('ai-requests.index');
     Route::get('updates', [UpdateController::class, 'index'])->name('updates.index');
     Route::get('updates/status', [UpdateController::class, 'status'])->name('updates.status');
     Route::post('updates/check', [UpdateController::class, 'check'])->name('updates.check');

@@ -101,7 +101,7 @@ Zielkonflikt: „Sofortiges Feedback“ und „reizarm“ widersprechen sich tei
 - `recovery_quests`: `user_id`, `task_id`, `needed`, `done`, `streak_to_restore`, `expires_at`, Status
 - `focus_sessions`: `user_id`, `task_id` null, `planned_minutes`, `started_at`, `ended_at`, Ergebnis (`done|extended|aborted`), `shared_with` (gemeinsame Fokus-Zeit)
 - `surprise_counters` in `user_stats` (Pech-Schutz-Zähler, Überraschungen heute)
-- `ai_requests`: `family_id`, `user_id`, Zweck, Modell, Tokens, Kosten, Zeitstempel (für Budget und Prüfprotokoll, ohne Inhalt)
+- `ai_requests`: `family_id`, `user_id`, Zweck, Modell, Tokens, Kosten, Zeitstempel sowie OpenRouter-Antwort und Fehlerdiagnose (letztere nur für Admins sichtbar)
 
 **API (`/api/v1`)**
 - `POST inbox` (Titel), `POST inbox/{id}/sort` (Typ, Kategorie, Schwierigkeit)
@@ -122,6 +122,7 @@ Große Aufgaben in sinnvolle Schritte zu zerlegen, fällt gerade Menschen mit AD
 - Der Aufruf läuft **nur auf dem Server** (Queue-Job, ausgehendes HTTPS ist auf dem Webhosting erlaubt). Der API-Schlüssel liegt in `.env` (`OPENROUTER_API_KEY`, `OPENROUTER_MODEL`), nie in der App.
 - **Datensparsam**: Gesendet werden nur Aufgabentitel, Notiz (optional), Altersgruppe und gewünschte Schrittanzahl, **keine Namen, keine Familien- oder Gesundheitsdaten**. In OpenRouter werden nur Anbieter ohne Datenspeicherung und ohne Training zugelassen (Provider-Einstellungen bzw. `data_collection: deny`).
 - Ein fester, altersgerechter System-Prompt sorgt für kurze Schritte (höchstens `max_steps`, je ein Verb, keine Gefahren wie Chemikalien). Die Antwort wird als JSON geprüft, ungültige Antworten werden verworfen.
+- Die Provider-Antwort, HTTP-Status, Abbruchgrund und Fehler werden zur Fehlerdiagnose gespeichert und sind nur im Adminbereich sichtbar. Die Antwort kann Aufgabeninhalte enthalten; sie wird nicht in allgemeine Anwendungslogs geschrieben.
 - **Kosten und Missbrauch**: Ratenbegrenzung pro Person, Monatsbudget pro Familie (`ai_requests`), Ergebnis wird pro Aufgabentitel zwischengespeichert. Freitext-Ausgaben der KI erscheinen nie ungeprüft im Familien-Feed.
 - Übernommene Schritte werden als Familienvorlage gespeichert, damit dieselbe Aufgabe beim nächsten Mal ohne KI zerlegt wird.
 

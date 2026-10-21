@@ -47,6 +47,7 @@ const mainNavItems = computed<NavItem[]>(() => [
     ...(page.props.auth.user?.is_admin
         ? [
               { title: 'Items & Drops', href: '/admin/items', icon: Dices },
+              { title: 'KI-Anfragen', href: '/admin/ai-requests', icon: Sparkles },
               { title: 'System-Updates', href: '/admin/updates', icon: Download },
           ]
         : []),

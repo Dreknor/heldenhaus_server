@@ -224,7 +224,7 @@ it('schlägt Schritte aus Vorlagen und Familie vor und speichert übernommene Sc
 it('fragt OpenRouter nur mit Freigabe, ohne Namen und mit Budget', function () {
     config(['services.openrouter.key' => 'sk-test']);
     Http::fake(['openrouter.ai/*' => Http::response([
-        'choices' => [['message' => ['content' => '{"steps": ["Formular öffnen", "Seite 1 ausfüllen", "Unterschreiben"]}']]],
+        'choices' => [['message' => ['content' => '{"steps": ["Formular öffnen", "Seite 1 ausfüllen", "Unterschreiben"]}'], 'finish_reason' => 'stop']],
         'usage' => ['prompt_tokens' => 80, 'completion_tokens' => 20, 'cost' => 0.0004],
     ])]);
     $task = makeTask($this->parent, ['title' => 'Sommerfest planen', 'notes' => 'bis Freitag']);
@@ -242,8 +242,13 @@ it('fragt OpenRouter nur mit Freigabe, ohne Namen und mit Budget', function () {
     Http::assertSent(fn ($r) => ! str_contains($r->body(), $this->parent->name)
         && ! str_contains($r->body(), 'Familie Test')
         && str_starts_with($r['messages'][0]['content'], 'Du hilfst Erwachsenen')
+        && $r['max_tokens'] === 800
         && $r['provider']['data_collection'] === 'deny');
-    expect(AiRequest::first())->ok->toBeTrue()->prompt_tokens->toBe(80);
+    expect(AiRequest::first())->ok->toBeTrue()
+        ->prompt_tokens->toBe(80)
+        ->response_status->toBe(200)
+        ->finish_reason->toBe('stop')
+        ->response_payload->toContain('Formular');
 
     // Budget aufgebraucht → keine KI mehr
     AiRequest::create(['family_id' => $this->family->id, 'purpose' => 'steps', 'cost_usd' => 5]);
@@ -295,6 +300,32 @@ it('übernimmt bei aktivierter persönlicher KI-Freigabe beim Anlegen automatisc
 
     Http::assertSent(fn ($request) => $request['model'] === config('services.openrouter.model'));
     expect(AiRequest::first())->ok->toBeTrue()->prompt_tokens->toBe(40);
+});
+
+it('speichert abgeschnittene Provider-Antworten als Fehler und zeigt sie nur Admins', function () {
+    config(['services.openrouter.key' => 'sk-test']);
+    Http::fake(['openrouter.ai/*' => Http::response([
+        'choices' => [['message' => ['content' => '{"steps": ['], 'finish_reason' => 'length']],
+        'usage' => ['prompt_tokens' => 90, 'completion_tokens' => 300, 'cost' => 0.0008],
+    ])]);
+    $this->family->update(['settings' => ['ai_enabled' => true]]);
+    SupportSetting::create(['user_id' => $this->parent->id, 'ai_steps' => true]);
+
+    expect(app(OpenRouterClient::class)->steps($this->parent, 'Formular sortieren', null, 7))->toBeNull();
+    $request = AiRequest::first();
+    expect($request->ok)->toBeFalse()
+        ->and($request->completion_tokens)->toBe(300)
+        ->and($request->finish_reason)->toBe('length')
+        ->and($request->error_message)->toContain('abgeschnitten');
+
+    $this->actingAs($this->parent)->get('/admin/ai-requests')->assertForbidden();
+
+    $this->parent->forceFill(['is_admin' => true])->save();
+    $this->actingAs($this->parent)->get('/admin/ai-requests')->assertInertia(fn (Assert $page) => $page
+        ->component('admin/AiRequests')
+        ->where('requests.0.ok', false)
+        ->where('requests.0.finish_reason', 'length')
+        ->where('requests.0.response_payload', $request->response_payload));
 });
 
 it('Eltern verwalten die Familien-KI-Freigabe und Support-Einstellungen ihrer Kinder', function () {
