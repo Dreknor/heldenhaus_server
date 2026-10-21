@@ -242,7 +242,7 @@ it('fragt OpenRouter nur mit Freigabe, ohne Namen und mit Budget', function () {
     Http::assertSent(fn ($r) => ! str_contains($r->body(), $this->parent->name)
         && ! str_contains($r->body(), 'Familie Test')
         && str_starts_with($r['messages'][0]['content'], 'Du hilfst Erwachsenen')
-        && $r['max_tokens'] === 800
+        && $r['max_tokens'] === 1600
         && $r['provider']['data_collection'] === 'deny');
     expect(AiRequest::first())->ok->toBeTrue()
         ->prompt_tokens->toBe(80)
@@ -314,7 +314,7 @@ it('speichert abgeschnittene Provider-Antworten als Fehler und zeigt sie nur Adm
     expect(app(OpenRouterClient::class)->steps($this->parent, 'Formular sortieren', null, 7))->toBeNull();
     $request = AiRequest::first();
     expect($request->ok)->toBeFalse()
-        ->and($request->completion_tokens)->toBe(300)
+        ->and($request->completion_tokens)->toBe(600)
         ->and($request->finish_reason)->toBe('length')
         ->and($request->error_message)->toContain('abgeschnitten');
 
@@ -326,6 +326,34 @@ it('speichert abgeschnittene Provider-Antworten als Fehler und zeigt sie nur Adm
         ->where('requests.0.ok', false)
         ->where('requests.0.finish_reason', 'length')
         ->where('requests.0.response_payload', $request->response_payload));
+});
+
+it('wiederholt bei abgeschnittener Antwort einmal mit höherem Token-Limit', function () {
+    config(['services.openrouter.key' => 'sk-test']);
+    Http::fake([
+        'openrouter.ai/*' => Http::sequence()
+            ->push([
+                'choices' => [['message' => ['content' => '{"steps": ['], 'finish_reason' => 'length']],
+                'usage' => ['prompt_tokens' => 90, 'completion_tokens' => 1600, 'cost' => 0.001],
+            ])
+            ->push([
+                'choices' => [['message' => ['content' => '{"steps": ["Unterlagen sammeln", "Formular ausfüllen"]}'], 'finish_reason' => 'stop']],
+                'usage' => ['prompt_tokens' => 90, 'completion_tokens' => 30, 'cost' => 0.0002],
+            ]),
+    ]);
+
+    expect(app(OpenRouterClient::class)->steps($this->parent, 'Formular ausfüllen', null, 7))
+        ->toBe(['Unterlagen sammeln', 'Formular ausfüllen']);
+
+    Http::assertSentCount(2);
+    Http::assertSent(fn ($request) => $request['max_tokens'] === 1600);
+    Http::assertSent(fn ($request) => $request['max_tokens'] === 3000);
+    $request = AiRequest::first();
+    expect($request->ok)->toBeTrue()
+        ->and($request->prompt_tokens)->toBe(180)
+        ->and($request->completion_tokens)->toBe(1630)
+        ->and($request->finish_reason)->toBe('stop')
+        ->and($request->response_payload)->toContain('finish_reason');
 });
 
 it('Eltern verwalten die Familien-KI-Freigabe und Support-Einstellungen ihrer Kinder', function () {

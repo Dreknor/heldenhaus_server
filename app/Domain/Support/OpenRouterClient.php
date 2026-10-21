@@ -17,13 +17,14 @@ class OpenRouterClient
 {
     private const SYSTEM = 'Du hilfst Kindern, Jugendlichen und Erwachsenen, eine Aufgabe in kleine Schritte zu zerlegen. '
         .'Antworte nur mit JSON: {"steps": ["…"]}. Jeder Schritt beginnt mit einem Verb, ist höchstens 8 Wörter lang, '
-        .'konkret und sicher (keine Chemikalien, kein Strom, keine Messer bei Kindern). Sprache: Deutsch.';
+        .'konkret und sicher (keine Chemikalien, kein Strom, keine Messer bei Kindern). Keine Erklärungen oder weiteren JSON-Felder. '
+        .'Sprache: Deutsch.';
 
     private const ADULT_SYSTEM = 'Du hilfst Erwachsenen, eine Aufgabe in kleine Schritte zu zerlegen. '
         .'Antworte nur mit JSON: {"steps": ["…"]}. Jeder Schritt beginnt mit einem Verb, ist höchstens 8 Wörter lang '
         .'und konkret umsetzbar. Übliche Werkzeuge sind erlaubt; weise bei erkennbaren Risiken auf Schutzmaßnahmen hin. '
         .'Gib keine Anleitung zu illegalen oder hochriskanten Tätigkeiten, die Fachkenntnis erfordern, etwa Arbeiten '
-        .'an Netzspannung, Gas oder gefährlichen Chemikalien. Sprache: Deutsch.';
+        .'an Netzspannung, Gas oder gefährlichen Chemikalien. Keine Erklärungen oder weiteren JSON-Felder. Sprache: Deutsch.';
 
     public static function configured(): bool
     {
@@ -48,41 +49,63 @@ class OpenRouterClient
         $finishReason = null;
         $error = null;
         $steps = null;
+        $attempts = [];
 
         try {
-            $response = Http::withToken(config('services.openrouter.key'))->timeout(20)
-                ->withHeaders(['X-Title' => 'Heldenhaus'])
-                ->post('https://openrouter.ai/api/v1/chat/completions', [
-                    'model' => $model,
-                    'messages' => [
-                        ['role' => 'system', 'content' => $user->ageGroup() === AgeGroup::Adult ? self::ADULT_SYSTEM : self::SYSTEM],
-                        ['role' => 'user', 'content' => $prompt],
-                    ],
-                    'response_format' => ['type' => 'json_object'],
-                    'max_tokens' => 800,
-                    'temperature' => 0.3,
-                    'provider' => ['data_collection' => 'deny'],
-                    'usage' => ['include' => true],
-                ]);
+            $systemPrompt = $user->ageGroup() === AgeGroup::Adult ? self::ADULT_SYSTEM : self::SYSTEM;
+            foreach ([1600, 3000] as $maxTokens) {
+                $response = Http::withToken(config('services.openrouter.key'))->timeout(20)
+                    ->withHeaders(['X-Title' => 'Heldenhaus'])
+                    ->post('https://openrouter.ai/api/v1/chat/completions', [
+                        'model' => $model,
+                        'messages' => [
+                            ['role' => 'system', 'content' => $systemPrompt],
+                            ['role' => 'user', 'content' => $prompt],
+                        ],
+                        'response_format' => ['type' => 'json_object'],
+                        'max_tokens' => $maxTokens,
+                        'temperature' => 0.3,
+                        'provider' => ['data_collection' => 'deny'],
+                        'usage' => ['include' => true],
+                    ]);
 
-            $responseStatus = $response->status();
-            $responsePayload = mb_substr($response->body(), 0, 20000);
-            $usage = array_merge($usage, (array) $response->json('usage'));
-            $cost = (float) ($response->json('usage.cost') ?? 0);
-            $finishReason = $response->json('choices.0.finish_reason');
-            if (! $response->successful()) {
-                $error = 'OpenRouter antwortete mit HTTP '.$responseStatus.'.';
-            } else {
+                $responseStatus = $response->status();
+                $finishReason = $response->json('choices.0.finish_reason');
+                $attempts[] = [
+                    'max_tokens' => $maxTokens,
+                    'status' => $responseStatus,
+                    'finish_reason' => $finishReason,
+                    'body' => mb_substr($response->body(), 0, 10000),
+                ];
+                $responseUsage = (array) $response->json('usage');
+                $usage['prompt_tokens'] += (int) ($responseUsage['prompt_tokens'] ?? 0);
+                $usage['completion_tokens'] += (int) ($responseUsage['completion_tokens'] ?? 0);
+                $cost += (float) ($responseUsage['cost'] ?? 0);
+
+                if (! $response->successful()) {
+                    $error = 'OpenRouter antwortete mit HTTP '.$responseStatus.'.';
+                    break;
+                }
+
                 $content = $response->json('choices.0.message.content');
                 $steps = is_string($content) ? self::parse($content, $maxSteps) : null;
-                if ($steps === null) {
-                    $error = $finishReason === 'length'
-                        ? 'Die OpenRouter-Antwort wurde wegen des Token-Limits abgeschnitten.'
-                        : 'Die OpenRouter-Antwort enthielt keine gültige Schritteliste.';
+                if ($finishReason !== 'length') {
+                    if ($steps === null) {
+                        $error = 'Die OpenRouter-Antwort enthielt keine gültige Schritteliste.';
+                    }
+                    break;
                 }
             }
+
+            if ($steps === null && $finishReason === 'length') {
+                $error = 'Die OpenRouter-Antwort wurde auch beim Wiederholungsversuch wegen des Token-Limits abgeschnitten.';
+            }
+            $responsePayload = json_encode(['attempts' => $attempts], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         } catch (Throwable $exception) {
             $error = $exception->getMessage();
+            $responsePayload = $attempts
+                ? json_encode(['attempts' => $attempts], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+                : null;
         }
 
         $request = AiRequest::create([
