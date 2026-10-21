@@ -17,6 +17,7 @@ use App\Models\Task;
 use App\Models\TaskCompletion;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Http;
+use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Sanctum\Sanctum;
 use Random\Engine\Mt19937;
 use Random\Randomizer;
@@ -294,6 +295,29 @@ it('übernimmt bei aktivierter persönlicher KI-Freigabe beim Anlegen automatisc
 
     Http::assertSent(fn ($request) => $request['model'] === config('services.openrouter.model'));
     expect(AiRequest::first())->ok->toBeTrue();
+});
+
+it('Eltern verwalten die Familien-KI-Freigabe und Support-Einstellungen ihrer Kinder', function () {
+    $this->actingAs($this->parent)
+        ->put('/family/support', ['gentle_mode_default' => true, 'ai_enabled' => true, 'ai_budget_usd' => 2.5])
+        ->assertSessionHasNoErrors();
+
+    $this->put("/members/{$this->child->id}/support-settings", [
+        'gentle_mode' => true,
+        'ai_steps' => true,
+        'max_steps' => 6,
+        'low_energy_per_week' => 3,
+    ])->assertSessionHasNoErrors();
+
+    expect($this->family->fresh()->setting('ai_enabled'))->toBeTrue()
+        ->and($this->family->fresh()->setting('ai_budget_usd'))->toBe(2.5)
+        ->and(SupportSetting::find($this->child->id))->ai_steps->toBeTrue()
+        ->and(SupportSetting::find($this->child->id))->max_steps->toBe(6);
+
+    $this->get('/family')->assertInertia(fn (Assert $page) => $page
+        ->component('family/Index')
+        ->where('family.settings.ai_enabled', true)
+        ->has('members.0.supportSettings.ai_steps'));
 });
 
 // ---------- Kopf-Ablage ----------

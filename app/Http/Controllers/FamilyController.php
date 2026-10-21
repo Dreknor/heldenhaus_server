@@ -6,6 +6,7 @@ use App\Domain\Family\FamilyService;
 use App\Domain\Integrations\HomeAssistant\HomeAssistantWebhooks;
 use App\Domain\Rewards\RewardService;
 use App\Domain\Social\FeedService;
+use App\Domain\Support\SupportService;
 use App\Enums\FamilyRole;
 use App\Http\Presenters\CharacterSheet;
 use App\Http\Presenters\GamePresenter;
@@ -42,10 +43,13 @@ class FamilyController extends Controller
                     'ko_gold_loss' => (float) $family->setting('ko_gold_loss', config('game.ko_gold_loss')),
                     'damage_factor_child' => (float) $family->setting('damage_factor.child', config('game.age_damage_factor.child')),
                     'damage_factor_teen' => (float) $family->setting('damage_factor.teen', config('game.age_damage_factor.teen')),
+                    'gentle_mode_default' => (bool) $family->setting('gentle_mode_default', false),
+                    'ai_enabled' => (bool) $family->setting('ai_enabled', false),
+                    'ai_budget_usd' => (float) $family->setting('ai_budget_usd', config('game.ai.monthly_budget_usd')),
                 ] : null,
             ],
             'members' => $family->members()->with('stats')->orderBy('family_role')->orderBy('name')->get()
-                ->map(fn (User $m) => GamePresenter::member($m)),
+                ->map(fn (User $m) => GamePresenter::member($m) + ($isParent ? ['supportSettings' => SupportService::present($m)] : [])),
             'invites' => $isParent
                 ? $family->invites()->whereNull('used_at')->where('expires_at', '>', now())->latest()->get()
                     ->map(fn (FamilyInvite $i) => [

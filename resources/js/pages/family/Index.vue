@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
+import MemberSupportSettings from '@/components/family/MemberSupportSettings.vue';
 import FeedList, { type FeedEntryView } from '@/components/game/FeedList.vue';
 import HeroAvatar from '@/components/game/HeroAvatar.vue';
 import QuestCard, { type ActiveQuest } from '@/components/game/QuestCard.vue';
@@ -19,7 +20,15 @@ const props = defineProps<{
         id: number;
         name: string;
         login_code: string | null;
-        settings: { auto_approve_hours: number; ko_gold_loss: number; damage_factor_child: number; damage_factor_teen: number } | null;
+        settings: {
+            auto_approve_hours: number;
+            ko_gold_loss: number;
+            damage_factor_child: number;
+            damage_factor_teen: number;
+            gentle_mode_default: boolean;
+            ai_enabled: boolean;
+            ai_budget_usd: number;
+        } | null;
     };
     members: Member[];
     invites: { id: number; code: string; role: string; role_label: string; email: string | null; expires_at: string }[];
@@ -97,6 +106,11 @@ const settings = useForm({
     ko_gold_loss: props.family.settings?.ko_gold_loss ?? 0,
     damage_factor_child: props.family.settings?.damage_factor_child ?? 0.5,
     damage_factor_teen: props.family.settings?.damage_factor_teen ?? 0.75,
+});
+const supportSettings = useForm({
+    gentle_mode_default: props.family.settings?.gentle_mode_default ?? false,
+    ai_enabled: props.family.settings?.ai_enabled ?? false,
+    ai_budget_usd: props.family.settings?.ai_budget_usd ?? 1,
 });
 
 const ageLabel = { child: '9–12', teen: '13–16', adult: 'Erwachsen' } as const;
@@ -181,6 +195,53 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
             </section>
 
             <div v-if="isParent" class="grid gap-6 lg:grid-cols-2">
+                <Card class="lg:col-span-2">
+                    <CardHeader>
+                        <CardTitle>Familienweite Support-Einstellungen</CardTitle>
+                        <CardDescription>Die KI-Freigabe gilt zusätzlich zu den persönlichen Einstellungen der einzelnen Mitglieder.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form
+                            class="grid gap-4 sm:grid-cols-2"
+                            @submit.prevent="supportSettings.put(route('family.support'), { preserveScroll: true })"
+                        >
+                            <label class="flex items-start gap-2 text-sm sm:col-span-2">
+                                <input v-model="supportSettings.ai_enabled" type="checkbox" class="mt-0.5 size-4" />
+                                <span
+                                    ><strong>OpenRouter für die Familie freigeben</strong><br /><span class="text-muted-foreground"
+                                        >Nur Mitglieder mit aktivierter persönlicher KI-Freigabe erhalten automatische Vorschläge.</span
+                                    ></span
+                                >
+                            </label>
+                            <label class="grid gap-1.5 text-sm">
+                                <span>KI-Monatsbudget (USD)</span>
+                                <Input v-model.number="supportSettings.ai_budget_usd" type="number" min="0" max="20" step="0.01" required />
+                                <InputError :message="supportSettings.errors.ai_budget_usd" />
+                            </label>
+                            <label class="flex items-start gap-2 text-sm">
+                                <input v-model="supportSettings.gentle_mode_default" type="checkbox" class="mt-0.5 size-4" />
+                                <span
+                                    ><strong>Sanften Modus standardmäßig aktivieren</strong><br /><span class="text-muted-foreground"
+                                        >Gilt für Mitglieder ohne eigene Einstellung.</span
+                                    ></span
+                                >
+                            </label>
+                            <div class="sm:col-span-2">
+                                <Button type="submit" :disabled="supportSettings.processing">Support-Standards speichern</Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
+
+                <template v-for="m in members" :key="`support-${m.id}`">
+                    <MemberSupportSettings
+                        v-if="m.supportSettings && m.role !== 'guest'"
+                        :member-id="m.id"
+                        :member-name="m.name"
+                        :support-settings="m.supportSettings"
+                    />
+                </template>
+
                 <!-- Kind hinzufügen -->
                 <Card>
                     <CardHeader>
