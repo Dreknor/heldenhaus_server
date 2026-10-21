@@ -2,6 +2,7 @@
 
 namespace App\Domain\Support;
 
+use App\Enums\AgeGroup;
 use App\Models\AiRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
@@ -16,6 +17,12 @@ class OpenRouterClient
     private const SYSTEM = 'Du hilfst Kindern, Jugendlichen und Erwachsenen, eine Aufgabe in kleine Schritte zu zerlegen. '
         .'Antworte nur mit JSON: {"steps": ["…"]}. Jeder Schritt beginnt mit einem Verb, ist höchstens 8 Wörter lang, '
         .'konkret und sicher (keine Chemikalien, kein Strom, keine Messer bei Kindern). Sprache: Deutsch.';
+
+    private const ADULT_SYSTEM = 'Du hilfst Erwachsenen, eine Aufgabe in kleine Schritte zu zerlegen. '
+        .'Antworte nur mit JSON: {"steps": ["…"]}. Jeder Schritt beginnt mit einem Verb, ist höchstens 8 Wörter lang '
+        .'und konkret umsetzbar. Übliche Werkzeuge sind erlaubt; weise bei erkennbaren Risiken auf Schutzmaßnahmen hin. '
+        .'Gib keine Anleitung zu illegalen oder hochriskanten Tätigkeiten, die Fachkenntnis erfordern, etwa Arbeiten '
+        .'an Netzspannung, Gas oder gefährlichen Chemikalien. Sprache: Deutsch.';
 
     public static function configured(): bool
     {
@@ -42,7 +49,10 @@ class OpenRouterClient
                 ->withHeaders(['X-Title' => 'Heldenhaus'])
                 ->post('https://openrouter.ai/api/v1/chat/completions', [
                     'model' => $model,
-                    'messages' => [['role' => 'system', 'content' => self::SYSTEM], ['role' => 'user', 'content' => $prompt]],
+                    'messages' => [
+                        ['role' => 'system', 'content' => $user->ageGroup() === AgeGroup::Adult ? self::ADULT_SYSTEM : self::SYSTEM],
+                        ['role' => 'user', 'content' => $prompt],
+                    ],
                     'response_format' => ['type' => 'json_object'],
                     'max_tokens' => 300,
                     'temperature' => 0.3,
