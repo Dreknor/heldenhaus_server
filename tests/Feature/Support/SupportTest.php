@@ -243,6 +243,7 @@ it('fragt OpenRouter nur mit Freigabe, ohne Namen und mit Budget', function () {
         && ! str_contains($r->body(), 'Familie Test')
         && str_starts_with($r['messages'][0]['content'], 'Du hilfst Erwachsenen')
         && $r['max_tokens'] === 1600
+        && $r['reasoning'] === ['effort' => 'none', 'exclude' => true]
         && $r['provider']['data_collection'] === 'deny');
     expect(AiRequest::first())->ok->toBeTrue()
         ->prompt_tokens->toBe(80)

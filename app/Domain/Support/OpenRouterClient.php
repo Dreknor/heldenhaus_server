@@ -64,6 +64,7 @@ class OpenRouterClient
                         ],
                         'response_format' => ['type' => 'json_object'],
                         'max_tokens' => $maxTokens,
+                        'reasoning' => ['effort' => 'none', 'exclude' => true],
                         'temperature' => 0.3,
                         'provider' => ['data_collection' => 'deny'],
                         'usage' => ['include' => true],
