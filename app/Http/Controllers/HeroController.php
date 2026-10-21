@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Art\SceneBackgrounds;
+use App\Domain\Events\WeatherSource;
 use App\Domain\Gameplay\RunDayCron;
 use App\Http\Presenters\HeroBoard;
 use App\Models\DayLog;
+use App\Models\FamilyEventSetting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -13,13 +15,23 @@ use Inertia\Response;
 
 class HeroController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request, WeatherSource $weather): Response
     {
+        $user = $request->user();
+        $sceneWeather = null;
+        if ($user->family_id !== null) {
+            $settings = FamilyEventSetting::for($user->family_id);
+            if ($settings->weather_source === 'open_meteo' && $settings->weather_lat !== null && $settings->weather_lon !== null) {
+                $sceneWeather = $weather->current($settings->weather_lat, $settings->weather_lon, $user->family?->timezone ?? $user->timezone);
+            }
+        }
+
         return Inertia::render('Dashboard', [
-            ...HeroBoard::for($request->user()),
+            ...HeroBoard::for($user),
             'categories' => config('game.categories'),
             'difficulties' => config('game.difficulties'),
-            'sceneBackground' => SceneBackgrounds::forToday($request->user()->id),
+            'sceneBackground' => SceneBackgrounds::forToday($user->id),
+            'sceneWeather' => $sceneWeather,
         ]);
     }
 
