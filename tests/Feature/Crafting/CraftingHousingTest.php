@@ -81,6 +81,18 @@ it('legt das Familienhaus als Hütte mit Wohnraum, Werkbank und eigenem Zimmer j
     expect(Room::where('type', 'bedroom')->count())->toBe(3);
 });
 
+it('zeigt das Familienhaus in der Weboberfläche', function () {
+    $this->actingAs($this->child)->get('/housing')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Housing')
+            ->where('home.family.name', $this->family->name)
+            ->where('home.stage_name', 'Hütte')
+            ->has('home.rooms', 3)
+            ->has('home.projects.active')
+            ->where('home.garden', null));
+});
+
 it('stellt an der Werkbank her: Materialien und Gold weg, Auftrag mit Echtzeit, Abholen mit Handwerks-XP', function () {
     give($this->child, ['wood' => 5, 'nails' => 1]);
     setGold($this->child, 10);

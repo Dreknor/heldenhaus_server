@@ -12,6 +12,7 @@ use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\FamilyHubController;
 use App\Http\Controllers\FamilyLoginController;
 use App\Http\Controllers\HeroController;
+use App\Http\Controllers\HousingController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\QuestController;
 use App\Http\Controllers\RewardShopController;
@@ -37,6 +38,7 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
     Route::get('dashboard', [HeroController::class, 'index'])->name('dashboard');
+    Route::get('housing', [HousingController::class, 'index'])->name('housing.index');
     Route::post('cron', [HeroController::class, 'runCron'])->name('cron.run');
 
     Route::post('tasks', [TaskController::class, 'store'])->name('tasks.store');
