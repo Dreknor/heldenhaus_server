@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import FurnitureArt from '@/components/game/FurnitureArt.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -34,7 +35,7 @@ interface Room {
 }
 
 interface HousingData {
-    family: { name: string };
+    family: { id: number; name: string };
     stage_name: string;
     rooms: Room[];
     clutter: { level: number; overdue: number };
@@ -100,12 +101,16 @@ const props = defineProps<{ home: HousingData; furniture: Furniture[]; visitor: 
 type Placement = {
     id?: number;
     item_id?: number;
+    key: string;
     name: string;
     icon: string;
+    w: number;
+    h: number;
     x: number;
     y: number;
     layer: string;
     rotation: number;
+    mirrored: boolean;
     master: boolean;
 };
 const placementDrafts = reactive<Record<number, Placement[]>>(
@@ -115,12 +120,16 @@ const placementDrafts = reactive<Record<number, Placement[]>>(
             room.items.map((item) => ({
                 id: item.id,
                 item_id: item.item_id,
+                key: item.key,
                 name: item.name,
                 icon: item.icon,
+                w: item.w,
+                h: item.h,
                 x: item.x,
                 y: item.y,
                 layer: item.layer,
                 rotation: item.rotation,
+                mirrored: item.mirrored,
                 master: item.master,
             })),
         ]),
@@ -158,25 +167,38 @@ function roomCellClick(event: MouseEvent, room: Room) {
     if (!room.can_edit || !selectedFurniture.value[room.id]) return;
     const bounds = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const x = Math.floor(((event.clientX - bounds.left) / bounds.width) * room.width);
-    const floorStart = bounds.height * 0.43;
-    const floorHeight = bounds.height * 0.57;
-    const y = Math.floor(Math.max(0, (event.clientY - bounds.top - floorStart) / floorHeight) * room.height);
+    const furniture = props.furniture.find((item) => item.id === selectedFurniture.value[room.id]);
+    if (!furniture) return;
     const input = (layoutInputs.value[room.id] ??= { x: 0, y: 0, layer: 'floor', master: false });
-    input.x = Math.max(0, Math.min(room.width - 1, x));
-    input.y = Math.max(0, Math.min(room.height - 1, y));
+    const yStart = input.layer === 'floor' ? 0.43 : input.layer === 'wall' ? 0.05 : 0;
+    const yRange = input.layer === 'floor' ? 0.57 : input.layer === 'wall' ? 0.3 : 1;
+    const y = Math.floor(Math.max(0, (event.clientY - bounds.top - bounds.height * yStart) / (bounds.height * yRange)) * room.height);
+    input.x = Math.max(0, Math.min(room.width - furniture.w, x));
+    input.y = Math.max(0, Math.min(room.height - furniture.h, y));
     prepareLayout(room);
 }
 
-function placedItemStyle(room: Room, item: Room['items'][number]): Record<string, string | number> {
+function placementFootprint(item: Placement) {
+    return item.rotation % 180 === 0 ? { w: item.w, h: item.h } : { w: item.h, h: item.w };
+}
+
+function clampPlacement(item: Placement, room: Room) {
+    const { w, h } = placementFootprint(item);
+    item.x = Math.max(0, Math.min(room.width - w, item.x || 0));
+    item.y = Math.max(0, Math.min(room.height - h, item.y || 0));
+}
+
+function placedItemStyle(room: Room, item: Placement): Record<string, string | number> {
+    const footprint = placementFootprint(item);
     const top = item.layer === 'floor' ? 43 + (item.y / room.height) * 55 : item.layer === 'wall' ? 5 + (item.y / room.height) * 30 : 2;
 
     return {
         left: `${(item.x / room.width) * 100}%`,
         top: `${top}%`,
-        width: `${(Math.min(item.w, room.width) / room.width) * 100}%`,
-        height: `${(Math.min(item.h, room.height) / room.height) * (item.layer === 'floor' ? 55 : 30)}%`,
+        width: `${(Math.min(footprint.w, room.width - item.x) / room.width) * 100}%`,
+        height: `${(Math.min(footprint.h, room.height - item.y) / room.height) * (item.layer === 'floor' ? 55 : 30)}%`,
         zIndex: item.layer === 'floor' ? 4 : item.layer === 'wall' ? 6 : 7,
-        transform: `rotate(${item.rotation}deg)`,
+        transform: `scaleX(${item.mirrored ? -1 : 1})`,
     };
 }
 
@@ -188,17 +210,55 @@ function previewStyle(room: Room): Record<string, string> {
     return {
         left: `${(input.x / room.width) * 100}%`,
         top: `${top}%`,
-        width: `${((item?.w ?? 1) / room.width) * 100}%`,
-        height: `${((item?.h ?? 1) / room.height) * (input.layer === 'floor' ? 55 : 30)}%`,
+        width: `${(Math.min(item?.w ?? 1, room.width - input.x) / room.width) * 100}%`,
+        height: `${(Math.min(item?.h ?? 1, room.height - input.y) / room.height) * (input.layer === 'floor' ? 55 : 30)}%`,
     };
 }
 
 function floorGridStyle(room: Room): Record<string, string> {
+    const pattern =
+        roomStyles[room.id].floor === 'tiles'
+            ? 'linear-gradient(rgba(255,255,255,.2) 2px, transparent 2px), linear-gradient(90deg, rgba(255,255,255,.2) 2px, transparent 2px)'
+            : roomStyles[room.id].floor === 'grass'
+              ? 'radial-gradient(rgba(255,255,255,.2) 1px, transparent 2px)'
+              : roomStyles[room.id].floor === 'carpet'
+                ? 'repeating-linear-gradient(0deg, transparent 0 24px, rgba(255,255,255,.1) 24px 27px)'
+                : 'linear-gradient(rgba(75,45,25,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(75,45,25,.13) 1px, transparent 1px)';
+
     return {
-        backgroundColor: floorColors[room.style.floor] ?? floorColors.planks,
-        backgroundImage: 'linear-gradient(rgba(75,45,25,.22) 1px, transparent 1px), linear-gradient(90deg, rgba(75,45,25,.22) 1px, transparent 1px)',
-        backgroundSize: `${100 / room.width}% ${100 / room.height}%`,
+        backgroundColor: floorColors[roomStyles[room.id].floor] ?? floorColors.planks,
+        backgroundImage: pattern,
+        backgroundSize: roomStyles[room.id].floor === 'grass' ? '18px 18px' : `${100 / room.width}% ${100 / room.height}%`,
     };
+}
+
+function startFurnitureDrag(event: PointerEvent, room: Room, item: Placement) {
+    if (!room.can_edit || !item.id) return;
+    event.preventDefault();
+    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+}
+
+function dragFurniture(event: PointerEvent, room: Room, item: Placement) {
+    if (!room.can_edit || !item.id || !(event.currentTarget as HTMLElement).hasPointerCapture(event.pointerId)) return;
+    const stage = (event.currentTarget as HTMLElement).parentElement;
+    if (!stage) return;
+    const bounds = stage.getBoundingClientRect();
+    const footprint = placementFootprint(item);
+    item.x = Math.max(0, Math.min(room.width - footprint.w, Math.floor(((event.clientX - bounds.left) / bounds.width) * room.width)));
+    const yStart = item.layer === 'floor' ? 0.43 : item.layer === 'wall' ? 0.05 : 0;
+    const yRange = item.layer === 'floor' ? 0.57 : item.layer === 'wall' ? 0.3 : 1;
+    item.y = Math.max(
+        0,
+        Math.min(
+            room.height - footprint.h,
+            Math.floor(((event.clientY - bounds.top - bounds.height * yStart) / (bounds.height * yRange)) * room.height),
+        ),
+    );
+}
+
+function endFurnitureDrag(event: PointerEvent) {
+    const target = event.currentTarget as HTMLElement;
+    if (target.hasPointerCapture(event.pointerId)) target.releasePointerCapture(event.pointerId);
 }
 
 const customizeRoom = (room: Room) => router.put(route('housing.rooms.customize', { room: room.id }), roomStyles[room.id], { preserveScroll: true });
@@ -210,6 +270,7 @@ const saveLayout = (room: Room) => {
         y: item.y,
         layer: item.layer,
         rotation: item.rotation,
+        mirrored: item.mirrored,
         master: item.master,
     }));
     router.put(
@@ -217,7 +278,7 @@ const saveLayout = (room: Room) => {
         { version: room.version, items },
         {
             preserveScroll: true,
-            onSuccess: () => router.reload({ preserveScroll: true, preserveState: false }),
+            onSuccess: () => router.reload(),
         },
     );
 };
@@ -230,12 +291,16 @@ function addFurniture(room: Room) {
     if (input.master && item.master_quantity < 1) input.master = false;
     placementDrafts[room.id].push({
         item_id: item.id,
+        key: item.key,
         name: item.name,
         icon: item.icon,
+        w: item.w,
+        h: item.h,
         x: input.x,
         y: input.y,
         layer: input.layer,
         rotation: 0,
+        mirrored: false,
         master: input.master,
     });
     selectedFurniture.value[room.id] = 0;
@@ -332,33 +397,37 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                 </Link>
             </nav>
 
-            <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <section class="grid gap-5 sm:grid-cols-2">
                 <Card v-for="room in home.rooms" :key="room.id">
                     <CardHeader class="pb-3">
                         <CardTitle class="flex items-center justify-between gap-3 text-lg">
                             <span>{{ room.name }}</span>
                             <span class="text-xs font-medium text-muted-foreground">{{ room.width }} × {{ room.height }}</span>
                         </CardTitle>
-                        <CardDescription>{{ room.items.length }} Möbelstücke</CardDescription>
+                        <CardDescription>{{ placementDrafts[room.id].length }} Möbelstücke</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div
-                            class="housing-room relative isolate aspect-[5/3] w-full cursor-crosshair overflow-hidden rounded-xl border-4 border-amber-950/70 shadow-inner"
+                            class="housing-room relative isolate aspect-[5/3] w-full cursor-crosshair overflow-hidden rounded-xl border-[6px] border-amber-950/75 shadow-xl ring-1 ring-amber-200/70"
                             :class="room.can_edit && selectedFurniture[room.id] ? 'cursor-crosshair' : 'cursor-default'"
-                            :style="{ backgroundColor: wallColors[room.style.wall] ?? wallColors.stone }"
+                            :style="{ backgroundColor: wallColors[roomStyles[room.id].wall] ?? wallColors.stone }"
                             :aria-label="`Grafische Ansicht: ${room.name}, ${room.width} mal ${room.height} Felder`"
-                            role="img"
+                            role="group"
                             @click="roomCellClick($event, room)"
                         >
                             <div
                                 class="absolute inset-x-0 top-0 h-[44%] border-b-4 border-amber-950/30"
                                 :style="{
                                     backgroundImage:
-                                        room.style.wall === 'stars'
+                                        roomStyles[room.id].wall === 'stars'
                                             ? 'radial-gradient(circle at 20% 30%, rgba(255,255,255,.8) 0 1px, transparent 2px), radial-gradient(circle at 70% 55%, rgba(255,255,255,.65) 0 1px, transparent 2px)'
-                                            : room.style.wall === 'stripes'
+                                            : roomStyles[room.id].wall === 'stripes'
                                               ? 'repeating-linear-gradient(90deg, transparent 0 28px, rgba(255,255,255,.18) 28px 34px)'
-                                              : 'linear-gradient(180deg, rgba(255,255,255,.22), transparent)',
+                                              : roomStyles[room.id].wall === 'wood'
+                                                ? 'repeating-linear-gradient(90deg, rgba(72,42,25,.14) 0 2px, transparent 2px 34px), linear-gradient(180deg, rgba(255,255,255,.23), transparent)'
+                                                : roomStyles[room.id].wall === 'stone' || roomStyles[room.id].wall === 'castle'
+                                                  ? 'linear-gradient(90deg, transparent 49.5%, rgba(60,50,40,.12) 50%, transparent 50.5%), linear-gradient(180deg, rgba(255,255,255,.25), rgba(70,60,50,.08))'
+                                                  : 'linear-gradient(180deg, rgba(255,255,255,.28), rgba(70,40,30,.08))',
                                 }"
                             >
                                 <div
@@ -367,44 +436,88 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                                     <div class="absolute inset-y-0 left-1/2 border-l-4 border-amber-900/60" />
                                     <div class="absolute inset-x-0 top-1/2 border-t-4 border-amber-900/60" />
                                 </div>
-                                <div class="absolute right-[14%] top-[14%] text-2xl opacity-80 drop-shadow sm:text-3xl" aria-hidden="true">✦</div>
+                                <div
+                                    class="absolute right-[14%] top-[14%] grid h-[46%] w-[17%] place-items-center rounded-sm border-[5px] border-amber-900/75 bg-amber-100/80 shadow-md"
+                                >
+                                    <svg viewBox="0 0 80 80" class="h-full w-full p-1" aria-hidden="true">
+                                        <rect x="3" y="3" width="74" height="74" rx="3" fill="#d9eff4" />
+                                        <circle cx="57" cy="23" r="9" fill="#ffd56a" />
+                                        <path d="M5 63 27 36l15 18 10-12 23 22v11H5z" fill="#77a979" />
+                                        <path d="M5 68q17-9 34 0t36 0v9H5z" fill="#638d72" />
+                                    </svg>
+                                </div>
+                                <span class="absolute inset-x-0 bottom-0 h-2 border-t border-amber-950/25 bg-amber-900/20" />
                             </div>
                             <div class="absolute inset-x-0 bottom-0 top-[43%] border-t-4 border-amber-950/30" :style="floorGridStyle(room)" />
                             <div
-                                class="absolute bottom-0 right-[8%] h-[31%] w-[14%] rounded-t-md border-x-4 border-t-4 border-amber-950/80 bg-amber-800/80 shadow-inner"
+                                class="pointer-events-none absolute bottom-[9%] left-[39%] h-[11%] w-[27%] rounded-[50%] border-2 border-rose-950/25 bg-[radial-gradient(ellipse_at_center,_#e9b9a5_0%,_#b56d71_72%,_#78434d_100%)] opacity-80 shadow-inner"
+                                aria-hidden="true"
                             >
-                                <span class="absolute right-[15%] top-1/2 size-2 rounded-full bg-amber-200" />
+                                <span class="absolute inset-[17%] rounded-[50%] border border-amber-100/45" />
                             </div>
                             <div
-                                v-for="item in room.items"
-                                :key="item.id"
-                                class="absolute grid place-items-center overflow-visible rounded-lg border border-white/60 bg-white/65 text-2xl leading-none drop-shadow-lg backdrop-blur-[1px] sm:text-3xl"
+                                class="absolute bottom-0 right-[8%] h-[31%] w-[14%] rounded-t-md border-x-4 border-t-4 border-amber-950/80 bg-gradient-to-r from-amber-900/80 via-amber-700/90 to-amber-900/80 shadow-inner"
+                            >
+                                <span class="absolute inset-x-1 top-[18%] h-[34%] border-y border-amber-950/40 bg-amber-950/15" />
+                                <span class="absolute right-[15%] top-1/2 size-2 rounded-full bg-amber-200 shadow" />
+                            </div>
+                            <button
+                                v-for="(item, index) in placementDrafts[room.id]"
+                                :key="item.id ?? `new-${index}`"
+                                class="absolute grid touch-none place-items-center overflow-visible rounded-lg border-2 border-transparent bg-transparent p-0 transition-[filter] hover:z-30 hover:brightness-110 focus-visible:z-30 focus-visible:outline-2 focus-visible:outline-violet-600 disabled:cursor-default"
                                 :style="placedItemStyle(room, item)"
                                 :title="`${item.name} · ${item.x}, ${item.y} · ${item.layer === 'floor' ? 'Boden' : item.layer === 'wall' ? 'Wand' : 'Decke'}`"
+                                :aria-label="`${item.name}${room.can_edit ? ', zum Verschieben ziehen' : ''}`"
+                                :disabled="!room.can_edit"
+                                type="button"
+                                @click.stop
+                                @pointerdown="startFurnitureDrag($event, room, item)"
+                                @pointermove="dragFurniture($event, room, item)"
+                                @pointerup="endFurnitureDrag"
                             >
-                                <span aria-hidden="true">{{ item.icon }}</span>
-                            </div>
+                                <FurnitureArt
+                                    :item-key="item.key"
+                                    :icon="item.icon"
+                                    :name="item.name"
+                                    :master="item.master"
+                                    :class="{
+                                        'rotate-90': item.rotation === 90,
+                                        'rotate-180': item.rotation === 180,
+                                        '-rotate-90': item.rotation === 270,
+                                    }"
+                                    class="h-[170%] max-h-none w-[140%] max-w-none drop-shadow-xl"
+                                />
+                            </button>
                             <div
                                 v-if="room.can_edit && selectedFurniture[room.id]"
                                 class="pointer-events-none absolute z-20 grid place-items-center rounded-lg border-2 border-dashed border-violet-700 bg-violet-300/40 text-xl shadow-lg"
                                 :style="previewStyle(room)"
                                 aria-hidden="true"
                             >
-                                {{ furniture.find((item) => item.id === selectedFurniture[room.id])?.icon }}
+                                <FurnitureArt
+                                    :item-key="furniture.find((item) => item.id === selectedFurniture[room.id])?.key ?? ''"
+                                    :icon="furniture.find((item) => item.id === selectedFurniture[room.id])?.icon ?? '🪑'"
+                                    :name="furniture.find((item) => item.id === selectedFurniture[room.id])?.name"
+                                    class="h-[170%] max-h-none w-[140%] max-w-none opacity-75 drop-shadow-xl"
+                                />
                             </div>
                             <span class="absolute bottom-2 left-2 rounded-md bg-black/55 px-2 py-1 text-[10px] font-bold text-white shadow">
-                                {{ home.styles.walls[room.style.wall] }} · {{ home.styles.floors[room.style.floor] }}
+                                {{ home.styles.walls[roomStyles[room.id].wall] }} · {{ home.styles.floors[roomStyles[room.id].floor] }}
                             </span>
                         </div>
                         <p class="mt-2 text-xs text-muted-foreground">
                             <template v-if="room.can_edit"
-                                >Möbel auswählen und auf die gewünschte Stelle im Zimmer klicken, dann hinzufügen und speichern.</template
+                                >Möbel auswählen, im Zimmer platzieren und zum Verschieben ziehen. Änderungen anschließend speichern.</template
                             >
                             <template v-else>Deine Möbel und die Gestaltung des Zimmers.</template>
                         </p>
-                        <div v-if="room.items.length" class="flex flex-wrap gap-2">
-                            <div v-for="item in room.items" :key="item.id" class="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm">
-                                <span aria-hidden="true">{{ item.icon }}</span>
+                        <div v-if="placementDrafts[room.id].length" class="flex flex-wrap gap-2">
+                            <div
+                                v-for="(item, index) in placementDrafts[room.id]"
+                                :key="item.id ?? `new-${index}`"
+                                class="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm"
+                            >
+                                <FurnitureArt :item-key="item.key" :icon="item.icon" :name="item.name" :master="item.master" class="size-8" />
                                 <span>{{ item.name }}</span>
                             </div>
                         </div>
@@ -439,21 +552,36 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                             </form>
                             <div class="mt-4 grid gap-3 border-t pt-4">
                                 <h3 class="font-bold">Möbel einrichten</h3>
-                                <div v-if="placementDrafts[room.id].length" class="grid gap-2">
+                                <div v-if="placementDrafts[room.id].length" class="grid max-h-64 gap-2 overflow-y-auto">
                                     <div
                                         v-for="(item, index) in placementDrafts[room.id]"
                                         :key="item.id ?? `new-${index}`"
                                         class="flex flex-wrap items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm"
                                     >
-                                        <span>{{ item.icon }} {{ item.name }}</span>
+                                        <span class="flex items-center gap-2">
+                                            <FurnitureArt
+                                                :item-key="item.key"
+                                                :icon="item.icon"
+                                                :name="item.name"
+                                                :master="item.master"
+                                                :class="{
+                                                    'rotate-90': item.rotation === 90,
+                                                    'rotate-180': item.rotation === 180,
+                                                    '-rotate-90': item.rotation === 270,
+                                                }"
+                                                class="size-10"
+                                            />
+                                            {{ item.name }}
+                                        </span>
                                         <label class="flex items-center gap-1"
                                             >X
                                             <input
                                                 v-model.number="item.x"
                                                 type="number"
                                                 min="0"
-                                                :max="room.width - 1"
+                                                :max="Math.max(0, room.width - placementFootprint(item).w)"
                                                 class="h-8 w-16 rounded border bg-background px-2"
+                                                @change="clampPlacement(item, room)"
                                         /></label>
                                         <label class="flex items-center gap-1"
                                             >Y
@@ -461,20 +589,30 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                                                 v-model.number="item.y"
                                                 type="number"
                                                 min="0"
-                                                :max="room.height - 1"
+                                                :max="Math.max(0, room.height - placementFootprint(item).h)"
                                                 class="h-8 w-16 rounded border bg-background px-2"
+                                                @change="clampPlacement(item, room)"
                                         /></label>
                                         <select v-model="item.layer" class="h-8 rounded border bg-background px-2" aria-label="Möbelebene">
                                             <option value="floor">Boden</option>
                                             <option value="wall">Wand</option>
                                             <option value="ceiling">Decke</option>
                                         </select>
-                                        <select v-model.number="item.rotation" class="h-8 rounded border bg-background px-2" aria-label="Drehung">
+                                        <select
+                                            v-model.number="item.rotation"
+                                            class="h-8 rounded border bg-background px-2"
+                                            aria-label="Drehung"
+                                            @change="clampPlacement(item, room)"
+                                        >
                                             <option :value="0">0°</option>
                                             <option :value="90">90°</option>
                                             <option :value="180">180°</option>
                                             <option :value="270">270°</option>
                                         </select>
+                                        <label class="flex items-center gap-1">
+                                            <input v-model="item.mirrored" type="checkbox" class="size-4" />
+                                            Spiegeln
+                                        </label>
                                         <button
                                             type="button"
                                             class="ml-auto text-destructive"
@@ -486,22 +624,33 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                                     </div>
                                 </div>
                                 <p v-else class="text-sm text-muted-foreground">Noch keine Möbel aufgestellt.</p>
-                                <div v-if="furniture.length" class="grid gap-2 sm:grid-cols-2">
-                                    <select
-                                        v-model.number="selectedFurniture[room.id]"
-                                        class="h-9 rounded-md border border-input bg-background px-2 text-sm"
-                                        @change="prepareLayout(room)"
-                                    >
-                                        <option :value="0">Möbel aus dem Inventar wählen</option>
-                                        <option
+                                <div v-if="furniture.length" class="grid gap-3">
+                                    <div class="grid max-h-80 grid-cols-3 gap-2 overflow-y-auto rounded-xl border bg-muted/30 p-2 sm:grid-cols-4">
+                                        <button
                                             v-for="item in furniture"
                                             :key="item.id"
-                                            :value="item.id"
+                                            type="button"
                                             :disabled="item.quantity < 1 && item.master_quantity < 1"
+                                            :aria-pressed="selectedFurniture[room.id] === item.id"
+                                            class="grid min-h-24 content-center justify-items-center gap-1 rounded-lg border bg-background p-2 text-center text-xs transition hover:-translate-y-0.5 hover:border-violet-400 hover:shadow disabled:cursor-not-allowed disabled:opacity-40"
+                                            :class="
+                                                selectedFurniture[room.id] === item.id
+                                                    ? 'border-violet-600 bg-violet-50 ring-2 ring-violet-300 dark:bg-violet-950/40'
+                                                    : 'border-border'
+                                            "
+                                            @click="
+                                                selectedFurniture[room.id] = item.id;
+                                                prepareLayout(room);
+                                            "
                                         >
-                                            {{ item.icon }} {{ item.name }} ({{ item.quantity + item.master_quantity }})
-                                        </option>
-                                    </select>
+                                            <FurnitureArt :item-key="item.key" :icon="item.icon" :name="item.name" class="size-12" />
+                                            <span class="line-clamp-2 font-semibold">{{ item.name }}</span>
+                                            <span class="text-muted-foreground">×{{ item.quantity + item.master_quantity }}</span>
+                                        </button>
+                                    </div>
+                                    <p v-if="!selectedFurniture[room.id]" class="text-xs text-muted-foreground">
+                                        Wähle ein Möbelstück und klicke dann an die Stelle im Zimmer, an der es stehen soll.
+                                    </p>
                                     <div class="flex gap-2">
                                         <label class="flex items-center gap-1 text-xs">
                                             X
@@ -551,7 +700,15 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                                             />
                                             Meisterhaft
                                         </label>
-                                        <Button type="button" variant="outline" size="sm" @click="addFurniture(room)">Hinzufügen</Button>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            :disabled="!selectedFurniture[room.id]"
+                                            @click="addFurniture(room)"
+                                        >
+                                            Im Zimmer platzieren
+                                        </Button>
                                     </div>
                                 </div>
                                 <Button type="button" size="sm" @click="saveLayout(room)">Einrichtung speichern</Button>
