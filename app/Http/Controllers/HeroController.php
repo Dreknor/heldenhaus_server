@@ -28,6 +28,12 @@ class HeroController extends Controller
 
         return Inertia::render('Dashboard', [
             ...HeroBoard::for($user),
+            'focusMembers' => $user->family?->members()
+                ->where('id', '!=', $user->id)
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->map(fn ($member) => ['id' => $member->id, 'name' => $member->name])
+                ->values() ?? collect(),
             'categories' => config('game.categories'),
             'difficulties' => config('game.difficulties'),
             'sceneBackground' => SceneBackgrounds::forToday($user->id),

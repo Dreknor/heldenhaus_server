@@ -461,3 +461,42 @@ it('Fokus-Zeit: starten, verlängern, gemeinsam schaffen gibt beiden einen Bonus
     $this->postJson("/api/v1/focus-sessions/{$own}/abort")->assertOk()->assertJsonPath('result', 'aborted');
     $this->postJson("/api/v1/focus-sessions/{$session['id']}/abort")->assertUnprocessable();
 });
+
+it('zeigt Alltagshilfen im Dashboard und unterstützt die Web-Aktionen', function () {
+    $task = makeTask($this->child, ['title' => 'Zimmer aufräumen', 'checklist' => null]);
+    $this->actingAs($this->child);
+
+    $this->get('/dashboard')->assertOk()->assertInertia(fn (Assert $page) => $page
+        ->component('Dashboard')
+        ->has('inbox')
+        ->has('support.low_energy_left')
+        ->where('focus', null)
+        ->where('focusMembers.0.id', $this->parent->id));
+
+    $this->post('/inbox', ['title' => 'Oma anrufen'])->assertRedirect();
+    $captured = Task::where('owner_id', $this->child->id)->where('title', 'Oma anrufen')->firstOrFail();
+    expect($captured->status)->toBe('inbox')->and($captured->category)->toBeNull();
+
+    $this->post("/inbox/{$captured->id}/sort", ['type' => 'todo', 'category' => 'others'])->assertRedirect();
+    expect($captured->fresh()->status)->toBeNull()->and($captured->fresh()->category)->toBe('others');
+
+    $this->post('/inbox', ['title' => 'Später löschen'])->assertRedirect();
+    $toDelete = Task::where('owner_id', $this->child->id)->where('title', 'Später löschen')->firstOrFail();
+    $this->post("/inbox/{$toDelete->id}/sort", ['action' => 'delete'])->assertRedirect();
+    expect($toDelete->fresh()->archived_at)->not->toBeNull();
+
+    $this->post('/me/low-energy')->assertRedirect();
+    expect(SupportService::isLowEnergy($this->child, $this->child->gameDate()))->toBeTrue();
+    $this->delete('/me/low-energy')->assertRedirect();
+
+    $this->post('/focus-sessions', ['minutes' => 15, 'task_id' => $task->id])->assertRedirect();
+    $session = FocusSession::where('user_id', $this->child->id)->whereNull('ended_at')->firstOrFail();
+    $this->post("/focus-sessions/{$session->id}/invite", ['member_id' => $this->parent->id])->assertRedirect();
+    expect(FocusSession::where('user_id', $this->parent->id)->whereNull('ended_at')->exists())->toBeTrue();
+    $this->post("/focus-sessions/{$session->id}/extend", ['minutes' => 5])->assertRedirect();
+    $this->post("/focus-sessions/{$session->id}/abort")->assertRedirect();
+
+    $this->postJson("/tasks/{$task->id}/steps/suggest")->assertOk()->assertJsonPath('suggestion.source', 'template');
+    $this->putJson("/tasks/{$task->id}/steps", ['steps' => ['Kleidung sortieren', 'Boden freiräumen']])
+        ->assertOk()->assertJsonPath('checklist.1', 'Boden freiräumen');
+});

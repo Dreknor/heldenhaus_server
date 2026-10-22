@@ -7,10 +7,12 @@ import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import {
     Backpack,
+    CalendarDays,
     ChartColumn,
     Dices,
     Download,
     Gift,
+    Hammer,
     Handshake,
     House,
     Inbox,
@@ -36,6 +38,9 @@ const mainNavItems = computed<NavItem[]>(() => [
     { title: 'Erfolge', href: '/achievements', icon: Trophy },
     { title: 'Inventar', href: '/inventory', icon: Backpack },
     { title: 'Familienhaus', href: '/housing', icon: House },
+    { title: 'Handwerk & Lager', href: '/crafting', icon: Hammer },
+    { title: 'Dungeons', href: '/dungeons', icon: Swords },
+    { title: 'Events', href: '/events', icon: CalendarDays },
     { title: 'Familie', href: '/family', icon: Users },
     { title: 'Bündnisse & Challenges', href: '/social', icon: Handshake },
     { title: 'Belohnungsshop', href: '/shop', icon: Gift },
