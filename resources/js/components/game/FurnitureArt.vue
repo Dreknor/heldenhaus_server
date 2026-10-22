@@ -1,15 +1,42 @@
 <script setup lang="ts">
-withDefaults(defineProps<{ itemKey: string; icon: string; name?: string; master?: boolean }>(), {
+import { computed } from 'vue';
+
+const props = withDefaults(defineProps<{ itemKey: string; icon: string; name?: string; master?: boolean }>(), {
     name: 'Möbelstück',
     master: false,
 });
+const pixelSprites: Record<string, string> = {
+    furn_bed: 'bed',
+    furn_bookshelf: 'bookshelf',
+    furn_chair: 'chairs',
+    furn_chest: 'chest',
+    furn_dining_table: 'table',
+    furn_fridge: 'fridge',
+    furn_plant: 'plant',
+    furn_rug: 'rug',
+    furn_table: 'roundtable',
+    furn_toy_box: 'chest',
+    furn_wardrobe: 'cupboard',
+    furn_wall_shelf: 'shelf',
+};
+const pixelSprite = computed(() => pixelSprites[props.itemKey]);
 </script>
 
 <template>
     <svg viewBox="0 0 100 100" role="img" :aria-label="name" xmlns="http://www.w3.org/2000/svg" class="h-full w-full overflow-visible">
         <title>{{ name }}</title>
-        <ellipse cx="50" cy="91" rx="36" ry="6" fill="#3c281e" opacity=".2" />
-        <g stroke="#493326" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+        <image
+            v-if="pixelSprite"
+            :href="`/images/housing/${pixelSprite}.png`"
+            x="0"
+            y="0"
+            width="100"
+            height="100"
+            preserveAspectRatio="xMidYMid meet"
+            class="[image-rendering:pixelated]"
+        />
+        <ellipse v-if="!pixelSprite" cx="50" cy="91" rx="36" ry="6" fill="#3c281e" opacity=".2" />
+        <g v-if="!pixelSprite" stroke="#493326" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
             <template v-if="itemKey.includes('bunk_bed')">
                 <path d="M20 21h60v15H20zm0 37h60v15H20z" fill="#9b5f3e" />
                 <path d="M24 12h22q6 0 6 7v9H24zm0 37h22q6 0 6 7v9H24z" fill="#fff1d6" />

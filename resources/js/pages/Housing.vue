@@ -268,19 +268,22 @@ function previewStyle(room: Room): Record<string, string> {
 }
 
 function floorGridStyle(room: Room): Record<string, string> {
+    const floor = roomStyles[room.id].floor;
     const pattern =
-        roomStyles[room.id].floor === 'tiles'
+        floor === 'tiles'
             ? 'linear-gradient(rgba(255,255,255,.2) 2px, transparent 2px), linear-gradient(90deg, rgba(255,255,255,.2) 2px, transparent 2px)'
-            : roomStyles[room.id].floor === 'grass'
+            : floor === 'grass'
               ? 'radial-gradient(rgba(255,255,255,.2) 1px, transparent 2px)'
-              : roomStyles[room.id].floor === 'carpet'
+              : floor === 'carpet'
                 ? 'repeating-linear-gradient(0deg, transparent 0 24px, rgba(255,255,255,.1) 24px 27px)'
                 : 'linear-gradient(rgba(75,45,25,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(75,45,25,.13) 1px, transparent 1px)';
+    const gridSize = floor === 'grass' ? '18px 18px' : `${100 / room.width}% ${100 / room.height}%`;
 
     return {
-        backgroundColor: floorColors[roomStyles[room.id].floor] ?? floorColors.planks,
-        backgroundImage: pattern,
-        backgroundSize: roomStyles[room.id].floor === 'grass' ? '18px 18px' : `${100 / room.width}% ${100 / room.height}%`,
+        backgroundColor: floorColors[floor] ?? floorColors.planks,
+        backgroundImage: floor === 'planks' ? `url(/images/housing/floor-planks.png), ${pattern}` : pattern,
+        backgroundSize: floor === 'planks' ? `96px 64px, ${gridSize}` : gridSize,
+        backgroundRepeat: floor === 'planks' ? 'repeat, repeat' : 'repeat',
     };
 }
 
@@ -531,30 +534,29 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                                 }"
                             >
                                 <div
-                                    class="absolute left-[12%] top-[18%] h-[52%] w-[20%] rounded-t-lg border-[5px] border-amber-900/80 bg-gradient-to-b from-sky-100 to-sky-300/90 shadow-inner"
-                                >
-                                    <div class="absolute inset-y-0 left-1/2 border-l-4 border-amber-900/60" />
-                                    <div class="absolute inset-x-0 top-1/2 border-t-4 border-amber-900/60" />
+                                    class="pointer-events-none absolute inset-0 opacity-20 [image-rendering:pixelated]"
+                                    :style="{
+                                        backgroundImage: 'url(/images/housing/wall-stone.png)',
+                                        backgroundRepeat: 'repeat',
+                                        backgroundSize: '80px 64px',
+                                    }"
+                                />
+                                <div class="absolute left-[12%] top-[16%] h-[60%] w-[16%]" aria-hidden="true">
+                                    <img src="/images/housing/window.png" alt="" class="h-full w-full object-contain [image-rendering:pixelated]" />
                                 </div>
-                                <div
-                                    class="absolute right-[14%] top-[14%] grid h-[46%] w-[17%] place-items-center rounded-sm border-[5px] border-amber-900/75 bg-amber-100/80 shadow-md"
-                                >
-                                    <svg viewBox="0 0 80 80" class="h-full w-full p-1" aria-hidden="true">
-                                        <rect x="3" y="3" width="74" height="74" rx="3" fill="#d9eff4" />
-                                        <circle cx="57" cy="23" r="9" fill="#ffd56a" />
-                                        <path d="M5 63 27 36l15 18 10-12 23 22v11H5z" fill="#77a979" />
-                                        <path d="M5 68q17-9 34 0t36 0v9H5z" fill="#638d72" />
-                                    </svg>
+                                <div class="absolute right-[14%] top-[14%] h-[46%] w-[17%]" aria-hidden="true">
+                                    <img
+                                        src="/images/housing/wallcabinet.png"
+                                        alt=""
+                                        class="h-full w-full object-contain [image-rendering:pixelated]"
+                                    />
                                 </div>
                                 <span class="absolute inset-x-0 bottom-0 h-2 border-t border-amber-950/25 bg-amber-900/20" />
                             </div>
-                            <div class="absolute inset-x-0 bottom-0 top-[43%] border-t-4 border-amber-950/30" :style="floorGridStyle(room)" />
                             <div
-                                class="pointer-events-none absolute bottom-[9%] left-[39%] h-[11%] w-[27%] rounded-[50%] border-2 border-rose-950/25 bg-[radial-gradient(ellipse_at_center,_#e9b9a5_0%,_#b56d71_72%,_#78434d_100%)] opacity-80 shadow-inner"
-                                aria-hidden="true"
-                            >
-                                <span class="absolute inset-[17%] rounded-[50%] border border-amber-100/45" />
-                            </div>
+                                class="absolute inset-x-0 bottom-0 top-[43%] border-t-4 border-amber-950/30 [image-rendering:pixelated]"
+                                :style="floorGridStyle(room)"
+                            />
                             <div
                                 class="absolute bottom-0 right-[8%] h-[31%] w-[14%] rounded-t-md border-x-4 border-t-4 border-amber-950/80 bg-gradient-to-r from-amber-900/80 via-amber-700/90 to-amber-900/80 shadow-inner"
                             >
