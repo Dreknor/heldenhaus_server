@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Emoji from '@/components/game/Emoji.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,6 +31,7 @@ interface Recipe {
     key: string;
     output: RecipeItem;
     station: string;
+    station_name?: string;
     station_level: number;
     level: number;
     unlock: string;
@@ -259,11 +261,11 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
                 >
                     <div class="min-w-0">
                         <div class="flex items-center gap-2 font-extrabold">
-                            <span class="text-2xl" aria-hidden="true">{{ recipe.output.icon }}</span
+                            <span class="text-2xl" aria-hidden="true"><Emoji :glyph="recipe.output.icon" /></span
                             ><span>{{ recipe.output.name }}</span>
                         </div>
                         <p class="mt-1 text-xs text-muted-foreground">
-                            {{ recipe.station }} Stufe {{ recipe.station_level }} · Handwerk Stufe {{ recipe.level }} ·
+                            {{ recipe.station_name ?? recipe.station }} Stufe {{ recipe.station_level }} · Handwerk Stufe {{ recipe.level }} ·
                             <template v-if="recipe.seconds">⏱ {{ durationLabel(recipe.seconds) }}</template
                             ><template v-else>sofort</template>
                             <template v-if="recipe.gold"> · {{ recipe.gold }} Gold</template>
@@ -275,7 +277,7 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
                                 class="rounded-lg bg-muted px-2 py-1 text-xs"
                                 :class="input.have < input.quantity ? 'text-rose-600' : ''"
                             >
-                                {{ input.icon }} {{ input.name }} {{ input.have }}/{{ input.quantity }}
+                                <Emoji :glyph="input.icon" /> {{ input.name }} {{ input.have }}/{{ input.quantity }}
                             </span>
                         </div>
                         <p v-if="!recipe.unlocked" class="mt-2 text-xs font-semibold text-muted-foreground">
@@ -322,7 +324,7 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
                     <span class="ml-auto text-xs text-muted-foreground">{{ crafting.jobs.length }}/{{ crafting.max_jobs }} Plätze belegt</span>
                 </div>
                 <article v-for="job in crafting.jobs" :key="job.id" class="flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-4">
-                    <span class="text-3xl" aria-hidden="true">{{ job.item.icon }}</span>
+                    <span class="text-3xl" aria-hidden="true"><Emoji :glyph="job.item.icon" /></span>
                     <div class="min-w-0 flex-1">
                         <p class="font-bold">{{ job.item.name }} × {{ job.quantity }}</p>
                         <p class="text-xs text-muted-foreground">
@@ -352,7 +354,7 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
                         <p class="text-sm text-muted-foreground">Nur Materialien können eingelagert werden.</p>
                     </div>
                     <article v-for="item in storage" :key="item.item_id" class="flex items-center gap-3 rounded-xl border p-3">
-                        <span class="text-2xl">{{ item.icon }}</span
+                        <span class="text-2xl"><Emoji :glyph="item.icon" /></span
                         ><span class="min-w-0 flex-1 font-semibold"
                             >{{ item.name }} <span class="text-muted-foreground">× {{ item.quantity }}</span></span
                         >
@@ -381,7 +383,7 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
                         <p class="text-sm text-muted-foreground">Deine Materialien stehen danach allen Familienmitgliedern zur Verfügung.</p>
                     </div>
                     <article v-for="item in materialItems" :key="item.id" class="flex items-center gap-3 rounded-xl border p-3">
-                        <span class="text-2xl">{{ item.icon }}</span
+                        <span class="text-2xl"><Emoji :glyph="item.icon" /></span
                         ><span class="min-w-0 flex-1 font-semibold"
                             >{{ item.name }} <span class="text-muted-foreground">× {{ item.quantity }}</span></span
                         >

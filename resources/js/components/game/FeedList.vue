@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Emoji from '@/components/game/Emoji.vue';
 import { router } from '@inertiajs/vue3';
 
 export interface FeedEntryView {
@@ -30,7 +31,7 @@ function ago(iso: string): string {
     <div class="grid gap-2">
         <p v-if="!entries.length" class="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">Noch ist nichts passiert – erledigt eure ersten Familienaufgaben!</p>
         <article v-for="e in entries" :key="e.id" class="flex gap-3 rounded-xl border bg-card p-3">
-            <span class="text-2xl leading-none">{{ e.icon }}</span>
+            <span class="text-2xl leading-none"><Emoji :glyph="e.icon" /></span>
             <div class="min-w-0 flex-1">
                 <p class="text-sm font-semibold">{{ e.text }}</p>
                 <p class="text-xs text-muted-foreground">{{ ago(e.created_at) }}</p>

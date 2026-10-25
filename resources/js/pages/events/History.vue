@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Emoji from '@/components/game/Emoji.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft, Award, History } from 'lucide-vue-next';
@@ -41,7 +42,7 @@ const date = (iso: string) => new Date(iso).toLocaleDateString('de-DE', { day: '
 
             <div v-if="events.length" class="divide-y rounded-2xl border bg-card">
                 <article v-for="event in events" :key="event.id" class="flex flex-wrap items-center gap-3 p-4">
-                    <span class="text-3xl" aria-hidden="true">{{ event.icon }}</span>
+                    <span class="text-3xl" aria-hidden="true"><Emoji :glyph="event.icon" /></span>
                     <div class="min-w-0 flex-1">
                         <h2 class="font-extrabold">{{ event.name }}</h2>
                         <p class="text-sm text-muted-foreground">{{ date(event.starts_at) }} – {{ date(event.ends_at) }}</p>

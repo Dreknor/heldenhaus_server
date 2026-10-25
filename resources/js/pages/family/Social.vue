@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Emoji from '@/components/game/Emoji.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -227,7 +228,7 @@ const time = (iso: string) => new Date(iso).toLocaleString('de-DE', { weekday: '
                     <Card v-for="c in challenges" :key="c.id" :class="{ 'opacity-60': c.closed }">
                         <CardHeader>
                             <CardTitle class="flex items-center gap-2"
-                                ><span class="text-2xl">{{ c.icon }}</span> {{ c.title }}</CardTitle
+                                ><span class="text-2xl"><Emoji :glyph="c.icon" /></span> {{ c.title }}</CardTitle
                             >
                             <CardDescription>
                                 {{ c.starts_on }} bis {{ c.ends_on }} · {{ c.participants }} dabei<template v-if="!c.own">

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Emoji from '@/components/game/Emoji.vue';
 import FurnitureArt from '@/components/game/FurnitureArt.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -67,7 +68,7 @@ interface HousingData {
         }[];
     };
     garden: {
-        plants: { key: string; name: string; icon: string; cost: Record<string, number> }[];
+        plants: { key: string; name: string; icon: string; cost: Record<string, number>; cost_items?: { name: string; amount: number }[] }[];
         plots: {
             slot: number;
             plant_key: string | null;
@@ -919,7 +920,7 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                                     :key="project.key"
                                     class="flex flex-wrap items-center gap-3 rounded-lg bg-muted p-3"
                                 >
-                                    <span class="text-xl">{{ project.icon }}</span>
+                                    <span class="text-xl"><Emoji :glyph="project.icon" /></span>
                                     <div class="min-w-0 flex-1">
                                         <p class="font-bold">{{ project.name }}</p>
                                         <p v-if="project.description" class="text-xs text-muted-foreground">{{ project.description }}</p>
@@ -934,8 +935,7 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                         </div>
                         <div v-for="project in home.projects.active" :key="project.id" class="rounded-xl border p-3">
                             <div class="mb-3 flex items-center gap-2 font-bold">
-                                <span>{{ project.icon }}</span
-                                >{{ project.name }}
+                                <span><Emoji :glyph="project.icon" /></span>{{ project.name }}
                             </div>
                             <div v-for="item in project.items" :key="item.name" class="mb-2 text-sm">
                                 <div class="mb-1 flex justify-between gap-2">
@@ -1024,8 +1024,8 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                                     <option value="">Saatgut wählen</option>
                                     <option v-for="plant in home.garden.plants" :key="plant.key" :value="plant.key">
                                         {{ plant.icon }} {{ plant.name }} ({{
-                                            Object.entries(plant.cost)
-                                                .map(([key, count]) => `${count} ${key}`)
+                                            (plant.cost_items ?? Object.entries(plant.cost).map(([key, amount]) => ({ name: key, amount })))
+                                                .map((item) => `${item.amount} ${item.name}`)
                                                 .join(', ')
                                         }})
                                     </option>
@@ -1105,7 +1105,7 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                     <CardContent>
                         <div v-if="home.storage.length" class="flex flex-wrap gap-2">
                             <span v-for="item in home.storage" :key="item.name" class="rounded-lg bg-muted px-3 py-2 text-sm">
-                                {{ item.icon }} {{ item.name }} × {{ item.quantity }}
+                                <Emoji :glyph="item.icon" /> {{ item.name }} × {{ item.quantity }}
                             </span>
                         </div>
                         <p v-else class="text-sm text-muted-foreground">Im Familienlager liegt noch nichts.</p>
@@ -1122,7 +1122,7 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                             <h3 class="mb-2 text-sm font-bold">Besiegte Bosse</h3>
                             <div class="flex flex-wrap gap-2">
                                 <span v-for="boss in home.trophies.bosses" :key="boss.key" class="rounded-lg bg-muted px-3 py-2 text-sm">
-                                    {{ boss.icon }} {{ boss.name }}
+                                    <Emoji :glyph="boss.icon" /> {{ boss.name }}
                                 </span>
                             </div>
                         </section>
@@ -1134,7 +1134,7 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                                     :key="`${item.key}-${item.owner_id}`"
                                     class="rounded-lg bg-muted px-3 py-2 text-sm"
                                 >
-                                    {{ item.icon }} {{ item.name }}
+                                    <Emoji :glyph="item.icon" /> {{ item.name }}
                                 </span>
                             </div>
                         </section>

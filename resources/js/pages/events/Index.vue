@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Emoji from '@/components/game/Emoji.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { CalendarDays, Clock3, History, Sparkles } from 'lucide-vue-next';
@@ -61,7 +62,7 @@ const date = (iso: string) => new Date(iso).toLocaleDateString('de-DE', { day: '
                         class="grid gap-3 rounded-2xl border bg-card p-4 transition hover:border-amber-400"
                     >
                         <div class="flex items-start gap-3">
-                            <span class="text-3xl" aria-hidden="true">{{ event.icon }}</span>
+                            <span class="text-3xl" aria-hidden="true"><Emoji :glyph="event.icon" /></span>
                             <div class="min-w-0 flex-1">
                                 <div class="flex flex-wrap items-center gap-2">
                                     <h3 class="font-extrabold">{{ event.name }}</h3>
@@ -108,7 +109,7 @@ const date = (iso: string) => new Date(iso).toLocaleDateString('de-DE', { day: '
                         :href="route('web.events.show', { event: event.id })"
                         class="flex flex-wrap items-center gap-3 p-4 transition hover:bg-muted/50"
                     >
-                        <span class="text-2xl" aria-hidden="true">{{ event.icon }}</span>
+                        <span class="text-2xl" aria-hidden="true"><Emoji :glyph="event.icon" /></span>
                         <div class="min-w-0 flex-1">
                             <p class="font-bold">{{ event.name }}</p>
                             <p class="text-sm text-muted-foreground">{{ event.description }}</p>

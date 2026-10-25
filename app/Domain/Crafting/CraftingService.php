@@ -251,6 +251,7 @@ class CraftingService
                     'key' => $r['key'],
                     'output' => $item($r['output'], $r['quantity'] ?? 1),
                     'station' => $r['station'],
+                    'station_name' => ['workbench' => 'Werkbank', 'forge' => 'Schmiede', 'alchemy' => 'Alchemietisch', 'sewing' => 'Nähtisch'][$r['station']] ?? $r['station'],
                     'station_level' => $r['station_level'] ?? 1,
                     'level' => $r['level'],
                     'unlock' => $r['unlock'] ?? 'level',
