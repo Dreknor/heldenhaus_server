@@ -137,7 +137,7 @@ Die Aufgabenkategorie wählt man beim Anlegen (Pflichtfeld mit Vorschlag). Schwe
 
 ## 2.7 Quests als isometrische Mini-Dungeons
 
-**Grundidee**: Eine Quest ist ein kleiner isometrischer Dungeon (5–12 Räume), den die Familie **gemeinsam, rundenbasiert und asynchron** erkundet. Jeder zieht, wann er will. Der Dungeon wird **nur durch erledigte Aufgaben angetrieben**. So bleibt die Spielzeit an echte Aufgaben gebunden, und das Spiel ersetzt die Aufgaben nicht.
+**Grundidee**: Eine Quest ist ein kleiner isometrischer Dungeon (10–16 Räume), den die Familie **gemeinsam, rundenbasiert und asynchron** erkundet. Jeder zieht, wann er will. Der Dungeon wird **nur durch erledigte Aufgaben angetrieben**. So bleibt die Spielzeit an echte Aufgaben gebunden, und das Spiel ersetzt die Aufgaben nicht.
 
 **Energie (Fackeln)**: Jede erledigte Aufgabe gibt Fackeln (trivial 1, leicht 1, mittel 2, schwer 3, alle Dailies erledigt +3). Ziehen, Kisten öffnen und Kämpfen kosten Fackeln. Ein Tages- und ein Vorratslimit verhindern, dass man Fackeln sammelt und dann stundenlang spielt. Eine Dungeon-Sitzung dauert typisch **2–5 Minuten**.
 
@@ -152,7 +152,8 @@ Die Aufgabenkategorie wählt man beim Anlegen (Pflichtfeld mit Vorschlag). Schwe
   - Händler, verschlossene Türen (Schlüssel als Drop)
 - **Endboss** = Familien-Boss (§3.5). Er bekommt Schaden aus allen erledigten Aufgaben (wie bisher) **und** aus Dungeon-Kämpfen. Der Kampf im Boss-Raum wird erst freigeschaltet, wenn die Familie dort angekommen ist.
 - **Kein Game Over**: Bei 0 HP im Dungeon geht es zurück zum Eingangs-Lager mit Fackel-Verlust, aber ohne Verlust von Gegenständen.
-- **Rhythmus**: ein Familien-Dungeon pro Woche (passt zum Wochen-Boss), dazu optional ein kurzes **Solo-Gewölbe** (3 Räume) pro Tag für alle, die schon früh fertig sind.
+- **Rhythmus**: ein Familien-Dungeon pro Woche (passt zum Wochen-Boss), dazu optional ein kurzes **Solo-Gewölbe** (5 Räume) pro Tag für alle, die schon früh fertig sind.
+- **Truhen**: Jede Truhe ist für jede Person einmal gefüllt (Gold und Material, selten etwas Besonderes). Wer später kommt, geht nicht leer aus; nur der Schlüssel liegt einmal darin.
 - **Altersanpassung**: Für 9–12 gibt es weniger Fallen, klarere Hinweise und leichtere Rätsel. Für 13–16 gibt es komplexere Karten, Geheimgänge und härtere Elite-Gegner.
 
 **Klassen im Dungeon** (Vorschlag: zusätzliche Interaktionen auf der Karte, die Klassenfähigkeiten bleiben unverändert):
