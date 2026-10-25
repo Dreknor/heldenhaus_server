@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import DungeonMap from '@/components/game/DungeonMap.vue';
+import GamePanel from '@/components/game/GamePanel.vue';
 import MonsterArt, { type MonsterArtConfig } from '@/components/game/MonsterArt.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
+import type { AvatarConfig, Equipment } from '@/lib/avatar';
+import type { DungeonArt } from '@/lib/dungeonMap';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
@@ -32,10 +36,17 @@ type Dungeon = {
     boss_unlocked: boolean;
     rooms: Room[];
     edges: { a: number; b: number; kind: string }[];
-    members: { user_id: number; name: string; room: number; hp: number; class: string | null }[];
+    members: {
+        user_id: number;
+        name: string;
+        room: number;
+        hp: number;
+        class: string | null;
+        appearance?: { avatar?: Partial<AvatarConfig>; seed?: number; equipment?: Equipment; class_key?: string | null } | null;
+    }[];
     me: { room: number; hp: number; max_hp: number; torches: number; torch_daily_max: number; class: string | null };
     last_action_id: number | null;
-    art: { sprites: string };
+    art: DungeonArt;
 };
 type LogEntry = { id: number; user: string; action: string; room: number; events: string[]; at: string };
 
@@ -73,19 +84,6 @@ const currentMonster = computed(() => currentRoom.value?.monster);
 const monsterAlive = computed(() => Boolean(currentMonster.value && currentMonster.value.hp > 0));
 const problem = computed(() => (page.props.errors as Record<string, string> | undefined)?.dungeon);
 const logEntries = computed(() => (selectedTab.value === 'solo' ? props.soloLogs : props.logs));
-const positions = computed(() => {
-    const minX = Math.min(0, ...rooms.value.map((room) => room.x));
-    const minY = Math.min(0, ...rooms.value.map((room) => room.y));
-    const maxX = Math.max(0, ...rooms.value.map((room) => room.x));
-    const maxY = Math.max(0, ...rooms.value.map((room) => room.y));
-    return {
-        minX,
-        minY,
-        columns: maxX - minX + 1,
-        rows: maxY - minY + 1,
-    };
-});
-
 const roomNames: Record<string, string> = {
     entrance: 'Eingang',
     monster: 'Monsterraum',
@@ -118,17 +116,6 @@ const actionNames: Record<string, string> = {
     'use-item': 'Benutzt einen Gegenstand',
 };
 const directionNames: Record<string, string> = { N: 'Norden', E: 'Osten', S: 'Süden', W: 'Westen' };
-function spriteUrl(sprite: string): string {
-    return dungeon.value?.art.sprites.replace('{sprite}', sprite.replace(/_[NESW]$/, '')).replace('{suffix}', sprite.slice(-1)) ?? '';
-}
-
-function roomStyle(room: Room) {
-    return {
-        gridColumn: `${room.x - positions.value.minX + 1}`,
-        gridRow: `${room.y - positions.value.minY + 1}`,
-    };
-}
-
 function act(action: string, data: Record<string, string | number> = {}) {
     if (!dungeon.value || pending.value) return;
     pending.value = true;
@@ -165,6 +152,25 @@ function interact(data: Record<string, string | number> = {}) {
     act('interact', data);
 }
 
+const doorHint = ref<string | null>(null);
+
+/** Tür auf der Karte angetippt */
+function onDoor(door: { to: number; kind: string }) {
+    doorHint.value = null;
+    if (door.kind === 'open' && (dungeon.value?.me.torches ?? 0) > 0) move(door.to);
+    else if (door.kind === 'locked' && props.inventory.keys && props.inventory.keyItemId) useKey(door.to);
+    else if (door.kind === 'cracked' && props.stats.class === 'warrior') interact({ to: door.to });
+    else
+        doorHint.value =
+            door.kind === 'open'
+                ? 'Deine Fackeln sind aus. Erledige Aufgaben, um neue zu bekommen.'
+                : door.kind === 'gate'
+                  ? 'Das Tor ist zu. Irgendwo muss ein Hebel sein.'
+                  : door.kind === 'cracked'
+                    ? 'Die Wand bröckelt. Nur ein Krieger kann sie einschlagen.'
+                    : 'Verschlossen. Du brauchst einen Schlüssel.';
+}
+
 function doorLabel(kind: string, target: number) {
     return `${doorNames[kind] ?? kind} · Raum ${target + 1}`;
 }
@@ -177,16 +183,16 @@ function doorLabel(kind: string, target: number) {
         <main class="mx-auto flex w-full min-w-0 max-w-7xl flex-1 flex-col gap-6 p-4 md:p-6">
             <header class="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <p class="text-sm font-bold uppercase tracking-[0.18em] text-violet-600">Abenteuer wartet</p>
+                    <p class="text-sm font-bold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-400">Abenteuer wartet</p>
                     <h1 class="text-3xl font-black tracking-tight">Dungeon</h1>
                     <p class="mt-1 max-w-2xl text-sm text-muted-foreground">
                         Erkundet Raum für Raum die Gruft. Jeder Zug kostet Fackeln – Kämpfe, Rätsel und Schätze verändern den Dungeon für alle.
                     </p>
                 </div>
-                <div class="flex rounded-xl border bg-card p-1" role="tablist" aria-label="Dungeon auswählen">
+                <div class="hh-wood flex rounded-md border-2 border-[var(--wood-edge)] p-1" role="tablist" aria-label="Dungeon auswählen">
                     <button
-                        class="rounded-lg px-4 py-2 text-sm font-bold transition"
-                        :class="selectedTab === 'family' ? 'bg-violet-600 text-white' : 'text-muted-foreground hover:bg-muted'"
+                        class="rounded px-4 py-2 text-sm font-bold transition"
+                        :class="selectedTab === 'family' ? 'bg-[var(--gold)] text-[var(--wood-edge)]' : 'text-amber-50/80 hover:bg-black/20'"
                         role="tab"
                         :aria-selected="selectedTab === 'family'"
                         @click="selectedTab = 'family'"
@@ -194,8 +200,8 @@ function doorLabel(kind: string, target: number) {
                         👨‍👩‍👧 Familie
                     </button>
                     <button
-                        class="rounded-lg px-4 py-2 text-sm font-bold transition"
-                        :class="selectedTab === 'solo' ? 'bg-violet-600 text-white' : 'text-muted-foreground hover:bg-muted'"
+                        class="rounded px-4 py-2 text-sm font-bold transition"
+                        :class="selectedTab === 'solo' ? 'bg-[var(--gold)] text-[var(--wood-edge)]' : 'text-amber-50/80 hover:bg-black/20'"
                         role="tab"
                         :aria-selected="selectedTab === 'solo'"
                         @click="selectedTab = 'solo'"
@@ -252,115 +258,62 @@ function doorLabel(kind: string, target: number) {
             </section>
             <section v-else-if="dungeon" class="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(20rem,0.85fr)]">
                 <div class="min-w-0 space-y-5">
-                    <section class="overflow-hidden rounded-2xl border bg-card">
-                        <div
-                            class="flex flex-wrap items-center justify-between gap-3 border-b bg-gradient-to-r from-violet-950 via-indigo-950 to-slate-900 px-5 py-4 text-white"
-                        >
-                            <div>
-                                <p class="text-xs font-bold uppercase tracking-[0.16em] text-violet-200">
-                                    {{ dungeon.kind === 'family' ? 'Gemeinsames Abenteuer' : 'Dein Solo-Abenteuer' }}
-                                </p>
-                                <h2 class="text-xl font-black">{{ dungeon.theme.icon }} {{ dungeon.theme.name }}</h2>
-                            </div>
-                            <span class="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold">
+                    <GamePanel
+                        tone="wood"
+                        :title="`${dungeon.theme.icon} ${dungeon.theme.name}`"
+                        :subtitle="dungeon.kind === 'family' ? 'Gemeinsames Abenteuer' : 'Dein Solo-Abenteuer'"
+                    >
+                        <template #action>
+                            <span class="hh-button shrink-0 border-[var(--wood-edge)] bg-black/30 px-2 py-0.5 text-xs text-amber-50">
                                 {{ dungeon.status === 'active' ? '🟢 Läuft' : dungeon.status === 'completed' ? '🏆 Geschafft' : '⌛ Vorbei' }}
                             </span>
-                        </div>
-
-                        <div class="overflow-x-auto p-4 sm:p-6">
-                            <div
-                                class="room-map mx-auto"
-                                :style="{
-                                    gridTemplateColumns: `repeat(${positions.columns}, minmax(6.2rem, 1fr))`,
-                                    gridTemplateRows: `repeat(${positions.rows}, minmax(6.2rem, 1fr))`,
-                                }"
-                                aria-label="Dungeon-Karte"
-                            >
-                                <article
-                                    v-for="room in rooms"
-                                    :key="room.id"
-                                    class="room-card relative flex min-h-24 min-w-24 flex-col items-center justify-center overflow-hidden rounded-xl border-2 p-2 text-center shadow-sm transition"
-                                    :class="[
-                                        room.fog
-                                            ? 'border-dashed border-slate-400/70 bg-slate-300/30 text-muted-foreground'
-                                            : 'border-amber-950/50 bg-gradient-to-br from-stone-600 to-stone-800 text-amber-50',
-                                        room.id === dungeon.me.room ? 'ring-4 ring-violet-400 ring-offset-2 ring-offset-background' : '',
-                                    ]"
-                                    :style="roomStyle(room)"
-                                >
-                                    <template v-if="room.fog">
-                                        <span class="text-3xl">🌫️</span>
-                                        <span class="text-[10px] font-bold">Nebel</span>
-                                    </template>
-                                    <template v-else>
+                        </template>
+                        <DungeonMap
+                            :key="dungeon.id"
+                            :rooms="rooms"
+                            :edges="dungeon.edges"
+                            :members="dungeon.members"
+                            :art="dungeon.art"
+                            :my-room="dungeon.me.room"
+                            :my-id="currentUserId"
+                            :room-icons="roomIcons"
+                            :room-names="roomNames"
+                            :interactive="dungeon.status === 'active' && !pending"
+                            @door="onDoor"
+                            @monster="act('fight', { move: 'attack' })"
+                        />
+                        <p v-if="doorHint" class="rounded-md bg-black/30 px-3 py-2 text-xs font-semibold text-amber-100" aria-live="polite">
+                            {{ doorHint }}
+                        </p>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div class="hud">
+                                <span class="text-xl">❤️</span>
+                                <div class="min-w-0 flex-1">
+                                    <p class="hud-label">HP</p>
+                                    <div class="mt-1 h-2.5 overflow-hidden rounded-sm border border-black/60 bg-black/50">
                                         <span
-                                            class="absolute inset-0 opacity-25"
-                                            :style="{
-                                                backgroundImage:
-                                                    'radial-gradient(circle at 20% 20%, #f4c875 0 1px, transparent 2px), radial-gradient(circle at 70% 65%, #f4c875 0 1px, transparent 2px)',
-                                                backgroundSize: '28px 28px',
-                                            }"
+                                            class="block h-full bg-rose-500"
+                                            :style="{ width: `${Math.max(0, Math.min(100, (dungeon.me.hp / dungeon.me.max_hp) * 100))}%` }"
                                         />
-                                        <span class="relative text-2xl drop-shadow">{{ roomIcons[room.type ?? ''] ?? '🪨' }}</span>
-                                        <span class="relative mt-1 text-[10px] font-extrabold leading-tight">{{
-                                            roomNames[room.type ?? ''] ?? 'Raum'
-                                        }}</span>
-                                        <span
-                                            v-if="room.id === dungeon.me.room"
-                                            class="relative mt-1 rounded-full bg-violet-500 px-2 py-0.5 text-[9px] font-black text-white"
-                                            >DU HIER</span
-                                        >
-                                        <span
-                                            v-else-if="dungeon.members.some((member) => member.room === room.id)"
-                                            class="relative text-[9px] font-bold text-amber-100"
-                                            >👥 Gruppe</span
-                                        >
-                                        <div v-if="room.doors" class="pointer-events-none absolute inset-0">
-                                            <template v-for="(door, side) in room.doors" :key="side">
-                                                <img
-                                                    v-if="door"
-                                                    :src="spriteUrl(door.sprite)"
-                                                    :alt="`${directionNames[side]}: ${doorNames[door.kind]}`"
-                                                    class="door-sprite"
-                                                    :class="`door-${side.toLowerCase()}`"
-                                                />
-                                            </template>
-                                        </div>
-                                    </template>
-                                </article>
+                                    </div>
+                                </div>
+                                <span class="font-pixel tabular-nums">{{ dungeon.me.hp }}/{{ dungeon.me.max_hp }}</span>
                             </div>
-                            <p class="mt-4 text-center text-xs text-muted-foreground">
-                                Der violette Rahmen zeigt deinen Raum. Umherliegende Räume sind sichtbar, aber noch im Nebel.
-                            </p>
-                        </div>
-                    </section>
-
-                    <section class="grid gap-3 rounded-2xl border bg-card p-4 sm:grid-cols-3">
-                        <div class="flex items-center gap-3 rounded-xl bg-muted/50 p-3">
-                            <span class="text-2xl">❤️</span>
-                            <div class="min-w-0 flex-1">
-                                <p class="text-xs text-muted-foreground">Lebenspunkte</p>
-                                <p class="font-extrabold tabular-nums">{{ dungeon.me.hp }} / {{ dungeon.me.max_hp }}</p>
+                            <div class="hud">
+                                <span class="text-xl">🔥</span>
+                                <p class="hud-label flex-1">Fackeln</p>
+                                <span class="font-pixel tabular-nums">{{ dungeon.me.torches }}</span>
                             </div>
-                            <div class="health-track">
-                                <span :style="{ width: `${Math.max(0, Math.min(100, (dungeon.me.hp / dungeon.me.max_hp) * 100))}%` }" />
+                            <div class="hud">
+                                <span class="text-xl">🧭</span>
+                                <p class="hud-label flex-1">Räume</p>
+                                <span class="font-pixel tabular-nums">{{ rooms.filter((room) => !room.fog).length }}</span>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3 rounded-xl bg-muted/50 p-3">
-                            <span class="text-2xl">🔥</span>
-                            <div>
-                                <p class="text-xs text-muted-foreground">Fackeln</p>
-                                <p class="font-extrabold tabular-nums">{{ dungeon.me.torches }} übrig</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3 rounded-xl bg-muted/50 p-3">
-                            <span class="text-2xl">🧭</span>
-                            <div>
-                                <p class="text-xs text-muted-foreground">Räume entdeckt</p>
-                                <p class="font-extrabold tabular-nums">{{ rooms.filter((room) => !room.fog).length }}</p>
-                            </div>
-                        </div>
-                    </section>
+                        <p class="text-xs text-[var(--panel-sub)]">
+                            Tippe auf eine Tür, um weiterzugehen, oder auf das Monster, um anzugreifen. Räume mit ❔ liegen noch im Nebel.
+                        </p>
+                    </GamePanel>
                 </div>
 
                 <aside class="min-w-0 space-y-5">
@@ -591,59 +544,34 @@ function doorLabel(kind: string, target: number) {
 </template>
 
 <style scoped>
-.room-map {
-    display: grid;
-    width: min(100%, 60rem);
-    min-width: max-content;
-    gap: 0.45rem;
-    align-items: stretch;
-}
-.room-card {
-    background-image: linear-gradient(135deg, rgb(120 113 108 / 70%), rgb(41 37 36 / 95%));
-}
-.door-sprite {
-    position: absolute;
-    width: 1.4rem;
-    height: 1.4rem;
-    object-fit: contain;
-    image-rendering: pixelated;
-}
-.door-n {
-    top: 0.1rem;
-    left: 50%;
-    transform: translateX(-50%);
-}
-.door-e {
-    right: 0.1rem;
-    top: 50%;
-    transform: translateY(-50%);
-}
-.door-s {
-    bottom: 0.1rem;
-    left: 50%;
-    transform: translateX(-50%);
-}
-.door-w {
-    left: 0.1rem;
-    top: 50%;
-    transform: translateY(-50%);
-}
-.health-track {
-    width: 2.25rem;
-    height: 0.45rem;
-    overflow: hidden;
-    border-radius: 9999px;
-    background: rgb(244 63 94 / 20%);
-}
-.health-track span {
-    display: block;
-    height: 100%;
-    border-radius: inherit;
-    background: #f43f5e;
+.hud {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    border: 2px solid var(--wood-edge);
+    border-radius: 0.375rem;
+    background: rgb(0 0 0 / 0.28);
+    padding: 0.4rem 0.6rem;
+    min-width: 0;
+    flex-wrap: wrap;
+    box-shadow: inset 0 0 0 1px rgb(255 220 160 / 0.12);
 }
 @media (max-width: 640px) {
-    .room-card {
-        min-width: 5rem;
+    .hud {
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.2rem;
+        text-align: center;
     }
+    .hud > div {
+        width: 100%;
+    }
+}
+.hud-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--panel-sub);
 }
 </style>
