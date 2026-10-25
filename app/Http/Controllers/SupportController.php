@@ -229,5 +229,8 @@ class SupportController extends Controller
         if (! $task->assignments()->where('user_id', $user->id)->exists()) {
             throw new GameException('Das ist nicht deine Aufgabe.');
         }
+        if (! $task->supportsSteps()) {
+            throw new GameException('Schritte gibt es nur für Dailys und To-dos.');
+        }
     }
 }

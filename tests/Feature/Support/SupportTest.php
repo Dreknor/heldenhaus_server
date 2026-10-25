@@ -7,6 +7,7 @@ use App\Domain\Support\OpenRouterClient;
 use App\Domain\Support\StepService;
 use App\Domain\Support\SupportService;
 use App\Domain\Support\SurpriseService;
+use App\Domain\Tasks\TaskService;
 use App\Http\Presenters\GamePresenter;
 use App\Models\AiRequest;
 use App\Models\DayLog;
@@ -185,6 +186,33 @@ it('belohnt jeden Schritt sofort, die Summe entspricht der normalen Belohnung', 
         ->and($one['xp'] + $two['xp'] + $last['xp'])->toBe($full->xp)
         ->and(round($one['gold'] + $two['gold'] + $last['gold'], 2))->toBe(round($full->gold, 2))
         ->and(TaskCompletion::where('task_id', $task->id)->where('direction', 'step')->count())->toBe(2);
+});
+
+it('hakt im Web einzelne Schritte in beliebiger Reihenfolge ab', function () {
+    $task = makeTask($this->child, ['title' => 'Schulranzen', 'checklist' => ['Hefte', 'Stifte', 'Brotdose']]);
+    $a = assignmentOf($task, $this->child);
+    $this->actingAs($this->child);
+
+    $this->post(route('steps.score', ['assignment' => $a->id, 'step' => 2]))->assertRedirect()->assertSessionHasNoErrors();
+
+    $steps = GamePresenter::assignment($a->refresh())['steps'];
+    expect(collect($steps)->pluck('done')->all())->toBe([false, false, true])
+        ->and($a->completed)->toBeFalse();
+});
+
+it('gibt Gewohnheiten keine Schritte und keine Vorschläge', function () {
+    $habit = makeTask($this->parent, ['type' => 'habit', 'title' => 'Wasser trinken', 'up' => true, 'checklist' => ['Glas holen', 'Trinken']]);
+    expect($habit->checklist)->toBeNull();
+
+    $habit->update(['checklist' => ['Alt']]);
+    app(TaskService::class)->update($habit, ['checklist' => ['Glas holen']]);
+    expect($habit->refresh()->checklist)->toBeNull();
+
+    Sanctum::actingAs($this->parent, ['app']);
+    $this->postJson("/api/v1/tasks/{$habit->id}/steps/suggest")->assertStatus(422);
+    $this->putJson("/api/v1/tasks/{$habit->id}/steps", ['steps' => ['A', 'B']])->assertStatus(422);
+    $this->postJson('/api/v1/assignments/'.assignmentOf($habit, $this->parent)->id.'/steps/0/score')->assertStatus(422);
+    expect(GamePresenter::assignment(assignmentOf($habit, $this->parent))['steps'])->toBe([]);
 });
 
 it('gibt Sterne für Familienaufgaben erst für die ganze Aufgabe', function () {

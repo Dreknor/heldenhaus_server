@@ -61,6 +61,12 @@ class Task extends Model
         return $this->hasMany(TaskCompletion::class);
     }
 
+    /** Schritte und KI-Vorschläge gibt es nur für Dailys und To-dos, nicht für Gewohnheiten (§11.2). */
+    public function supportsSteps(): bool
+    {
+        return in_array($this->type, [TaskType::Daily, TaskType::Todo], true);
+    }
+
     public function isFamilyTask(): bool
     {
         return $this->scope === 'family';

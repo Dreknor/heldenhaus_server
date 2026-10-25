@@ -21,8 +21,13 @@ class TaskService
         $task = DB::transaction(function () use ($actor, $data) {
             $isFamily = ($data['scope'] ?? 'personal') === 'family';
 
+            $attributes = $this->attributes($data);
+            if (! in_array($data['type'], [TaskType::Daily->value, TaskType::Todo->value], true)) {
+                $attributes['checklist'] = null;
+            }
+
             $task = Task::create([
-                ...$this->attributes($data),
+                ...$attributes,
                 'scope' => $isFamily ? 'family' : 'personal',
                 'family_id' => $isFamily ? $actor->family_id : null,
                 'owner_id' => $isFamily ? null : $actor->id,
@@ -44,7 +49,7 @@ class TaskService
             config('game.difficulties.hard'),
         ]);
 
-        if ($autoSuggestSteps && empty($task->checklist) && in_array((float) $task->difficulty, $autoSuggestionDifficulties, true)) {
+        if ($autoSuggestSteps && $task->supportsSteps() && empty($task->checklist) && in_array((float) $task->difficulty, $autoSuggestionDifficulties, true)) {
             $this->stepSuggestions->suggestOnCreate($actor, $task);
         }
 
@@ -55,7 +60,11 @@ class TaskService
     public function update(Task $task, array $data): Task
     {
         return DB::transaction(function () use ($task, $data) {
-            $task->update($this->attributes($data));
+            $attributes = $this->attributes($data);
+            if (! $task->supportsSteps()) {
+                $attributes['checklist'] = null;
+            }
+            $task->update($attributes);
 
             if ($task->isFamilyTask() && array_key_exists('assignees', $data)) {
                 $this->syncAssignees($task, $data['assignees'] ?? []);
