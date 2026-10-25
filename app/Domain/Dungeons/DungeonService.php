@@ -14,6 +14,7 @@ use App\Domain\Social\FeedService;
 use App\Domain\Stats\Counters;
 use App\Enums\AgeGroup;
 use App\Enums\FamilyRole;
+use App\Http\Presenters\CharacterSheet;
 use App\Models\Dungeon;
 use App\Models\DungeonAction;
 use App\Models\DungeonPosition;
@@ -762,6 +763,8 @@ class DungeonService
             'art' => DungeonCatalog::art(),
             'members' => $positions->map(fn (DungeonPosition $p) => [
                 'user_id' => $p->user_id, 'name' => $p->user?->name, 'room' => $p->room, 'hp' => $p->hp, 'class' => self::classOf($p->user),
+                // Echter Avatar der Mitspielenden wie im Board
+                'appearance' => $p->user ? CharacterSheet::appearance($p->user) : null,
             ])->values(),
             'me' => [
                 'room' => $me?->room ?? $state['entrance'],

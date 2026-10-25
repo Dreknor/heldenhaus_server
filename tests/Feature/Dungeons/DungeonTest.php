@@ -360,3 +360,14 @@ it('zeigt anderen Familien keinen Dungeon und führt ein Zug-Log', function () {
     expect($log)->toHaveCount(1)->and($log[0]['user'])->toBe('Lea');
     expect($this->getJson("/api/v1/dungeons/{$d->id}/log?since={$log[0]['id']}")->json('log'))->toBeEmpty();
 });
+
+it('zeigt Mitspielende im Dungeon mit ihrem echten Avatar', function () {
+    $d = fixtureDungeon($this->family);
+    torches($this->child, 20);
+    act($this->child, $d, 'move', ['to' => 1])->assertOk();
+    Sanctum::actingAs($this->child, ['app']);
+
+    $member = collect($this->getJson("/api/v1/dungeons/{$d->id}")->assertOk()['members'])->firstWhere('user_id', $this->child->id);
+    expect($member)->not->toBeNull()
+        ->and($member['appearance'])->toBeArray()->not->toBeEmpty();
+});
