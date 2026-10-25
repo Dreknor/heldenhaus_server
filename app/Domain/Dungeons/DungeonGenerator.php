@@ -19,9 +19,9 @@ class DungeonGenerator
         $rng = new Rng($seed);
         $theme = DungeonCatalog::theme($themeKey);
         $count = match (true) {
-            $kind === 'solo' => 3,
-            $mode === 'teen' => $rng->int(9, 12),
-            default => $rng->int(6, 8),
+            $kind === 'solo' => 5,
+            $mode === 'teen' => $rng->int(13, 16),
+            default => $rng->int(10, 12),
         };
 
         [$rooms, $edges] = self::layout($rng, $count);
@@ -43,7 +43,10 @@ class DungeonGenerator
         $free = array_values(array_diff(range(1, $count - 1), [$final]));
 
         if ($kind === 'solo') {
-            $types[$free[0]] = $rng->pick(['monster', 'trap', 'puzzle']);
+            // Ein Kampf, eine Prüfung, eine kleine Überraschung
+            $types[$free[0]] = 'monster';
+            $types[$free[1]] = $rng->pick(['trap', 'puzzle']);
+            $types[$free[2]] = $rng->pick(['campfire', 'monster', 'puzzle']);
         } else {
             $leaves = $rng->shuffle(array_values(array_filter($free, fn ($r) => $degree[$r] === 1)));
             $others = $rng->shuffle(array_values(array_diff($free, $leaves)));
@@ -57,6 +60,13 @@ class DungeonGenerator
             }
             if ($count >= 8) {
                 $plan[] = 'treasure';
+            }
+            // Größere Dungeons: mehr Schätze und Rätsel statt nur mehr Monster
+            if ($count >= 10) {
+                array_push($plan, 'treasure', 'puzzle', 'campfire');
+            }
+            if ($count >= 13) {
+                array_push($plan, 'trap', 'treasure', 'campfire');
             }
             foreach ($plan as $i => $type) {
                 if (isset($order[$i]) && count(array_keys($types, 'monster')) > 2) {

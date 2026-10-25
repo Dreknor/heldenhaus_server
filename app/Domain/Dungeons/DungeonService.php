@@ -361,27 +361,47 @@ class DungeonService
 
     // ---------- Raum-Inhalte ----------
 
+    /**
+     * Jede Truhe ist für jede Person einmal voll: Wer sie öffnet, bekommt Gold und Material,
+     * auch wenn schon jemand aus der Familie vorher da war. Der Schlüssel liegt nur einmal darin.
+     */
     private function openChest(Turn $t, int $id): array
     {
         $room = $t->room($id);
-        if ($room['chest']['opened']) {
-            throw new GameException('Die Truhe ist leer.');
+        $uid = (string) $t->user->id;
+        if (isset($room['chest']['opened_by'][$uid])) {
+            throw new GameException('Diese Truhe hast du schon geplündert.');
         }
         $t->spend(config('game.dungeon.cost.interact'));
-        $t->state['rooms'][$id]['chest']['opened'] = true;
+        $first = empty($room['chest']['opened']);
 
-        $loot = $this->rollLoot($t, $t->rng->int(2, 3), rare: $t->dungeon->mode === 'teen' ? 0.15 : 0.10);
-        if (! empty($room['key_drop'])) {
+        $teen = $t->dungeon->mode === 'teen';
+        $loot = $this->rollLoot($t, $t->rng->int(2, 3), rare: $teen ? 0.15 : 0.10);
+        if ($first && ! empty($room['key_drop'])) {
             $loot['dungeon_key'] = ($loot['dungeon_key'] ?? 0) + 1;
         }
+        $gold = $teen ? $t->rng->int(8, 20) : $t->rng->int(5, 15);
         Stock::addKeys($t->user->id, $loot);
-        $events = ["{$t->user->name} öffnet eine Truhe."];
+        Progression::changeGold($t->stats, $gold);
+        $t->state['rooms'][$id]['chest']['opened'] = true;
+        $t->state['rooms'][$id]['chest']['opened_by'][$uid] = ['gold' => $gold, 'loot' => $loot];
+        $events = ["{$t->user->name} öffnet eine Truhe und findet {$gold} Gold."];
 
-        if ($t->dungeon->kind === 'solo' && $id === $t->state['final']) {
+        if ($first && $t->dungeon->kind === 'solo' && $id === $t->state['final']) {
             $events = array_merge($events, $this->complete($t, 'solo'));
         }
 
-        return ['action' => 'interact', 'kind' => 'chest', 'loot' => $loot, 'events' => $events];
+        return ['action' => 'interact', 'kind' => 'chest', 'loot' => $loot, 'gold' => $gold, 'found' => self::lootList($loot), 'events' => $events];
+    }
+
+    /** Beute mit Namen und Symbol für die Anzeige */
+    public static function lootList(array $loot): array
+    {
+        $items = Item::whereIn('key', array_keys($loot))->get(['key', 'name', 'icon'])->keyBy('key');
+
+        return collect($loot)->map(fn ($amount, $key) => [
+            'key' => $key, 'amount' => (int) $amount, 'name' => $items[$key]->name ?? $key, 'icon' => $items[$key]->icon ?? '📦',
+        ])->values()->all();
     }
 
     private function solvePuzzle(Turn $t, int $id, string $answer): array
@@ -718,7 +738,7 @@ class DungeonService
         $stats = UserStats::find($viewer->id);
 
         $rooms = collect($state['rooms'])->keyBy('id')->all();
-        $rooms = collect($state['rooms'])->map(function (array $r) use ($revealed, $fog, $class, $dungeon, $visible, $rooms) {
+        $rooms = collect($state['rooms'])->map(function (array $r) use ($revealed, $fog, $class, $dungeon, $visible, $rooms, $viewer) {
             if (! in_array($r['id'], $revealed, true)) {
                 return $fog->contains($r['id']) ? ['id' => $r['id'], 'x' => $r['x'], 'y' => $r['y'], 'fog' => true] : null;
             }
@@ -730,7 +750,9 @@ class DungeonService
                     'art' => DungeonCatalog::monsterArt($m['key']), 'art_url' => route('api.v1.monsters.art', $m['key'])];
             }
             if (isset($r['chest'])) {
-                $room['chest'] = ['opened' => $r['chest']['opened']];
+                // Truhen sind je Person gefüllt: „geöffnet“ heißt hier „von dir geöffnet“
+                $mine = $r['chest']['opened_by'][(string) $viewer->id] ?? null;
+                $room['chest'] = ['opened' => $mine !== null, 'gold' => $mine['gold'] ?? null, 'found' => $mine ? self::lootList($mine['loot']) : []];
             }
             if (isset($r['trap'])) {
                 $room['trap'] = ['sprung' => $r['trap']['sprung']];

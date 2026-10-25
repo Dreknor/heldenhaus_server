@@ -20,7 +20,7 @@ type Room = {
     fog: boolean;
     doors?: Record<'N' | 'E' | 'S' | 'W', Door>;
     monster?: { key: string; name: string; icon: string; hp: number; max_hp: number; art: MonsterArtConfig | null };
-    chest?: { opened: boolean };
+    chest?: { opened: boolean; gold?: number | null; found?: Found[] };
     trap?: { sprung: boolean };
     puzzle?: { question: string; solved: boolean; hint: string | null };
     campfire?: { used: number[] };
@@ -48,6 +48,7 @@ type Dungeon = {
     last_action_id: number | null;
     art: DungeonArt;
 };
+type Found = { key: string; name: string; icon: string; amount: number };
 type LogEntry = { id: number; user: string; action: string; room: number; events: string[]; at: string };
 
 const props = defineProps<{
@@ -69,7 +70,7 @@ const props = defineProps<{
     logs: LogEntry[];
     soloLogs: LogEntry[];
     selectedTab: string;
-    lastResult: { events?: string[]; loot?: Record<string, number>; damage?: number; boss_damage?: number } | null;
+    lastResult: { events?: string[]; loot?: Record<string, number>; found?: Found[]; gold?: number; damage?: number; boss_damage?: number } | null;
     merchantOffers: { key: string; name: string; icon: string; price: number }[];
 }>();
 
@@ -225,7 +226,12 @@ function doorLabel(kind: string, target: number) {
             >
                 <p class="mb-1 font-extrabold text-emerald-900 dark:text-emerald-100">Dein letzter Zug</p>
                 <p v-for="(event, index) in lastResult.events" :key="index" class="text-sm">{{ event }}</p>
-                <p v-if="lastResult.loot" class="mt-2 text-sm font-bold">
+                <p v-if="lastResult.found?.length || lastResult.gold" class="mt-2 text-sm font-bold">
+                    Beute:
+                    <template v-if="lastResult.gold">🪙 {{ lastResult.gold }} Gold</template>
+                    <template v-for="item in lastResult.found ?? []" :key="item.key"> · {{ item.icon }} {{ item.amount }}× {{ item.name }}</template>
+                </p>
+                <p v-else-if="lastResult.loot" class="mt-2 text-sm font-bold">
                     Beute:
                     {{
                         Object.entries(lastResult.loot)
@@ -251,7 +257,7 @@ function doorLabel(kind: string, target: number) {
                 <div>
                     <h2 class="text-xl font-extrabold">Ein kleines Gewölbe wartet</h2>
                     <p class="mt-1 max-w-xl text-sm text-muted-foreground">
-                        Drei Räume, ein Schatz. Das Solo-Gewölbe öffnet sich, wenn deine fälligen Dailies für heute erledigt sind.
+                        Fünf Räume, ein Schatz. Das Solo-Gewölbe öffnet sich, wenn deine fälligen Dailies für heute erledigt sind.
                     </p>
                 </div>
                 <Button @click="startSolo">Solo-Gewölbe betreten</Button>
@@ -373,7 +379,19 @@ function doorLabel(kind: string, target: number) {
                             </div>
 
                             <div v-if="currentRoom.chest" class="mb-3 rounded-xl bg-amber-50 p-3 text-sm dark:bg-amber-950/30">
-                                <p class="font-bold">{{ currentRoom.chest.opened ? 'Die Truhe ist leer.' : 'Eine Truhe wartet auf dich.' }}</p>
+                                <p class="font-bold">
+                                    {{ currentRoom.chest.opened ? 'Du hast diese Truhe geplündert.' : 'Eine Truhe wartet auf dich.' }}
+                                </p>
+                                <p
+                                    v-if="currentRoom.chest.opened && (currentRoom.chest.gold || currentRoom.chest.found?.length)"
+                                    class="mt-1 text-xs"
+                                >
+                                    Darin war:
+                                    <template v-if="currentRoom.chest.gold">🪙 {{ currentRoom.chest.gold }} Gold</template>
+                                    <template v-for="item in currentRoom.chest.found ?? []" :key="item.key">
+                                        · {{ item.icon }} {{ item.amount }}× {{ item.name }}</template
+                                    >
+                                </p>
                                 <Button
                                     v-if="!currentRoom.chest.opened && dungeon.status === 'active'"
                                     class="mt-2"

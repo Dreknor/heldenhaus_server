@@ -72,7 +72,7 @@ it('erzeugt aus demselben Seed denselben Dungeon, in dem jeder Raum erreichbar i
             expect(DungeonGenerator::generate($seed, 'family', $mode, 'spider_cellar'))->toBe($state);
 
             $n = count($state['rooms']);
-            expect($n)->toBeBetween($mode === 'teen' ? 9 : 6, $mode === 'teen' ? 12 : 8)
+            expect($n)->toBeBetween($mode === 'teen' ? 13 : 10, $mode === 'teen' ? 16 : 12)
                 ->and(DungeonGenerator::reachable($state, ['open', 'locked', 'gate']))->toBe(range(0, $n - 1))
                 ->and(collect($state['rooms'])->where('type', 'boss'))->toHaveCount(1)
                 ->and(collect($state['rooms'])->where('type', 'entrance'))->toHaveCount(1);
@@ -85,7 +85,7 @@ it('erzeugt aus demselben Seed denselben Dungeon, in dem jeder Raum erreichbar i
             }
         }
     }
-    expect(DungeonGenerator::generate('x', 'solo', 'child', 'dust_crypt')['rooms'])->toHaveCount(3)
+    expect(DungeonGenerator::generate('x', 'solo', 'child', 'dust_crypt')['rooms'])->toHaveCount(5)
         ->and(DungeonGenerator::generate('a1', 'family', 'child', 'dust_crypt'))->not->toBe(DungeonGenerator::generate('a2', 'family', 'child', 'dust_crypt'));
 });
 
@@ -171,8 +171,10 @@ it('lässt kämpfen, Beute und den Schlüssel finden und die Tür aufschließen'
     act($this->child, $d, 'use-item', ['item_id' => Item::firstWhere('key', 'dungeon_key')->id, 'to' => 2])->assertOk();
     act($this->child, $d, 'move', ['to' => 2])->assertOk();
     $chest = act($this->child, $d, 'interact')->assertOk();
-    expect(array_sum($chest['result']['loot']))->toBeGreaterThanOrEqual(2);
-    act($this->child, $d, 'interact')->assertStatus(422); // leer
+    expect(array_sum($chest['result']['loot']))->toBeGreaterThanOrEqual(2)
+        ->and($chest['result']['gold'])->toBeGreaterThan(0)
+        ->and($chest['result']['found'][0])->toHaveKeys(['name', 'icon', 'amount']);
+    act($this->child, $d, 'interact')->assertStatus(422); // schon geplündert
     expect(FeedEntry::where('type', 'dungeon_discovery')->count())->toBe(1);
 });
 
@@ -323,7 +325,7 @@ it('öffnet das Solo-Gewölbe erst, wenn die Dailies geschafft sind, und schlie�
     $path = [$state['final']];
     while (end($path) !== 0) {
         $prev = collect($state['edges'])->map(fn ($e) => $e['a'] === end($path) ? $e['b'] : ($e['b'] === end($path) ? $e['a'] : null))
-            ->filter(fn ($n) => $n !== null)->sortBy(fn ($n) => DungeonGenerator::depths(3, $state['edges'])[$n])->first();
+            ->filter(fn ($n) => $n !== null)->sortBy(fn ($n) => DungeonGenerator::depths(count($state['rooms']), $state['edges'])[$n])->first();
         $path[] = $prev;
     }
     $path = array_reverse($path);
@@ -334,6 +336,9 @@ it('öffnet das Solo-Gewölbe erst, wenn die Dailies geschafft sind, und schlie�
         if (isset($state['rooms'][$room]['trap'])) {
             $state['rooms'][$room]['trap']['sprung'] = true;
         }
+        if (isset($state['rooms'][$room]['puzzle'])) {
+            $state['rooms'][$room]['puzzle']['solved'] = true;
+        }
     }
     $d->update(['state' => $state]);
     torches($this->child, 10);
@@ -341,7 +346,7 @@ it('öffnet das Solo-Gewölbe erst, wenn die Dailies geschafft sind, und schlie�
         act($this->child, $d, 'move', ['to' => $room])->assertOk();
     }
     act($this->child, $d, 'interact')->assertOk()->assertJsonPath('dungeon.status', 'completed');
-    expect(count($path))->toBeBetween(2, 3);
+    expect(count($path))->toBeBetween(2, 5);
 });
 
 it('zeigt anderen Familien keinen Dungeon und führt ein Zug-Log', function () {
@@ -370,4 +375,31 @@ it('zeigt Mitspielende im Dungeon mit ihrem echten Avatar', function () {
     $member = collect($this->getJson("/api/v1/dungeons/{$d->id}")->assertOk()['members'])->firstWhere('user_id', $this->child->id);
     expect($member)->not->toBeNull()
         ->and($member['appearance'])->toBeArray()->not->toBeEmpty();
+});
+
+it('füllt jede Truhe für jede Person einmal, den Schlüssel gibt es nur beim ersten Öffnen', function () {
+    $d = fixtureDungeon($this->family);
+    $state = $d->state;
+    $state['rooms'][6]['key_drop'] = true;
+    $state['rooms'][6]['chest'] = ['opened' => false];
+    $state['revealed'] = [0, 4, 5, 6];
+    $state['edges'] = collect($state['edges'])->map(fn ($e) => ['kind' => 'open'] + $e)->all();
+    $d->update(['state' => $state]);
+    foreach ([$this->child, $this->parent] as $user) {
+        torches($user, 20);
+        DungeonPosition::create(['dungeon_id' => $d->id, 'user_id' => $user->id, 'room' => 6, 'hp' => 30]);
+    }
+
+    $goldBefore = UserStats::find($this->parent->id)->gold;
+    $first = act($this->child, $d, 'interact')->assertOk();
+    $second = act($this->parent, $d, 'interact')->assertOk();
+    act($this->parent, $d, 'interact')->assertStatus(422);
+
+    expect($first['result']['loot']['dungeon_key'] ?? 0)->toBe(1)
+        ->and($second['result']['loot']['dungeon_key'] ?? 0)->toBe(0)
+        ->and(array_sum($second['result']['loot']))->toBeGreaterThanOrEqual(2)
+        ->and(UserStats::find($this->parent->id)->gold)->toBeGreaterThan($goldBefore);
+
+    $chest = collect($second['dungeon']['rooms'])->firstWhere('id', 6)['chest'];
+    expect($chest['opened'])->toBeTrue()->and($chest['gold'])->toBe($second['result']['gold']);
 });
