@@ -159,7 +159,7 @@ class HomeAssistantController extends Controller
             'assignment_mode' => $memberId ? 'assigned' : 'pool',
             'assignees' => $memberId ? [$memberId] : [],
             'due_date' => $data['due_date'] ?? null,
-        ]);
+        ], autoSuggestSteps: true);
 
         return response()->json([
             'id' => $task->id,

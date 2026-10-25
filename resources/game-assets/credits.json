@@ -59,5 +59,17 @@
         "files": [
             "public/dungeon"
         ]
+    },
+    {
+        "title": "Housing-Pixel-Art: Characters Home Free Top-Down Pixel Art",
+        "author": "CraftPix.net",
+        "author_url": "https://craftpix.net",
+        "source_url": "https://craftpix.net/freebies/",
+        "license": "CraftPix Freebie License",
+        "license_url": "https://craftpix.net/file-licenses/",
+        "changes": "Möbel-, Wand-, Boden- und Fensterausschnitte aus den Tilesets für die Housing-Raumgrafik erstellt und pixelgenau skaliert.",
+        "files": [
+            "public/images/housing"
+        ]
     }
 ]

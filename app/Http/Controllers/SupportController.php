@@ -103,7 +103,7 @@ class SupportController extends Controller
     {
         $title = $request->validate(['title' => ['required', 'string', 'max:120']])['title'];
 
-        $task = $tasks->create($request->user(), ['type' => TaskType::Todo->value, 'title' => $title, 'difficulty' => 1, 'category' => null]);
+        $task = $tasks->create($request->user(), ['type' => TaskType::Todo->value, 'title' => $title, 'difficulty' => 1, 'category' => null], autoSuggestSteps: true);
         $task->forceFill(['status' => 'inbox'])->save();
 
         return $request->expectsJson()

@@ -8,8 +8,7 @@
 - **KI nur auf Wunsch**: Die Aufteilung über OpenRouter (§11.6) ist pro Familie aus, bis Eltern sie einschalten. Gesendet werden nur Aufgabentitel und Altersgruppe ohne Namen, zugelassen sind nur Anbieter ohne Speicherung und Training. Darauf weist die Datenschutzerklärung hin.
 - Spracheingabe für die Kopf-Ablage läuft auf dem Gerät, es werden keine Audiodateien übertragen.
 - **Erfolgsmessung** (§14.10): Kennzahlen und Umfragen bleiben in der eigenen Datenbank. Kinder geben im Stimmungs-Check nur Smileys und Auswahlantworten. Der Server-Admin sieht nur zusammengefasste Zahlen ohne Titel und Namen. Erinnerungen plant die App lokal, ihre Inhalte gehen nicht über Google.
-- **Events** (§12): Für Feiertage und Schulferien wird nur Land und Bundesland an die OpenHolidays API übertragen. Wetter von Open-Meteo nur auf Wunsch und mit einem auf 0,1° gerundeten Ort. Geburtstage sind freiwillig und werden nur als Tag und Monat gespeichert.
+- **Events** (§12): Für Feiertage und Schulferien wird nur Land und Bundesland an die OpenHolidays API übertragen. Wetter von Open-Meteo wird nur auf Wunsch und mit einem auf 0,1° gerundeten Ort abgerufen; bei Aktivierung wird es auch in der Heldenszene angezeigt. Geburtstage sind freiwillig und werden nur als Tag und Monat gespeichert.
 - Datenexport (JSON) und Löschung pro Person und Familie, automatische Löschung von Foto-Nachweisen
 - Passwort/PIN-Hashing, Ratenbegrenzung bei Login und PIN, Token-Widerruf pro Gerät, Familien-Scope wird in jeder Abfrage erzwungen (Tests dafür)
-
 

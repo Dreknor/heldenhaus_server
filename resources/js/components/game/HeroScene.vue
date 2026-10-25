@@ -15,6 +15,7 @@ defineProps<{
     hurt?: boolean;
     /** Gemalter Hintergrund des Tages, sonst die Fluent-Landschaft */
     background?: string | null;
+    weather?: { type: 'clear' | 'cloudy' | 'fog' | 'rain' | 'snow' | 'storm'; label: string; is_day: boolean } | null;
 }>();
 
 const hour = new Date().getHours();
@@ -46,6 +47,17 @@ const stars = [
     [70, 28],
     [83, 14],
 ];
+const rainDrops = Array.from({ length: 32 }, (_, i) => ({
+    left: `${(i * 37) % 100}%`,
+    delay: `${(i % 8) * -0.31}s`,
+    duration: `${0.75 + (i % 4) * 0.12}s`,
+}));
+const snowflakes = Array.from({ length: 26 }, (_, i) => ({
+    left: `${(i * 43) % 100}%`,
+    delay: `${(i % 9) * -0.55}s`,
+    duration: `${3 + (i % 4)}s`,
+    size: `${4 + (i % 3) * 2}px`,
+}));
 </script>
 
 <template>
@@ -119,7 +131,36 @@ const stars = [
             </div>
         </div>
 
-        <div class="relative flex min-h-48 items-end gap-1 px-2 pt-4 sm:min-h-52 sm:px-6">
+        <div
+            v-if="weather"
+            class="pointer-events-none absolute inset-0 z-[1] overflow-hidden"
+            :class="{
+                'bg-slate-950/20': weather.type === 'rain' || weather.type === 'storm',
+                'bg-sky-100/15': weather.type === 'snow' || weather.type === 'fog',
+            }"
+            aria-hidden="true"
+        >
+            <div v-if="weather.type === 'clear' && weather.is_day" class="weather-sun absolute right-[12%] top-5 size-16 rounded-full bg-amber-200/70 blur-[2px] sm:size-20" />
+            <img v-if="weather.type === 'cloudy' || weather.type === 'fog'" :src="img('cloud')" alt="" class="absolute right-[18%] top-5 w-24 opacity-80 sm:w-28" />
+            <div v-if="weather.type === 'rain' || weather.type === 'storm'" class="absolute inset-0">
+                <span v-for="(drop, i) in rainDrops" :key="i" class="rain-drop absolute top-[-12%] h-7 w-px bg-sky-100/75" :style="{ left: drop.left, animationDelay: drop.delay, animationDuration: drop.duration }" />
+            </div>
+            <div v-if="weather.type === 'snow'" class="absolute inset-0">
+                <span
+                    v-for="(flake, i) in snowflakes"
+                    :key="i"
+                    class="snowflake absolute top-[-8%] rounded-full bg-white/90 shadow-sm"
+                    :style="{ left: flake.left, width: flake.size, height: flake.size, animationDelay: flake.delay, animationDuration: flake.duration }"
+                />
+            </div>
+        </div>
+
+        <div v-if="weather" class="pointer-events-none absolute left-3 top-3 z-10 rounded-full bg-slate-950/45 px-2.5 py-1 text-xs font-semibold text-white shadow-sm backdrop-blur-sm">
+            <span aria-hidden="true">{{ { clear: weather.is_day ? '☀️' : '🌙', cloudy: '☁️', fog: '🌫️', rain: '🌧️', snow: '❄️', storm: '⛈️' }[weather.type] }}</span>
+            {{ weather.label }}
+        </div>
+
+        <div class="relative z-[2] flex min-h-48 items-end gap-1 px-2 pt-4 sm:min-h-52 sm:px-6">
             <HeroAvatar
                 :avatar="appearance.avatar"
                 :seed="appearance.seed"
@@ -152,6 +193,15 @@ const stars = [
 .clouds {
     animation: drift 30s linear infinite alternate;
 }
+.weather-sun {
+    box-shadow: 0 0 34px 14px rgb(253 224 71 / 35%);
+}
+.rain-drop {
+    animation: rain linear infinite;
+}
+.snowflake {
+    animation: snow linear infinite;
+}
 @keyframes twinkle {
     50% {
         opacity: 0.35;
@@ -163,9 +213,21 @@ const stars = [
         transform: translateX(40px);
     }
 }
+@keyframes rain {
+    to {
+        transform: translate3d(-18px, 135%, 0);
+    }
+}
+@keyframes snow {
+    to {
+        transform: translate3d(24px, 135%, 0);
+    }
+}
 @media (prefers-reduced-motion: reduce) {
     .twinkle,
-    .clouds {
+    .clouds,
+    .rain-drop,
+    .snowflake {
         animation: none;
     }
 }

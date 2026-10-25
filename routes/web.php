@@ -1,16 +1,21 @@
 <?php
 
+use App\Domain\Dungeons\DungeonService;
 use App\Http\Controllers\AchievementController;
+use App\Http\Controllers\Admin\AiRequestController;
 use App\Http\Controllers\Admin\ItemController;
 use App\Http\Controllers\Admin\SceneBackgroundController;
 use App\Http\Controllers\Admin\UpdateController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\CharacterController;
 use App\Http\Controllers\CreditsController;
+use App\Http\Controllers\DungeonWebController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\FamilyHubController;
 use App\Http\Controllers\FamilyLoginController;
 use App\Http\Controllers\HeroController;
+use App\Http\Controllers\HousingController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\QuestController;
 use App\Http\Controllers\RewardShopController;
@@ -36,6 +41,41 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
     Route::get('dashboard', [HeroController::class, 'index'])->name('dashboard');
+    Route::get('dungeons', [DungeonWebController::class, 'index'])->name('dungeons.index');
+    Route::post('dungeons/solo', [DungeonWebController::class, 'solo'])->name('dungeons.solo');
+    Route::post('dungeons/{dungeon}/{action}', [DungeonWebController::class, 'act'])
+        ->whereIn('action', DungeonService::ACTIONS)->middleware('throttle:60,1')->name('dungeons.act');
+
+    Route::get('events', [EventController::class, 'webIndex'])->name('web.events.index');
+    Route::get('events/history', [EventController::class, 'webHistory'])->name('web.events.history');
+    Route::get('events/{event}', [EventController::class, 'webShow'])->whereNumber('event')->name('web.events.show');
+    Route::post('events/{event}/advent/{day}', [EventController::class, 'webAdvent'])
+        ->whereNumber('event')->whereNumber('day')->middleware('throttle:20,1')->name('web.events.advent');
+    Route::post('events/{event}/merchant/buy', [EventController::class, 'webMerchantBuy'])
+        ->whereNumber('event')->middleware('throttle:20,1')->name('web.events.merchant');
+    Route::post('events/{event}/secret-help', [EventController::class, 'webSecretHelp'])
+        ->whereNumber('event')->middleware('throttle:20,1')->name('web.events.secret-help');
+    Route::post('events/{event}/joker', [EventController::class, 'webJoker'])
+        ->whereNumber('event')->name('web.events.joker');
+    Route::post('events/{event}/assign-parent', [EventController::class, 'webAssignParent'])
+        ->whereNumber('event')->name('web.events.assign-parent');
+    Route::post('events/{event}/class-trial', [EventController::class, 'webClassTrial'])
+        ->whereNumber('event')->name('web.events.class-trial');
+    Route::get('family/event-settings', [EventController::class, 'webSettings'])->name('web.events.settings');
+    Route::put('family/event-settings', [EventController::class, 'webUpdateSettings'])
+        ->name('web.events.settings.update');
+    Route::get('housing', [HousingController::class, 'index'])->name('housing.index');
+    Route::get('housing/visit/{family}', [HousingController::class, 'visit'])->name('housing.visit');
+    Route::put('housing/rooms/{room}', [HousingController::class, 'customize'])->name('housing.rooms.customize');
+    Route::put('housing/rooms/{room}/layout', [HousingController::class, 'layout'])->name('housing.rooms.layout');
+    Route::post('housing/projects', [HousingController::class, 'startProject'])->name('housing.projects.start');
+    Route::post('housing/projects/{project}/contribute', [HousingController::class, 'contribute'])->name('housing.projects.contribute');
+    Route::delete('housing/projects/{project}', [HousingController::class, 'cancelProject'])->name('housing.projects.cancel');
+    Route::post('housing/garden/{slot}/{action}', [HousingController::class, 'gardenAction'])
+        ->whereNumber('slot')->whereIn('action', ['sow', 'water', 'harvest'])->name('housing.garden.action');
+    Route::post('housing/guestbook', [HousingController::class, 'writeGuestbook'])->name('housing.guestbook.store');
+    Route::post('housing/visit/{family}/guestbook', [HousingController::class, 'writeGuestbookTo'])->name('housing.visit.guestbook.store');
+    Route::delete('housing/guestbook/{entry}', [HousingController::class, 'deleteGuestbook'])->name('housing.guestbook.destroy');
     Route::post('cron', [HeroController::class, 'runCron'])->name('cron.run');
 
     Route::post('tasks', [TaskController::class, 'store'])->name('tasks.store');
@@ -47,6 +87,7 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
         ->whereIn('direction', ['up', 'down'])->name('assignments.score');
 
     Route::get('family', [FamilyController::class, 'index'])->name('family.index');
+    Route::get('family/settings', [FamilyController::class, 'settings'])->name('family.settings');
     Route::get('family/tasks', [FamilyController::class, 'tasks'])->name('family.tasks');
     Route::post('family/children', [FamilyController::class, 'storeChild'])->name('family.children.store');
     Route::put('family/members/{member}', [FamilyController::class, 'updateMember'])->name('family.members.update');
@@ -58,6 +99,7 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
     Route::delete('family/ha-webhook', [FamilyController::class, 'destroyHaWebhook'])->name('family.ha-webhook.destroy');
     Route::post('family/members/{member}/stars', [FamilyController::class, 'grantStars'])->name('family.members.stars');
     Route::put('family/settings', [FamilyController::class, 'updateSettings'])->name('family.settings.update');
+    Route::put('family/settings/weather', [FamilyController::class, 'updateWeatherSettings'])->name('family.weather.update');
 
     Route::get('approvals', [ApprovalController::class, 'index'])->name('approvals.index');
     Route::post('completions/{completion}/{decision}', [ApprovalController::class, 'reviewCompletion'])
@@ -127,6 +169,7 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
 });
 
 Route::middleware(['auth', 'can:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('ai-requests', [AiRequestController::class, 'index'])->name('ai-requests.index');
     Route::get('updates', [UpdateController::class, 'index'])->name('updates.index');
     Route::get('updates/status', [UpdateController::class, 'status'])->name('updates.status');
     Route::post('updates/check', [UpdateController::class, 'check'])->name('updates.check');

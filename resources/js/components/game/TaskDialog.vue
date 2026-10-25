@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { difficultyLabels, weekdays } from '@/lib/game';
 import type { Member, Task, TaskType } from '@/types';
 import { router, useForm } from '@inertiajs/vue3';
-import { computed, watch } from 'vue';
+import { ArrowDown, ArrowUp, LoaderCircle, Plus, Sparkles, Trash2 } from 'lucide-vue-next';
+import { computed, ref, watch } from 'vue';
 
 const props = defineProps<{
     open: boolean;
@@ -17,6 +18,7 @@ const props = defineProps<{
     members?: Member[];
     categories: Record<string, string>;
     difficulties: Record<string, number>;
+    maxSteps?: number;
 }>();
 
 const emit = defineEmits<{ 'update:open': [value: boolean] }>();
@@ -31,6 +33,14 @@ const typeLabels: Record<TaskType, string> = {
 const editing = computed(() => !!props.task);
 const currentType = computed<TaskType>(() => props.task?.type ?? props.type ?? 'todo');
 const isFamily = computed(() => (props.task?.scope ?? props.scope) === 'family');
+const stepDraft = ref<string[]>([]);
+const stepSource = ref<'family' | 'template' | 'ai'>('family');
+const suggesting = ref(false);
+const savingSteps = ref(false);
+const stepsMessage = ref('');
+const stepsError = ref('');
+const canEditSteps = computed(() => editing.value && (currentType.value === 'todo' || currentType.value === 'daily'));
+const maxSteps = computed(() => props.maxSteps ?? 7);
 
 function initial() {
     const t = props.task;
@@ -67,6 +77,10 @@ watch(
             form.defaults(values);
             form.reset();
             form.clearErrors();
+            stepDraft.value = props.task?.checklist ? [...props.task.checklist] : [];
+            stepSource.value = 'family';
+            stepsMessage.value = '';
+            stepsError.value = '';
         }
     },
 );
@@ -129,6 +143,72 @@ function toggleAssignee(id: number) {
     form.assignees = form.assignees.includes(id) ? form.assignees.filter((a) => a !== id) : [...form.assignees, id];
 }
 
+function csrf(): string {
+    const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : '';
+}
+
+async function suggestSteps() {
+    if (!props.task || suggesting.value) return;
+    suggesting.value = true;
+    stepsMessage.value = '';
+    stepsError.value = '';
+    try {
+        const response = await fetch(route('steps.suggest', { task: props.task.id }), {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-XSRF-TOKEN': csrf(),
+            },
+            body: JSON.stringify({ ai: true }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message ?? 'Vorschläge konnten nicht geladen werden.');
+        if (!data.suggestion?.steps?.length) {
+            stepsMessage.value = 'Für diese Aufgabe wurden keine Vorschläge gefunden.';
+            return;
+        }
+        stepDraft.value = data.suggestion.steps.slice(0, maxSteps.value);
+        stepSource.value = data.suggestion.source;
+        stepsMessage.value =
+            data.suggestion.source === 'ai'
+                ? 'KI-Vorschlag übernommen. Bitte prüfe die Schritte vor dem Speichern.'
+                : 'Passender Vorschlag übernommen. Du kannst die Schritte noch anpassen.';
+    } catch (error) {
+        stepsError.value = error instanceof Error ? error.message : 'Vorschläge konnten nicht geladen werden.';
+    } finally {
+        suggesting.value = false;
+    }
+}
+
+function saveSteps() {
+    if (!props.task || savingSteps.value) return;
+    savingSteps.value = true;
+    stepsMessage.value = '';
+    stepsError.value = '';
+    router.put(
+        route('steps.save', { task: props.task.id }),
+        { steps: stepDraft.value.map((step) => step.trim()).filter(Boolean), source: stepSource.value },
+        {
+            preserveScroll: true,
+            onSuccess: () => (stepsMessage.value = 'Schritte gespeichert.'),
+            onError: (errors) => (stepsError.value = Object.values(errors).join(' ')),
+            onFinish: () => (savingSteps.value = false),
+        },
+    );
+}
+
+function moveStep(index: number, direction: -1 | 1) {
+    const target = index + direction;
+    if (target < 0 || target >= stepDraft.value.length) return;
+    const next = [...stepDraft.value];
+    [next[index], next[target]] = [next[target], next[index]];
+    stepDraft.value = next;
+}
+
 const selectClass =
     'flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring';
 const chip = (active: boolean) =>
@@ -175,7 +255,13 @@ const chip = (active: boolean) =>
                 <div v-if="currentType !== 'reward'" class="grid gap-1.5">
                     <Label>Schwierigkeit</Label>
                     <div class="flex flex-wrap gap-2">
-                        <button v-for="value in Object.values(difficulties)" :key="value" type="button" :class="chip(form.difficulty === value)" @click="form.difficulty = value">
+                        <button
+                            v-for="value in Object.values(difficulties)"
+                            :key="value"
+                            type="button"
+                            :class="chip(form.difficulty === value)"
+                            @click="form.difficulty = value"
+                        >
                             {{ difficultyLabels[value] }}
                         </button>
                     </div>
@@ -191,14 +277,28 @@ const chip = (active: boolean) =>
                 <div v-if="currentType === 'daily'" class="grid gap-2">
                     <Label>Wiederholung</Label>
                     <div class="flex gap-2">
-                        <button type="button" :class="chip(form.repeat.type === 'daily')" @click="form.repeat = { type: 'daily', every: 1 }">Alle X Tage</button>
-                        <button type="button" :class="chip(form.repeat.type === 'weekly')" @click="form.repeat = { type: 'weekly', days: [1, 2, 3, 4, 5] }">Wochentage</button>
+                        <button type="button" :class="chip(form.repeat.type === 'daily')" @click="form.repeat = { type: 'daily', every: 1 }">
+                            Alle X Tage
+                        </button>
+                        <button
+                            type="button"
+                            :class="chip(form.repeat.type === 'weekly')"
+                            @click="form.repeat = { type: 'weekly', days: [1, 2, 3, 4, 5] }"
+                        >
+                            Wochentage
+                        </button>
                     </div>
                     <div v-if="form.repeat.type === 'daily'" class="flex items-center gap-2 text-sm">
                         Alle <Input v-model.number="form.repeat.every" type="number" min="1" class="w-20" /> Tage
                     </div>
                     <div v-else class="flex flex-wrap gap-1.5">
-                        <button v-for="d in weekdays" :key="d.value" type="button" :class="chip((form.repeat.days ?? []).includes(d.value))" @click="toggleDay(d.value)">
+                        <button
+                            v-for="d in weekdays"
+                            :key="d.value"
+                            type="button"
+                            :class="chip((form.repeat.days ?? []).includes(d.value))"
+                            @click="toggleDay(d.value)"
+                        >
                             {{ d.label }}
                         </button>
                     </div>
@@ -211,6 +311,80 @@ const chip = (active: boolean) =>
                     <Input id="due" v-model="form.due_date" type="date" />
                 </div>
 
+                <section v-if="canEditSteps" class="grid gap-2 rounded-xl border bg-muted/30 p-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h3 class="font-bold">Aufgabenschritte</h3>
+                            <p class="text-xs text-muted-foreground">Kleine Schritte bringen sofort einen Teil der Belohnung.</p>
+                        </div>
+                        <button
+                            type="button"
+                            class="flex items-center gap-1 rounded-md border bg-background px-2.5 py-1.5 text-xs font-semibold hover:bg-muted disabled:opacity-50"
+                            :disabled="suggesting"
+                            @click="suggestSteps"
+                        >
+                            <LoaderCircle v-if="suggesting" class="size-3.5 animate-spin" />
+                            <Sparkles v-else class="size-3.5" />
+                            Vorschläge holen
+                        </button>
+                    </div>
+                    <ol v-if="stepDraft.length" class="grid gap-1.5">
+                        <li v-for="(step, index) in stepDraft" :key="index" class="flex items-center gap-1.5">
+                            <span class="w-5 shrink-0 text-center text-xs text-muted-foreground">{{ index + 1 }}.</span>
+                            <Input
+                                v-model="stepDraft[index]"
+                                maxlength="120"
+                                :aria-label="`Schritt ${index + 1}`"
+                                placeholder="Schritt beschreiben"
+                            />
+                            <button
+                                type="button"
+                                class="rounded p-1 hover:bg-muted disabled:opacity-30"
+                                :disabled="index === 0"
+                                :aria-label="`Schritt ${index + 1} nach oben`"
+                                @click="moveStep(index, -1)"
+                            >
+                                <ArrowUp class="size-4" />
+                            </button>
+                            <button
+                                type="button"
+                                class="rounded p-1 hover:bg-muted disabled:opacity-30"
+                                :disabled="index === stepDraft.length - 1"
+                                :aria-label="`Schritt ${index + 1} nach unten`"
+                                @click="moveStep(index, 1)"
+                            >
+                                <ArrowDown class="size-4" />
+                            </button>
+                            <button
+                                type="button"
+                                class="rounded p-1 text-muted-foreground hover:bg-muted hover:text-destructive"
+                                :aria-label="`Schritt ${index + 1} entfernen`"
+                                @click="stepDraft.splice(index, 1)"
+                            >
+                                <Trash2 class="size-4" />
+                            </button>
+                        </li>
+                    </ol>
+                    <p v-else class="text-sm text-muted-foreground">Noch keine Schritte hinzugefügt.</p>
+                    <button
+                        type="button"
+                        class="flex w-fit items-center gap-1 rounded-md px-2 py-1 text-sm font-semibold hover:bg-muted disabled:opacity-50"
+                        :disabled="stepDraft.length >= maxSteps"
+                        @click="stepDraft.push('')"
+                    >
+                        <Plus class="size-4" /> Schritt hinzufügen
+                    </button>
+                    <p v-if="stepDraft.length >= maxSteps" class="text-xs text-muted-foreground">Dein Limit liegt bei {{ maxSteps }} Schritten.</p>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <Button type="button" variant="outline" size="sm" :disabled="savingSteps" @click="saveSteps">
+                            <LoaderCircle v-if="savingSteps" class="size-4 animate-spin" />
+                            <span v-else>Schritte speichern</span>
+                        </Button>
+                        <p v-if="stepsMessage" class="text-xs text-emerald-700 dark:text-emerald-400">{{ stepsMessage }}</p>
+                        <p v-if="stepsError" class="text-xs text-destructive">{{ stepsError }}</p>
+                    </div>
+                </section>
+
                 <!-- Persönlich: privat -->
                 <label v-if="!isFamily && currentType !== 'reward'" class="flex items-center gap-2 text-sm">
                     <input v-model="form.is_private" type="checkbox" class="size-4 rounded" />
@@ -222,11 +396,23 @@ const chip = (active: boolean) =>
                     <div class="grid gap-1.5">
                         <Label>Wer?</Label>
                         <div class="flex gap-2">
-                            <button type="button" :class="chip(form.assignment_mode === 'assigned')" @click="form.assignment_mode = 'assigned'">Zuweisen</button>
-                            <button v-if="currentType === 'daily'" type="button" :class="chip(form.assignment_mode === 'rotation')" @click="form.assignment_mode = 'rotation'">
+                            <button type="button" :class="chip(form.assignment_mode === 'assigned')" @click="form.assignment_mode = 'assigned'">
+                                Zuweisen
+                            </button>
+                            <button
+                                v-if="currentType === 'daily'"
+                                type="button"
+                                :class="chip(form.assignment_mode === 'rotation')"
+                                @click="form.assignment_mode = 'rotation'"
+                            >
                                 Ämterplan
                             </button>
-                            <button v-if="currentType === 'todo'" type="button" :class="chip(form.assignment_mode === 'team')" @click="form.assignment_mode = 'team'">
+                            <button
+                                v-if="currentType === 'todo'"
+                                type="button"
+                                :class="chip(form.assignment_mode === 'team')"
+                                @click="form.assignment_mode = 'team'"
+                            >
                                 Team
                             </button>
                             <button
@@ -239,15 +425,27 @@ const chip = (active: boolean) =>
                             </button>
                         </div>
                         <div v-if="form.assignment_mode !== 'pool'" class="flex flex-wrap gap-1.5">
-                            <button v-for="m in members" :key="m.id" type="button" :class="chip(form.assignees.includes(m.id))" @click="toggleAssignee(m.id)">
-                                <template v-if="form.assignment_mode === 'rotation' && form.assignees.includes(m.id)">{{ form.assignees.indexOf(m.id) + 1 }}. </template>{{ m.name }}
+                            <button
+                                v-for="m in members"
+                                :key="m.id"
+                                type="button"
+                                :class="chip(form.assignees.includes(m.id))"
+                                @click="toggleAssignee(m.id)"
+                            >
+                                <template v-if="form.assignment_mode === 'rotation' && form.assignees.includes(m.id)"
+                                    >{{ form.assignees.indexOf(m.id) + 1 }}. </template
+                                >{{ m.name }}
                             </button>
                         </div>
                         <p v-if="form.assignment_mode === 'pool'" class="text-xs text-muted-foreground">Wer zuerst zugreift, bekommt die Aufgabe.</p>
                         <div v-if="form.assignment_mode === 'rotation'" class="flex flex-wrap items-center gap-2 text-sm">
                             <span class="text-xs text-muted-foreground">Reihenfolge = Reihenfolge beim Antippen. Wechsel</span>
-                            <button type="button" :class="chip(form.rotation_interval === 'daily')" @click="form.rotation_interval = 'daily'">täglich</button>
-                            <button type="button" :class="chip(form.rotation_interval === 'weekly')" @click="form.rotation_interval = 'weekly'">wöchentlich</button>
+                            <button type="button" :class="chip(form.rotation_interval === 'daily')" @click="form.rotation_interval = 'daily'">
+                                täglich
+                            </button>
+                            <button type="button" :class="chip(form.rotation_interval === 'weekly')" @click="form.rotation_interval = 'weekly'">
+                                wöchentlich
+                            </button>
                         </div>
                         <div v-if="form.assignment_mode === 'team'" class="flex items-center gap-2 text-sm">
                             <span class="text-xs text-muted-foreground">Alle müssen ihren Teil abhaken. Team-Bonus für jeden:</span>

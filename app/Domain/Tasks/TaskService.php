@@ -3,6 +3,7 @@
 namespace App\Domain\Tasks;
 
 use App\Domain\Gameplay\GameException;
+use App\Domain\Support\StepSuggestions;
 use App\Enums\TaskType;
 use App\Models\Task;
 use App\Models\TaskAssignment;
@@ -12,10 +13,12 @@ use Illuminate\Support\Facades\DB;
 
 class TaskService
 {
+    public function __construct(private readonly StepSuggestions $stepSuggestions) {}
+
     /** @param array<string, mixed> $data validierte Daten aus TaskRequest */
-    public function create(User $actor, array $data): Task
+    public function create(User $actor, array $data, bool $autoSuggestSteps = false): Task
     {
-        return DB::transaction(function () use ($actor, $data) {
+        $task = DB::transaction(function () use ($actor, $data) {
             $isFamily = ($data['scope'] ?? 'personal') === 'family';
 
             $task = Task::create([
@@ -35,6 +38,17 @@ class TaskService
 
             return $task;
         });
+
+        $autoSuggestionDifficulties = array_map('floatval', [
+            config('game.difficulties.medium'),
+            config('game.difficulties.hard'),
+        ]);
+
+        if ($autoSuggestSteps && empty($task->checklist) && in_array((float) $task->difficulty, $autoSuggestionDifficulties, true)) {
+            $this->stepSuggestions->suggestOnCreate($actor, $task);
+        }
+
+        return $task;
     }
 
     /** @param array<string, mixed> $data */

@@ -7,15 +7,19 @@ import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import {
     Backpack,
+    CalendarDays,
     ChartColumn,
     Dices,
     Download,
     Gift,
+    Hammer,
     Handshake,
+    House,
     Inbox,
     ListChecks,
     PiggyBank,
     ScrollText,
+    Settings,
     Sparkles,
     Swords,
     Trophy,
@@ -33,6 +37,10 @@ const mainNavItems = computed<NavItem[]>(() => [
     { title: 'Quests', href: '/quests', icon: ScrollText },
     { title: 'Erfolge', href: '/achievements', icon: Trophy },
     { title: 'Inventar', href: '/inventory', icon: Backpack },
+    { title: 'Familienhaus', href: '/housing', icon: House },
+    { title: 'Handwerk & Lager', href: '/crafting', icon: Hammer },
+    { title: 'Dungeons', href: '/dungeons', icon: Swords },
+    { title: 'Events', href: '/events', icon: CalendarDays },
     { title: 'Familie', href: '/family', icon: Users },
     { title: 'Bündnisse & Challenges', href: '/social', icon: Handshake },
     { title: 'Belohnungsshop', href: '/shop', icon: Gift },
@@ -40,6 +48,7 @@ const mainNavItems = computed<NavItem[]>(() => [
     ...(isParent.value
         ? [
               { title: 'Familienaufgaben', href: '/family/tasks', icon: ListChecks },
+              { title: 'Familieneinstellungen', href: '/family/settings', icon: Settings },
               { title: 'Freigaben', href: '/approvals', icon: Inbox, badge: page.props.counts?.approvals ?? 0 },
               { title: 'Wochenbericht', href: '/family/report', icon: ChartColumn },
           ]
@@ -47,6 +56,7 @@ const mainNavItems = computed<NavItem[]>(() => [
     ...(page.props.auth.user?.is_admin
         ? [
               { title: 'Items & Drops', href: '/admin/items', icon: Dices },
+              { title: 'KI-Anfragen', href: '/admin/ai-requests', icon: Sparkles },
               { title: 'System-Updates', href: '/admin/updates', icon: Download },
           ]
         : []),

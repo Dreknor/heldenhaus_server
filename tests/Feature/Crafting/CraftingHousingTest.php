@@ -16,6 +16,7 @@ use App\Models\BuildProject;
 use App\Models\CraftJob;
 use App\Models\FamilyAlliance;
 use App\Models\FeedEntry;
+use App\Models\GuestbookEntry;
 use App\Models\Home;
 use App\Models\Item;
 use App\Models\Room;
@@ -79,6 +80,53 @@ it('legt das Familienhaus als Hütte mit Wohnraum, Werkbank und eigenem Zimmer j
     expect(Room::where('type', 'bedroom')->count())->toBe(2);
     $this->getJson('/api/v1/home');
     expect(Room::where('type', 'bedroom')->count())->toBe(3);
+});
+
+it('zeigt das Familienhaus in der Weboberfläche', function () {
+    $this->actingAs($this->child)->get('/housing')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Housing')
+            ->where('home.family.name', $this->family->name)
+            ->where('home.stage_name', 'Hütte')
+            ->has('home.rooms', 3)
+            ->has('home.projects.active')
+            ->where('home.garden', null));
+});
+
+it('gestaltet Zimmer und verwaltet Gästebucheinträge über das Web', function () {
+    $room = HomeService::home($this->family->id)->rooms()->where('type', 'living')->firstOrFail();
+
+    $this->actingAs($this->child)->put("/housing/rooms/{$room->id}", [
+        'name' => 'Gemeinschaftsraum',
+        'wall' => 'stone',
+        'floor' => 'planks',
+    ])->assertRedirect();
+
+    expect($room->refresh()->name)->toBe('Gemeinschaftsraum');
+
+    $this->post('/housing/guestbook', ['kind' => 'preset', 'body' => 'hello'])->assertRedirect();
+    $entry = GuestbookEntry::where('family_id', $this->family->id)->firstOrFail();
+    expect($entry->body)->toBe('hello');
+
+    $this->delete("/housing/guestbook/{$entry->id}")->assertRedirect();
+    expect(GuestbookEntry::whereKey($entry->id)->exists())->toBeFalse();
+});
+
+it('besucht verbündete Familienhäuser und hinterlässt einen Gruß über das Web', function () {
+    [$otherFamily, $otherParent] = makeFamily();
+    alliedFamilies($this->parent, $otherParent);
+
+    $this->actingAs($this->child)->get("/housing/visit/{$otherFamily->id}")
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Housing')
+            ->where('visitor', true)
+            ->where('home.family.name', $otherFamily->name)
+            ->where('home.can_write_text', false));
+
+    $this->post("/housing/visit/{$otherFamily->id}/guestbook", ['kind' => 'preset', 'body' => 'well_done'])->assertRedirect();
+    expect(GuestbookEntry::where('family_id', $otherFamily->id)->value('body'))->toBe('well_done');
 });
 
 it('stellt an der Werkbank her: Materialien und Gold weg, Auftrag mit Echtzeit, Abholen mit Handwerks-XP', function () {

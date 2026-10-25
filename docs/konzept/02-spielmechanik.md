@@ -118,7 +118,9 @@ Die Aufgabenkategorie wählt man beim Anlegen (Pflichtfeld mit Vorschlag). Schwe
 
 **Besuche**: Bündnis-Familien können das Haus besuchen (nur ansehen) und ins **Gästebuch** schreiben. Für Kinder unter 13 gibt es dort nur Emojis und vorgefertigte Texte.
 
-**Home-Assistant-Spielereien (optional)**: Tageszeit und Wetter im Familienhaus spiegeln die echte HA-Wetter-Entität. Ein echter Pflanzensensor (Bodenfeuchte) kann das Gießen des Garten-Beets auslösen.
+**Wetter in der Heldenszene (optional)**: Bei aktiviertem Open-Meteo-Wetter spiegelt die Szene die aktuellen Bedingungen mit Regen-, Schnee-, Wolken- oder Sonneneffekten. Dafür wird der bereits grob gerundete Familienstandort verwendet.
+
+**Home-Assistant-Spielereien (optional)**: Ein echter Pflanzensensor (Bodenfeuchte) kann das Gießen des Garten-Beets auslösen; Wetterereignisse können weiterhin über die HA-Integration ausgelöst werden.
 
 ## 2.7 Quests als isometrische Mini-Dungeons
 

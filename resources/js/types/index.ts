@@ -123,6 +123,7 @@ export interface Task {
 
 export interface AssignedTask extends Task {
     assignment_id: number;
+    steps: { index: number; title: string; done: boolean }[];
     value: number;
     streak: number;
     completed: boolean;
@@ -146,6 +147,19 @@ export interface Member {
     has_email?: boolean;
     stats?: Stats;
     appearance?: Appearance;
+    supportSettings?: {
+        gentle_mode: boolean;
+        gentle_mode_own: boolean | null;
+        focus_mode_default: boolean;
+        feedback_level: 'full' | 'subtle' | 'haptic';
+        reduce_motion: boolean;
+        sound: boolean;
+        haptics: boolean;
+        timer_style: 'disc' | 'digits';
+        max_steps: number;
+        low_energy_per_week: number;
+        ai_steps: boolean;
+    };
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;

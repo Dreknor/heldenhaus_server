@@ -7,6 +7,7 @@ use App\Domain\Support\OpenRouterClient;
 use App\Domain\Support\StepService;
 use App\Domain\Support\SupportService;
 use App\Domain\Support\SurpriseService;
+use App\Http\Presenters\GamePresenter;
 use App\Models\AiRequest;
 use App\Models\DayLog;
 use App\Models\FocusSession;
@@ -17,6 +18,7 @@ use App\Models\Task;
 use App\Models\TaskCompletion;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Http;
+use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Sanctum\Sanctum;
 use Random\Engine\Mt19937;
 use Random\Randomizer;
@@ -223,7 +225,7 @@ it('schlägt Schritte aus Vorlagen und Familie vor und speichert übernommene Sc
 it('fragt OpenRouter nur mit Freigabe, ohne Namen und mit Budget', function () {
     config(['services.openrouter.key' => 'sk-test']);
     Http::fake(['openrouter.ai/*' => Http::response([
-        'choices' => [['message' => ['content' => '{"steps": ["Formular öffnen", "Seite 1 ausfüllen", "Unterschreiben"]}']]],
+        'choices' => [['message' => ['content' => '{"steps": ["Formular öffnen", "Seite 1 ausfüllen", "Unterschreiben"]}'], 'finish_reason' => 'stop']],
         'usage' => ['prompt_tokens' => 80, 'completion_tokens' => 20, 'cost' => 0.0004],
     ])]);
     $task = makeTask($this->parent, ['title' => 'Sommerfest planen', 'notes' => 'bis Freitag']);
@@ -233,14 +235,22 @@ it('fragt OpenRouter nur mit Freigabe, ohne Namen und mit Budget', function () {
     Http::assertNothingSent();
 
     $this->family->update(['settings' => ['ai_enabled' => true]]);
+    SupportSetting::create(['user_id' => $this->parent->id, 'ai_steps' => true]);
     Sanctum::actingAs($this->parent->refresh(), ['app']);
     $this->postJson("/api/v1/tasks/{$task->id}/steps/suggest")->assertOk()
         ->assertJsonPath('suggestion.source', 'ai')->assertJsonPath('suggestion.steps.2', 'Unterschreiben');
 
     Http::assertSent(fn ($r) => ! str_contains($r->body(), $this->parent->name)
         && ! str_contains($r->body(), 'Familie Test')
+        && str_starts_with($r['messages'][0]['content'], 'Du hilfst Erwachsenen')
+        && $r['max_tokens'] === 1600
+        && $r['reasoning'] === ['effort' => 'none', 'exclude' => true]
         && $r['provider']['data_collection'] === 'deny');
-    expect(AiRequest::first())->ok->toBeTrue()->prompt_tokens->toBe(80);
+    expect(AiRequest::first())->ok->toBeTrue()
+        ->prompt_tokens->toBe(80)
+        ->response_status->toBe(200)
+        ->finish_reason->toBe('stop')
+        ->response_payload->toContain('Formular');
 
     // Budget aufgebraucht → keine KI mehr
     AiRequest::create(['family_id' => $this->family->id, 'purpose' => 'steps', 'cost_usd' => 5]);
@@ -254,6 +264,132 @@ it('fragt OpenRouter nur mit Freigabe, ohne Namen und mit Budget', function () {
 
     expect(OpenRouterClient::parse('kein json', 5))->toBeNull()
         ->and(OpenRouterClient::parse('{"steps": ["nur einer"]}', 5))->toBeNull();
+});
+
+it('übernimmt bei aktivierter persönlicher KI-Freigabe beim Anlegen automatisch Schrittvorschläge', function () {
+    config(['services.openrouter.key' => 'sk-test']);
+    $this->family->update(['settings' => ['ai_enabled' => true]]);
+    SupportSetting::create(['user_id' => $this->parent->id, 'ai_steps' => true]);
+    Http::fake(['openrouter.ai/*' => Http::response([
+        'choices' => [['message' => ['content' => '{"steps": ["Unterlagen zusammensuchen", "Formular ausfüllen"]}']]],
+        'usage' => ['prompt_tokens' => 40, 'completion_tokens' => 15, 'cost' => 0.0002],
+    ])]);
+    Sanctum::actingAs($this->parent, ['app']);
+
+    $this->postJson('/api/v1/tasks', [
+        'type' => 'todo',
+        'scope' => 'family',
+        'title' => 'Pflanzen gießen',
+        'category' => 'others',
+        'difficulty' => 1,
+        'approval_mode' => 'none',
+        'assignment_mode' => 'assigned',
+        'assignees' => [$this->parent->id],
+    ])->assertCreated()->assertJsonPath('checklist', []);
+    Http::assertNothingSent();
+
+    $this->postJson('/api/v1/tasks', [
+        'type' => 'todo',
+        'scope' => 'family',
+        'title' => 'Versicherungsformular ausfüllen',
+        'category' => 'others',
+        'difficulty' => 1.5,
+        'approval_mode' => 'none',
+        'assignment_mode' => 'assigned',
+        'assignees' => [$this->parent->id],
+    ])->assertCreated()
+        ->assertJsonPath('checklist', ['Unterlagen zusammensuchen', 'Formular ausfüllen']);
+
+    $createdTask = Task::where('title', 'Versicherungsformular ausfüllen')->firstOrFail();
+    $assignment = $createdTask->assignments()->with('task', 'completions')->firstOrFail();
+    $presentedAssignment = GamePresenter::assignment($assignment);
+    expect($presentedAssignment['checklist'])->toBe(['Unterlagen zusammensuchen', 'Formular ausfüllen'])
+        ->and($presentedAssignment['steps'][0])->toBe([
+            'index' => 0,
+            'title' => 'Unterlagen zusammensuchen',
+            'done' => false,
+        ]);
+
+    Http::assertSent(fn ($request) => $request['model'] === config('services.openrouter.model'));
+    expect(AiRequest::first())->ok->toBeTrue()->prompt_tokens->toBe(40);
+});
+
+it('speichert abgeschnittene Provider-Antworten als Fehler und zeigt sie nur Admins', function () {
+    config(['services.openrouter.key' => 'sk-test']);
+    Http::fake(['openrouter.ai/*' => Http::response([
+        'choices' => [['message' => ['content' => '{"steps": ['], 'finish_reason' => 'length']],
+        'usage' => ['prompt_tokens' => 90, 'completion_tokens' => 300, 'cost' => 0.0008],
+    ])]);
+    $this->family->update(['settings' => ['ai_enabled' => true]]);
+    SupportSetting::create(['user_id' => $this->parent->id, 'ai_steps' => true]);
+
+    expect(app(OpenRouterClient::class)->steps($this->parent, 'Formular sortieren', null, 7))->toBeNull();
+    $request = AiRequest::first();
+    expect($request->ok)->toBeFalse()
+        ->and($request->completion_tokens)->toBe(600)
+        ->and($request->finish_reason)->toBe('length')
+        ->and($request->error_message)->toContain('abgeschnitten');
+
+    $this->actingAs($this->parent)->get('/admin/ai-requests')->assertForbidden();
+
+    $this->parent->forceFill(['is_admin' => true])->save();
+    $this->actingAs($this->parent)->get('/admin/ai-requests')->assertInertia(fn (Assert $page) => $page
+        ->component('admin/AiRequests')
+        ->where('requests.0.ok', false)
+        ->where('requests.0.finish_reason', 'length')
+        ->where('requests.0.response_payload', $request->response_payload));
+});
+
+it('wiederholt bei abgeschnittener Antwort einmal mit höherem Token-Limit', function () {
+    config(['services.openrouter.key' => 'sk-test']);
+    Http::fake([
+        'openrouter.ai/*' => Http::sequence()
+            ->push([
+                'choices' => [['message' => ['content' => '{"steps": ['], 'finish_reason' => 'length']],
+                'usage' => ['prompt_tokens' => 90, 'completion_tokens' => 1600, 'cost' => 0.001],
+            ])
+            ->push([
+                'choices' => [['message' => ['content' => '{"steps": ["Unterlagen sammeln", "Formular ausfüllen"]}'], 'finish_reason' => 'stop']],
+                'usage' => ['prompt_tokens' => 90, 'completion_tokens' => 30, 'cost' => 0.0002],
+            ]),
+    ]);
+
+    expect(app(OpenRouterClient::class)->steps($this->parent, 'Formular ausfüllen', null, 7))
+        ->toBe(['Unterlagen sammeln', 'Formular ausfüllen']);
+
+    Http::assertSentCount(2);
+    Http::assertSent(fn ($request) => $request['max_tokens'] === 1600);
+    Http::assertSent(fn ($request) => $request['max_tokens'] === 3000);
+    $request = AiRequest::first();
+    expect($request->ok)->toBeTrue()
+        ->and($request->prompt_tokens)->toBe(180)
+        ->and($request->completion_tokens)->toBe(1630)
+        ->and($request->finish_reason)->toBe('stop')
+        ->and($request->response_payload)->toContain('finish_reason');
+});
+
+it('Eltern verwalten die Familien-KI-Freigabe und Support-Einstellungen ihrer Kinder', function () {
+    $this->actingAs($this->parent)
+        ->put('/family/support', ['gentle_mode_default' => true, 'ai_enabled' => true, 'ai_budget_usd' => 2.5])
+        ->assertSessionHasNoErrors();
+
+    $this->put("/members/{$this->child->id}/support-settings", [
+        'gentle_mode' => true,
+        'ai_steps' => true,
+        'max_steps' => 6,
+        'low_energy_per_week' => 3,
+    ])->assertSessionHasNoErrors();
+
+    expect($this->family->fresh()->setting('ai_enabled'))->toBeTrue()
+        ->and($this->family->fresh()->setting('ai_budget_usd'))->toBe(2.5)
+        ->and(SupportSetting::find($this->child->id))->ai_steps->toBeTrue()
+        ->and(SupportSetting::find($this->child->id))->max_steps->toBe(6);
+
+    $this->get('/family/settings')->assertInertia(fn (Assert $page) => $page
+        ->component('family/Settings')
+        ->where('family.settings.ai_enabled', true)
+        ->where('openrouterConfigured', false)
+        ->has('members.0.supportSettings.ai_steps'));
 });
 
 // ---------- Kopf-Ablage ----------
@@ -324,4 +460,43 @@ it('Fokus-Zeit: starten, verlängern, gemeinsam schaffen gibt beiden einen Bonus
     $own = $this->postJson('/api/v1/focus-sessions', ['minutes' => 5])->json('id');
     $this->postJson("/api/v1/focus-sessions/{$own}/abort")->assertOk()->assertJsonPath('result', 'aborted');
     $this->postJson("/api/v1/focus-sessions/{$session['id']}/abort")->assertUnprocessable();
+});
+
+it('zeigt Alltagshilfen im Dashboard und unterstützt die Web-Aktionen', function () {
+    $task = makeTask($this->child, ['title' => 'Zimmer aufräumen', 'checklist' => null]);
+    $this->actingAs($this->child);
+
+    $this->get('/dashboard')->assertOk()->assertInertia(fn (Assert $page) => $page
+        ->component('Dashboard')
+        ->has('inbox')
+        ->has('support.low_energy_left')
+        ->where('focus', null)
+        ->where('focusMembers.0.id', $this->parent->id));
+
+    $this->post('/inbox', ['title' => 'Oma anrufen'])->assertRedirect();
+    $captured = Task::where('owner_id', $this->child->id)->where('title', 'Oma anrufen')->firstOrFail();
+    expect($captured->status)->toBe('inbox')->and($captured->category)->toBeNull();
+
+    $this->post("/inbox/{$captured->id}/sort", ['type' => 'todo', 'category' => 'others'])->assertRedirect();
+    expect($captured->fresh()->status)->toBeNull()->and($captured->fresh()->category)->toBe('others');
+
+    $this->post('/inbox', ['title' => 'Später löschen'])->assertRedirect();
+    $toDelete = Task::where('owner_id', $this->child->id)->where('title', 'Später löschen')->firstOrFail();
+    $this->post("/inbox/{$toDelete->id}/sort", ['action' => 'delete'])->assertRedirect();
+    expect($toDelete->fresh()->archived_at)->not->toBeNull();
+
+    $this->post('/me/low-energy')->assertRedirect();
+    expect(SupportService::isLowEnergy($this->child, $this->child->gameDate()))->toBeTrue();
+    $this->delete('/me/low-energy')->assertRedirect();
+
+    $this->post('/focus-sessions', ['minutes' => 15, 'task_id' => $task->id])->assertRedirect();
+    $session = FocusSession::where('user_id', $this->child->id)->whereNull('ended_at')->firstOrFail();
+    $this->post("/focus-sessions/{$session->id}/invite", ['member_id' => $this->parent->id])->assertRedirect();
+    expect(FocusSession::where('user_id', $this->parent->id)->whereNull('ended_at')->exists())->toBeTrue();
+    $this->post("/focus-sessions/{$session->id}/extend", ['minutes' => 5])->assertRedirect();
+    $this->post("/focus-sessions/{$session->id}/abort")->assertRedirect();
+
+    $this->postJson("/tasks/{$task->id}/steps/suggest")->assertOk()->assertJsonPath('suggestion.source', 'template');
+    $this->putJson("/tasks/{$task->id}/steps", ['steps' => ['Kleidung sortieren', 'Boden freiräumen']])
+        ->assertOk()->assertJsonPath('checklist.1', 'Boden freiräumen');
 });
