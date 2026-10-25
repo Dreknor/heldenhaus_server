@@ -104,34 +104,68 @@ class ScoreTask
         $gold = 0.0;
         $hp = 0.0;
 
+        // Tageslimit und sinkende Belohnung (§2.2): jede weitere Wiederholung am selben Tag zählt weniger,
+        // über dem Limit wird nur noch gezählt – ohne Belohnung, Schaden oder Farbwechsel.
+        $habit = self::habitToday($a, $direction);
+        $limited = $habit['limited'];
+        $effective = round($delta * $habit['factor'], 4);
+
         if ($direction === 'up') {
-            $a->value = Formulas::clampValue($valueBefore + $delta);
             $a->counter_up++;
-            [$xp, $gold, $context] = $this->rewards($a, $stats, $delta, $source, 0);
-            $levelUps = Progression::gainXp($stats, $xp);
-            Progression::changeGold($stats, $gold);
+            if (! $limited) {
+                $a->value = Formulas::clampValue($valueBefore + $delta);
+                [$xp, $gold, $context] = $this->rewards($a, $stats, $effective, $source, 0);
+                $levelUps = Progression::gainXp($stats, $xp);
+                Progression::changeGold($stats, $gold);
+            }
         } else {
-            $a->value = Formulas::clampValue($valueBefore - $delta);
             $a->counter_down++;
-            $user = $a->user;
-            $hp = Formulas::damage($delta, $task->difficulty, Attributes::for($stats)['con'], Formulas::ageDamageFactor($user->ageGroup(), $task->family ?? $user->family));
-            $knockedOut = $stats->sleeping ? false : Progression::takeDamage($stats, $hp, $user->family);
-            $hp = $stats->sleeping ? 0.0 : $hp;
+            if (! $limited) {
+                $a->value = Formulas::clampValue($valueBefore - $delta);
+                $user = $a->user;
+                $hp = Formulas::damage($effective, $task->difficulty, Attributes::for($stats)['con'], Formulas::ageDamageFactor($user->ageGroup(), $task->family ?? $user->family));
+                $knockedOut = $stats->sleeping ? false : Progression::takeDamage($stats, $hp, $user->family);
+                $hp = $stats->sleeping ? 0.0 : $hp;
+            }
         }
 
         $a->save();
         $stats->save();
 
-        $completion = $this->record($a, $direction, $valueBefore, $delta, $xp, $gold, -$hp, $source, $uuid, $direction === 'up');
+        $completion = $this->record($a, $direction, $valueBefore, $limited ? 0.0 : $effective, $xp, $gold, -$hp, $source, $uuid, $direction === 'up' && ! $limited);
+        if ($limited) {
+            $completion->forceFill(['effects' => ['habit_daily_limit']])->save();
+        }
 
         $drop = null;
-        if ($direction === 'up') {
-            $this->afterPositive($completion, $a, $stats, $delta, $context);
+        if ($direction === 'up' && ! $limited) {
+            $this->afterPositive($completion, $a, $stats, $effective, $context);
             $drop = $this->drops->roll($completion, $task, $stats);
             $this->surprises->roll($completion, $task, $stats);
         }
 
-        return new ScoreResult($completion, $stats, $levelUps, $knockedOut, drop: $drop);
+        $result = new ScoreResult($completion, $stats, $levelUps, $knockedOut, drop: $drop);
+        $result->habit = ['today' => $habit['today'] + 1, 'limit' => $habit['limit'], 'factor' => $limited ? 0.0 : $habit['factor'], 'limited' => $limited,
+            'color' => Formulas::color($a->value)];
+
+        return $result;
+    }
+
+    /**
+     * Wie oft wurde die Gewohnheit heute schon in diese Richtung gezählt, und was ist die nächste Wiederholung noch wert?
+     *
+     * @return array{today: int, limit: int, factor: float, limited: bool}
+     */
+    public static function habitToday(TaskAssignment $a, string $direction): array
+    {
+        $user = $a->user;
+        $dayStart = $user->gameDate()->addHours($user->day_start ?? 0)->utc();
+        $today = TaskCompletion::where('assignment_id', $a->id)->where('direction', $direction)->where('created_at', '>=', $dayStart)
+            ->whereNotIn('status', [CompletionStatus::Undone, CompletionStatus::Rejected])->count();
+        $limit = (int) ($a->task->daily_limit ?? config('game.habits.daily_limit'));
+        $factor = max((float) config('game.habits.min_factor'), (float) config('game.habits.repeat_factor') ** $today);
+
+        return ['today' => $today, 'limit' => $limit, 'factor' => round($factor, 4), 'limited' => $today >= $limit];
     }
 
     private function complete(TaskAssignment $a, UserStats $stats, string $source, ?string $uuid): ScoreResult

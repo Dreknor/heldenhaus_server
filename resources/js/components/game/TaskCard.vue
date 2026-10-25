@@ -34,16 +34,19 @@ function toggle() {
 }
 
 function scoreNextStep() {
-    if (busy.value) return;
     const nextStep = props.task.steps.find((step) => !step.done);
     if (!nextStep) {
         toggle();
         return;
     }
+    scoreStep(nextStep.index);
+}
 
+function scoreStep(index: number) {
+    if (busy.value || props.task.completed) return;
     busy.value = true;
     router.post(
-        route('steps.score', { assignment: props.task.assignment_id, step: nextStep.index }),
+        route('steps.score', { assignment: props.task.assignment_id, step: index }),
         { client_uuid: newUuid() },
         { preserveScroll: true, onFinish: () => (busy.value = false) },
     );
@@ -114,25 +117,32 @@ function scoreNextStep() {
                     {{ task.steps.find((step) => !step.done)?.title }}
                 </p>
                 <p v-else-if="task.completed" class="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Alle Schritte erledigt</p>
-                <details class="mt-1.5">
-                    <summary class="cursor-pointer text-xs font-semibold text-muted-foreground">
-                        Schritte ansehen ({{ task.steps.filter((step) => step.done).length }}/{{ task.steps.length }})
-                    </summary>
-                    <ol class="mt-2 grid gap-1.5 text-sm">
-                        <li v-for="step in task.steps" :key="step.index" class="flex items-start gap-2">
+                <p class="mt-1.5 text-xs font-semibold text-muted-foreground">
+                    Schritte ({{ task.steps.filter((step) => step.done).length }}/{{ task.steps.length }}) – tippe einen Schritt an, wenn er erledigt
+                    ist
+                </p>
+                <ol class="mt-1.5 grid gap-1 text-sm">
+                    <li v-for="step in task.steps" :key="step.index">
+                        <button
+                            type="button"
+                            class="flex w-full items-start gap-2 rounded-md px-1 py-0.5 text-left transition enabled:hover:bg-black/5 dark:enabled:hover:bg-white/5"
+                            :disabled="step.done || task.completed || busy"
+                            :aria-label="step.done ? `Erledigt: ${step.title}` : `Schritt erledigen: ${step.title}`"
+                            @click="scoreStep(step.index)"
+                        >
                             <Check v-if="step.done" class="mt-0.5 size-4 shrink-0 text-emerald-600" />
-                            <span v-else class="mt-0.5 size-4 shrink-0 rounded-full border border-muted-foreground/50" />
+                            <span v-else class="mt-0.5 size-4 shrink-0 rounded-full border-2 border-muted-foreground/50" />
                             <span :class="step.done ? 'text-muted-foreground line-through' : ''">{{ step.title }}</span>
-                        </li>
-                    </ol>
-                </details>
+                        </button>
+                    </li>
+                </ol>
                 <button
                     v-if="!task.completed && task.steps.some((step) => !step.done)"
                     class="mt-2 rounded-md bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground hover:opacity-90 disabled:opacity-50"
                     :disabled="busy"
                     @click="scoreNextStep"
                 >
-                    Schritt erledigen
+                    Nächsten Schritt erledigen
                 </button>
             </div>
 
@@ -171,7 +181,14 @@ function scoreNextStep() {
                 <span v-if="task.type === 'daily'" class="text-muted-foreground"
                     >{{ notDue ? 'heute frei · ' : '' }}{{ repeatLabel(task.repeat) }}</span
                 >
-                <span v-if="task.type === 'habit' && (task.counter_up || task.counter_down)" class="text-muted-foreground">
+                <span
+                    v-if="task.type === 'habit' && task.habit_today && (task.habit_today.up || task.habit_today.down)"
+                    class="text-muted-foreground"
+                >
+                    heute +{{ task.habit_today.up }}/{{ task.habit_today.limit }}<template v-if="task.down"> · −{{ task.habit_today.down }}</template>
+                    <template v-if="task.up && task.habit_today.next_factor === 0"> · Tageslimit erreicht</template>
+                </span>
+                <span v-else-if="task.type === 'habit' && (task.counter_up || task.counter_down)" class="text-muted-foreground">
                     heute +{{ task.counter_up }}<template v-if="task.down"> / −{{ task.counter_down }}</template>
                 </span>
                 <span v-if="task.type === 'todo' && task.due_date" class="text-muted-foreground"

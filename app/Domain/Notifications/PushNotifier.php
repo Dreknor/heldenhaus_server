@@ -37,6 +37,12 @@ class PushNotifier
         'event_tier' => ['Event-Stufe geschafft!', 'Ihr habt gemeinsam eine Event-Stufe erreicht.'],
     ];
 
+    /**
+     * Diese Arten kommen als reine Datennachricht (data.show = 1, Titel und Text in data), damit die App
+     * die Benachrichtigung selbst baut, z. B. mit einem Bestätigen-Knopf bei Freigaben.
+     */
+    public const DATA_ONLY = ['approval_pending'];
+
     /** @param  User|iterable<User>  $users */
     public function notify(User|iterable $users, string $type, array $data = []): int
     {
@@ -51,8 +57,11 @@ class PushNotifier
             $setting = $user->notificationSetting ?? new NotificationSetting;
             $visible = isset(self::TYPES[$type]) && $setting->allows($type) && ! $setting->isQuiet(CarbonImmutable::now($user->timezone ?? 'Europe/Berlin'));
 
+            $dataOnly = in_array($type, self::DATA_ONLY, true);
+            $payload = self::data($type, $data + ($dataOnly && $visible ? ['show' => '1', 'title' => self::TYPES[$type][0], 'body' => self::TYPES[$type][1]] : []));
+
             foreach ($user->deviceTokens as $device) {
-                SendPushNotification::dispatch($device->id, $visible ? $type : null, self::data($type, $data))->afterCommit();
+                SendPushNotification::dispatch($device->id, $visible && ! $dataOnly ? $type : null, $payload)->afterCommit();
                 $count++;
             }
         }

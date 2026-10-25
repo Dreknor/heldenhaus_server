@@ -14,7 +14,7 @@ class Task extends Model
 {
     protected $fillable = [
         'family_id', 'challenge_id', 'owner_id', 'created_by', 'scope', 'type', 'status', 'is_core', 'title', 'notes', 'category', 'difficulty',
-        'up', 'down', 'repeat', 'start_date', 'due_date', 'checklist', 'is_private', 'approval_mode',
+        'up', 'down', 'daily_limit', 'repeat', 'start_date', 'due_date', 'checklist', 'is_private', 'approval_mode',
         'assignment_mode', 'rotation', 'star_reward', 'team_bonus_gold', 'gold_cost', 'ha_event_key', 'sort', 'archived_at',
     ];
 
@@ -36,6 +36,7 @@ class Task extends Model
             'is_core' => 'boolean',
             'star_reward' => 'integer',
             'gold_cost' => 'integer',
+            'daily_limit' => 'integer',
             'archived_at' => 'datetime',
         ];
     }
@@ -58,6 +59,12 @@ class Task extends Model
     public function completions(): HasMany
     {
         return $this->hasMany(TaskCompletion::class);
+    }
+
+    /** Schritte und KI-Vorschläge gibt es nur für Dailys und To-dos, nicht für Gewohnheiten (§11.2). */
+    public function supportsSteps(): bool
+    {
+        return in_array($this->type, [TaskType::Daily, TaskType::Todo], true);
     }
 
     public function isFamilyTask(): bool
