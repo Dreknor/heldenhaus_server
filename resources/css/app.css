@@ -4,7 +4,8 @@
 
 body,
 html {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans:
+        'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
 @layer base {
@@ -97,6 +98,19 @@ html {
 
     body {
         @apply bg-background text-foreground;
+    }
+
+    /* Seitentitel und Abschnitte im Inhalt in Pixelschrift */
+    main h1,
+    main h2 {
+        @apply font-pixel tracking-wide;
+    }
+
+    /* Karten der Seiten bekommen einen Pergamentrand */
+    main .bg-card.border,
+    main .bg-card.border-2 {
+        border-color: var(--parchment-edge);
+        box-shadow: 0 3px 0 rgb(80 50 20 / 0.18);
     }
 }
 
