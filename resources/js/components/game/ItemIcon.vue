@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { RARITY_COLORS, shade } from '@/lib/avatar';
-import { computed } from 'vue';
+import { emojiUrl } from '@/lib/emoji';
+import { computed, ref } from 'vue';
 
 /**
- * Item-Grafiken (Konzept §2.9, Stufe G2): selbst gezeichnete SVGs im selben Stil wie Avatar und Monster.
- * Bekannte Items haben eigene Motive, neue (im Admin angelegte) Items bekommen das Motiv ihres Typs,
- * eingefärbt nach Seltenheit.
+ * Item-Grafiken (Konzept §2.9): das Icon-Emoji des Items als 3D-Bild (Fluent Emoji), Eier zusätzlich mit dem
+ * Tier, das daraus schlüpft. Gibt es kein Bild (z. B. im Admin mit neuem Emoji angelegt), zeichnen wir das
+ * Motiv des Typs selbst, eingefärbt nach Seltenheit.
  */
 export interface ItemLike {
     key?: string | null;
     type: string;
     slot?: string | null;
     rarity?: string | null;
+    icon?: string | null;
 }
 
 const props = withDefaults(defineProps<{ item: ItemLike; size?: number; framed?: boolean }>(), { size: 48, framed: false });
@@ -21,12 +23,35 @@ const rarity = computed(() => RARITY_COLORS[props.item.rarity ?? 'common'] ?? RA
 const key = computed(() => props.item.key ?? '');
 const uid = Math.random().toString(36).slice(2, 8);
 
+// Eier: das Ei vorn, das Tier daraus klein daneben (Icon-Emoji der Eier ist das Tier)
+const art = computed(() => (key.value.startsWith('egg_') ? emojiUrl('🥚') : emojiUrl(props.item.icon)));
+const petArt = computed(() => (key.value.startsWith('egg_') ? `/images/pets/${key.value.slice(4)}.webp` : null));
+const petMissing = ref(false);
+
 /** Motiv: zuerst nach Schlüssel, sonst nach Typ/Slot. */
 const motif = computed(() => {
     const k = key.value;
     if (k.startsWith('egg_')) return 'egg';
     if (k.startsWith('potion_') && props.item.type === 'hatching_potion') return 'hatch';
-    const known = ['food_apple', 'food_cake', 'wood', 'stone', 'ink', 'crystal_shard', 'herbs', 'feather', 'paint', 'stardust', 'potion_health', 'potion_mana', 'head_cap', 'weapon_wooden_sword', 'shield_lid', 'armor_hoodie', 'accessory_glasses'];
+    const known = [
+        'food_apple',
+        'food_cake',
+        'wood',
+        'stone',
+        'ink',
+        'crystal_shard',
+        'herbs',
+        'feather',
+        'paint',
+        'stardust',
+        'potion_health',
+        'potion_mana',
+        'head_cap',
+        'weapon_wooden_sword',
+        'shield_lid',
+        'armor_hoodie',
+        'accessory_glasses',
+    ];
     if (known.includes(k)) return k;
     if (props.item.type === 'equipment') return `slot_${props.item.slot ?? 'armor'}`;
     return `type_${props.item.type}`;
@@ -47,7 +72,28 @@ const liquid = computed(() => HATCH[key.value] ?? rarity.value);
 <template>
     <span class="relative inline-flex shrink-0 items-center justify-center" :style="{ width: `${size}px`, height: `${size}px` }">
         <span v-if="framed" class="absolute inset-0 rounded-xl opacity-20" :style="{ background: rarity }" />
-        <svg viewBox="0 0 64 64" :width="size" :height="size" xmlns="http://www.w3.org/2000/svg" stroke-linejoin="round" stroke-linecap="round" class="relative" aria-hidden="true">
+        <template v-if="art">
+            <img :src="art" alt="" class="relative h-[86%] w-[86%] object-contain drop-shadow-sm" draggable="false" />
+            <img
+                v-if="petArt && !petMissing"
+                :src="petArt"
+                alt=""
+                class="absolute bottom-0 right-0 h-1/2 w-1/2 object-contain drop-shadow"
+                draggable="false"
+                @error="petMissing = true"
+            />
+        </template>
+        <svg
+            v-else
+            viewBox="0 0 64 64"
+            :width="size"
+            :height="size"
+            xmlns="http://www.w3.org/2000/svg"
+            stroke-linejoin="round"
+            stroke-linecap="round"
+            class="relative"
+            aria-hidden="true"
+        >
             <defs>
                 <linearGradient :id="`rb-${uid}`" x1="0" x2="1">
                     <stop offset="0" stop-color="#f87171" />
@@ -110,7 +156,11 @@ const liquid = computed(() => HATCH[key.value] ?? rarity.value);
                 </template>
                 <template v-else-if="motif === 'herbs'">
                     <path d="M32 56 V20" fill="none" stroke="#166534" />
-                    <path d="M32 40 Q14 40 12 24 Q28 22 32 38 Z M32 32 Q50 32 52 16 Q36 14 32 30 Z M32 22 Q24 12 30 4 Q38 12 32 22 Z" fill="#22c55e" stroke-width="2.5" />
+                    <path
+                        d="M32 40 Q14 40 12 24 Q28 22 32 38 Z M32 32 Q50 32 52 16 Q36 14 32 30 Z M32 22 Q24 12 30 4 Q38 12 32 22 Z"
+                        fill="#22c55e"
+                        stroke-width="2.5"
+                    />
                 </template>
                 <template v-else-if="motif === 'feather'">
                     <path d="M48 6 Q20 14 16 44 L22 48 Q46 40 48 6 Z" fill="#e0f2fe" />

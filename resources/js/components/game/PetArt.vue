@@ -1,25 +1,64 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 /**
- * Haustiere (Konzept §2.9): je Tierart eine Vorlage, gefärbt nach Schlüpfpulver.
- * Reittiere sind größer und tragen einen Sattel.
+ * Haustiere (Konzept §2.9): Bild der Tierart (Fluent Emoji 3D, public/images/pets) mit einem Schimmer
+ * in der Farbe des Schlüpfpulvers. Fehlt ein Bild, zeichnet die SVG-Vorlage das Tier.
+ * Reittiere sind größer und stehen auf einem goldenen Podest (ein aufgesetzter Sattel landete bei
+ * den unterschiedlichen Tierbildern oft mitten im Gesicht).
  */
 const props = withDefaults(defineProps<{ egg: string; potion: string; mount?: boolean; size?: number }>(), { mount: false, size: 96 });
 
 const ink = '#1f2937';
+// Farben der Schlüpfpulver (wie stats.palette in database/content/items.json)
 const PALETTES: Record<string, { main: string; belly: string }> = {
     potion_fire: { main: '#f97316', belly: '#fde047' },
     potion_ice: { main: '#7dd3fc', belly: '#f0f9ff' },
+    potion_forest: { main: '#4d7c0f', belly: '#d9f99d' },
+    potion_stone: { main: '#78716c', belly: '#e7e5e4' },
+    potion_ocean: { main: '#0f766e', belly: '#99f6e4' },
+    potion_candy: { main: '#f472b6', belly: '#fce7f3' },
+    potion_golden: { main: '#eab308', belly: '#fef9c3' },
+    potion_shadow: { main: '#312e81', belly: '#a5b4fc' },
+    potion_spooky: { main: '#ea580c', belly: '#581c87' },
+    potion_frost_star: { main: '#e0f2fe', belly: '#dc2626' },
+    potion_pastel: { main: '#c4b5fd', belly: '#fef08a' },
+    potion_sunny: { main: '#f59e0b', belly: '#fde68a' },
+    potion_mint: { main: '#34d399', belly: '#d1fae5' },
+    potion_berry: { main: '#7c3aed', belly: '#ede9fe' },
+    potion_coral: { main: '#fb7185', belly: '#ffe4e6' },
+    potion_cloud: { main: '#e2e8f0', belly: '#ffffff' },
+    potion_autumn: { main: '#c2410c', belly: '#fed7aa' },
+    potion_night_sky: { main: '#1e3a8a', belly: '#fde047' },
+    potion_crystal: { main: '#67e8f9', belly: '#f0abfc' },
     potion_rainbow: { main: 'url(#rainbow)', belly: '#fef3c7' },
 };
 const p = computed(() => PALETTES[props.potion] ?? { main: '#a3a3a3', belly: '#f5f5f4' });
 const species = computed(() => props.egg.replace(/^egg_/, ''));
 const uid = Math.random().toString(36).slice(2, 8);
+const imageFailed = ref(false);
+const width = computed(() => (props.mount ? props.size * 1.3 : props.size));
+const glow = computed(() =>
+    props.potion === 'potion_rainbow'
+        ? 'conic-gradient(from 0deg, #f87171, #facc15, #4ade80, #818cf8, #f87171)'
+        : `radial-gradient(circle, ${p.value.main} 0%, ${p.value.belly} 45%, transparent 70%)`,
+);
 </script>
 
 <template>
+    <span
+        v-if="!imageFailed"
+        class="pet pet-image"
+        role="img"
+        :aria-label="`Haustier ${species}`"
+        :style="{ width: `${width}px`, height: `${width * 0.92}px` }"
+    >
+        <span class="pet-glow" :style="{ background: glow }" />
+        <span v-if="mount" class="pet-podest" aria-hidden="true" />
+        <img :src="`/images/pets/${species}.webp`" alt="" loading="lazy" @error="imageFailed = true" />
+    </span>
     <svg
+        v-else
         viewBox="0 0 120 110"
         :width="mount ? size * 1.3 : size"
         :height="(mount ? size * 1.3 : size) * 0.92"
@@ -120,6 +159,33 @@ const uid = Math.random().toString(36).slice(2, 8);
 </template>
 
 <style scoped>
+.pet-image {
+    position: relative;
+    display: inline-block;
+}
+.pet-glow {
+    position: absolute;
+    inset: 12% 8% 0;
+    border-radius: 9999px;
+    opacity: 0.55;
+    filter: blur(6px);
+}
+.pet-image img {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.pet-podest {
+    position: absolute;
+    left: 14%;
+    right: 14%;
+    bottom: -2%;
+    height: 12%;
+    border-radius: 9999px;
+    background: radial-gradient(ellipse at center, #fde68a 0%, #f59e0b 60%, #b45309 100%);
+    box-shadow: 0 2px 6px rgb(0 0 0 / 25%);
+}
 .pet {
     overflow: visible;
     animation: bob 2.2s ease-in-out infinite;

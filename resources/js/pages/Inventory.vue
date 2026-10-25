@@ -16,7 +16,7 @@ interface Item {
     slot: string | null;
     rarity: string;
     icon: string;
-    stats: Record<string, number> | null;
+    stats: Record<string, unknown> | null;
     price_gold: number | null;
     min_level: number;
     quantity?: number;
@@ -57,8 +57,10 @@ function hatch() {
 }
 
 const statNames: Record<string, string> = { str: 'Kraft', int: 'Köpfchen', con: 'Ausdauer', per: 'Spürsinn', heal: 'HP', mana: 'Mana' };
-const statText = (stats: Record<string, number> | null) =>
+// Nur Werte-Boni zeigen; Größe (w/h), Lieblingstiere, Farben u. Ä. sind keine Boni
+const statText = (stats: Record<string, unknown> | null) =>
     Object.entries(stats ?? {})
+        .filter(([k, v]) => typeof v === 'number' && k !== 'w' && k !== 'h')
         .map(([k, v]) => `+${v} ${statNames[k] ?? k}`)
         .join(', ');
 

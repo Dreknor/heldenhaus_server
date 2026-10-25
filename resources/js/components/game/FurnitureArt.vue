@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { emojiUrl } from '@/lib/emoji';
 import { computed } from 'vue';
 
 const props = withDefaults(defineProps<{ itemKey: string; icon: string; name?: string; master?: boolean }>(), {
@@ -20,6 +21,8 @@ const pixelSprites: Record<string, string> = {
     furn_wall_shelf: 'shelf',
 };
 const pixelSprite = computed(() => pixelSprites[props.itemKey]);
+// Für Möbel ohne eigene Zeichnung: 3D-Bild des Icon-Emojis (Fluent Emoji) statt Text-Emoji auf der Kiste
+const emojiArt = computed(() => emojiUrl(props.icon));
 </script>
 
 <template>
@@ -316,6 +319,7 @@ const pixelSprite = computed(() => pixelSprites[props.itemKey]);
                 <path d="M50 62v15m-14 8h28v-8H36z" fill="#d39a39" />
                 <path d="m50 27 3 7 7 .5-5.5 4.5 2 7-6.5-4-6.5 4 2-7-5.5-4.5 7-.5z" fill="#fff4bd" stroke="none" />
             </template>
+            <image v-else-if="emojiArt" :href="emojiArt" x="12" y="10" width="76" height="76" preserveAspectRatio="xMidYMid meet" />
             <template v-else>
                 <path d="M20 36h60v42H20z" fill="#b77b4c" />
                 <path d="M15 31h70v10H15z" fill="#dda765" />
