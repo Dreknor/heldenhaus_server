@@ -75,7 +75,7 @@ class DungeonService
         });
     }
 
-    /** Solo-Gewölbe (3 Räume) pro Tag – für alle, die ihre Dailies schon geschafft haben. */
+    /** Solo-Gewölbe (5 Räume) pro Tag – für alle, die ihre Dailies schon geschafft haben. */
     public function solo(User $user): Dungeon
     {
         $today = $user->gameDate();
@@ -106,6 +106,14 @@ class DungeonService
         ]);
     }
 
+    /** Solo-Gewölbe bleiben nach dem Schatz bis zum Tagesende offen, damit man die übrigen Räume noch erkunden kann. */
+    public static function playable(Dungeon $dungeon): bool
+    {
+        $open = $dungeon->status === 'active' || ($dungeon->kind === 'solo' && $dungeon->status === 'completed');
+
+        return $open && ! $dungeon->ends_at->isPast();
+    }
+
     /** Für 9–12 leichter, sobald ein Kind in der Familie mitspielt. */
     public static function familyMode(int $familyId): string
     {
@@ -125,7 +133,7 @@ class DungeonService
         $result = DB::transaction(function () use ($user, $dungeon, $action, $input, $clientUuid) {
             $dungeon = Dungeon::lockForUpdate()->findOrFail($dungeon->id);
             $this->ensureAccess($user, $dungeon);
-            if ($dungeon->status !== 'active' || $dungeon->ends_at->isPast()) {
+            if (! self::playable($dungeon)) {
                 throw new GameException('Dieser Dungeon ist vorbei.');
             }
 
@@ -779,6 +787,7 @@ class DungeonService
             'status' => $dungeon->status,
             'ends_at' => $dungeon->ends_at->toIso8601String(),
             'boss_unlocked' => $dungeon->boss_unlocked,
+            'playable' => self::playable($dungeon),
             'quest_id' => $dungeon->quest_id,
             'rooms' => $rooms,
             'edges' => $visible->map(fn ($e) => ['a' => $e['a'], 'b' => $e['b'], 'kind' => $e['kind'], 'was' => $e['was'] ?? null])->values(),

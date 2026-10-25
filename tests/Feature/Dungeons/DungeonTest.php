@@ -345,7 +345,12 @@ it('öffnet das Solo-Gewölbe erst, wenn die Dailies geschafft sind, und schlie�
     foreach (array_slice($path, 1) as $room) {
         act($this->child, $d, 'move', ['to' => $room])->assertOk();
     }
-    act($this->child, $d, 'interact')->assertOk()->assertJsonPath('dungeon.status', 'completed');
+    act($this->child, $d, 'interact')->assertOk()->assertJsonPath('dungeon.status', 'completed')->assertJsonPath('dungeon.playable', true);
+
+    // Nach dem Schatz bleibt das Gewölbe bis zum Tagesende offen: zurückgehen geht noch
+    act($this->child, $d, 'move', ['to' => $path[count($path) - 2]])->assertOk();
+    $d->update(['ends_at' => now()->subMinute()]);
+    act($this->child, $d, 'move', ['to' => end($path)])->assertStatus(422);
     expect(count($path))->toBeBetween(2, 5);
 });
 

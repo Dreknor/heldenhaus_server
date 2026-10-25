@@ -34,6 +34,7 @@ type Dungeon = {
     mode: string;
     status: string;
     boss_unlocked: boolean;
+    playable: boolean;
     rooms: Room[];
     edges: { a: number; b: number; kind: string }[];
     members: {
@@ -271,7 +272,15 @@ function doorLabel(kind: string, target: number) {
                     >
                         <template #action>
                             <span class="hh-button shrink-0 border-[var(--wood-edge)] bg-black/30 px-2 py-0.5 text-xs text-amber-50">
-                                {{ dungeon.status === 'active' ? '🟢 Läuft' : dungeon.status === 'completed' ? '🏆 Geschafft' : '⌛ Vorbei' }}
+                                {{
+                                    dungeon.status === 'completed'
+                                        ? dungeon.playable
+                                            ? '🏆 Geschafft · weiter erkunden'
+                                            : '🏆 Geschafft'
+                                        : dungeon.playable
+                                          ? '🟢 Läuft'
+                                          : '⌛ Vorbei'
+                                }}
                             </span>
                         </template>
                         <DungeonMap
@@ -284,7 +293,7 @@ function doorLabel(kind: string, target: number) {
                             :my-id="currentUserId"
                             :room-icons="roomIcons"
                             :room-names="roomNames"
-                            :interactive="dungeon.status === 'active' && !pending"
+                            :interactive="dungeon.playable && !pending"
                             @door="onDoor"
                             @monster="act('fight', { move: 'attack' })"
                         />
@@ -352,7 +361,7 @@ function doorLabel(kind: string, target: number) {
                                         <p class="mt-1 text-xs font-bold tabular-nums">{{ currentMonster.hp }} / {{ currentMonster.max_hp }} HP</p>
                                     </div>
                                 </div>
-                                <div v-if="monsterAlive && dungeon.status === 'active'" class="mt-3 flex flex-wrap gap-2">
+                                <div v-if="monsterAlive && dungeon.playable" class="mt-3 flex flex-wrap gap-2">
                                     <Button :disabled="pending || dungeon.me.torches < 1" @click="act('fight', { move: 'attack' })"
                                         >⚔️ Angreifen</Button
                                     >
@@ -392,11 +401,7 @@ function doorLabel(kind: string, target: number) {
                                         · {{ item.icon }} {{ item.amount }}× {{ item.name }}</template
                                     >
                                 </p>
-                                <Button
-                                    v-if="!currentRoom.chest.opened && dungeon.status === 'active'"
-                                    class="mt-2"
-                                    :disabled="pending"
-                                    @click="interact()"
+                                <Button v-if="!currentRoom.chest.opened && dungeon.playable" class="mt-2" :disabled="pending" @click="interact()"
                                     >🧰 Truhe öffnen</Button
                                 >
                             </div>
@@ -406,7 +411,7 @@ function doorLabel(kind: string, target: number) {
                                     Hinweis: {{ currentRoom.puzzle.hint }}
                                 </p>
                                 <form
-                                    v-if="!currentRoom.puzzle.solved && dungeon.status === 'active'"
+                                    v-if="!currentRoom.puzzle.solved && dungeon.playable"
                                     class="mt-2 flex gap-2"
                                     @submit.prevent="interact({ answer })"
                                 >
@@ -423,7 +428,7 @@ function doorLabel(kind: string, target: number) {
                             <div v-if="currentRoom.trap" class="mb-3 rounded-xl bg-orange-50 p-3 text-sm dark:bg-orange-950/30">
                                 <p class="font-bold">{{ currentRoom.trap.sprung ? 'Die Falle wurde ausgelöst.' : 'Hier lauert eine Falle.' }}</p>
                                 <Button
-                                    v-if="!currentRoom.trap.sprung && dungeon.status === 'active'"
+                                    v-if="!currentRoom.trap.sprung && dungeon.playable"
                                     class="mt-2"
                                     variant="outline"
                                     :disabled="pending"
@@ -433,7 +438,7 @@ function doorLabel(kind: string, target: number) {
                             </div>
                             <div v-if="currentRoom.campfire" class="mb-3 rounded-xl bg-orange-50 p-3 text-sm dark:bg-orange-950/30">
                                 <p class="font-bold">Ein Lagerfeuer spendet Wärme und heilt dich.</p>
-                                <Button class="mt-2" variant="outline" :disabled="pending || dungeon.status !== 'active'" @click="interact()"
+                                <Button class="mt-2" variant="outline" :disabled="pending || !dungeon.playable" @click="interact()"
                                     >🔥 Am Feuer ausruhen</Button
                                 >
                             </div>
@@ -442,7 +447,7 @@ function doorLabel(kind: string, target: number) {
                                     {{ currentRoom.lever.pulled ? 'Der Mechanismus wurde ausgelöst.' : 'Ein geheimnisvoller Hebel.' }}
                                 </p>
                                 <Button
-                                    v-if="!currentRoom.lever.pulled && dungeon.status === 'active'"
+                                    v-if="!currentRoom.lever.pulled && dungeon.playable"
                                     class="mt-2"
                                     variant="outline"
                                     :disabled="pending"
@@ -457,7 +462,7 @@ function doorLabel(kind: string, target: number) {
                                         v-for="offer in merchantOffers"
                                         :key="offer.key"
                                         variant="outline"
-                                        :disabled="pending || dungeon.status !== 'active'"
+                                        :disabled="pending || !dungeon.playable"
                                         @click="interact({ buy: offer.key })"
                                         >{{ offer.icon }} {{ offer.name }} · {{ offer.price }} Gold</Button
                                     >
@@ -466,9 +471,7 @@ function doorLabel(kind: string, target: number) {
                         </template>
                         <div
                             v-if="
-                                inventory.healingPotions.some((potion) => potion.count > 0) &&
-                                dungeon.status === 'active' &&
-                                dungeon.me.hp < dungeon.me.max_hp
+                                inventory.healingPotions.some((potion) => potion.count > 0) && dungeon.playable && dungeon.me.hp < dungeon.me.max_hp
                             "
                             class="mb-4 flex flex-wrap gap-2"
                         >
@@ -482,7 +485,7 @@ function doorLabel(kind: string, target: number) {
                                 {{ potion.icon }} {{ potion.name }} · {{ potion.count }}
                             </Button>
                         </div>
-                        <div v-if="currentRoom?.doors && dungeon.status === 'active'" class="space-y-2 border-t pt-4">
+                        <div v-if="currentRoom?.doors && dungeon.playable" class="space-y-2 border-t pt-4">
                             <p class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Ausgänge</p>
                             <template v-for="(door, side) in currentRoom.doors" :key="side">
                                 <div v-if="door" class="flex flex-wrap items-center gap-2 rounded-lg border p-2">
