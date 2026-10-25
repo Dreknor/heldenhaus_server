@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Emoji from '@/components/game/Emoji.vue';
 import CollectArt from '@/components/game/CollectArt.vue';
 import MonsterArt, { type MonsterArtConfig } from '@/components/game/MonsterArt.vue';
 import QuestCard, { type ActiveQuest } from '@/components/game/QuestCard.vue';
@@ -91,7 +92,7 @@ const cat = (key?: string) => (key ? (props.categories[key] ?? key) : '');
                                     <p class="font-extrabold">{{ o.name }}</p>
                                     <p class="text-xs text-muted-foreground">
                                         <template v-if="o.type === 'boss'"><Swords class="inline size-3" /> Boss · {{ o.goal }} HP</template>
-                                        <template v-else>{{ o.item_icon }} Sammle {{ o.goal }} {{ o.item_name }}</template>
+                                        <template v-else><Emoji :glyph="o.item_icon" /> Sammle {{ o.goal }} {{ o.item_name }}</template>
                                         · {{ o.days }} Tage
                                     </p>
                                 </div>
@@ -128,7 +129,7 @@ const cat = (key?: string) => (key ? (props.categories[key] ?? key) : '');
                                 <p class="font-extrabold">{{ o.name }}</p>
                                 <p class="text-xs text-muted-foreground">
                                     <template v-if="o.type === 'boss'">Boss · {{ o.goal }} HP</template>
-                                    <template v-else>{{ o.item_icon }} Sammle {{ o.goal }} {{ o.item_name }}</template>
+                                    <template v-else><Emoji :glyph="o.item_icon" /> Sammle {{ o.goal }} {{ o.item_name }}</template>
                                     · {{ o.days }} Tage
                                 </p>
                             </div>
@@ -165,7 +166,7 @@ const cat = (key?: string) => (key ? (props.categories[key] ?? key) : '');
                 <h2 class="font-extrabold">Bisherige Abenteuer</h2>
                 <div class="divide-y rounded-xl border bg-card">
                     <div v-for="h in history" :key="h.id" class="flex items-center gap-3 p-3 text-sm">
-                        <span class="text-xl">{{ h.icon }}</span>
+                        <span class="text-xl"><Emoji :glyph="h.icon" /></span>
                         <span class="font-semibold">{{ h.name }}</span>
                         <span class="text-xs text-muted-foreground">{{ h.scope === 'family' ? 'Familie' : 'Solo' }} · {{ h.date }}</span>
                         <span class="ml-auto text-xs font-bold">{{ statusLabel[h.status] }}</span>

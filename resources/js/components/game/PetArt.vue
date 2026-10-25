@@ -4,7 +4,8 @@ import { computed, ref } from 'vue';
 /**
  * Haustiere (Konzept §2.9): Bild der Tierart (Fluent Emoji 3D, public/images/pets) mit einem Schimmer
  * in der Farbe des Schlüpfpulvers. Fehlt ein Bild, zeichnet die SVG-Vorlage das Tier.
- * Reittiere sind größer und tragen einen Sattel.
+ * Reittiere sind größer und stehen auf einem goldenen Podest (ein aufgesetzter Sattel landete bei
+ * den unterschiedlichen Tierbildern oft mitten im Gesicht).
  */
 const props = withDefaults(defineProps<{ egg: string; potion: string; mount?: boolean; size?: number }>(), { mount: false, size: 96 });
 
@@ -53,8 +54,8 @@ const glow = computed(() =>
         :style="{ width: `${width}px`, height: `${width * 0.92}px` }"
     >
         <span class="pet-glow" :style="{ background: glow }" />
+        <span v-if="mount" class="pet-podest" aria-hidden="true" />
         <img :src="`/images/pets/${species}.webp`" alt="" loading="lazy" @error="imageFailed = true" />
-        <span v-if="mount" class="pet-saddle" aria-hidden="true" />
     </span>
     <svg
         v-else
@@ -175,15 +176,15 @@ const glow = computed(() =>
     height: 100%;
     object-fit: contain;
 }
-.pet-saddle {
+.pet-podest {
     position: absolute;
-    left: 36%;
-    top: 46%;
-    width: 28%;
+    left: 14%;
+    right: 14%;
+    bottom: -2%;
     height: 12%;
-    border: 2px solid #1f2937;
-    border-radius: 40% 40% 30% 30%;
-    background: #b91c1c;
+    border-radius: 9999px;
+    background: radial-gradient(ellipse at center, #fde68a 0%, #f59e0b 60%, #b45309 100%);
+    box-shadow: 0 2px 6px rgb(0 0 0 / 25%);
 }
 .pet {
     overflow: visible;

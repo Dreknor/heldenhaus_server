@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Emoji from '@/components/game/Emoji.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -132,7 +133,7 @@ const date = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('de
                             :checked="form.events[eventItem.key]"
                             @change="toggleRecord('events', eventItem.key, $event)"
                         />
-                        <span class="text-xl">{{ eventItem.icon }}</span>
+                        <span class="text-xl"><Emoji :glyph="eventItem.icon" /></span>
                         <span class="min-w-0 flex-1">
                             <span class="block font-bold">{{ eventItem.name }}</span>
                             <span class="block text-sm text-muted-foreground">{{ eventItem.description }}</span>
@@ -162,8 +163,7 @@ const date = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('de
                             :disabled="!form.fun_events"
                             @change="toggleRecord('fun', funItem.key, $event)"
                         />
-                        <span>{{ funItem.icon }}</span
-                        ><span class="font-semibold">{{ funItem.name }}</span>
+                        <span><Emoji :glyph="funItem.icon" /></span><span class="font-semibold">{{ funItem.name }}</span>
                     </label>
                 </div>
             </section>
@@ -198,8 +198,7 @@ const date = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('de
                 <h2 class="text-lg font-extrabold">Vorschau des Ereigniskalenders</h2>
                 <div v-if="calendar.length" class="divide-y rounded-2xl border bg-card">
                     <div v-for="entry in calendar" :key="`${entry.key}-${entry.from}`" class="flex items-center gap-3 p-3">
-                        <span class="text-xl">{{ entry.icon }}</span
-                        ><span class="flex-1 font-semibold">{{ entry.name }}</span>
+                        <span class="text-xl"><Emoji :glyph="entry.icon" /></span><span class="flex-1 font-semibold">{{ entry.name }}</span>
                         <span class="text-sm text-muted-foreground">{{ date(entry.from) }} – {{ date(entry.to) }}</span>
                     </div>
                 </div>

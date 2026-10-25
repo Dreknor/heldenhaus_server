@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Emoji from '@/components/game/Emoji.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -81,7 +82,7 @@ const classTrialForm = useForm({ class: '' });
     >
         <div class="flex min-w-0 flex-1 flex-col gap-6 p-4 md:p-6">
             <header class="flex items-start gap-4">
-                <span class="text-5xl" aria-hidden="true">{{ icon }}</span>
+                <span class="text-5xl" aria-hidden="true"><Emoji :glyph="icon" /></span>
                 <div class="min-w-0 flex-1">
                     <div class="flex flex-wrap items-center gap-2">
                         <h1 class="text-2xl font-extrabold tracking-tight">{{ name }}</h1>
@@ -158,7 +159,7 @@ const classTrialForm = useForm({ class: '' });
                         class="flex min-h-24 flex-col items-center justify-center gap-1 rounded-xl border bg-card p-2 text-center"
                     >
                         <template v-if="door.opened">
-                            <span class="text-2xl">{{ door.opened.icon }}</span>
+                            <span class="text-2xl"><Emoji :glyph="door.opened.icon" /></span>
                             <span class="text-[11px] font-semibold">{{ door.opened.name }}</span>
                         </template>
                         <template v-else-if="door.available && isRunning()">
@@ -181,7 +182,7 @@ const classTrialForm = useForm({ class: '' });
                 <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     <article v-for="offer in merchant" :key="offer.item" class="grid gap-2 rounded-2xl border bg-card p-4">
                         <div class="flex items-center gap-3">
-                            <span class="text-3xl">{{ offer.icon }}</span>
+                            <span class="text-3xl"><Emoji :glyph="offer.icon" /></span>
                             <div>
                                 <h3 class="font-bold">{{ offer.name }}</h3>
                                 <p class="text-sm text-amber-600">{{ offer.price }} Gold</p>
@@ -196,7 +197,7 @@ const classTrialForm = useForm({ class: '' });
 
             <section v-if="quest" class="rounded-2xl border bg-card p-4">
                 <h2 class="font-extrabold">Gemeinsame Quest</h2>
-                <p class="mt-1 text-sm">{{ quest.icon }} {{ quest.name }}</p>
+                <p class="mt-1 text-sm"><Emoji :glyph="quest.icon" /> {{ quest.name }}</p>
             </section>
 
             <section v-if="features.includes('secret_help') && secret_help" class="grid gap-3 rounded-2xl border bg-card p-4">

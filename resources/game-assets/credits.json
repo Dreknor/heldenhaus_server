@@ -49,6 +49,18 @@
         ]
     },
     {
+        "title": "Gegenstände und Symbole: Fluent Emoji (3D)",
+        "author": "Microsoft Corporation",
+        "author_url": "https://github.com/microsoft/fluentui-emoji",
+        "source_url": "https://github.com/microsoft/fluentui-emoji",
+        "license": "MIT",
+        "license_url": "https://github.com/microsoft/fluentui-emoji/blob/main/LICENSE",
+        "changes": "Das Icon-Emoji jedes Gegenstands, jeder Quest, jedes Events und Bauprojekts als 3D-Bild (128 px, WebP), erzeugt mit tools/emoji/build_emoji.py.",
+        "files": [
+            "public/images/emoji"
+        ]
+    },
+    {
         "title": "Dungeon-Bausteine: Isometric Miniature Dungeon",
         "author": "Kenney",
         "author_url": "https://kenney.nl",

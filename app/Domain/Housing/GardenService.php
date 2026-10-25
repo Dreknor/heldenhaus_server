@@ -4,6 +4,7 @@ namespace App\Domain\Housing;
 
 use App\Domain\Achievements\AchievementService;
 use App\Domain\Crafting\Catalog;
+use App\Domain\Dungeons\DungeonService;
 use App\Domain\Events\EventEngine;
 use App\Domain\Features\Features;
 use App\Domain\Gameplay\GameException;
@@ -130,6 +131,8 @@ class GardenService
         return [
             'plants' => collect(Catalog::plants())->map(fn ($p) => [
                 'key' => $p['key'], 'name' => $p['name'], 'icon' => $p['icon'], 'cost' => $p['cost'], 'waterings' => $p['waterings'], 'hours' => $p['hours'], 'yield' => $p['yield'],
+                // Saatgut und Ernte mit deutschem Namen und Symbol für die Anzeige
+                'cost_items' => DungeonService::lootList($p['cost']), 'yield_items' => DungeonService::lootList($p['yield']),
             ])->values(),
             'plots' => self::plots($home)->map(fn (GardenPlot $plot) => [
                 'slot' => $plot->slot,

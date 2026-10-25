@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import DungeonMap from '@/components/game/DungeonMap.vue';
+import Emoji from '@/components/game/Emoji.vue';
 import GamePanel from '@/components/game/GamePanel.vue';
 import MonsterArt, { type MonsterArtConfig } from '@/components/game/MonsterArt.vue';
 import { Button } from '@/components/ui/button';
@@ -230,7 +231,9 @@ function doorLabel(kind: string, target: number) {
                 <p v-if="lastResult.found?.length || lastResult.gold" class="mt-2 text-sm font-bold">
                     Beute:
                     <template v-if="lastResult.gold">🪙 {{ lastResult.gold }} Gold</template>
-                    <template v-for="item in lastResult.found ?? []" :key="item.key"> · {{ item.icon }} {{ item.amount }}× {{ item.name }}</template>
+                    <template v-for="item in lastResult.found ?? []" :key="item.key">
+                        · <Emoji :glyph="item.icon" /> {{ item.amount }}× {{ item.name }}</template
+                    >
                 </p>
                 <p v-else-if="lastResult.loot" class="mt-2 text-sm font-bold">
                     Beute:
@@ -398,7 +401,7 @@ function doorLabel(kind: string, target: number) {
                                     Darin war:
                                     <template v-if="currentRoom.chest.gold">🪙 {{ currentRoom.chest.gold }} Gold</template>
                                     <template v-for="item in currentRoom.chest.found ?? []" :key="item.key">
-                                        · {{ item.icon }} {{ item.amount }}× {{ item.name }}</template
+                                        · <Emoji :glyph="item.icon" /> {{ item.amount }}× {{ item.name }}</template
                                     >
                                 </p>
                                 <Button v-if="!currentRoom.chest.opened && dungeon.playable" class="mt-2" :disabled="pending" @click="interact()"
@@ -464,7 +467,7 @@ function doorLabel(kind: string, target: number) {
                                         variant="outline"
                                         :disabled="pending || !dungeon.playable"
                                         @click="interact({ buy: offer.key })"
-                                        >{{ offer.icon }} {{ offer.name }} · {{ offer.price }} Gold</Button
+                                        ><Emoji :glyph="offer.icon" /> {{ offer.name }} · {{ offer.price }} Gold</Button
                                     >
                                 </div>
                             </div>
@@ -482,7 +485,7 @@ function doorLabel(kind: string, target: number) {
                                 :disabled="pending"
                                 @click="usePotion(potion.id)"
                             >
-                                {{ potion.icon }} {{ potion.name }} · {{ potion.count }}
+                                <Emoji :glyph="potion.icon" /> {{ potion.name }} · {{ potion.count }}
                             </Button>
                         </div>
                         <div v-if="currentRoom?.doors && dungeon.playable" class="space-y-2 border-t pt-4">

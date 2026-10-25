@@ -328,6 +328,7 @@ class DungeonService
             [$events, $loot] = $this->defeat($t, $id, $monster);
             $result['events'] = array_merge($log, $events);
             $result['loot'] = $loot;
+            $result['found'] = self::lootList($loot);
 
             return $result;
         }
@@ -446,7 +447,7 @@ class DungeonService
         $loot = $this->rollLoot($t, 2, rare: 0.25);
         Stock::addKeys($t->user->id, $loot);
 
-        return ['action' => 'interact', 'kind' => 'puzzle', 'solved' => true, 'loot' => $loot, 'events' => ["{$t->user->name} hat das Rätsel gelöst!"]];
+        return ['action' => 'interact', 'kind' => 'puzzle', 'solved' => true, 'loot' => $loot, 'found' => self::lootList($loot), 'events' => ["{$t->user->name} hat das Rätsel gelöst!"]];
     }
 
     /** Lagerfeuer: heilt einmal am Tag; Heiler heilen alle im Raum voll (ohne Fackel). */
