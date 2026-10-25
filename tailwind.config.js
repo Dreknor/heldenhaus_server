@@ -13,6 +13,7 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Nunito', ...defaultTheme.fontFamily.sans],
+                pixel: ['"Pixelify Sans"', 'Nunito', ...defaultTheme.fontFamily.sans],
             },
             borderRadius: {
                 lg: 'var(--radius)',

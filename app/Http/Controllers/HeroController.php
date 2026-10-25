@@ -6,6 +6,7 @@ use App\Domain\Art\SceneBackgrounds;
 use App\Domain\Events\WeatherSource;
 use App\Domain\Gameplay\RunDayCron;
 use App\Http\Presenters\HeroBoard;
+use App\Http\Presenters\HubSummary;
 use App\Models\DayLog;
 use App\Models\FamilyEventSetting;
 use Illuminate\Http\RedirectResponse;
@@ -38,6 +39,7 @@ class HeroController extends Controller
             'difficulties' => config('game.difficulties'),
             'sceneBackground' => SceneBackgrounds::forToday($user->id),
             'sceneWeather' => $sceneWeather,
+            'hub' => HubSummary::for($user),
         ]);
     }
 

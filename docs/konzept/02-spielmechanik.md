@@ -33,6 +33,7 @@
 
 ## 2.3 Progression
 - **Freischaltungen nach Level** (§13): Shop ab 3, Funde und Haustiere ab 4, Quests ab 5, Familienhaus ab 6, Garten ab 7, Werkstatt ab 8, Bauprojekte ab 9, Dungeons ab 10, Familien-Dungeon ab 12, Bündnis-Funktionen ab 14, jeweils mit kurzer Erklärung und Mini-Aufgabe
+- **Langzeitziele** (§14.7): Fähigkeiten-Stufen 15/20/25, Sammelalbum, Meisterschaften je Kategorie, Heldenjahr (Jahresleiste ab Schuljahresbeginn), Titel, Chronik des Heldenhauses (§14.8)
 - **Level & Attribute** mit kindgerechten Namen: **Kraft** (Boss-Schaden), **Köpfchen** (XP), **Ausdauer** (weniger Schaden), **Spürsinn** (Gold und Drops). Punkte verteilt man ab Level 2.
 - **Eigene Spielklassen** statt Krieger/Magier/Heiler/Schurke, siehe §2.4
 - **Avatar-Editor**: Körper, Haare, Hautfarbe, Hintergründe; Ausrüstung pro Slot (Kopf, Rüstung, Waffe, Schild, Accessoire)
