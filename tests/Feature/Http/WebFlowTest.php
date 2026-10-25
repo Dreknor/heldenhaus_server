@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\CompletionStatus;
+use App\Models\HaAuditEntry;
 use App\Models\TaskCompletion;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -29,6 +30,19 @@ test('das heldenpanel zeigt die eigenen aufgaben', function () {
             ->where('dailies.0.title', 'Zähne putzen')
             ->has('pool', 1)
             ->where('auth.stats.level', 1));
+});
+
+test('das helden-board fasst dungeon, garten und home assistant zusammen', function () {
+    HaAuditEntry::create(['family_id' => $this->family->id, 'direction' => 'in', 'action' => 'POST events', 'status' => 200]);
+
+    $this->actingAs($this->child)->get('/dashboard')
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('hub.dungeon.active', null)
+            ->has('hub.dungeon.unlockLevel')
+            ->where('hub.garden.planted', 0)
+            ->where('hub.homeAssistant.connected', true)
+            ->whereType('hub.homeAssistant.lastEventAt', 'string'));
 });
 
 test('kinder können eigene aufgaben anlegen und abhaken', function () {

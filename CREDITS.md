@@ -103,3 +103,11 @@ nach ihrem Teil (z. B. `hair_bob-…png`); welche Quelle dazugehört, steht in d
 ## Fluent Emoji
 
 MIT License, Copyright (c) Microsoft Corporation. Die Bilder wurden von PNG nach WebP umgewandelt, die Haustiere zusätzlich auf 256 Pixel verkleinert (`tools/pets/build_pets.py`).
+
+## Schrift Pixelify Sans
+
+„Pixelify Sans“ von Stefie Justprince, SIL Open Font License 1.1 (https://github.com/eifetx/Pixelify-Sans). Unverändert über `@fontsource/pixelify-sans` eingebunden, für Überschriften im Spielstil.
+
+## Dungeon-Vorschau
+
+`public/images/ui/dungeon-teaser.webp` ist aus den Kenney-Sprites „Isometric Miniature Dungeon“ (CC0) zusammengesetzt (`tools/dungeon/build_teaser.py`).
