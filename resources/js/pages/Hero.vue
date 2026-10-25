@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import AvatarEditor from '@/components/game/AvatarEditor.vue';
 import Emoji from '@/components/game/Emoji.vue';
 import ItemIcon from '@/components/game/ItemIcon.vue';
-import AvatarEditor from '@/components/game/AvatarEditor.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
-import type { Stats } from '@/types';
-import type { SharedData } from '@/types';
+import type { SharedData, Stats } from '@/types';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { Lock, Plus, Sparkles, X } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
@@ -24,6 +23,7 @@ interface GameClass {
     icon: string;
     description: string;
     focus: string;
+    dungeon?: string;
     max_hp: number;
     mp_multiplier: number;
     passive: Skill;
@@ -145,13 +145,21 @@ const hoursLeft = (iso: string) => Math.max(0, Math.round((new Date(iso).getTime
                 <section class="rounded-2xl border bg-card p-5">
                     <h2 class="mb-3 font-extrabold">Ausrüstung</h2>
                     <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                        <div v-for="(label, slot) in slots" :key="slot" class="relative flex flex-col items-center gap-1 rounded-xl border-2 border-dashed p-3 text-center">
+                        <div
+                            v-for="(label, slot) in slots"
+                            :key="slot"
+                            class="relative flex flex-col items-center gap-1 rounded-xl border-2 border-dashed p-3 text-center"
+                        >
                             <span class="text-xs font-semibold text-muted-foreground">{{ label }}</span>
                             <template v-if="equipment[slot]">
                                 <ItemIcon :item="{ ...equipment[slot], type: 'equipment', slot }" :size="44" />
                                 <span class="text-xs font-bold">{{ equipment[slot].name }}</span>
                                 <span class="text-[11px] text-muted-foreground">
-                                    {{ Object.entries(equipment[slot].stats ?? {}).map(([k, v]) => `+${v} ${attributeInfo.find((a) => a.key === k)?.name}`).join(', ') }}
+                                    {{
+                                        Object.entries(equipment[slot].stats ?? {})
+                                            .map(([k, v]) => `+${v} ${attributeInfo.find((a) => a.key === k)?.name}`)
+                                            .join(', ')
+                                    }}
                                 </span>
                                 <button
                                     class="absolute right-1 top-1 rounded p-0.5 hover:bg-muted"
@@ -172,15 +180,22 @@ const hoursLeft = (iso: string) => Math.max(0, Math.round((new Date(iso).getTime
             <section class="rounded-2xl border bg-card p-5">
                 <div v-if="!unlocked" class="flex items-center gap-3 text-muted-foreground">
                     <Lock class="size-6" />
-                    <p>Ab <strong>Level {{ unlock_level }}</strong> wählst du deine Klasse – noch {{ unlock_level - stats.level }} Level!</p>
+                    <p>
+                        Ab <strong>Level {{ unlock_level }}</strong> wählst du deine Klasse – noch {{ unlock_level - stats.level }} Level!
+                    </p>
                 </div>
 
                 <template v-else-if="hero_class && !choosing">
                     <div class="flex flex-wrap items-start gap-4">
                         <span class="text-6xl"><Emoji :glyph="hero_class.icon" /></span>
                         <div class="min-w-0 flex-1">
-                            <h2 class="text-xl font-extrabold">{{ hero_class.name }} <span class="text-base font-semibold text-muted-foreground">– {{ hero_class.role }}</span></h2>
+                            <h2 class="text-xl font-extrabold">
+                                {{ hero_class.name }} <span class="text-base font-semibold text-muted-foreground">– {{ hero_class.role }}</span>
+                            </h2>
                             <p class="text-sm text-muted-foreground">{{ hero_class.description }}</p>
+                            <p v-if="hero_class.dungeon" class="mt-1 text-xs text-muted-foreground">
+                                <strong>Im Dungeon:</strong> {{ hero_class.dungeon }}
+                            </p>
                         </div>
                         <Button variant="outline" @click="choosing = true">Klasse wechseln</Button>
                     </div>
@@ -192,14 +207,19 @@ const hoursLeft = (iso: string) => Math.max(0, Math.round((new Date(iso).getTime
                             <p class="text-sm">{{ hero_class.passive.description }}</p>
                             <div v-if="hero_class.key === 'healer'" class="mt-3 grid gap-2">
                                 <p v-if="second_chance_used" class="text-sm text-muted-foreground">Diese Woche schon genutzt.</p>
-                                <p v-else-if="!second_chance_options.length" class="text-sm text-muted-foreground">Gerade wurde nichts verpasst. 🎉</p>
+                                <p v-else-if="!second_chance_options.length" class="text-sm text-muted-foreground">
+                                    Gerade wurde nichts verpasst. 🎉
+                                </p>
                                 <button
                                     v-for="o in second_chance_used ? [] : second_chance_options"
                                     :key="o.assignment_id"
                                     class="flex items-center justify-between rounded-lg border bg-card px-3 py-2 text-left text-sm hover:border-emerald-500"
                                     @click="secondChance(o.assignment_id)"
                                 >
-                                    <span><strong>{{ o.user }}</strong>: {{ o.title }}</span>
+                                    <span
+                                        ><strong>{{ o.user }}</strong
+                                        >: {{ o.title }}</span
+                                    >
                                     <span class="text-emerald-600">+{{ o.damage }} HP</span>
                                 </button>
                             </div>
@@ -209,7 +229,11 @@ const hoursLeft = (iso: string) => Math.max(0, Math.round((new Date(iso).getTime
                             <p class="font-bold">{{ hero_class.active.name }}</p>
                             <p class="text-sm">{{ hero_class.active.description }}</p>
                             <div class="mt-3 flex flex-wrap items-center gap-2">
-                                <select v-if="hero_class.active.key === 'healing_wave'" v-model="target" class="h-9 rounded-md border border-input bg-background px-2 text-sm">
+                                <select
+                                    v-if="hero_class.active.key === 'healing_wave'"
+                                    v-model="target"
+                                    class="h-9 rounded-md border border-input bg-background px-2 text-sm"
+                                >
                                     <option :value="null">mich selbst</option>
                                     <option v-for="m in family_members" :key="m.id" :value="m.id">{{ m.name }}</option>
                                 </select>
@@ -228,7 +252,12 @@ const hoursLeft = (iso: string) => Math.max(0, Math.round((new Date(iso).getTime
                         <Button v-if="hero_class" variant="ghost" @click="choosing = false">Abbrechen</Button>
                     </div>
                     <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                        <div v-for="c in classes" :key="c.key" class="flex flex-col gap-2 rounded-2xl border p-4" :class="hero_class?.key === c.key ? 'border-primary' : ''">
+                        <div
+                            v-for="c in classes"
+                            :key="c.key"
+                            class="flex flex-col gap-2 rounded-2xl border p-4"
+                            :class="hero_class?.key === c.key ? 'border-primary' : ''"
+                        >
                             <div class="flex items-center gap-3">
                                 <span class="text-4xl"><Emoji :glyph="c.icon" /></span>
                                 <div>
@@ -237,11 +266,18 @@ const hoursLeft = (iso: string) => Math.max(0, Math.round((new Date(iso).getTime
                                 </div>
                             </div>
                             <p class="text-sm">{{ c.description }}</p>
-                            <p class="text-xs"><strong>{{ c.passive.name }}:</strong> {{ c.passive.description }}</p>
-                            <p class="text-xs"><strong>{{ c.active.name }}:</strong> {{ c.active.description }}</p>
+                            <p class="text-xs">
+                                <strong>{{ c.passive.name }}:</strong> {{ c.passive.description }}
+                            </p>
+                            <p class="text-xs">
+                                <strong>{{ c.active.name }}:</strong> {{ c.active.description }}
+                            </p>
+                            <p v-if="c.dungeon" class="text-xs"><strong>Im Dungeon:</strong> {{ c.dungeon }}</p>
                             <p class="text-xs text-muted-foreground">Passt zu: {{ c.focus }}</p>
                             <div class="mt-auto pt-2">
-                                <Button v-if="c.choice.allowed && hero_class?.key !== c.key" class="w-full" @click="choose(c)">{{ c.name }} werden</Button>
+                                <Button v-if="c.choice.allowed && hero_class?.key !== c.key" class="w-full" @click="choose(c)"
+                                    >{{ c.name }} werden</Button
+                                >
                                 <p v-else-if="hero_class?.key !== c.key" class="text-xs font-semibold text-muted-foreground">{{ c.choice.reason }}</p>
                             </div>
                         </div>
@@ -253,7 +289,11 @@ const hoursLeft = (iso: string) => Math.max(0, Math.round((new Date(iso).getTime
             <section v-if="buffs.length" class="grid gap-2">
                 <h2 class="font-extrabold">Aktive Effekte</h2>
                 <div class="flex flex-wrap gap-2">
-                    <span v-for="b in buffs" :key="b.key" class="rounded-full bg-indigo-100 px-3 py-1 text-sm font-semibold text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">
+                    <span
+                        v-for="b in buffs"
+                        :key="b.key"
+                        class="rounded-full bg-indigo-100 px-3 py-1 text-sm font-semibold text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300"
+                    >
                         {{ b.name }} · {{ b.armed ? 'bereit' : `noch ${hoursLeft(b.expires_at)} h` }}
                     </span>
                 </div>

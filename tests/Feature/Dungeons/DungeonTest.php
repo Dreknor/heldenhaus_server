@@ -303,6 +303,24 @@ it('nutzt Klassen: Schurke entschärft, Magier deckt auf und liest Runen, Kriege
     expect(collect($d->fresh()->state['edges'])->firstWhere('b', 6)['kind'])->toBe('open');
 });
 
+it('nutzt die neuen Klassen: Waldläufer mit Erstschlag, Koch mit Proviant am Lagerfeuer', function () {
+    $d = fixtureDungeon($this->family);
+    torches($this->child, 10);
+    UserStats::whereKey($this->child->id)->update(['class_key' => 'ranger']);
+    act($this->child, $d, 'move', ['to' => 1])->assertOk();
+    expect(act($this->child, $d, 'fight', ['move' => 'attack'])->assertOk()['result']['events'])->toContain('Volltreffer!');
+
+    $state = $d->fresh()->state;
+    $state['rooms'][4] = ['id' => 4, 'x' => 0, 'y' => 1, 'type' => 'campfire', 'block' => 'campfire', 'campfire' => ['used' => []]];
+    $d->update(['state' => $state]);
+    torches($this->parent, 5);
+    UserStats::whereKey($this->parent->id)->update(['class_key' => 'cook']);
+    act($this->parent, $d, 'move', ['to' => 4])->assertOk();
+    act($this->parent, $d, 'interact')->assertOk();
+
+    expect(UserStats::find($this->parent->id)->torches)->toBe(4); // 5 − Weg − Rast + Proviant
+});
+
 it('öffnet Tore auch über einen echten Taster in Home Assistant', function () {
     $d = fixtureDungeon($this->family);
     Sanctum::actingAs($this->parent, ['ha']);

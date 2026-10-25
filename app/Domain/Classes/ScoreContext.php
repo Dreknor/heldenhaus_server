@@ -29,6 +29,8 @@ final class ScoreContext
         public readonly Task $task,
         public readonly string $source,
         public readonly Randomizer $random,
+        /** Serie vor diesem Abschluss (nur Dailies, sonst 0) */
+        public readonly int $streak = 0,
     ) {}
 
     public function isPoolTask(): bool
