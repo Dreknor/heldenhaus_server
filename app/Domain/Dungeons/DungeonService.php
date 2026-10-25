@@ -290,7 +290,13 @@ class DungeonService
         }
 
         if ($damage > 0) {
-            if ($t->rng->chance(0.05 + $attrs['per'] * 0.01)) {
+            // Tierbändiger: der Tierbegleiter beißt mit zu
+            if ($t->class() === 'tamer') {
+                $damage += 3;
+            }
+            // Waldläufer: Erstschlag – die erste Runde gegen ein Monster ist immer ein Volltreffer
+            $firstRound = ($t->position->fight['room'] ?? null) !== $id;
+            if (($t->class() === 'ranger' && $firstRound) || $t->rng->chance(0.05 + $attrs['per'] * 0.01)) {
                 $damage *= 1.5;
                 $log[] = 'Volltreffer!';
             }
@@ -334,8 +340,21 @@ class DungeonService
         }
         $targetStats = $target === $t->position ? $t->stats : UserStats::find($target->user_id);
         $hit = round(max(1, $t->rng->vary($monster['attack']) - Attributes::for($targetStats)['con'] * 0.3), 1);
+        $targetName = $target === $t->position ? $t->user->name : $target->user->name;
+
+        // Mönch: weicht jedem vierten Gegenangriff aus
+        if ($targetStats->class_key === 'monk' && $t->rng->chance(0.25)) {
+            $log[] = "{$targetName} weicht {$monster['name']} geschickt aus.";
+            $result['events'] = $log;
+
+            return $result;
+        }
+        // Paladin im Raum: Schutzaura −30 % Schaden
+        if ($t->class() === 'paladin' || $t->othersIn($id)->contains(fn ($p) => self::classOf($p->user) === 'paladin')) {
+            $hit = round(max(1, $hit * 0.7), 1);
+        }
         $target->hp = round($target->hp - $hit, 1);
-        $log[] = "{$monster['name']} trifft ".($target === $t->position ? $t->user->name : $target->user->name)." für {$hit}.";
+        $log[] = "{$monster['name']} trifft {$targetName} für {$hit}.";
         if ($target->hp <= 0) {
             $log = array_merge($log, $this->knockout($t, $target));
         }
@@ -451,8 +470,21 @@ class DungeonService
                 $t->touch($other)->hp = self::maxHpFor(UserStats::find($other->user_id));
             }
         }
+        $events = [$healer ? "{$t->user->name} heilt alle am Lagerfeuer." : "{$t->user->name} ruht sich am Feuer aus."];
 
-        return ['action' => 'interact', 'kind' => 'campfire', 'events' => [$healer ? "{$t->user->name} heilt alle am Lagerfeuer." : "{$t->user->name} ruht sich am Feuer aus."]];
+        // Koch: Proviant – alle im Raum bekommen eine Fackel (bis zum Vorratslimit)
+        if ($t->class() === 'cook') {
+            $max = config('game.dungeon.torch_store_max');
+            $t->stats->torches = min($max, $t->stats->torches + 1);
+            foreach ($t->othersIn($id) as $other) {
+                $stats = UserStats::lockForUpdate()->find($other->user_id);
+                $stats->torches = min($max, $stats->torches + 1);
+                $stats->save();
+            }
+            $events[] = "{$t->user->name} kocht Proviant – eine Fackel für alle am Feuer.";
+        }
+
+        return ['action' => 'interact', 'kind' => 'campfire', 'events' => $events];
     }
 
     private function buy(Turn $t, string $key): array

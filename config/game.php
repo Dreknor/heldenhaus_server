@@ -71,6 +71,11 @@ return [
     'smart_connect_daily_limit' => 10,
     'community_rhythm_gold' => 15,
     'focus_hour' => 12,
+    'inner_calm_daily_limit' => 10,          // Mönch: höchstens so viel Mana am Tag aus Gewohnheiten
+    'oath_min_streak' => 7,                  // Paladin: Treueschwur ab dieser Serie
+    'tamer_feed_factor' => 2,                // Tierbändiger: Futter wirkt so viel stärker
+    'feast_heal' => 8,
+    'meditation_mana' => 8,
 
     'max_streak_shields' => 3,
 
