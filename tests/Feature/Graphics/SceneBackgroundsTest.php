@@ -45,6 +45,7 @@ it('importiert Hintergründe ohne Innenräume und nennt sie in den Credits', fun
     $this->actingAs($this->child)->get('/dashboard')->assertInertia(fn ($page) => $page
         ->where('sceneBackground', fn ($url) => str_contains($url, '/storage/scenes/') && str_ends_with($url, '.webp')));
 
+    // Nach Titel suchen statt nach Position, die Liste wächst mit jeder neuen Grafikquelle
     $this->get('/credits')->assertInertia(fn ($page) => $page
         ->where('credits', fn ($credits) => collect($credits)->contains(fn ($c) => $c['title'] === 'Szenen-Hintergründe: Fantasy Forest Backgrounds' && $c['author'] === 'Lornn')));
 });

@@ -91,6 +91,7 @@ class AllianceService
 
                 return [
                     'id' => $a->id,
+                    'family_id' => $other?->id, // für Hausbesuche: families/{family}/home
                     'family' => $other?->name,
                     'members' => $other ? $other->members()->where('family_role', '!=', 'guest')->count() : 0,
                     'since' => $a->accepted_at?->toDateString(),

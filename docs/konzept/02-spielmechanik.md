@@ -1,7 +1,7 @@
 # 2. Spielmechanik (Kern wie Habitica, kindgerecht angepasst)
 
 ## 2.1 Aufgabentypen
-- **Gewohnheiten (Habits)**: +/− beliebig oft, Wert verschiebt die Farbe (rot → blau)
+- **Gewohnheiten (Habits)**: +/− mehrmals am Tag, aber mit **Tageslimit** (Standard 8, je Gewohnheit 1–50 einstellbar). Jede weitere Wiederholung am selben Tag bringt weniger (siehe §2.2). Über dem Limit wird nur noch gezählt: keine Belohnung, kein Schaden, die Farbe bleibt. Der Wert verschiebt die Farbe (rot → blau).
 - **Tägliche Aufgaben (Dailies)**: Wiederholungsregeln (täglich, Wochentage, alle n Tage, monatlich), Checklisten, Streak, optional als **Kern-Daily** markiert (zählt auch am Energiespar-Tag, §11.2)
 - **To-Dos**: einmalig, optional mit Fälligkeit und Checkliste. Schnell notierte Einträge aus der **Kopf-Ablage** warten als `inbox` ohne Kategorie aufs Einsortieren (§11.2).
 - **Checklisten als Mikro-Schritte**: Jeder abgehakte Schritt bringt sofort seinen Anteil `1/n` der Belohnung, die Summe bleibt gleich (§11.2).
@@ -10,6 +10,19 @@
 ## 2.2 Werte und Formeln (in `config/game.php` einstellbar)
 - Jede Aufgabe hat einen `value` (Start 0, begrenzt auf −47,27 … 21,27).
 - `delta = 0.9747 ^ value` → häufig erledigte Aufgaben bringen weniger, vernachlässigte mehr.
+- **Farbstufen** wie im Original (für alle Aufgaben, API-Feld `color` mit `key` und `hex`):
+
+  | Stufe | value | Farbe |
+  |---|---|---|
+  | worst | < −20 | dunkelrot |
+  | worse | −20 … < −10 | rot |
+  | bad | −10 … < −1 | orange |
+  | neutral | −1 … < 1 | gelb |
+  | good | 1 … < 5 | grün |
+  | better | 5 … < 10 | hellblau |
+  | best | ≥ 10 | blau |
+
+- **Gewohnheiten am selben Tag**: Die n-te Wiederholung zählt mit `0,75^(n−1)` (mindestens 0,2) für XP, Gold, Boss-Schaden, Event-Punkte und, bei −, für den Schaden. Der Farbwechsel nutzt das volle `delta`. Die Zählung beginnt mit dem Tagesbeginn der Person neu. Werte stehen in `config/game.php` (`habits`); das Limit lässt sich mit `HABIT_DAILY_LIMIT` ändern.
 - Schwierigkeit: trivial 0,1 · leicht 1 · mittel 1,5 · schwer 2
 - `XP = round(delta × Schwierigkeit × 6 × (1 + INT-Bonus))`
 - `Gold = delta × Schwierigkeit × (1 + PER-Bonus) × Streak-Bonus`
@@ -20,6 +33,7 @@
 
 ## 2.3 Progression
 - **Freischaltungen nach Level** (§13): Shop ab 3, Funde und Haustiere ab 4, Quests ab 5, Familienhaus ab 6, Garten ab 7, Werkstatt ab 8, Bauprojekte ab 9, Dungeons ab 10, Familien-Dungeon ab 12, Bündnis-Funktionen ab 14, jeweils mit kurzer Erklärung und Mini-Aufgabe
+- **Langzeitziele** (§14.7): Fähigkeiten-Stufen 15/20/25, Sammelalbum, Meisterschaften je Kategorie, Heldenjahr (Jahresleiste ab Schuljahresbeginn), Titel, Chronik des Heldenhauses (§14.8)
 - **Level & Attribute** mit kindgerechten Namen: **Kraft** (Boss-Schaden), **Köpfchen** (XP), **Ausdauer** (weniger Schaden), **Spürsinn** (Gold und Drops). Punkte verteilt man ab Level 2.
 - **Eigene Spielklassen** statt Krieger/Magier/Heiler/Schurke, siehe §2.4
 - **Avatar-Editor**: Körper, Haare, Hautfarbe, Hintergründe; Ausrüstung pro Slot (Kopf, Rüstung, Waffe, Schild, Accessoire)
@@ -123,7 +137,7 @@ Die Aufgabenkategorie wählt man beim Anlegen (Pflichtfeld mit Vorschlag). Schwe
 
 ## 2.7 Quests als isometrische Mini-Dungeons
 
-**Grundidee**: Eine Quest ist ein kleiner isometrischer Dungeon (5–12 Räume), den die Familie **gemeinsam, rundenbasiert und asynchron** erkundet. Jeder zieht, wann er will. Der Dungeon wird **nur durch erledigte Aufgaben angetrieben**. So bleibt die Spielzeit an echte Aufgaben gebunden, und das Spiel ersetzt die Aufgaben nicht.
+**Grundidee**: Eine Quest ist ein kleiner isometrischer Dungeon (10–16 Räume), den die Familie **gemeinsam, rundenbasiert und asynchron** erkundet. Jeder zieht, wann er will. Der Dungeon wird **nur durch erledigte Aufgaben angetrieben**. So bleibt die Spielzeit an echte Aufgaben gebunden, und das Spiel ersetzt die Aufgaben nicht.
 
 **Energie (Fackeln)**: Jede erledigte Aufgabe gibt Fackeln (trivial 1, leicht 1, mittel 2, schwer 3, alle Dailies erledigt +3). Ziehen, Kisten öffnen und Kämpfen kosten Fackeln. Ein Tages- und ein Vorratslimit verhindern, dass man Fackeln sammelt und dann stundenlang spielt. Eine Dungeon-Sitzung dauert typisch **2–5 Minuten**.
 
@@ -138,7 +152,8 @@ Die Aufgabenkategorie wählt man beim Anlegen (Pflichtfeld mit Vorschlag). Schwe
   - Händler, verschlossene Türen (Schlüssel als Drop)
 - **Endboss** = Familien-Boss (§3.5). Er bekommt Schaden aus allen erledigten Aufgaben (wie bisher) **und** aus Dungeon-Kämpfen. Der Kampf im Boss-Raum wird erst freigeschaltet, wenn die Familie dort angekommen ist.
 - **Kein Game Over**: Bei 0 HP im Dungeon geht es zurück zum Eingangs-Lager mit Fackel-Verlust, aber ohne Verlust von Gegenständen.
-- **Rhythmus**: ein Familien-Dungeon pro Woche (passt zum Wochen-Boss), dazu optional ein kurzes **Solo-Gewölbe** (3 Räume) pro Tag für alle, die schon früh fertig sind.
+- **Rhythmus**: ein Familien-Dungeon pro Woche (passt zum Wochen-Boss), dazu optional ein kurzes **Solo-Gewölbe** (5 Räume) pro Tag für alle, die schon früh fertig sind.
+- **Truhen**: Jede Truhe ist für jede Person einmal gefüllt (Gold und Material, selten etwas Besonderes). Wer später kommt, geht nicht leer aus; nur der Schlüssel liegt einmal darin.
 - **Altersanpassung**: Für 9–12 gibt es weniger Fallen, klarere Hinweise und leichtere Rätsel. Für 13–16 gibt es komplexere Karten, Geheimgänge und härtere Elite-Gegner.
 
 **Klassen im Dungeon** (Vorschlag: zusätzliche Interaktionen auf der Karte, die Klassenfähigkeiten bleiben unverändert):

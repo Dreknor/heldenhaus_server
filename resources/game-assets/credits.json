@@ -67,9 +67,10 @@
         "source_url": "https://kenney.nl/assets/isometric-miniature-dungeon",
         "license": "CC0 1.0",
         "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "changes": "Einzelteile zu Tiled-Raumbausteinen (5×5), Tileset und Sprites zusammengesetzt (tools/dungeon/build_blocks.py).",
+        "changes": "Einzelteile zu Tiled-Raumbausteinen (5×5), Tileset und Sprites zusammengesetzt (tools/dungeon/build_blocks.py). Das Vorschaubild der Dungeon-Karte auf dem Helden-Board ist aus denselben Sprites zusammengesetzt (tools/dungeon/build_teaser.py).",
         "files": [
-            "public/dungeon"
+            "public/dungeon",
+            "public/images/ui/dungeon-teaser.webp"
         ]
     },
     {
@@ -82,6 +83,18 @@
         "changes": "Möbel-, Wand-, Boden- und Fensterausschnitte aus den Tilesets für die Housing-Raumgrafik erstellt und pixelgenau skaliert.",
         "files": [
             "public/images/housing"
+        ]
+    },
+    {
+        "title": "Überschriften-Schrift: Pixelify Sans",
+        "author": "Stefie Justprince",
+        "author_url": "https://github.com/eifetx/Pixelify-Sans",
+        "source_url": "https://fonts.google.com/specimen/Pixelify+Sans",
+        "license": "SIL Open Font License 1.1",
+        "license_url": "https://openfontlicense.org/open-font-license-official-text/",
+        "changes": "Unverändert, eingebunden über das npm-Paket @fontsource/pixelify-sans.",
+        "files": [
+            "node_modules/@fontsource/pixelify-sans"
         ]
     }
 ]
