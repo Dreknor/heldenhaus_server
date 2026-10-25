@@ -36,6 +36,9 @@ app/
     Rewards/        Familien-Shop, Sterne, Einlösungen, Taschengeld-Konto
     Social/         Feed, Reaktionen, Nachrichten (gefiltert nach Alter)
     Integrations/HomeAssistant/  Token, Ereignis-Zuordnung, Webhooks, Prüfprotokoll
+    Goals/          Ziele, Wochenziele, Gewohnheit meistern, Sterne ausschleichen (§14)
+    Council/        Vorschläge, Abstimmungen, Familienrat (§14.4)
+    Insights/       Aktivitätswert, Rückblicke, Kennzahlen, Umfragen (§14.5, §14.10)
     Features/       Freischaltungen nach Level: Katalog, Prüfung `Features::has`, Middleware `feature:…`, Eltern-Overrides, Schnellstart (§13)
     Events/         Kalender (Osterformel, Regeln, Schulferien), Planer, Trigger, Event-Fortschritt, Belohnungen (§12)
     Notifications/  FCM, E-Mail, Ruhezeiten
@@ -69,6 +72,7 @@ app/
 - `challenges`, `challenge_participants`
 - `feed_entries`, `reactions`, `messages`
 - `device_tokens` (FCM), `notification_settings` (Ruhezeiten)
+- Langzeitmotivation (§14.12): `goals`, `goal_milestones`, `goal_links`, `goal_supporters`, `proposals`, `votes`, `family_councils`, `activity_scores`, `hero_years`, `album_progress`, `mastery_levels`, `chronicle_unlocks`, `surveys`, `family_metrics`; `tasks` bekommt `anchor`, `remind_at`, `remind_ha`, `mastered_at`, `star_fade_step`
 - Freischaltungen (§13.4): Inhalt `features.json` · `feature_unlocks`, `member_feature_overrides`, `user_settings.show_all_features`
 - Events (§12.6): Inhalt `events.json` und `fun_events.json` · `fun_event_instances`, · `family_event_settings`, `member_dates`, `holiday_periods`, `family_events`, `event_participations`, `event_trigger_log`
 - Fokus & Alltagshilfen (§11.5): `user_support_settings`, `low_energy_days`, `recovery_quests`, `focus_sessions`, `ai_requests`; `tasks` bekommt Status `inbox`, `is_core`, `streak_paused_at`, `streak_best`, Checklisten-Einträge bekommen `id` und `rewarded_at`
@@ -83,6 +87,7 @@ app/
 - Dungeons: `GET dungeons/current`, `POST dungeons/{id}/move|interact|fight|use-item` (je mit `client_uuid`), `GET dungeons/{id}/log?since=`
 - Housing: `GET home`, `GET rooms/{id}`, `PUT rooms/{id}/layout` (ganzes Layout mit Versionsnummer gegen gleichzeitiges Bearbeiten), `POST build-projects/{id}/contribute`, `POST garden/{plot}/sow|water|harvest`, Gästebuch
 - Familie: Mitglieder, Einladungen, Rotationen, Belohnungen, Einlösungen, Feed, Wochenbericht
+- Langzeitmotivation (§14.12): `goals` (CRUD, Meilensteine, Unterstützer), `tasks/{id}/master|less-often|still-ok|fade-stars`, `proposals`, `votes`, `family-council`, `me/review/week|month`, `me/album`, `me/masteries`, `me/hero-year`, `chronicle`, `task-templates`, `family/metrics`, `surveys`
 - Freischaltungen: `GET me/features`, `POST me/features/{key}/intro-seen|starter-done`, `POST me/features/show-all`, Eltern `GET|PUT members/{id}/features`; gesperrte Routen antworten mit `403 feature_locked`
 - Events: `POST fun-events/{id}/interact` (Zufallsereignisse), `GET events`, `GET events/{id}`, `GET events/history`, `POST events/{id}/advent/{day}`, `POST events/{id}/secret-help`, `POST events/{id}/merchant/buy`, Eltern `GET|PUT family/event-settings`, `PUT members/{id}/dates`, `POST events/start`
 - Fokus & Alltagshilfen: `POST inbox`, `POST inbox/{id}/sort`, `POST tasks/{id}/steps/{step}/score`, `POST tasks/{id}/steps/suggest`, `POST|DELETE me/low-energy`, `focus-sessions` (Start, Ende, Verlängern, Einladen), `GET|PUT me/support-settings`
