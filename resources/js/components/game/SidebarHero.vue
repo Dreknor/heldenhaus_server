@@ -12,6 +12,11 @@ const classNames: Record<string, string> = {
     healer: 'Heiler',
     tinkerer: 'Tüftler',
     bard: 'Barde',
+    ranger: 'Waldläufer',
+    paladin: 'Paladin',
+    tamer: 'Tierbändiger',
+    cook: 'Koch',
+    monk: 'Mönch',
 };
 
 const page = usePage<SharedData>();

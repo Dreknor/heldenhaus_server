@@ -60,7 +60,12 @@
         "rogue": { "head": [["hood", "charcoal"]], "back": [["cape_tattered", "black"]], "weapon": [["dagger", "dagger"]] },
         "healer": { "head": [["hood", "white"]], "back": [["cape", "white"]], "armor": [["belt_robe", "white"]], "weapon": [["staff", "simple"]] },
         "tinkerer": { "head": [["headband", "red"]], "armor": [["overalls", "leather"]], "weapon": [["hammer", "base"]] },
-        "bard": { "head": [["cap_leather", "brown"], ["cap_feather", "red"]], "back": [["cape", "purple"]] }
+        "bard": { "head": [["cap_leather", "brown"], ["cap_feather", "red"]], "back": [["cape", "purple"]] },
+        "ranger": { "head": [["hood", "forest"]], "back": [["quiver", "quiver"], ["cape", "forest"]], "weapon": [["crossbow", "crossbow"]] },
+        "paladin": { "armor": [["chainmail", "steel"], ["tabard", "white"]], "shield": [["shield_crusader", "crusader"]], "weapon": [["sword", "silver"]] },
+        "tamer": { "head": [["bandana", "tan"]], "armor": [["armour_leather", "brown"]], "weapon": [["staff_gnarled", "medium"]] },
+        "cook": { "head": [["bandana", "white"]], "armor": [["apron", "white"]] },
+        "monk": { "back": [["cape", "orange"]], "armor": [["sash", "orange"]], "weapon": [["staff", "simple"]] }
     },
     "items": {
         "head_cap": [["cap_bonnie", "red"]],

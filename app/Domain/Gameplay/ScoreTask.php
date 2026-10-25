@@ -269,7 +269,7 @@ class ScoreTask
     private function rewards(TaskAssignment $a, UserStats $stats, float $delta, string $source, int $streak): array
     {
         $attributes = Attributes::for($stats);
-        $context = ModifierChain::applyScore(new ScoreContext($a->user, $stats, $a->task, $source, $this->random));
+        $context = ModifierChain::applyScore(new ScoreContext($a->user, $stats, $a->task, $source, $this->random, $streak));
 
         $xp = (int) round(Formulas::xp($delta, $a->task->difficulty, $attributes['int']) * $context->xpMultiplier);
         $gold = round(Formulas::gold($delta, $a->task->difficulty, $attributes['per'], $streak) * $context->goldMultiplier + $context->goldFlat, 2);

@@ -24,7 +24,7 @@ Mit der XP-Kurve aus §2.2 und etwa 8–10 erledigten Aufgaben am Tag erreicht m
 | **3** | Gold-Shop und Ausrüstung | „Im Laden kannst du Gold gegen Ausrüstung tauschen. Jedes Teil macht dich ein bisschen besser.“ | Ein Ausrüstungsteil anlegen |
 | **4** | Funde, Eier, Schlüsselpulver, Stall mit Haustieren und Reittieren | „Manchmal findest du ein Ei. Mit Schlüsselpulver schlüpft daraus ein Haustier, und wenn du es fütterst, wird es zum Reittier.“ | Erstes Ei ausbrüten (ein Starter-Ei gibt es dazu) |
 | **5** | Quests: eigene Solo-Quest, Quest-Tafel, Monster-Lexikon, volle Boss-Ansicht | „Monster und Sammelaufträge! Such dir auf der Quest-Tafel eine Solo-Quest aus. Jede Aufgabe trifft das Monster.“ | Eine Solo-Quest starten |
-| **5 / 8** | Klassen (5 bei 9–12, 8 bei 13–16, wie §2.4) | „Zeit für deine Klasse! Krieger, Magier, Schurke, Heiler, Tüftler oder Barde. Du kannst einmal im Monat wechseln.“ | Klasse wählen und Fähigkeit einmal wirken |
+| **5 / 8** | Klassen (5 bei 9–12, 8 bei 13–16, wie §2.4) | „Zeit für deine Klasse! Krieger, Magier, Schurke, Heiler, Tüftler, Barde, Waldläufer, Paladin, Tierbändiger, Koch oder Mönch. Du kannst einmal im Monat wechseln.“ | Klasse wählen und Fähigkeit einmal wirken |
 | **6** | Familienhaus und eigenes Zimmer | „Das ist euer Familienhaus, und hier ist dein Zimmer. Richte es ein, wie du willst.“ | Erstes Möbelstück platzieren (Starter-Bett) |
 | **7** | Garten | „Im Garten wächst etwas, wenn du es gießt. Das Gießen ist eine Daily.“ | Erstes Beet säen |
 | **8** | Werkstatt und Crafting (Materialtasche wird sichtbar) | „Deine Aufgaben haben dir Material eingebracht! In der Werkstatt baust du daraus Tränke, Ausrüstung und Möbel.“ | Erstes Rezept herstellen |
