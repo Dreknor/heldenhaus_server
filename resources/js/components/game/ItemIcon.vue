@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { RARITY_COLORS, shade } from '@/lib/avatar';
-import { computed } from 'vue';
+import ITEM_ART from '@/lib/item-art.json';
+import { computed, ref } from 'vue';
 
 /**
  * Item-Grafiken (Konzept §2.9, Stufe G2): selbst gezeichnete SVGs im selben Stil wie Avatar und Monster.
@@ -17,6 +18,23 @@ export interface ItemLike {
 const props = withDefaults(defineProps<{ item: ItemLike; size?: number; framed?: boolean }>(), { size: 48, framed: false });
 
 const ink = '#1f2937';
+// 3D-Bilder (Fluent Emoji, tools/items/build_items.py); Eier zeigen das Tier, Schlüpfpulver ihre Farbe
+const ART = new Set<string>(ITEM_ART);
+const failed = ref(false);
+const art = computed(() => {
+    const key = props.item.key ?? '';
+    if (props.item.type === 'egg' && key.startsWith('egg_')) return { src: '/images/items/_egg.webp', pet: `/images/pets/${key.slice(4)}.webp` };
+    if (props.item.type === 'hatching_potion') return { src: '/images/items/_hatching_potion.webp', hue: hueOf(key) };
+    if (ART.has(key)) return { src: `/images/items/${key}.webp` };
+    // Neue Items ohne eigenes Bild: Grundbild ihres Ausrüstungsplatzes bzw. Typs
+    const base = props.item.type === 'equipment' && props.item.slot ? `_${props.item.slot}` : `_${props.item.type}`;
+    return ART.has(base) ? { src: `/images/items/${base}.webp` } : null;
+});
+function hueOf(key: string): number {
+    let h = 0;
+    for (const c of key) h = (h * 31 + c.charCodeAt(0)) % 360;
+    return h;
+}
 const rarity = computed(() => RARITY_COLORS[props.item.rarity ?? 'common'] ?? RARITY_COLORS.common);
 const key = computed(() => props.item.key ?? '');
 const uid = Math.random().toString(36).slice(2, 8);
@@ -26,7 +44,25 @@ const motif = computed(() => {
     const k = key.value;
     if (k.startsWith('egg_')) return 'egg';
     if (k.startsWith('potion_') && props.item.type === 'hatching_potion') return 'hatch';
-    const known = ['food_apple', 'food_cake', 'wood', 'stone', 'ink', 'crystal_shard', 'herbs', 'feather', 'paint', 'stardust', 'potion_health', 'potion_mana', 'head_cap', 'weapon_wooden_sword', 'shield_lid', 'armor_hoodie', 'accessory_glasses'];
+    const known = [
+        'food_apple',
+        'food_cake',
+        'wood',
+        'stone',
+        'ink',
+        'crystal_shard',
+        'herbs',
+        'feather',
+        'paint',
+        'stardust',
+        'potion_health',
+        'potion_mana',
+        'head_cap',
+        'weapon_wooden_sword',
+        'shield_lid',
+        'armor_hoodie',
+        'accessory_glasses',
+    ];
     if (known.includes(k)) return k;
     if (props.item.type === 'equipment') return `slot_${props.item.slot ?? 'armor'}`;
     return `type_${props.item.type}`;
@@ -47,7 +83,35 @@ const liquid = computed(() => HATCH[key.value] ?? rarity.value);
 <template>
     <span class="relative inline-flex shrink-0 items-center justify-center" :style="{ width: `${size}px`, height: `${size}px` }">
         <span v-if="framed" class="absolute inset-0 rounded-xl opacity-20" :style="{ background: rarity }" />
-        <svg viewBox="0 0 64 64" :width="size" :height="size" xmlns="http://www.w3.org/2000/svg" stroke-linejoin="round" stroke-linecap="round" class="relative" aria-hidden="true">
+        <template v-if="art && !failed">
+            <img
+                :src="art.src"
+                alt=""
+                class="relative h-[88%] w-[88%] object-contain drop-shadow-sm"
+                :style="art.hue !== undefined ? { filter: `hue-rotate(${art.hue}deg) saturate(1.4)` } : undefined"
+                draggable="false"
+                aria-hidden="true"
+                @error="failed = true"
+            />
+            <img
+                v-if="art.pet"
+                :src="art.pet"
+                alt=""
+                class="absolute -bottom-0.5 -right-0.5 h-[52%] w-[52%] object-contain drop-shadow"
+                aria-hidden="true"
+            />
+        </template>
+        <svg
+            v-else
+            viewBox="0 0 64 64"
+            :width="size"
+            :height="size"
+            xmlns="http://www.w3.org/2000/svg"
+            stroke-linejoin="round"
+            stroke-linecap="round"
+            class="relative"
+            aria-hidden="true"
+        >
             <defs>
                 <linearGradient :id="`rb-${uid}`" x1="0" x2="1">
                     <stop offset="0" stop-color="#f87171" />
@@ -110,7 +174,11 @@ const liquid = computed(() => HATCH[key.value] ?? rarity.value);
                 </template>
                 <template v-else-if="motif === 'herbs'">
                     <path d="M32 56 V20" fill="none" stroke="#166534" />
-                    <path d="M32 40 Q14 40 12 24 Q28 22 32 38 Z M32 32 Q50 32 52 16 Q36 14 32 30 Z M32 22 Q24 12 30 4 Q38 12 32 22 Z" fill="#22c55e" stroke-width="2.5" />
+                    <path
+                        d="M32 40 Q14 40 12 24 Q28 22 32 38 Z M32 32 Q50 32 52 16 Q36 14 32 30 Z M32 22 Q24 12 30 4 Q38 12 32 22 Z"
+                        fill="#22c55e"
+                        stroke-width="2.5"
+                    />
                 </template>
                 <template v-else-if="motif === 'feather'">
                     <path d="M48 6 Q20 14 16 44 L22 48 Q46 40 48 6 Z" fill="#e0f2fe" />

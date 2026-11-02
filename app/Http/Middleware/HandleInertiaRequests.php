@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Domain\Achievements\AchievementService;
+use App\Domain\Support\SupportService;
 use App\Enums\CompletionStatus;
 use App\Http\Presenters\CharacterSheet;
 use App\Http\Presenters\GamePresenter;
@@ -44,6 +45,17 @@ class HandleInertiaRequests extends Middleware
                 'appearance' => fn () => $user ? CharacterSheet::appearance($user) : null,
                 'stats' => fn () => $user?->stats ? GamePresenter::stats($user->stats()->first()) : null,
                 'family' => fn () => $user?->family ? ['id' => $user->family->id, 'name' => $user->family->name] : null,
+                // Rückmeldung beim Abhaken (§11.4): Stärke, Bewegung und Ton für alle Seiten
+                'feedback' => fn () => $user ? (function () use ($user) {
+                    $s = SupportService::settings($user);
+
+                    return [
+                        'level' => $s->feedback_level,
+                        'reduce_motion' => $s->reduce_motion,
+                        'sound' => $s->sound,
+                        'haptics' => $s->haptics,
+                    ];
+                })() : null,
             ],
             'counts' => fn () => $user?->isParent() ? [
                 'approvals' => TaskCompletion::where('status', CompletionStatus::Pending)

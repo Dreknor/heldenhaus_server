@@ -50,3 +50,20 @@ export function repeatLabel(repeat: { type: string; every?: number; days?: numbe
     }
     return `Monatlich am ${repeat.day_of_month}.`;
 }
+
+/**
+ * Fälligkeit gegen Zeitblindheit (§11.4): „heute“, „morgen“, „noch 3× schlafen“ statt Datum,
+ * dazu eine Farbe von ruhig (weit weg) bis warm (bald). Überfällig wird nie rot geschimpft.
+ */
+export function dueLabel(due: string): { text: string; tone: string } {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const day = new Date(due);
+    day.setHours(0, 0, 0, 0);
+    const nights = Math.round((day.getTime() - today.getTime()) / 86_400_000);
+    if (nights < 0) return { text: 'war schon fällig', tone: 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-200' };
+    if (nights === 0) return { text: 'heute', tone: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200' };
+    if (nights === 1) return { text: 'morgen · 1× schlafen', tone: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200' };
+    if (nights <= 7) return { text: `noch ${nights}× schlafen`, tone: 'bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-200' };
+    return { text: `in ${Math.round(nights / 7)} Wochen`, tone: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300' };
+}

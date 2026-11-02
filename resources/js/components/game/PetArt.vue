@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 /**
- * Haustiere (Konzept §2.9): je Tierart eine Vorlage, gefärbt nach Schlüpfpulver.
- * Reittiere sind größer und tragen einen Sattel.
+ * Haustiere (Konzept §2.9): 3D-Bild der Tierart (Fluent Emoji, siehe CREDITS.md) auf einer Aura in der
+ * Farbe des Schlüpfpulvers. Reittiere sind größer und tragen einen Sattel. Fehlt ein Bild, zeichnet die
+ * Komponente die Tierart als Vektorgrafik.
  */
 const props = withDefaults(defineProps<{ egg: string; potion: string; mount?: boolean; size?: number }>(), { mount: false, size: 96 });
 
@@ -16,10 +17,36 @@ const PALETTES: Record<string, { main: string; belly: string }> = {
 const p = computed(() => PALETTES[props.potion] ?? { main: '#a3a3a3', belly: '#f5f5f4' });
 const species = computed(() => props.egg.replace(/^egg_/, ''));
 const uid = Math.random().toString(36).slice(2, 8);
+
+const imageFailed = ref(false);
+const imageUrl = computed(() => `/images/pets/${species.value}.webp`);
+const box = computed(() => (props.mount ? props.size * 1.3 : props.size));
+const aura = computed(() =>
+    p.value.main === 'url(#rainbow)'
+        ? 'conic-gradient(from 0deg, #f87171, #facc15, #4ade80, #38bdf8, #818cf8, #f87171)'
+        : `radial-gradient(circle at 50% 45%, ${p.value.belly} 0%, ${p.value.main} 70%)`,
+);
 </script>
 
 <template>
+    <div
+        v-if="!imageFailed"
+        class="pet relative inline-flex shrink-0 items-end justify-center"
+        :style="{ width: `${box}px`, height: `${box}px` }"
+        role="img"
+        :aria-label="`Haustier ${species}`"
+    >
+        <span class="absolute inset-[12%] rounded-full opacity-55 blur-[2px]" :style="{ background: aura }" aria-hidden="true" />
+        <span class="absolute bottom-[3%] h-[8%] w-[60%] rounded-full bg-black/15 blur-[1px]" aria-hidden="true" />
+        <img :src="imageUrl" alt="" class="relative h-[86%] w-[86%] object-contain drop-shadow-md" draggable="false" @error="imageFailed = true" />
+        <span
+            v-if="mount"
+            class="absolute bottom-[30%] left-1/2 h-[16%] w-[34%] -translate-x-1/2 rounded-t-full border-2 border-amber-950/70 bg-gradient-to-b from-red-500 to-red-800 shadow"
+            aria-hidden="true"
+        />
+    </div>
     <svg
+        v-else
         viewBox="0 0 120 110"
         :width="mount ? size * 1.3 : size"
         :height="(mount ? size * 1.3 : size) * 0.92"
