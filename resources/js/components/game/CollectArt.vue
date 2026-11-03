@@ -1,10 +1,16 @@
 <script setup lang="ts">
+import EMOJI_ART from '@/lib/emoji-art.json';
 import { computed } from 'vue';
 
 /** Sammel-Quest: ein Korb, der sich mit dem Fortschritt füllt. */
 const props = withDefaults(defineProps<{ icon?: string | null; ratio?: number; size?: number }>(), { icon: '⭐', ratio: 0, size: 120 });
 
 const ink = '#1f2937';
+// Gesammelte Dinge als 3D-Bild (tools/emoji/build_emoji.py), sonst als Schriftzeichen
+const art = computed(() => {
+    const code = props.icon ? (EMOJI_ART as Record<string, string>)[props.icon.replace(/️/g, '')] : undefined;
+    return code ? `/images/emoji/${code}.webp` : null;
+});
 const fill = computed(() => Math.max(0, Math.min(1, props.ratio)));
 // Gegenstände, die mit dem Fortschritt im Korb sichtbar werden
 const items = computed(() =>
@@ -22,7 +28,8 @@ const items = computed(() =>
 <template>
     <svg viewBox="0 0 160 150" :width="size" :height="size * 0.94" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sammel-Quest" stroke-linejoin="round" class="overflow-visible">
         <ellipse cx="80" cy="140" rx="50" ry="6" fill="#000" opacity=".15" />
-        <text v-for="([x, y], i) in items" :key="i" :x="x" :y="y" text-anchor="middle" font-size="26">{{ icon }}</text>
+        <template v-if="art"><image v-for="([x, y], i) in items" :key="i" :href="art" :x="x - 15" :y="y - 24" width="30" height="30" /></template>
+        <text v-for="([x, y], i) in items" v-else :key="`t${i}`" :x="x" :y="y" text-anchor="middle" font-size="26">{{ icon }}</text>
         <path d="M28 70 L132 70 L120 134 Q118 138 112 138 L48 138 Q42 138 40 134 Z" fill="#d97706" :stroke="ink" stroke-width="3.5" />
         <path d="M34 90 L126 90 M38 110 L122 110" stroke="#92400e" stroke-width="3" />
         <path d="M60 72 L56 136 M80 72 L80 136 M100 72 L104 136" stroke="#92400e" stroke-width="3" />
