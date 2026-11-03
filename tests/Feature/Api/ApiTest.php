@@ -15,7 +15,9 @@ beforeEach(function () {
 test('kinder melden sich per familiencode und pin an und erhalten ein app-token', function () {
     $this->getJson("/api/v1/auth/family/{$this->family->login_code}")
         ->assertOk()
-        ->assertJsonPath('members.0.name', 'Lea');
+        ->assertJsonPath('members.0.name', 'Lea')
+        ->assertJsonStructure(['members' => [['appearance' => ['avatar', 'seed', 'equipment']]]])
+        ->assertJsonMissingPath('members.0.pin');
 
     $token = $this->postJson('/api/v1/auth/pin', [
         'code' => $this->family->login_code, 'user_id' => $this->child->id, 'pin' => '1234', 'device_name' => 'Leas Handy',

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Domain\Family\FamilyService;
 use App\Http\Controllers\Controller;
+use App\Http\Presenters\CharacterSheet;
 use App\Http\Presenters\GamePresenter;
 use App\Models\Family;
 use App\Models\User;
@@ -42,7 +43,8 @@ class AuthController extends Controller
         return response()->json([
             'name' => $family->name,
             'members' => $family->members()->whereNotNull('pin')->orderBy('name')->get()
-                ->map(fn (User $u) => ['id' => $u->id, 'name' => $u->name, 'avatar_color' => $u->avatar_color]),
+                // Wie im Web: Kinder erkennen ihre eigene Heldenfigur schneller als einen Buchstaben
+                ->map(fn (User $u) => ['id' => $u->id, 'name' => $u->name, 'avatar_color' => $u->avatar_color, 'appearance' => CharacterSheet::appearance($u)]),
         ]);
     }
 

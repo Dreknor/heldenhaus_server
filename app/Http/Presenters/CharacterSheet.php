@@ -2,6 +2,7 @@
 
 namespace App\Http\Presenters;
 
+use App\Domain\Art\AvatarSvg;
 use App\Domain\Art\PetArt;
 use App\Domain\Classes\ClassCatalog;
 use App\Domain\Classes\ClassService;
@@ -103,13 +104,18 @@ class CharacterSheet
     /** Aussehen für den Avatar-Baukasten: Einstellungen, sichtbare Ausrüstung, Klassen-Abzeichen. */
     public static function appearance(User $user): array
     {
+        $equipment = UserEquipment::with('item:id,key,rarity')->where('user_id', $user->id)->get()
+            ->mapWithKeys(fn (UserEquipment $e) => [$e->slot => $e->item?->only(['key', 'rarity'])]);
+        $classKey = $user->stats?->class_key ?? $user->stats()->value('class_key');
+
         return [
             'avatar' => $user->avatar,
             'seed' => $user->id,
-            'equipment' => UserEquipment::with('item:id,key,rarity')->where('user_id', $user->id)->get()
-                ->mapWithKeys(fn (UserEquipment $e) => [$e->slot => $e->item?->only(['key', 'rarity'])]),
-            'class_key' => $classKey = $user->stats?->class_key ?? $user->stats()->value('class_key'),
+            'equipment' => $equipment,
+            'class_key' => $classKey,
             'class_icon' => ClassCatalog::get($classKey)['icon'] ?? null,
+            // Bildebenen der Pixelfigur (/avatar/lpc/…, von hinten nach vorn) für die App – dieselben Regeln wie im Web
+            'layers' => AvatarSvg::layers($user->avatar, $user->id, $classKey, $equipment->filter()->all(), 'happy'),
         ];
     }
 
