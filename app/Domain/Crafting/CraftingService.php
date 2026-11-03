@@ -223,7 +223,7 @@ class CraftingService
         $keys = collect($recipes)->flatMap(fn ($r) => array_merge([$r['output']], array_keys($r['inputs']), array_keys($r['learn'] ?? [])))->unique()->values()->all();
         $items = Item::whereIn('key', $keys)->get()->keyBy('key');
         $have = Stock::counts($user->id, $keys);
-        $item = fn (string $key, int $qty) => ['key' => $key, 'name' => $items[$key]->name ?? $key, 'icon' => $items[$key]->icon ?? '📦', 'quantity' => $qty, 'have' => $have[$key] ?? 0];
+        $item = fn (string $key, int $qty) => ['key' => $key, 'name' => $items[$key]->name ?? $key, 'icon' => $items[$key]->icon ?? '📦', 'type' => $items[$key]->type ?? 'material', 'quantity' => $qty, 'have' => $have[$key] ?? 0];
 
         return [
             'level' => $crafting->level,
