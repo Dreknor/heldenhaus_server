@@ -80,8 +80,9 @@
         "source_url": "https://craftpix.net/freebies/",
         "license": "CraftPix Freebie License",
         "license_url": "https://craftpix.net/file-licenses/",
-        "changes": "Möbel-, Wand-, Boden- und Fensterausschnitte aus den Tilesets für die Housing-Raumgrafik erstellt und pixelgenau skaliert.",
+        "changes": "Möbel-, Wand-, Boden- und Fensterausschnitte aus den Tilesets für die Housing-Raumgrafik erstellt und pixelgenau skaliert. Für den Pixel-Hof der Heldenszene Einzelteile aus exterior.png ausgeschnitten, Animationen (Bäume, Katze, Vögel) unverändert übernommen.",
         "files": [
+            "public/images/hof",
             "public/images/housing"
         ]
     },
@@ -95,6 +96,18 @@
         "changes": "Unverändert, eingebunden über das npm-Paket @fontsource/pixelify-sans.",
         "files": [
             "node_modules/@fontsource/pixelify-sans"
+        ]
+    },
+    {
+        "title": "Monster-Bilder: Fluent Emoji (3D)",
+        "author": "Microsoft Corporation",
+        "author_url": "https://github.com/microsoft",
+        "source_url": "https://github.com/microsoft/fluentui-emoji",
+        "license": "MIT",
+        "license_url": "https://github.com/microsoft/fluentui-emoji/blob/main/LICENSE",
+        "changes": "Auf 256 Pixel verkleinert und nach WebP umgewandelt (tools/monsters/build_monsters.py). Im Browser exakt in der Boss-Farbe getönt.",
+        "files": [
+            "public/images/monsters"
         ]
     }
 ]

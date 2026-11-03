@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
+import YardBanner from '@/components/game/YardBanner.vue';
 import { Link } from '@inertiajs/vue3';
 
 defineProps<{
@@ -9,8 +10,9 @@ defineProps<{
 </script>
 
 <template>
-    <div class="hh-wood flex min-h-svh flex-col items-center justify-center gap-6 p-4 md:p-10">
-        <div class="hh-panel hh-parchment w-full max-w-sm p-6 sm:p-8">
+    <div class="hh-wood flex min-h-svh flex-col items-center justify-center gap-4 p-4 md:p-10">
+        <YardBanner class="min-h-40 w-full max-w-md" :hero-size="90" :pets="false" />
+        <div class="hh-panel hh-parchment w-full max-w-md p-6 sm:p-8">
             <div class="flex flex-col gap-8">
                 <div class="flex flex-col items-center gap-4">
                     <Link :href="route('home')" class="flex flex-col items-center gap-2 font-medium">

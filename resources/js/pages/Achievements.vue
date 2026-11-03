@@ -36,6 +36,14 @@ const groups = computed(() => {
     return [...map.entries()];
 });
 
+// Fast geschafft: die drei offenen Stufen mit dem größten Fortschritt – ein klares nächstes Ziel statt 84 auf einmal
+const almost = computed(() =>
+    props.achievements
+        .filter((a) => a.next !== null && a.progress > 0)
+        .sort((a, b) => b.progress - a.progress)
+        .slice(0, 3),
+);
+
 const reached = computed(() => props.achievements.reduce((sum, a) => sum + a.tier, 0));
 const total = computed(() => props.achievements.reduce((sum, a) => sum + a.tiers, 0));
 const date = (iso: string) => new Date(iso).toLocaleDateString('de-DE', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -76,6 +84,27 @@ const fmt = (n: number) => n.toLocaleString('de-DE');
                     <span class="rounded-full bg-muted px-1.5 text-xs">{{ m.count }}</span>
                 </Link>
             </nav>
+
+            <section
+                v-if="almost.length"
+                class="rounded-3xl border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 p-4 dark:border-amber-900 dark:from-amber-950/30 dark:to-orange-950/20"
+            >
+                <h2 class="mb-3 text-lg font-extrabold">Fast geschafft</h2>
+                <div class="grid gap-3 sm:grid-cols-3">
+                    <article v-for="a in almost" :key="a.key" class="flex items-center gap-3 rounded-2xl bg-card p-3 shadow-sm">
+                        <AchievementBadge :motif="a.motif" :tier="a.tier + 1" :tiers="a.tiers" :size="56" class="opacity-90" />
+                        <div class="min-w-0 flex-1">
+                            <p class="font-extrabold leading-tight">{{ a.title }}</p>
+                            <p class="text-sm font-bold text-amber-700 dark:text-amber-300">
+                                Noch {{ fmt(Math.max(0, (a.next ?? 0) - a.value)) }} bis zur nächsten Stufe
+                            </p>
+                            <div class="mt-1.5 h-2.5 overflow-hidden rounded-full bg-muted" aria-hidden="true">
+                                <div class="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500" :style="{ width: `${a.progress * 100}%` }" />
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
 
             <section v-for="[group, items] in groups" :key="group" class="grid gap-3">
                 <h2 class="text-lg font-extrabold">{{ group }}</h2>

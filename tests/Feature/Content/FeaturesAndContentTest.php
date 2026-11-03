@@ -24,6 +24,17 @@ it('sperrt Funktionen unter dem Level mit 403 feature_locked', function () {
         ->assertJsonPath('unlocks_at_level', 2);
 });
 
+it('meldet gesperrte Funktionen im Web freundlich statt mit JSON und zeigt die Sperre vorab an', function () {
+    config(['game.features.enforce' => true]);
+
+    $this->actingAs($this->child)->from('/crafting')
+        ->post('/crafting/craft', ['recipe' => array_key_first(Catalog::recipes())], ['X-Inertia' => 'true'])
+        ->assertRedirect('/crafting')
+        ->assertSessionHasErrors(['game' => 'Das schaltest du mit Level '.Features::levelFor('crafting', $this->child).' frei.']);
+
+    $this->get('/crafting')->assertInertia(fn ($page) => $page->where('locks.crafting', Features::levelFor('crafting', $this->child)));
+});
+
 it('schaltet mit dem Level frei und belohnt die erste Mini-Aufgabe genau einmal', function () {
     config(['game.features.enforce' => true]);
     $this->child->stats()->update(['level' => 5]);

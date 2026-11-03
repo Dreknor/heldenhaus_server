@@ -528,3 +528,15 @@ it('zeigt Alltagshilfen im Dashboard und unterstützt die Web-Aktionen', functio
     $this->putJson("/tasks/{$task->id}/steps", ['steps' => ['Kleidung sortieren', 'Boden freiräumen']])
         ->assertOk()->assertJsonPath('checklist.1', 'Boden freiräumen');
 });
+
+// ---------- Rückmeldung beim Abhaken (§11.4) ----------
+
+it('teilt die Feedback-Einstellungen mit jeder Seite, damit Feiern Bewegung und Ton respektieren', function () {
+    SupportSetting::create(['user_id' => $this->child->id, 'feedback_level' => 'subtle', 'reduce_motion' => true, 'sound' => false]);
+
+    $this->actingAs($this->child->refresh())->get('/achievements')->assertInertia(fn (Assert $page) => $page
+        ->where('auth.feedback.level', 'subtle')
+        ->where('auth.feedback.reduce_motion', true)
+        ->where('auth.feedback.sound', false)
+        ->where('auth.feedback.haptics', true));
+});

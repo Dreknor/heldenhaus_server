@@ -6,6 +6,7 @@ use App\Domain\Crafting\Catalog;
 use App\Domain\Crafting\CraftingService;
 use App\Domain\Crafting\StorageService;
 use App\Domain\Crafting\TradeService;
+use App\Domain\Features\Features;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Housing\HomeService;
 use App\Models\CraftJob;
@@ -37,6 +38,9 @@ class CraftingWebController extends Controller
 
         return Inertia::render('Crafting', [
             'crafting' => CraftingService::present($user),
+            // Gesperrte Bereiche (§13): Level, ab dem sie aufgehen – die Seite zeigt das vorab statt erst beim Klick
+            'locks' => collect(['crafting', 'building', 'alliances'])
+                ->mapWithKeys(fn (string $f) => [$f => Features::has($user, $f) ? null : Features::levelFor($f, $user)]),
             'storage' => StorageService::present($familyId),
             'libraryAvailable' => HomeService::hasRoom(HomeService::home($familyId), 'library'),
             'members' => $user->family->members()->where('id', '!=', $user->id)->orderBy('name')->get(['id', 'name']),

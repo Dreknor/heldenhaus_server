@@ -44,7 +44,7 @@ function ago(iso: string): string {
                         :title="r.names.join(', ')"
                         @click="react(e, r.emoji)"
                     >
-                        {{ r.emoji }}<span v-if="r.count" class="text-xs font-bold">{{ r.count }}</span>
+                        <Emoji :glyph="r.emoji" /><span v-if="r.count" class="text-xs font-bold">{{ r.count }}</span>
                     </button>
                 </div>
             </div>

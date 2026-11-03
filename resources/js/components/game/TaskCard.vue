@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { newUuid, repeatLabel, valueColor } from '@/lib/game';
+import { praise, useCelebrate } from '@/composables/useCelebrate';
+import { dueLabel, newUuid, repeatLabel, valueColor } from '@/lib/game';
 import type { AssignedTask } from '@/types';
 import { router } from '@inertiajs/vue3';
 import { Check, Clock, Flame, Home, Minus, Pencil, Plus, Star } from 'lucide-vue-next';
@@ -10,6 +11,8 @@ const emit = defineEmits<{ edit: [task: AssignedTask] }>();
 
 const busy = ref(false);
 const pop = ref(false);
+const root = ref<HTMLElement | null>(null);
+const { celebrate } = useCelebrate();
 
 const isFamily = computed(() => props.task.scope === 'family');
 const notDue = computed(() => props.task.type === 'daily' && props.task.due_today === false);
@@ -19,6 +22,9 @@ function score(direction: 'up' | 'down') {
     if (busy.value) return;
     busy.value = true;
     if (direction === 'up') {
+        // Gewohnheiten zählen oft – kleine Feier; Abhaken einer Aufgabe – große Feier
+        if (props.task.type === 'habit') celebrate('step', root.value, '+1');
+        else if (!props.task.completed) celebrate('task', root.value, praise());
         pop.value = true;
         setTimeout(() => (pop.value = false), 500);
     }
@@ -45,6 +51,8 @@ function scoreNextStep() {
 function scoreStep(index: number) {
     if (busy.value || props.task.completed) return;
     busy.value = true;
+    const last = props.task.steps.filter((step) => !step.done).length === 1;
+    celebrate(last ? 'task' : 'step', root.value, last ? praise() : 'Schritt!');
     router.post(
         route('steps.score', { assignment: props.task.assignment_id, step: index }),
         { client_uuid: newUuid() },
@@ -55,6 +63,7 @@ function scoreStep(index: number) {
 
 <template>
     <div
+        ref="root"
         class="group relative flex items-stretch overflow-hidden rounded-xl border border-l-4 shadow-sm transition"
         :class="[
             task.completed ? 'border-l-slate-300 bg-muted/60 opacity-70' : valueColor(task.value),
@@ -191,8 +200,12 @@ function scoreStep(index: number) {
                 <span v-else-if="task.type === 'habit' && (task.counter_up || task.counter_down)" class="text-muted-foreground">
                     heute +{{ task.counter_up }}<template v-if="task.down"> / −{{ task.counter_down }}</template>
                 </span>
-                <span v-if="task.type === 'todo' && task.due_date" class="text-muted-foreground"
-                    >bis {{ new Date(task.due_date).toLocaleDateString('de-DE') }}</span
+                <span
+                    v-if="task.type === 'todo' && task.due_date"
+                    class="rounded-full px-2 py-0.5"
+                    :class="dueLabel(task.due_date).tone"
+                    :title="`bis ${new Date(task.due_date).toLocaleDateString('de-DE')}`"
+                    >{{ dueLabel(task.due_date).text }}</span
                 >
             </div>
         </div>

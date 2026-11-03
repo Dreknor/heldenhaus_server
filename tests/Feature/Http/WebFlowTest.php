@@ -142,6 +142,14 @@ test('pin-login sperrt nach zu vielen versuchen', function () {
     $this->assertGuest();
 });
 
+test('kinder-login zeigt die eigene heldenfigur statt nur eines buchstabens', function () {
+    $this->get('/family-login?code='.$this->family->login_code)->assertInertia(fn ($page) => $page
+        ->component('auth/FamilyLogin')
+        ->where('members.0.id', $this->child->id)
+        ->has('members.0.appearance.avatar')
+        ->missing('members.0.pin'));
+});
+
 test('pin-login funktioniert nicht über fremde familiencodes', function () {
     [$otherFamily] = makeFamily();
 

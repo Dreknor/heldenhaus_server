@@ -9,7 +9,11 @@ it('keeps the family page focused on the feed and serves settings separately', f
     $this->actingAs($parent)->get('/family')->assertInertia(fn (Assert $page) => $page
         ->component('family/Index')
         ->has('feed')
-        ->missing('members'));
+        ->missing('members')
+        // Heldengalerie nur zum Anschauen: Avatar, Level, heute erledigt – keine Einstellungen
+        ->has('heroes', 2)
+        ->where('heroes.0.done_today', 0)
+        ->missing('heroes.0.supportSettings'));
 
     $this->get('/family/settings')->assertInertia(fn (Assert $page) => $page
         ->component('family/Settings')

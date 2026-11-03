@@ -29,6 +29,14 @@ export interface Auth {
     stats: Stats | null;
     appearance: Appearance | null;
     family: { id: number; name: string } | null;
+    feedback?: Feedback | null;
+}
+
+export interface Feedback {
+    level: 'full' | 'subtle' | 'haptic';
+    reduce_motion: boolean;
+    sound: boolean;
+    haptics: boolean;
 }
 
 export interface BreadcrumbItem {
@@ -99,6 +107,7 @@ export type Repeat = {
 export interface Task {
     id: number;
     type: TaskType;
+    is_core?: boolean;
     scope: 'personal' | 'family';
     title: string;
     notes: string | null;

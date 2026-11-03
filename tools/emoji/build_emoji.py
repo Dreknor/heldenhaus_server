@@ -4,7 +4,8 @@
     git clone --depth 1 --filter=blob:none --sparse https://github.com/microsoft/fluentui-emoji.git
     python3 tools/emoji/build_emoji.py <fluentui-emoji-klon>
 
-Sammelt jedes "icon" aus database/content/*.json (Items, Quests, Events, Bauprojekte, Garten …) und schreibt
+Sammelt jedes "icon" aus database/content/*.json (Items, Quests, Events, Bauprojekte, Garten …) sowie die Emojis,
+die Server- und Frontend-Code als Symbole verwenden (Feed, Reaktionen, Belohnungen), und schreibt
 public/images/emoji/<codepoints>.webp (128 px, transparent), z. B. 1f9ea.webp für 🧪. Variantenselektoren (FE0F)
 zählen nicht mit. public/images/emoji/index.json listet alle vorhandenen Codes, damit Web und App ohne
 Fehlanfragen wissen, wofür es ein Bild gibt; für alles andere bleibt das Text-Emoji.
@@ -19,6 +20,8 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'public/images/emoji'
 SIZE = 128
+# Code, in dem Emojis als Symbole stehen (z. B. Feed-Einträge, Reaktionen, Belohnungs-Symbole)
+CODE = [('app', '**/*.php'), ('config', '*.php'), ('resources/js', '**/*.vue'), ('resources/js', '**/*.ts')]
 
 
 def code(glyph: str) -> str:
@@ -40,13 +43,19 @@ def icons(node, found: set) -> None:
 def main(clone: Path) -> None:
     found: set[str] = set()
     for f in sorted((ROOT / 'database/content').glob('*.json')):
-        icons(json.loads(f.read_text()), found)
+        icons(json.loads(f.read_text(encoding='utf-8')), found)
 
     subprocess.run(['git', '-C', str(clone), 'sparse-checkout', 'set', '--no-cone', '/assets/*/metadata.json'], check=True)
     folders = {}
+    glyphs = {}
     for meta in (clone / 'assets').glob('*/metadata.json'):
-        m = json.loads(meta.read_text())
+        m = json.loads(meta.read_text(encoding='utf-8'))
         folders[code(m['glyph'])] = meta.parent.name
+        glyphs[code(m['glyph'])] = m['glyph'].replace('️', '')
+
+    # Emojis im Code: jedes bekannte Fluent-Zeichen, das im Quelltext vorkommt
+    text = ''.join(f.read_text(encoding='utf-8', errors='ignore') for base, pat in CODE for f in (ROOT / base).glob(pat)).replace('️', '')
+    found |= {g for g in glyphs.values() if g in text}
 
     wanted = {code(g): g for g in found}
     missing = sorted(g for c, g in wanted.items() if c not in folders)

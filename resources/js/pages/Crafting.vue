@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import Emoji from '@/components/game/Emoji.vue';
 import InputError from '@/components/InputError.vue';
+import ItemIcon from '@/components/game/ItemIcon.vue';
+import RecipeCard, { type Recipe } from '@/components/game/RecipeCard.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useCelebrate } from '@/composables/useCelebrate';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { SharedData } from '@/types';
 import { Head, router, useForm, usePage } from '@inertiajs/vue3';
-import { Anvil, Boxes, Clock3, Gift, Hammer, Handshake, Plus, ScrollText, Trash2 } from 'lucide-vue-next';
+import { Boxes, Clock3, Gift, Hammer, Handshake, Plus, ScrollText, Trash2 } from 'lucide-vue-next';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 interface StockItem {
@@ -19,33 +21,9 @@ interface StockItem {
     master_quantity: number;
 }
 
-interface RecipeItem {
-    key: string;
-    name: string;
-    icon: string;
-    quantity: number;
-    have: number;
-}
-
-interface Recipe {
-    key: string;
-    output: RecipeItem;
-    station: string;
-    station_name?: string;
-    station_level: number;
-    level: number;
-    unlock: string;
-    learn: RecipeItem[] | null;
-    inputs: RecipeItem[];
-    gold: number;
-    seconds: number;
-    unlocked: boolean;
-    station_ok: boolean;
-    has_materials: boolean;
-}
-
 interface TradeItem {
     item_id: number;
+    key: string | null;
     name: string;
     icon: string;
     quantity: number;
@@ -72,7 +50,7 @@ const props = defineProps<{
         jobs: {
             id: number;
             recipe_key: string;
-            item: { name: string; icon: string };
+            item: { key: string; name: string; icon: string };
             quantity: number;
             quality: string;
             finishes_at: string;
@@ -81,6 +59,7 @@ const props = defineProps<{
         recipes: Recipe[];
     };
     storage: { item_id: number; key: string; name: string; icon: string; quantity: number }[];
+    locks: { crafting: number | null; building: number | null; alliances: number | null };
     libraryAvailable: boolean;
     members: { id: number; name: string }[];
     items: StockItem[];
@@ -98,6 +77,18 @@ const tabs = [
     { key: 'trades', title: 'Tauschbörse', icon: Handshake },
 ] as const;
 const tradeSides = ['offer', 'want'] as const;
+
+// Rezepte: Baubares zuerst, auf Wunsch nur das (weniger Auswahl = leichter anfangen)
+const onlyReady = ref(false);
+const isReady = (r: Recipe) => r.unlocked && r.station_ok && r.has_materials;
+const readyCount = computed(() => props.crafting.recipes.filter(isReady).length);
+const sortedRecipes = computed(() => {
+    const rank = (r: Recipe) => (isReady(r) ? 0 : r.unlocked && r.station_ok ? 1 : r.unlocked ? 2 : 3);
+    const list = [...props.crafting.recipes].sort((a, b) => rank(a) - rank(b) || a.level - b.level);
+    return onlyReady.value ? list.filter(isReady) : list;
+});
+const slotsFull = computed(() => props.crafting.jobs.length >= props.crafting.max_jobs);
+const xpPercent = computed(() => Math.min(100, (props.crafting.xp / Math.max(1, props.crafting.xp_next)) * 100));
 
 const craftForm = useForm({ recipe: '' });
 const learnForm = useForm({ recipe: '' });
@@ -136,9 +127,19 @@ onUnmounted(() => {
     if (clockInterval) clearInterval(clockInterval);
 });
 
+const { celebrate } = useCelebrate();
+
 function startCraft(recipe: Recipe) {
     craftForm.recipe = recipe.key;
-    craftForm.post(route('crafting.craft'), { preserveScroll: true });
+    craftForm.post(route('crafting.craft'), { preserveScroll: true, onSuccess: () => celebrate('step', null, 'Wird gebaut!') });
+}
+
+function collectJob(jobId: number) {
+    router.post(
+        route('crafting.jobs.collect', { job: jobId }),
+        {},
+        { preserveScroll: true, onSuccess: () => celebrate('big', null, 'Fertig gebaut!') },
+    );
 }
 
 function learnRecipe(recipe: Recipe) {
@@ -202,20 +203,28 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
     <AppLayout :breadcrumbs="[{ title: 'Handwerk & Tausch', href: '/crafting' }]">
         <div class="flex min-w-0 flex-1 flex-col gap-5 p-4 md:p-6">
             <header
-                class="flex flex-wrap items-center gap-4 rounded-2xl border bg-gradient-to-br from-amber-50 to-orange-100 p-5 dark:from-amber-950/40 dark:to-orange-950/30"
+                class="relative overflow-hidden rounded-3xl border-2 border-amber-200 bg-gradient-to-br from-amber-100 via-orange-50 to-rose-100 p-5 dark:border-amber-900 dark:from-amber-950/50 dark:via-orange-950/30 dark:to-rose-950/30 sm:p-6"
             >
-                <div class="grid size-14 place-items-center rounded-2xl bg-white/70 text-amber-700 dark:bg-black/20 dark:text-amber-300">
-                    <Anvil class="size-8" />
+                <div class="pointer-events-none absolute -right-4 bottom-0 flex items-end gap-1 opacity-90 sm:right-4" aria-hidden="true">
+                    <img src="/images/items/wood.webp" alt="" class="w-12 -rotate-12 drop-shadow sm:w-16" />
+                    <img src="/images/items/weapon_iron_hammer.webp" alt="" class="mb-6 w-16 rotate-12 drop-shadow-lg sm:w-24" />
+                    <img src="/images/items/gears.webp" alt="" class="w-10 drop-shadow sm:w-14" />
+                    <img src="/images/items/furn_chair.webp" alt="" class="hidden w-16 drop-shadow-lg md:block" />
                 </div>
-                <div class="min-w-0 flex-1">
-                    <h1 class="text-2xl font-extrabold tracking-tight">Handwerk & Tausch</h1>
-                    <p class="text-sm text-muted-foreground">Handwerk Stufe {{ crafting.level }} · {{ crafting.xp }}/{{ crafting.xp_next }} XP</p>
-                </div>
-                <div class="w-full max-w-48 rounded-full bg-white/70 p-1 dark:bg-black/20">
-                    <div
-                        class="h-2 rounded-full bg-amber-500"
-                        :style="{ width: `${Math.min(100, (crafting.xp / Math.max(1, crafting.xp_next)) * 100)}%` }"
-                    />
+                <div class="relative max-w-md sm:max-w-[55%]">
+                    <p class="text-xs font-black uppercase tracking-widest text-amber-700 dark:text-amber-300">Werkstatt</p>
+                    <h1 class="text-2xl font-black tracking-tight sm:text-3xl">Handwerk & Tausch</h1>
+                    <p class="mt-1 text-sm text-muted-foreground">Aus Materialien von erledigten Aufgaben werden Möbel und Schätze.</p>
+                    <div class="mt-4 flex items-center gap-3">
+                        <span class="rounded-xl bg-amber-500 px-3 py-1 text-sm font-black text-white shadow">Stufe {{ crafting.level }}</span>
+                        <div class="h-3 flex-1 overflow-hidden rounded-full bg-white/80 shadow-inner dark:bg-black/30">
+                            <div
+                                class="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all"
+                                :style="{ width: `${xpPercent}%` }"
+                            />
+                        </div>
+                        <span class="text-xs font-bold tabular-nums text-muted-foreground">{{ crafting.xp }}/{{ crafting.xp_next }} XP</span>
+                    </div>
                 </div>
             </header>
 
@@ -234,6 +243,20 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
                 {{ gameError }}
             </div>
 
+            <div
+                v-if="locks.crafting"
+                class="flex items-center gap-4 rounded-2xl border-2 border-violet-200 bg-violet-50 p-4 dark:border-violet-900 dark:bg-violet-950/30"
+            >
+                <img src="/images/items/dungeon_key.webp" alt="" class="size-12 shrink-0 drop-shadow" />
+                <div>
+                    <p class="font-extrabold">Die Werkstatt öffnet ab Level {{ locks.crafting }}</p>
+                    <p class="text-sm text-muted-foreground">
+                        Du bist Level {{ page.props.auth.stats?.level ?? 1 }}. Schau dich schon um – Materialien, die du jetzt sammelst, kannst du
+                        dann verbauen.
+                    </p>
+                </div>
+            </div>
+
             <nav class="flex gap-2 overflow-x-auto pb-1" aria-label="Handwerksbereiche">
                 <button
                     v-for="item in tabs"
@@ -246,75 +269,47 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
                 </button>
             </nav>
 
-            <section v-if="tab === 'recipes'" class="grid gap-3">
-                <div class="flex items-center gap-2">
-                    <Hammer class="size-5 text-amber-600" />
-                    <h2 class="font-extrabold">Rezeptbuch</h2>
+            <section v-if="tab === 'recipes'" class="grid gap-4">
+                <div class="flex flex-wrap items-center gap-3">
+                    <h2 class="text-lg font-extrabold">Rezeptbuch</h2>
+                    <span
+                        class="rounded-full px-2.5 py-1 text-xs font-black"
+                        :class="
+                            readyCount
+                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200'
+                                : 'bg-muted text-muted-foreground'
+                        "
+                    >
+                        {{ readyCount ? `${readyCount} kannst du jetzt bauen` : 'Sammle Materialien durch Aufgaben' }}
+                    </span>
+                    <span class="text-xs font-semibold text-muted-foreground"
+                        >{{ crafting.jobs.length }}/{{ crafting.max_jobs }} Werkplätze belegt</span
+                    >
+                    <label class="ml-auto flex cursor-pointer items-center gap-2 rounded-xl border-2 bg-card px-3 py-1.5 text-sm font-bold">
+                        <input v-model="onlyReady" type="checkbox" class="size-4 accent-emerald-600" />
+                        Nur was ich bauen kann
+                    </label>
                 </div>
-                <p v-if="!crafting.recipes.length" class="rounded-2xl border border-dashed p-8 text-center text-muted-foreground">
-                    Es sind noch keine Rezepte verfügbar.
+                <p v-if="!sortedRecipes.length" class="rounded-3xl border-2 border-dashed p-10 text-center text-muted-foreground">
+                    {{
+                        onlyReady
+                            ? 'Gerade fehlt für jedes Rezept noch etwas. Erledige Aufgaben, dann findest du Materialien.'
+                            : 'Es sind noch keine Rezepte verfügbar.'
+                    }}
                 </p>
-                <article
-                    v-for="recipe in crafting.recipes"
-                    :key="recipe.key"
-                    class="grid gap-4 rounded-2xl border bg-card p-4 sm:grid-cols-[1fr_auto] sm:items-center"
-                >
-                    <div class="min-w-0">
-                        <div class="flex items-center gap-2 font-extrabold">
-                            <span class="text-2xl" aria-hidden="true"><Emoji :glyph="recipe.output.icon" /></span
-                            ><span>{{ recipe.output.name }}</span>
-                        </div>
-                        <p class="mt-1 text-xs text-muted-foreground">
-                            {{ recipe.station_name ?? recipe.station }} Stufe {{ recipe.station_level }} · Handwerk Stufe {{ recipe.level }} ·
-                            <template v-if="recipe.seconds">⏱ {{ durationLabel(recipe.seconds) }}</template
-                            ><template v-else>sofort</template>
-                            <template v-if="recipe.gold"> · {{ recipe.gold }} Gold</template>
-                        </p>
-                        <div class="mt-3 flex flex-wrap gap-2">
-                            <span
-                                v-for="input in recipe.inputs"
-                                :key="input.key"
-                                class="rounded-lg bg-muted px-2 py-1 text-xs"
-                                :class="input.have < input.quantity ? 'text-rose-600' : ''"
-                            >
-                                <Emoji :glyph="input.icon" /> {{ input.name }} {{ input.have }}/{{ input.quantity }}
-                            </span>
-                        </div>
-                        <p v-if="!recipe.unlocked" class="mt-2 text-xs font-semibold text-muted-foreground">
-                            {{
-                                recipe.unlock === 'library'
-                                    ? libraryAvailable
-                                        ? 'Benötigt Bibliothek und Pergament/Tinte zum Lernen.'
-                                        : 'Benötigt eine Bibliothek zum Lernen.'
-                                    : `Freischaltung ab Handwerk Stufe ${recipe.level}.`
-                            }}
-                        </p>
-                        <p v-else-if="!recipe.station_ok" class="mt-2 text-xs font-semibold text-rose-600">
-                            Die benötigte Werkstatt ist noch nicht gebaut oder ausgebaut.
-                        </p>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-2 sm:justify-end">
-                        <Button
-                            v-if="recipe.unlock === 'library' && !recipe.unlocked"
-                            variant="outline"
-                            :disabled="!libraryAvailable || learnForm.processing"
-                            @click="learnRecipe(recipe)"
-                            >Rezept lernen</Button
-                        >
-                        <Button
-                            v-else
-                            :disabled="
-                                !recipe.unlocked ||
-                                !recipe.station_ok ||
-                                !recipe.has_materials ||
-                                crafting.jobs.length >= crafting.max_jobs ||
-                                craftForm.processing
-                            "
-                            @click="startCraft(recipe)"
-                            >Herstellen</Button
-                        >
-                    </div>
-                </article>
+                <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                    <RecipeCard
+                        v-for="recipe in sortedRecipes"
+                        :key="recipe.key"
+                        :recipe="recipe"
+                        :slots-full="slotsFull"
+                        :locked-level="locks.crafting"
+                        :busy="craftForm.processing || learnForm.processing"
+                        :library-available="libraryAvailable"
+                        @craft="startCraft"
+                        @learn="learnRecipe"
+                    />
+                </div>
             </section>
 
             <section v-else-if="tab === 'jobs'" class="grid gap-3">
@@ -324,7 +319,7 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
                     <span class="ml-auto text-xs text-muted-foreground">{{ crafting.jobs.length }}/{{ crafting.max_jobs }} Plätze belegt</span>
                 </div>
                 <article v-for="job in crafting.jobs" :key="job.id" class="flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-4">
-                    <span class="text-3xl" aria-hidden="true"><Emoji :glyph="job.item.icon" /></span>
+                    <ItemIcon :item="{ key: job.item.key, type: 'furniture' }" :size="48" />
                     <div class="min-w-0 flex-1">
                         <p class="font-bold">{{ job.item.name }} × {{ job.quantity }}</p>
                         <p class="text-xs text-muted-foreground">
@@ -332,12 +327,7 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
                             {{ jobIsReady(job) ? 'Fertig' : `Fertig um ${timeLabel(job.finishes_at)}` }}
                         </p>
                     </div>
-                    <Button
-                        v-if="jobIsReady(job)"
-                        :disabled="craftForm.processing"
-                        @click="router.post(route('crafting.jobs.collect', { job: job.id }), {}, { preserveScroll: true })"
-                        >Abholen</Button
-                    >
+                    <Button v-if="jobIsReady(job)" :disabled="craftForm.processing" @click="collectJob(job.id)">Abholen</Button>
                     <span v-else class="rounded-full bg-sky-100 px-3 py-1 text-xs font-bold text-sky-700 dark:bg-sky-950 dark:text-sky-300"
                         >In Arbeit</span
                     >
@@ -354,8 +344,7 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
                         <p class="text-sm text-muted-foreground">Nur Materialien können eingelagert werden.</p>
                     </div>
                     <article v-for="item in storage" :key="item.item_id" class="flex items-center gap-3 rounded-xl border p-3">
-                        <span class="text-2xl"><Emoji :glyph="item.icon" /></span
-                        ><span class="min-w-0 flex-1 font-semibold"
+                        <ItemIcon :item="{ key: item.key, type: 'material' }" :size="36" /><span class="min-w-0 flex-1 font-semibold"
                             >{{ item.name }} <span class="text-muted-foreground">× {{ item.quantity }}</span></span
                         >
                         <Input
@@ -383,8 +372,7 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
                         <p class="text-sm text-muted-foreground">Deine Materialien stehen danach allen Familienmitgliedern zur Verfügung.</p>
                     </div>
                     <article v-for="item in materialItems" :key="item.id" class="flex items-center gap-3 rounded-xl border p-3">
-                        <span class="text-2xl"><Emoji :glyph="item.icon" /></span
-                        ><span class="min-w-0 flex-1 font-semibold"
+                        <ItemIcon :item="{ key: item.key, type: 'material' }" :size="36" /><span class="min-w-0 flex-1 font-semibold"
                             >{{ item.name }} <span class="text-muted-foreground">× {{ item.quantity }}</span></span
                         >
                         <Input
@@ -443,8 +431,8 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
                 </form>
             </section>
 
-            <section v-else class="grid gap-5 lg:grid-cols-[minmax(18rem,0.8fr)_minmax(0,1.2fr)]">
-                <div class="grid content-start gap-3 rounded-2xl border bg-card p-5">
+            <section v-else class="grid gap-5 xl:grid-cols-[minmax(20rem,0.8fr)_minmax(0,1.2fr)]">
+                <div class="grid min-w-0 content-start gap-3 rounded-2xl border bg-card p-5">
                     <div>
                         <h2 class="flex items-center gap-2 font-extrabold"><Handshake class="size-5 text-violet-600" /> Neues Tauschangebot</h2>
                         <p class="text-sm text-muted-foreground">
@@ -518,13 +506,31 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
                             <span class="rounded-full bg-muted px-2.5 py-1 text-xs font-bold">{{ statusLabels[trade.status] ?? trade.status }}</span>
                         </div>
                         <div class="grid gap-2 text-sm sm:grid-cols-[1fr_auto_1fr] sm:items-center">
-                            <p class="rounded-lg bg-muted p-3">
-                                <strong>Bietet:</strong> {{ trade.offer.map((i) => `${i.icon} ${i.name} × ${i.quantity}`).join(', ') }}
-                            </p>
+                            <div class="rounded-2xl bg-muted p-3">
+                                <p class="mb-2 text-xs font-black uppercase tracking-wider text-muted-foreground">Bietet</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span
+                                        v-for="i in trade.offer"
+                                        :key="i.item_id"
+                                        class="flex items-center gap-1.5 rounded-xl bg-card py-1 pl-1 pr-2.5 font-semibold shadow-sm"
+                                    >
+                                        <ItemIcon :item="{ key: i.key, type: 'material' }" :size="28" /> {{ i.quantity }}× {{ i.name }}
+                                    </span>
+                                </div>
+                            </div>
                             <span class="text-center text-lg font-bold text-muted-foreground">⇄</span>
-                            <p class="rounded-lg bg-muted p-3">
-                                <strong>Möchte:</strong> {{ trade.want.map((i) => `${i.icon} ${i.name} × ${i.quantity}`).join(', ') }}
-                            </p>
+                            <div class="rounded-2xl bg-muted p-3">
+                                <p class="mb-2 text-xs font-black uppercase tracking-wider text-muted-foreground">Möchte</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span
+                                        v-for="i in trade.want"
+                                        :key="i.item_id"
+                                        class="flex items-center gap-1.5 rounded-xl bg-card py-1 pl-1 pr-2.5 font-semibold shadow-sm"
+                                    >
+                                        <ItemIcon :item="{ key: i.key, type: 'material' }" :size="28" /> {{ i.quantity }}× {{ i.name }}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                         <p v-if="trade.accepted_by" class="text-xs text-muted-foreground">Angenommen von {{ trade.accepted_by.name }}</p>
                         <div class="flex flex-wrap gap-2">

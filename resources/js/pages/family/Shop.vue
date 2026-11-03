@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Emoji from '@/components/game/Emoji.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -7,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { SharedData } from '@/types';
 import { Head, router, useForm, usePage } from '@inertiajs/vue3';
-import { Gift, Pencil, Star } from 'lucide-vue-next';
+import { Pencil, Star } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 interface Item {
@@ -72,6 +73,23 @@ function redeem(item: Item) {
 }
 
 const statusLabel: Record<string, string> = { pending: 'wartet', approved: 'eingelöst', rejected: 'abgelehnt' };
+
+// Symbol der Belohnung: eigenes Emoji, sonst passend zum Titel (ältere Einträge speichern nur „gift“)
+const TITLE_ICONS: [RegExp, string][] = [
+    [/konsole|zocken|spiel|game/i, '🎮'],
+    [/film|kino|serie/i, '🎬'],
+    [/essen|pizza|restaurant/i, '🍕'],
+    [/spül|abwasch/i, '🍽️'],
+    [/geschichte|vorlesen|buch/i, '📖'],
+    [/eis|nachtisch|süß/i, '🍦'],
+    [/ausflug|zoo|park/i, '🎡'],
+    [/länger auf|aufbleiben/i, '🌙'],
+    [/taschengeld|geld|euro/i, '💰'],
+];
+function rewardIcon(item: { icon: string; title: string }) {
+    if (item.icon && item.icon !== 'gift' && !/^[a-z_]+$/.test(item.icon)) return item.icon;
+    return TITLE_ICONS.find(([re]) => re.test(item.title))?.[1] ?? '🎁';
+}
 </script>
 
 <template>
@@ -96,7 +114,7 @@ const statusLabel: Record<string, string> = { pending: 'wartet', approved: 'eing
                     :class="item.active ? '' : 'opacity-50'"
                 >
                     <button v-if="isParent" class="absolute right-3 top-3 rounded-md p-1 hover:bg-muted" aria-label="Bearbeiten" @click="edit(item)"><Pencil class="size-4" /></button>
-                    <Gift class="size-8 text-violet-500" />
+                    <span class="flex size-16 items-center justify-center rounded-2xl bg-violet-50 text-4xl dark:bg-violet-950/40"><Emoji :glyph="rewardIcon(item)" /></span>
                     <div class="flex-1">
                         <p class="text-lg font-extrabold">{{ item.title }}</p>
                         <p v-if="item.description" class="text-sm text-muted-foreground">{{ item.description }}</p>

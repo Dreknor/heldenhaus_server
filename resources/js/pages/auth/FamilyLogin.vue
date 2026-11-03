@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import HeroAvatar from '@/components/game/HeroAvatar.vue';
+import type { Appearance } from '@/types';
 import InputError from '@/components/InputError.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
@@ -11,7 +13,7 @@ import { computed, ref } from 'vue';
 const props = defineProps<{
     code: string | null;
     familyName: string | null;
-    members: { id: number; name: string; avatar_color: string }[];
+    members: { id: number; name: string; avatar_color: string; appearance?: Appearance | null }[];
 }>();
 
 const codeInput = ref('');
@@ -61,8 +63,21 @@ function submit() {
                 class="flex flex-col items-center gap-2 rounded-2xl border-2 border-transparent p-3 transition hover:border-primary hover:bg-muted"
                 @click="choose(m.id)"
             >
-                <span class="flex size-20 items-center justify-center rounded-3xl text-4xl font-extrabold text-white shadow-md" :style="{ background: m.avatar_color }">
-                    {{ m.name.charAt(0) }}
+                <span
+                    class="flex size-24 items-end justify-center overflow-hidden rounded-3xl text-4xl font-extrabold text-white shadow-md"
+                    :style="{ background: `linear-gradient(180deg, ${m.avatar_color}55, ${m.avatar_color})` }"
+                >
+                    <HeroAvatar
+                        v-if="m.appearance"
+                        :avatar="m.appearance.avatar"
+                        :equipment="m.appearance.equipment"
+                        :seed="m.appearance.seed"
+                        :class-key="m.appearance.class_key"
+                        :size="92"
+                        :backdrop="false"
+                        mood="happy"
+                    />
+                    <span v-else class="self-center">{{ m.name.charAt(0) }}</span>
                 </span>
                 <span class="font-bold">{{ m.name }}</span>
             </button>
@@ -73,8 +88,21 @@ function submit() {
         <form v-else class="grid gap-4" @submit.prevent="submit">
             <button type="button" class="flex items-center gap-1 text-sm text-muted-foreground" @click="selected = null"><ArrowLeft class="size-4" /> Anderes Profil</button>
             <div class="flex flex-col items-center gap-2">
-                <span class="flex size-16 items-center justify-center rounded-2xl text-3xl font-extrabold text-white" :style="{ background: selectedMember.avatar_color }">
-                    {{ selectedMember.name.charAt(0) }}
+                <span
+                    class="flex size-20 items-end justify-center overflow-hidden rounded-2xl text-3xl font-extrabold text-white"
+                    :style="{ background: `linear-gradient(180deg, ${selectedMember.avatar_color}55, ${selectedMember.avatar_color})` }"
+                >
+                    <HeroAvatar
+                        v-if="selectedMember.appearance"
+                        :avatar="selectedMember.appearance.avatar"
+                        :equipment="selectedMember.appearance.equipment"
+                        :seed="selectedMember.appearance.seed"
+                        :class-key="selectedMember.appearance.class_key"
+                        :size="76"
+                        :backdrop="false"
+                        mood="happy"
+                    />
+                    <template v-else>{{ selectedMember.name.charAt(0) }}</template>
                 </span>
                 <span class="text-lg font-bold">Hallo {{ selectedMember.name }}!</span>
             </div>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import CronDialog from '@/components/game/CronDialog.vue';
 import DailySupport from '@/components/game/DailySupport.vue';
+import FocusBoard from '@/components/game/FocusBoard.vue';
 import GamePanel from '@/components/game/GamePanel.vue';
 import HeroScene from '@/components/game/HeroScene.vue';
 import QuestCard, { type ActiveQuest } from '@/components/game/QuestCard.vue';
@@ -26,8 +27,10 @@ import {
     ShoppingBag,
     Skull,
     Star,
+    Target,
+    LayoutGrid,
 } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const props = defineProps<{
     habits: AssignedTask[];
@@ -77,6 +80,27 @@ const props = defineProps<{
 
 const page = usePage<SharedData>();
 const stats = computed(() => page.props.auth.stats);
+
+// Ansicht: Fokus (eine Aufgabe, §11.4) oder Alles (Helden-Board). Die Wahl merkt sich das Gerät pro Person;
+// Kinder starten in der Fokus-Ansicht (weniger auf einmal), alle anderen nach ihrer Einstellung.
+const MODE_KEY = `heldenhaus.dashboard.mode.${page.props.auth.user.id}`;
+function storedMode(): 'focus' | 'all' | null {
+    try {
+        const v = window.localStorage.getItem(MODE_KEY);
+        return v === 'focus' || v === 'all' ? v : null;
+    } catch {
+        return null;
+    }
+}
+const startInFocus = props.support.focus_mode_default || page.props.auth.user.age_group === 'child';
+const mode = ref<'focus' | 'all'>(storedMode() ?? (startInFocus ? 'focus' : 'all'));
+watch(mode, (m) => {
+    try {
+        window.localStorage.setItem(MODE_KEY, m);
+    } catch {
+        // nicht speicherbar: gilt nur bis zum Neuladen
+    }
+});
 
 const columns = computed(() => [
     { type: 'habit' as TaskType, title: 'Gewohnheiten', icon: Repeat, items: props.habits, placeholder: 'Neue Gewohnheit …' },
@@ -165,6 +189,41 @@ const greeting = computed(() => {
 
     <AppLayout :breadcrumbs="[{ title: 'Helden-Board', href: '/dashboard' }]">
         <div class="flex flex-1 flex-col gap-5 p-4 md:p-6">
+            <!-- Ansicht wählen -->
+            <div class="flex items-center justify-between gap-3">
+                <p v-if="mode === 'focus'" class="font-pixel text-xl tracking-wide">{{ greeting }}, {{ page.props.auth.user.name }}!</p>
+                <span v-else />
+                <div class="hh-panel inline-flex gap-1 p-1" role="radiogroup" aria-label="Ansicht">
+                    <button
+                        v-for="m in [
+                            { key: 'focus', label: 'Fokus', icon: Target },
+                            { key: 'all', label: 'Alles', icon: LayoutGrid },
+                        ] as const"
+                        :key="m.key"
+                        role="radio"
+                        :aria-checked="mode === m.key"
+                        class="flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-bold transition"
+                        :class="mode === m.key ? 'bg-amber-500 text-white shadow' : 'text-muted-foreground hover:text-foreground'"
+                        @click="mode = m.key"
+                    >
+                        <component :is="m.icon" class="size-4" /> {{ m.label }}
+                    </button>
+                </div>
+            </div>
+
+            <template v-if="mode === 'focus'">
+                <FocusBoard
+                    :dailies="dailies"
+                    :todos="todos"
+                    :focus="focus"
+                    :low-energy="support.low_energy_today"
+                    :timer-style="support.timer_style"
+                    @show-all="mode = 'all'"
+                />
+                <QuestCard v-if="quests.family" :quest="quests.family" compact />
+            </template>
+
+            <template v-else>
             <!-- Kopf -->
             <HeroScene
                 v-if="page.props.auth.appearance"
@@ -394,6 +453,7 @@ const greeting = computed(() => {
                 :focus-tasks="[...todos, ...dailies]"
                 :categories="categories"
             />
+            </template>
         </div>
 
         <TaskDialog
