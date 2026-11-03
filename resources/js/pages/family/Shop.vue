@@ -81,7 +81,7 @@ const TITLE_ICONS: [RegExp, string][] = [
     [/essen|pizza|restaurant/i, '🍕'],
     [/spül|abwasch/i, '🍽️'],
     [/geschichte|vorlesen|buch/i, '📖'],
-    [/eis|nachtisch|süß/i, '🍦'],
+    [/eis\b|nachtisch|süß/i, '🍦'],
     [/ausflug|zoo|park/i, '🎡'],
     [/länger auf|aufbleiben/i, '🌙'],
     [/taschengeld|geld|euro/i, '💰'],

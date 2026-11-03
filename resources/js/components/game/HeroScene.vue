@@ -129,6 +129,12 @@ const snowflakes = Array.from({ length: 26 }, (_, i) => ({
                     :size="132"
                     class="rider z-10 drop-shadow-lg"
                 />
+                <!-- Sattel verdeckt den Übergang zwischen Reiter und Tier -->
+                <div class="saddle z-20" aria-hidden="true">
+                    <span class="saddle-blanket" />
+                    <span class="saddle-seat" />
+                    <span class="saddle-stirrup" />
+                </div>
             </div>
             <template v-else>
                 <HeroAvatar
@@ -157,8 +163,50 @@ const snowflakes = Array.from({ length: 26 }, (_, i) => ({
     left: 50%;
     transform: translateX(-50%);
     bottom: 34%;
-    clip-path: inset(0 0 30% 0);
+    -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 71%);
+    mask-image: linear-gradient(to bottom, #000 62%, transparent 71%);
     animation: ride 1.6s ease-in-out infinite;
+}
+.saddle {
+    position: absolute;
+    left: 50%;
+    bottom: calc(34% + 30px);
+    width: 62px;
+    height: 26px;
+    transform: translateX(-50%);
+    animation: ride 1.6s ease-in-out infinite;
+    pointer-events: none;
+}
+.saddle-blanket {
+    position: absolute;
+    inset: 8px 0 0;
+    border-radius: 3px 3px 10px 10px;
+    background: repeating-linear-gradient(90deg, #b91c1c 0 6px, #991b1b 6px 12px);
+    border: 2px solid #3b1d0e;
+    box-shadow: inset 0 -4px 0 #facc15;
+}
+.saddle-seat {
+    position: absolute;
+    left: 9px;
+    right: 9px;
+    top: 0;
+    height: 14px;
+    border-radius: 10px 10px 4px 4px;
+    background: linear-gradient(#a0522d, #6b3410);
+    border: 2px solid #3b1d0e;
+    box-shadow: inset 0 3px 0 rgb(255 255 255 / 25%);
+}
+.saddle-stirrup {
+    position: absolute;
+    left: 50%;
+    top: 22px;
+    width: 10px;
+    height: 16px;
+    transform: translateX(-50%);
+    border: 2px solid #3b1d0e;
+    border-top: 6px solid #6b3410;
+    border-radius: 0 0 5px 5px;
+    background: transparent;
 }
 .riding :deep(.pet) {
     animation: ride 1.6s ease-in-out infinite;
@@ -214,6 +262,7 @@ const snowflakes = Array.from({ length: 26 }, (_, i) => ({
 }
 @media (prefers-reduced-motion: reduce) {
     .rider,
+    .saddle,
     .twinkle,
     .clouds,
     .rain-drop,

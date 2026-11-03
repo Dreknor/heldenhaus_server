@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 
+import petLuma from '@/lib/petLuma.json';
+
 /**
  * Haustiere (Konzept §2.9): Bild der Tierart (Fluent Emoji 3D, public/images/pets) mit einem Schimmer
  * in der Farbe des Schlüpfpulvers. Fehlt ein Bild, zeichnet die SVG-Vorlage das Tier.
@@ -33,6 +35,12 @@ const PALETTES: Record<string, { main: string; belly: string }> = {
     potion_crystal: { main: '#67e8f9', belly: '#f0abfc' },
     potion_rainbow: { main: 'url(#rainbow)', belly: '#fef3c7' },
 };
+function lightness(color: string): number {
+    const hex = color.startsWith('#') ? color.slice(1) : '';
+    if (hex.length !== 6) return 0.5;
+    const [r, g, b] = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+    return (Math.max(r, g, b) + Math.min(r, g, b)) / 2;
+}
 const p = computed(() => PALETTES[props.potion] ?? { main: '#a3a3a3', belly: '#f5f5f4' });
 const species = computed(() => props.egg.replace(/^egg_/, ''));
 const uid = Math.random().toString(36).slice(2, 8);
@@ -55,6 +63,15 @@ const tintStyle = computed(() => ({
     WebkitMaskImage: `url(/images/pets/${species.value}.webp)`,
 }));
 const effect = computed(() => SPECIAL[props.potion] ?? null);
+// Jedes Tierbild hat eine eigene Grundhelligkeit (Frosch hell, schwarze Katze dunkel). Damit ein Pulver auf
+// allen Tieren gleich aussieht, wird das Bild entsättigt und auf die Helligkeit des Pulvers gebracht,
+// erst dann eingefärbt – Gold glänzt so auch auf dem braunen Pony golden (Messung: tools/pets/pet_luma.py).
+const baseFilter = computed(() => {
+    if (!tinted.value) return undefined;
+    const target = props.potion === 'potion_golden' ? 0.74 : 0.2 + 0.7 * lightness(p.value.main);
+    const factor = Math.min(2.6, Math.max(0.45, target / ((petLuma as Record<string, number>)[species.value] ?? 0.5)));
+    return `grayscale(1) brightness(${factor.toFixed(2)}) contrast(1.1)`;
+});
 const width = computed(() => (props.mount ? props.size * 1.3 : props.size));
 const glow = computed(() =>
     props.potion === 'potion_rainbow'
@@ -74,9 +91,14 @@ const glow = computed(() =>
         <span class="pet-glow" :style="{ background: glow }" />
         <span v-if="mount" class="pet-podest" aria-hidden="true" />
         <span class="pet-body" :class="effect">
-            <img :src="`/images/pets/${species}.webp`" alt="" @error="imageFailed = true" />
+            <img :src="`/images/pets/${species}.webp`" alt="" :style="{ filter: baseFilter }" @error="imageFailed = true" />
             <span v-if="tinted" class="pet-tint" :style="tintStyle" aria-hidden="true" />
-            <span v-if="effect === 'fx-rainbow'" class="pet-tint pet-rainbow" :style="{ maskImage: tintStyle.maskImage, WebkitMaskImage: tintStyle.WebkitMaskImage }" aria-hidden="true" />
+            <span
+                v-if="effect === 'fx-rainbow'"
+                class="pet-tint pet-rainbow"
+                :style="{ maskImage: tintStyle.maskImage, WebkitMaskImage: tintStyle.WebkitMaskImage }"
+                aria-hidden="true"
+            />
             <span v-if="effect === 'fx-crystal' || effect === 'fx-stars' || effect === 'fx-golden'" class="pet-sparkles" aria-hidden="true">
                 <i v-for="n in 5" :key="n" :style="{ left: `${(n * 19) % 90}%`, top: `${(n * 31) % 80}%`, animationDelay: `${n * 0.35}s` }" />
             </span>
@@ -210,7 +232,6 @@ const glow = computed(() =>
     position: absolute;
     inset: 0;
     mix-blend-mode: color;
-    opacity: 0.75;
     mask-size: contain;
     mask-repeat: no-repeat;
     mask-position: center;
@@ -225,13 +246,13 @@ const glow = computed(() =>
     animation: rainbow 4s linear infinite;
     opacity: 0.85;
 }
-.fx-golden img {
-    filter: drop-shadow(0 0 6px rgb(250 204 21 / 0.8));
+.fx-golden {
+    filter: drop-shadow(0 0 6px rgb(250 204 21 / 0.85));
 }
-.fx-shadow img {
-    filter: brightness(0.7) drop-shadow(0 0 6px rgb(88 28 135 / 0.7));
+.fx-shadow {
+    filter: drop-shadow(0 0 6px rgb(88 28 135 / 0.7));
 }
-.fx-crystal img {
+.fx-crystal {
     filter: drop-shadow(0 0 6px rgb(103 232 249 / 0.8));
 }
 .pet-sparkles i {

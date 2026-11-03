@@ -114,11 +114,6 @@ const statusLabels: Record<string, string> = {
 };
 const timeLabel = (value: string) => new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
 const jobIsReady = (job: (typeof props.crafting.jobs)[number]) => job.ready || new Date(job.finishes_at).getTime() <= currentTime.value;
-const durationLabel = (seconds: number) => {
-    if (seconds < 60) return `${seconds} Sek.`;
-    if (seconds < 3600) return `${Math.ceil(seconds / 60)} Min.`;
-    return `${Math.ceil(seconds / 3600)} Std.`;
-};
 const gameError = computed(() => page.props.errors?.game);
 
 onMounted(() => {

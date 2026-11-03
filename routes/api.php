@@ -75,6 +75,7 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
             Route::post('inventory/{item}/use', [CharacterController::class, 'use'])->name('inventory.use');
             Route::post('pets/hatch', [CharacterController::class, 'hatch'])->name('pets.hatch')->middleware('feature:pets');
             Route::post('pets/{pet}/feed', [CharacterController::class, 'feed'])->name('pets.feed')->middleware('feature:pets');
+            Route::post('pets/{pet}/companion', [CharacterController::class, 'companion'])->name('pets.companion')->middleware('feature:pets');
             Route::get('feed', [FamilyHubController::class, 'feed'])->name('feed');
             Route::post('feed/{entry}/react', [FamilyHubController::class, 'react'])->name('feed.react');
             Route::get('allowance', [FamilyHubController::class, 'allowance'])->name('allowance');
@@ -239,6 +240,7 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
                 Route::post('inventory/{item}/use', [CharacterController::class, 'use'])->name('inventory.use');
                 Route::post('pets/hatch', [CharacterController::class, 'hatch'])->name('pets.hatch')->middleware('feature:pets');
                 Route::post('pets/{pet}/feed', [CharacterController::class, 'feed'])->name('pets.feed')->middleware('feature:pets');
+                Route::post('pets/{pet}/companion', [CharacterController::class, 'companion'])->name('pets.companion')->middleware('feature:pets');
 
                 Route::get('quests', [QuestController::class, 'index'])->name('quests');
                 Route::post('quests', [QuestController::class, 'start'])->name('quests.start');

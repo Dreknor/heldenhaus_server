@@ -26,7 +26,18 @@ interface Item {
 const props = defineProps<{
     items: Item[];
     shop: Item[];
-    pets: { id: number; name: string; egg_icon: string; potion_icon: string; egg_key: string; potion_key: string; growth: number; growth_max: number; is_mount: boolean }[];
+    pets: {
+        id: number;
+        name: string;
+        egg_icon: string;
+        potion_icon: string;
+        egg_key: string;
+        potion_key: string;
+        growth: number;
+        growth_max: number;
+        is_mount: boolean;
+        is_companion: boolean;
+    }[];
     types: Record<string, string>;
     rarities: Record<string, string>;
     level: number;
@@ -50,7 +61,8 @@ const egg = ref<number | null>(null);
 const potion = ref<number | null>(null);
 const feedFor = ref<number | null>(null);
 
-const post = (name: string, params: Record<string, number>, data: Record<string, number | null> = {}) => router.post(route(name, params), data, { preserveScroll: true });
+const post = (name: string, params: Record<string, number>, data: Record<string, number | null> = {}) =>
+    router.post(route(name, params), data, { preserveScroll: true });
 
 function hatch() {
     if (egg.value && potion.value) post('pets.hatch', {}, { egg_id: egg.value, potion_id: potion.value });
@@ -71,7 +83,8 @@ const rarityRing: Record<string, string> = {
     epic: 'ring-violet-500',
     legendary: 'ring-amber-400 shadow-md shadow-amber-200',
 };
-const tabClass = (active: boolean) => `rounded-lg px-4 py-2 text-sm font-bold transition ${active ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`;
+const tabClass = (active: boolean) =>
+    `rounded-lg px-4 py-2 text-sm font-bold transition ${active ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`;
 </script>
 
 <template>
@@ -94,11 +107,18 @@ const tabClass = (active: boolean) => `rounded-lg px-4 py-2 text-sm font-bold tr
                 <section v-for="(list, type) in groups" :key="type" class="grid gap-3">
                     <h2 class="font-extrabold">{{ types[type] ?? type }}</h2>
                     <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
-                        <div v-for="item in list" :key="item.id" class="relative flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center ring-2" :class="rarityRing[item.rarity]">
+                        <div
+                            v-for="item in list"
+                            :key="item.id"
+                            class="relative flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center ring-2"
+                            :class="rarityRing[item.rarity]"
+                        >
                             <ItemIcon :item="item" :size="56" />
                             <span class="line-clamp-2 text-xs font-semibold">{{ item.name }}</span>
                             <span v-if="item.stats" class="text-[11px] text-muted-foreground">{{ statText(item.stats) }}</span>
-                            <span class="absolute right-1.5 top-1.5 rounded-full bg-foreground px-1.5 text-[11px] font-bold text-background">×{{ item.quantity }}</span>
+                            <span class="absolute right-1.5 top-1.5 rounded-full bg-foreground px-1.5 text-[11px] font-bold text-background"
+                                >×{{ item.quantity }}</span
+                            >
                             <button
                                 v-if="item.type === 'equipment'"
                                 class="mt-1 rounded-md px-2 py-1 text-xs font-bold"
@@ -108,7 +128,11 @@ const tabClass = (active: boolean) => `rounded-lg px-4 py-2 text-sm font-bold tr
                             >
                                 {{ item.equipped ? 'angelegt' : 'Anlegen' }}
                             </button>
-                            <button v-if="item.type === 'potion'" class="mt-1 rounded-md bg-rose-500 px-2 py-1 text-xs font-bold text-white" @click="post('inventory.use', { item: item.id })">
+                            <button
+                                v-if="item.type === 'potion'"
+                                class="mt-1 rounded-md bg-rose-500 px-2 py-1 text-xs font-bold text-white"
+                                @click="post('inventory.use', { item: item.id })"
+                            >
                                 Trinken
                             </button>
                         </div>
@@ -147,7 +171,9 @@ const tabClass = (active: boolean) => `rounded-lg px-4 py-2 text-sm font-bold tr
             <template v-if="tab === 'stable'">
                 <section class="grid gap-3 rounded-2xl border bg-card p-5">
                     <h2 class="flex items-center gap-2 font-extrabold"><Egg class="size-5" /> Ausbrüten</h2>
-                    <p v-if="!eggs.length || !potions.length" class="text-sm text-muted-foreground">Du brauchst ein Ei und ein Schlüpfpulver – beides findest du beim Erledigen von Aufgaben.</p>
+                    <p v-if="!eggs.length || !potions.length" class="text-sm text-muted-foreground">
+                        Du brauchst ein Ei und ein Schlüpfpulver – beides findest du beim Erledigen von Aufgaben.
+                    </p>
                     <div v-else class="flex flex-wrap items-center gap-2">
                         <select v-model="egg" class="h-10 rounded-md border border-input bg-background px-3 text-sm">
                             <option :value="null">Ei wählen …</option>
@@ -164,13 +190,29 @@ const tabClass = (active: boolean) => `rounded-lg px-4 py-2 text-sm font-bold tr
 
                 <p v-if="!pets.length" class="rounded-2xl border border-dashed p-10 text-center text-muted-foreground">Dein Stall ist noch leer.</p>
                 <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-                    <div v-for="pet in pets" :key="pet.id" class="flex flex-col items-center gap-2 rounded-2xl border bg-card p-4 text-center">
+                    <div
+                        v-for="pet in pets"
+                        :key="pet.id"
+                        class="flex flex-col items-center gap-2 rounded-2xl border bg-card p-4 text-center"
+                        :class="pet.is_companion && 'ring-2 ring-amber-400'"
+                    >
                         <PetArt :egg="pet.egg_key" :potion="pet.potion_key" :mount="pet.is_mount" :size="96" />
                         <p class="font-bold">{{ pet.name }}</p>
+                        <button
+                            class="w-full rounded-md px-2 py-1 text-xs font-bold"
+                            :class="pet.is_companion ? 'bg-emerald-100 text-emerald-700' : 'bg-primary text-primary-foreground'"
+                            :disabled="pet.is_companion"
+                            @click="post('pets.companion', { pet: pet.id })"
+                        >
+                            {{ pet.is_companion ? (pet.is_mount ? 'du reitest' : 'ist dabei') : pet.is_mount ? 'Aufsitzen' : 'Mitnehmen' }}
+                        </button>
                         <p v-if="pet.is_mount" class="rounded-full bg-amber-100 px-2 text-xs font-bold text-amber-700">Reittier 🏇</p>
                         <template v-else>
                             <div class="h-2 w-full overflow-hidden rounded-full bg-muted">
-                                <div class="h-full rounded-full bg-emerald-500 transition-all" :style="{ width: `${(pet.growth / pet.growth_max) * 100}%` }" />
+                                <div
+                                    class="h-full rounded-full bg-emerald-500 transition-all"
+                                    :style="{ width: `${(pet.growth / pet.growth_max) * 100}%` }"
+                                />
                             </div>
                             <template v-if="feedFor === pet.id">
                                 <button
@@ -183,7 +225,9 @@ const tabClass = (active: boolean) => `rounded-lg px-4 py-2 text-sm font-bold tr
                                 </button>
                                 <p v-if="!food.length" class="text-xs text-muted-foreground">Kein Futter – im Gold-Shop gibt es Äpfel.</p>
                             </template>
-                            <button v-else class="rounded-md bg-emerald-600 px-3 py-1 text-xs font-bold text-white" @click="feedFor = pet.id">Füttern</button>
+                            <button v-else class="rounded-md bg-emerald-600 px-3 py-1 text-xs font-bold text-white" @click="feedFor = pet.id">
+                                Füttern
+                            </button>
                         </template>
                     </div>
                 </div>

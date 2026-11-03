@@ -52,8 +52,8 @@ class HeroBoard
                 ->map(fn (TaskAssignment $a) => ['assignment_id' => $a->id, 'title' => $a->task->title])
                 ->values(),
             'quests' => CharacterSheet::quests($user),
-            // Begleiter in der Szene: bevorzugt ein Reittier, sonst das neueste Haustier
-            'companion' => ($pet = UserPet::with('egg', 'potion')->where('user_id', $user->id)->orderByDesc('is_mount')->latest('id')->first())
+            // Begleiter in der Szene: der im Stall gewählte, sonst ein Reittier, sonst das neueste Haustier
+            'companion' => ($pet = self::companion($user))
                 ? ['egg_key' => $pet->egg->key, 'potion_key' => $pet->potion->key, 'is_mount' => $pet->is_mount, 'name' => $pet->name,
                     'art_url' => PetArt::url($pet->egg->key), 'palette' => PetArt::palette($pet->potion)]
                 : null,
@@ -63,5 +63,11 @@ class HeroBoard
             'recoveries' => SupportService::presentRecoveries($user),
             'focus' => FocusService::present(FocusService::running($user)),
         ];
+    }
+
+    public static function companion(User $user): ?UserPet
+    {
+        return UserPet::with('egg', 'potion')->where('user_id', $user->id)
+            ->orderByRaw('id = ? desc', [(int) $user->companion_pet_id])->orderByDesc('is_mount')->latest('id')->first();
     }
 }

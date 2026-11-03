@@ -104,6 +104,13 @@ class CharacterController extends Controller
         return back()->with('success', "Geschlüpft: {$pet->name}! 🐣");
     }
 
+    public function companion(Request $request, UserPet $pet): RedirectResponse
+    {
+        $this->inventory->chooseCompanion($request->user(), $pet);
+
+        return back()->with('success', $pet->is_mount ? "Du reitest jetzt auf {$pet->name}." : "{$pet->name} begleitet dich jetzt.");
+    }
+
     public function feed(Request $request, UserPet $pet): RedirectResponse
     {
         $data = $request->validate(['food_id' => ['required', 'integer']]);

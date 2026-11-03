@@ -61,6 +61,7 @@ class CharacterSheet
     public static function inventory(User $user): array
     {
         $equipped = UserEquipment::where('user_id', $user->id)->pluck('item_id')->all();
+        $companion = HeroBoard::companion($user)?->id;
 
         return [
             'items' => UserItem::with('item')->where('user_id', $user->id)->where('quantity', '>', 0)->get()
@@ -83,6 +84,7 @@ class CharacterSheet
                     'growth' => $p->growth,
                     'growth_max' => (int) config('game.pet_growth_mount'),
                     'is_mount' => $p->is_mount,
+                    'is_companion' => $p->id === $companion,
                 ]),
             'types' => Item::TYPES,
             'rarities' => Item::RARITIES,

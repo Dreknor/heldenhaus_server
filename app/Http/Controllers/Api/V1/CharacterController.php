@@ -100,6 +100,13 @@ class CharacterController extends Controller
         return response()->json(['id' => $pet->id, 'name' => $pet->name], 201);
     }
 
+    public function companion(Request $request, UserPet $pet): JsonResponse
+    {
+        $this->inventory->chooseCompanion($request->user(), $pet);
+
+        return response()->json(['id' => $pet->id, 'is_mount' => $pet->is_mount]);
+    }
+
     public function feed(Request $request, UserPet $pet): JsonResponse
     {
         $data = $request->validate(['food_id' => ['required', 'integer']]);
