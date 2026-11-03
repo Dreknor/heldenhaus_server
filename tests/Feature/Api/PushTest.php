@@ -84,8 +84,8 @@ it('verwaltet Einstellungen über die API', function () {
 });
 
 it('spricht FCM HTTP v1 mit Dienstkonto an und räumt ungültige Tokens ab', function () {
-    $key = openssl_pkey_new(['private_key_bits' => 2048]);
-    openssl_pkey_export($key, $pem);
+    // Fester Testschlüssel: openssl_pkey_new() braucht unter Windows eine openssl.cnf
+    $pem = file_get_contents(base_path('tests/fixtures/fcm-test-key.pem'));
     $path = tempnam(sys_get_temp_dir(), 'fcm');
     file_put_contents($path, json_encode([
         'project_id' => 'heldenhaus-test', 'client_email' => 'push@heldenhaus-test.iam.gserviceaccount.com',

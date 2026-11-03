@@ -59,39 +59,18 @@ const face = computed(() => {
 // 3D-Bild je Körperform (Fluent Emoji, tools/items/build_items.py), getönt nach der Boss-Farbe.
 // Die Vektor-Zeichnung unten bleibt als Ersatz, falls ein Bild nicht lädt.
 const imageFailed = ref(false);
-const BASE_HUE: Record<string, number | null> = {
-    blob: 275,
-    round: 95,
-    golem: null,
-    ghost: null,
-    serpent: 100,
-    octopus: 345,
-    dragon: 110,
-    troll: 95,
-    king: 355,
-};
-function hsl(hex: string): [number, number, number] {
-    const n = parseInt(hex.replace('#', '').padEnd(6, '0').slice(0, 6), 16);
-    const r = ((n >> 16) & 255) / 255,
-        g = ((n >> 8) & 255) / 255,
-        b = (n & 255) / 255;
-    const max = Math.max(r, g, b),
-        min = Math.min(r, g, b),
-        l = (max + min) / 2,
-        d = max - min;
-    if (!d) return [0, 0, l];
-    const sat = d / (1 - Math.abs(2 * l - 1));
-    const h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
-    return [(h * 60 + 360) % 360, sat, l];
-}
-const tint = computed(() => {
-    const [h, sat, l] = hsl(m.value.color);
-    const base = BASE_HUE[m.value.body] ?? null;
-    const bright = l < 0.2 ? 0.45 : 0.75 + l * 0.4;
-    if (base === null)
-        return sat < 0.15 ? `brightness(${bright})` : `sepia(.75) saturate(2.4) hue-rotate(${Math.round(h - 40)}deg) brightness(${bright})`;
-    if (sat < 0.15) return `grayscale(.85) brightness(${bright})`;
-    return `hue-rotate(${Math.round(h - base)}deg) saturate(${(0.8 + sat * 0.6).toFixed(2)})${l < 0.2 ? ' brightness(.5)' : ''}`;
+// Genaue Boss-Farbe: Farbschicht im Mischmodus „color“ über dem Bild (behält die 3D-Schattierung),
+// sehr dunkle Bosse werden zusätzlich abgedunkelt
+const lightness = computed(() => {
+    const n = parseInt(m.value.color.replace('#', '').padEnd(6, '0').slice(0, 6), 16);
+    const c = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+    return (Math.max(...c) + Math.min(...c)) / 510;
+});
+const shadeFilter = computed(() => (lightness.value < 0.25 ? 'brightness(.5)' : lightness.value > 0.8 ? 'brightness(1.08)' : 'none'));
+const coloured = (name: string) => ({
+    backgroundColor: m.value.color,
+    maskImage: `url(${monsterImg(name)})`,
+    WebkitMaskImage: `url(${monsterImg(name)})`,
 });
 const monsterImg = (name: string) => `/images/monsters/${name}.webp`;
 const eyeXs = computed(() => (m.value.eyes === 1 ? [0] : m.value.eyes === 3 ? [-14, 0, 14] : [-11, 11]));
@@ -108,29 +87,26 @@ const eyeXs = computed(() => (m.value.eyes === 1 ? [0] : m.value.eyes === 3 ? [-
     >
         <span class="absolute bottom-[2%] h-[8%] w-[62%] rounded-full bg-black/20 blur-[2px]" aria-hidden="true" />
         <template v-if="m.extra === 'heads'">
-            <img
-                :src="monsterImg('heads')"
-                alt=""
-                class="absolute left-[-4%] top-[18%] w-[34%] -rotate-12"
-                :style="{ filter: tint }"
-                aria-hidden="true"
-            />
-            <img
-                :src="monsterImg('heads')"
-                alt=""
-                class="absolute left-[2%] top-[48%] w-[26%] -rotate-6"
-                :style="{ filter: tint }"
-                aria-hidden="true"
-            />
+            <span class="tinted absolute left-[-4%] top-[18%] aspect-square w-[34%] -rotate-12" aria-hidden="true">
+                <img :src="monsterImg('heads')" alt="" class="size-full" :style="{ filter: shadeFilter }" />
+                <span class="tint" :style="coloured('heads')" />
+            </span>
+            <span class="tinted absolute left-[2%] top-[48%] aspect-square w-[26%] -rotate-6" aria-hidden="true">
+                <img :src="monsterImg('heads')" alt="" class="size-full" :style="{ filter: shadeFilter }" />
+                <span class="tint" :style="coloured('heads')" />
+            </span>
         </template>
-        <img
-            :src="monsterImg(m.body)"
-            alt=""
-            class="relative mb-[4%] h-[82%] w-[82%] object-contain drop-shadow-lg"
-            :style="{ filter: tint }"
-            draggable="false"
-            @error="imageFailed = true"
-        />
+        <span class="tinted relative mb-[4%] h-[82%] w-[82%] drop-shadow-lg">
+            <img
+                :src="monsterImg(m.body)"
+                alt=""
+                class="size-full object-contain"
+                :style="{ filter: shadeFilter }"
+                draggable="false"
+                @error="imageFailed = true"
+            />
+            <span class="tint" :style="coloured(m.body)" />
+        </span>
         <img
             v-if="m.horns === 'crown'"
             :src="monsterImg('crown')"
@@ -381,6 +357,21 @@ const eyeXs = computed(() => (m.value.eyes === 1 ? [0] : m.value.eyes === 3 ? [-
     60% {
         transform: translateX(5px) rotate(2deg);
     }
+}
+.tinted {
+    isolation: isolate;
+}
+.tint {
+    position: absolute;
+    inset: 0;
+    mix-blend-mode: color;
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    pointer-events: none;
 }
 .dust {
     animation: puff 2.4s ease-in-out infinite;

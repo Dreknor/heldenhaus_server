@@ -107,7 +107,7 @@ it('richtet den Webhook im Web ein – Secret nur einmal sichtbar, nur für Elte
     $this->actingAs($this->parent)->post('/family/ha-webhook/test')->assertSessionHas('success');
     expect(collect(sentWebhooks())->pluck('event'))->toContain('ping');
 
-    $this->actingAs($this->parent)->get('/family')->assertInertia(fn ($page) => $page
+    $this->actingAs($this->parent)->get('/family/settings')->assertInertia(fn ($page) => $page
         ->where('haWebhook.url', 'https://ha.example/x')
         ->missing('haWebhook.secret'));
 });
