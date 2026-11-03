@@ -126,7 +126,7 @@ test('avatar-svg setzt die pixelfigur aus klasse und ausrüstung zusammen', func
 
     expect($layers())->toContain('body', 'head', 'hair_long_straight', 'face_happy', 'beard_trimmed', 'shirt_tshirt')
         ->and($layers('mage'))->toContain('hat_wizard', 'cape', 'staff_diamond')
-        ->and($layers('mage', ['head' => ['key' => 'head_cap', 'rarity' => 'rare']]))->toContain('cap_bonnie')->not->toContain('hat_wizard')
+        ->and($layers('mage', ['head' => ['key' => 'head_cap', 'rarity' => 'rare']]))->toContain('cap_leather')->not->toContain('hat_wizard')
         ->and($layers(null, ['armor' => ['key' => 'armor_neu', 'rarity' => 'legendary']]))->toContain('armour_plate', 'arms_plate')
         ->and($layers(null, [], 'hurt'))->toContain('face_sad');
 

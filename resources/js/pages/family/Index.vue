@@ -33,7 +33,7 @@ defineProps<{
                 <article
                     v-for="m in heroes"
                     :key="m.id"
-                    class="relative flex flex-col items-center overflow-hidden rounded-3xl border-2 bg-card px-3 pb-4 pt-2 text-center shadow-sm"
+                    class="hh-panel relative flex flex-col items-center overflow-hidden hh-parchment px-3 pb-4 pt-2 text-center"
                 >
                     <div
                         class="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-sky-200 to-emerald-100 dark:from-slate-800 dark:to-emerald-950/40"

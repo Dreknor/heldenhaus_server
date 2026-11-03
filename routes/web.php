@@ -121,6 +121,7 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
     Route::post('inventory/{item}/use', [CharacterController::class, 'use'])->name('inventory.use');
     Route::post('pets/hatch', [CharacterController::class, 'hatch'])->name('pets.hatch');
     Route::post('pets/{pet}/feed', [CharacterController::class, 'feed'])->name('pets.feed');
+    Route::post('pets/{pet}/companion', [CharacterController::class, 'companion'])->name('pets.companion');
     Route::post('feed/{entry}/react', [FamilyHubController::class, 'react'])->name('feed.react');
     Route::get('allowance', [FamilyHubController::class, 'allowance'])->name('allowance.index');
     Route::post('allowance', [FamilyHubController::class, 'storeAllowance'])->name('allowance.store');

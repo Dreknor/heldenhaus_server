@@ -522,7 +522,7 @@ const floor = computed(() => FLOOR[style.floor] ?? FLOOR.planks);
         </div>
 
         <!-- Möbelkiste und Gestaltung -->
-        <aside v-if="editing" class="grid content-start gap-4 rounded-3xl border-2 bg-card p-4">
+        <aside v-if="editing" class="hh-panel grid content-start gap-4 hh-parchment p-4">
             <div>
                 <h3 class="mb-2 font-extrabold">Möbelkiste</h3>
                 <div v-if="stock.length" class="grid max-h-72 grid-cols-3 gap-2 overflow-y-auto pr-1">
@@ -607,9 +607,15 @@ const floor = computed(() => FLOOR[style.floor] ?? FLOOR.planks);
     padding: 0.4rem 0.75rem;
     font-size: 0.875rem;
     font-weight: 700;
-    background: var(--card, #fff);
+    background: hsl(var(--card));
+    border-color: var(--wood-edge);
+    box-shadow: 0 3px 0 rgb(0 0 0 / 0.3);
+}
+.tool:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 rgb(0 0 0 / 0.3);
 }
 .tool:hover {
-    background: var(--muted, #f4f4f5);
+    background: hsl(var(--muted));
 }
 </style>

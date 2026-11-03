@@ -75,6 +75,16 @@ class InventoryService
         Features::starterDone($user, 'shop');
     }
 
+    /** Begleiter für die Heldenszene wählen: Haustier läuft mit, auf einem Reittier reitet der Held. */
+    public function chooseCompanion(User $user, UserPet $pet): void
+    {
+        if ($pet->user_id !== $user->id) {
+            throw new GameException('Das ist nicht dein Haustier.');
+        }
+
+        $user->forceFill(['companion_pet_id' => $pet->id])->save();
+    }
+
     public function unequip(User $user, string $slot): void
     {
         UserEquipment::where('user_id', $user->id)->where('slot', $slot)->delete();

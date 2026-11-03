@@ -30,7 +30,7 @@ const heroes = computed(() => family.map((f) => ({ ...f, size: Math.round(props.
 </script>
 
 <template>
-    <div class="relative overflow-hidden rounded-3xl border-2 border-white/60 shadow-xl" :style="{ background: sky }">
+    <div class="hh-panel relative overflow-hidden border-white/60" :style="{ background: sky }">
         <PixelYard :phase="phase" />
         <div class="relative z-[2] flex h-full min-h-[inherit] items-end gap-0 px-3 sm:px-6">
             <HeroAvatar

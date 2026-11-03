@@ -110,3 +110,35 @@ it('Inventar, Shop und Stall über Web und API', function () {
     $this->getJson('/api/v1/hero')->assertJsonPath('equipment.weapon.name', 'Holzschwert')->assertJsonPath('attributes.per', 5);
     $this->postJson('/api/v1/inventory/'.$this->sword->id.'/buy')->assertStatus(422);
 });
+
+it('abgelegte Ausrüstung bleibt im Rucksack', function () {
+    giveItem($this->child, $this->sword);
+    $this->inventory->equip($this->child, $this->sword);
+    $this->inventory->unequip($this->child, 'weapon');
+
+    $this->actingAs($this->child)->get('/inventory')
+        ->assertInertia(fn ($page) => $page->where('items.0.name', 'Holzschwert')->where('items.0.equipped', false));
+});
+
+it('Begleiter bzw. Reittier im Stall wählen', function () {
+    $egg = Item::create(['key' => 'egg_horse', 'name' => 'Pferdeei', 'type' => 'egg']);
+    $fox = Item::create(['key' => 'egg_fox', 'name' => 'Fuchsei', 'type' => 'egg']);
+    $gold = Item::create(['key' => 'potion_golden', 'name' => 'Gold-Schlüpfpulver', 'type' => 'hatching_potion']);
+    $pony = UserPet::create(['user_id' => $this->child->id, 'egg_item_id' => $egg->id, 'potion_item_id' => $gold->id, 'name' => 'Gold-Pony', 'is_mount' => true]);
+    $foxPet = UserPet::create(['user_id' => $this->child->id, 'egg_item_id' => $fox->id, 'potion_item_id' => $gold->id, 'name' => 'Gold-Fuchs']);
+    [, , $other] = makeFamily();
+
+    // ohne Wahl: das Reittier
+    $this->actingAs($this->child)->get('/dashboard')->assertInertia(fn ($page) => $page->where('companion.name', 'Gold-Pony'));
+
+    $this->post("/pets/{$foxPet->id}/companion")->assertSessionHasNoErrors();
+    $this->get('/dashboard')->assertInertia(fn ($page) => $page->where('companion.name', 'Gold-Fuchs')->where('companion.is_mount', false));
+    $this->get('/inventory')->assertInertia(fn ($page) => $page->where('pets.0.name', 'Gold-Fuchs')->where('pets.0.is_companion', true)->where('pets.1.is_companion', false));
+
+    // eigene Tiere wählen geht auch, wenn der Stall noch gesperrt ist (Level 1)
+    Sanctum::actingAs($this->child, ['app']);
+    $this->postJson("/api/v1/pets/{$pony->id}/companion")->assertOk()->assertJsonPath('is_mount', true);
+    $this->getJson('/api/v1/board')->assertJsonPath('companion.name', 'Gold-Pony');
+
+    expect(fn () => $this->inventory->chooseCompanion($other, $pony))->toThrow(GameException::class);
+});

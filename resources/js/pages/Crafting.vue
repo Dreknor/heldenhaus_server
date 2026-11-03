@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { emojiUrl } from '@/lib/emoji';
 import InputError from '@/components/InputError.vue';
 import ItemIcon from '@/components/game/ItemIcon.vue';
 import RecipeCard, { type Recipe } from '@/components/game/RecipeCard.vue';
@@ -113,11 +114,6 @@ const statusLabels: Record<string, string> = {
 };
 const timeLabel = (value: string) => new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
 const jobIsReady = (job: (typeof props.crafting.jobs)[number]) => job.ready || new Date(job.finishes_at).getTime() <= currentTime.value;
-const durationLabel = (seconds: number) => {
-    if (seconds < 60) return `${seconds} Sek.`;
-    if (seconds < 3600) return `${Math.ceil(seconds / 60)} Min.`;
-    return `${Math.ceil(seconds / 3600)} Std.`;
-};
 const gameError = computed(() => page.props.errors?.game);
 
 onMounted(() => {
@@ -203,13 +199,13 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
     <AppLayout :breadcrumbs="[{ title: 'Handwerk & Tausch', href: '/crafting' }]">
         <div class="flex min-w-0 flex-1 flex-col gap-5 p-4 md:p-6">
             <header
-                class="relative overflow-hidden rounded-3xl border-2 border-amber-200 bg-gradient-to-br from-amber-100 via-orange-50 to-rose-100 p-5 dark:border-amber-900 dark:from-amber-950/50 dark:via-orange-950/30 dark:to-rose-950/30 sm:p-6"
+                class="hh-panel relative overflow-hidden bg-gradient-to-br from-amber-100 via-orange-50 to-rose-100 p-5 dark:from-amber-950/50 dark:via-orange-950/30 dark:to-rose-950/30 sm:p-6"
             >
                 <div class="pointer-events-none absolute -right-4 bottom-0 flex items-end gap-1 opacity-90 sm:right-4" aria-hidden="true">
-                    <img src="/images/items/wood.webp" alt="" class="w-12 -rotate-12 drop-shadow sm:w-16" />
-                    <img src="/images/items/weapon_iron_hammer.webp" alt="" class="mb-6 w-16 rotate-12 drop-shadow-lg sm:w-24" />
-                    <img src="/images/items/gears.webp" alt="" class="w-10 drop-shadow sm:w-14" />
-                    <img src="/images/items/furn_chair.webp" alt="" class="hidden w-16 drop-shadow-lg md:block" />
+                    <img :src="emojiUrl('🪵') ?? undefined" alt="" class="w-12 -rotate-12 drop-shadow sm:w-16" />
+                    <img :src="emojiUrl('🔨') ?? undefined" alt="" class="mb-6 w-16 rotate-12 drop-shadow-lg sm:w-24" />
+                    <img :src="emojiUrl('⚙️') ?? undefined" alt="" class="w-10 drop-shadow sm:w-14" />
+                    <img :src="emojiUrl('🪑') ?? undefined" alt="" class="hidden w-16 drop-shadow-lg md:block" />
                 </div>
                 <div class="relative max-w-md sm:max-w-[55%]">
                     <p class="text-xs font-black uppercase tracking-widest text-amber-700 dark:text-amber-300">Werkstatt</p>
@@ -247,7 +243,7 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
                 v-if="locks.crafting"
                 class="flex items-center gap-4 rounded-2xl border-2 border-violet-200 bg-violet-50 p-4 dark:border-violet-900 dark:bg-violet-950/30"
             >
-                <img src="/images/items/dungeon_key.webp" alt="" class="size-12 shrink-0 drop-shadow" />
+                <img :src="emojiUrl('🗝️') ?? undefined" alt="" class="size-12 shrink-0 drop-shadow" />
                 <div>
                     <p class="font-extrabold">Die Werkstatt öffnet ab Level {{ locks.crafting }}</p>
                     <p class="text-sm text-muted-foreground">
@@ -290,7 +286,7 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
                         Nur was ich bauen kann
                     </label>
                 </div>
-                <p v-if="!sortedRecipes.length" class="rounded-3xl border-2 border-dashed p-10 text-center text-muted-foreground">
+                <p v-if="!sortedRecipes.length" class="rounded-md border-2 border-dashed border-[var(--parchment-edge)] p-10 text-center text-muted-foreground">
                     {{
                         onlyReady
                             ? 'Gerade fehlt für jedes Rezept noch etwas. Erledige Aufgaben, dann findest du Materialien.'

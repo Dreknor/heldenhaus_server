@@ -39,11 +39,56 @@
     },
     "hurt_face": "face_sad",
     "clothes": {
-        "tShirt": [["pants", "charcoal"], ["shirt_tshirt", "$outfit"]],
-        "shirt": [["pants", "charcoal"], ["shirt_buttoned", "$outfit"]],
-        "openJacket": [["pants", "charcoal"], ["shirt_cardigan", "$outfit"]],
-        "turtleNeck": [["pants", "charcoal"], ["shirt_longsleeve", "$outfit"]],
-        "dress": [["skirt", "$outfit"], ["shirt_scoop", "$outfit"]]
+        "tShirt": [
+            [
+                "pants",
+                "charcoal"
+            ],
+            [
+                "shirt_tshirt",
+                "$outfit"
+            ]
+        ],
+        "shirt": [
+            [
+                "pants",
+                "charcoal"
+            ],
+            [
+                "shirt_buttoned",
+                "$outfit"
+            ]
+        ],
+        "openJacket": [
+            [
+                "pants",
+                "charcoal"
+            ],
+            [
+                "shirt_cardigan",
+                "$outfit"
+            ]
+        ],
+        "turtleNeck": [
+            [
+                "pants",
+                "charcoal"
+            ],
+            [
+                "shirt_longsleeve",
+                "$outfit"
+            ]
+        ],
+        "dress": [
+            [
+                "skirt",
+                "$outfit"
+            ],
+            [
+                "shirt_scoop",
+                "$outfit"
+            ]
+        ]
     },
     "beards": {
         "none": null,
@@ -53,39 +98,1154 @@
         "fullBeard": "beard_medium",
         "longBeard": "beard_winter"
     },
-    "base": [["body", "$skin"], ["head", "$skin"], ["shoes", "walnut"]],
+    "base": [
+        [
+            "body",
+            "$skin"
+        ],
+        [
+            "head",
+            "$skin"
+        ],
+        [
+            "shoes",
+            "walnut"
+        ]
+    ],
     "classes": {
-        "warrior": { "armor": [["chainmail", "iron"]], "back": [["cape", "red"]], "weapon": [["sword", "iron"]] },
-        "mage": { "head": [["hat_wizard", "blue"]], "back": [["cape", "blue"]], "weapon": [["staff_diamond", "medium"]] },
-        "rogue": { "head": [["hood", "charcoal"]], "back": [["cape_tattered", "black"]], "weapon": [["dagger", "dagger"]] },
-        "healer": { "head": [["hood", "white"]], "back": [["cape", "white"]], "armor": [["belt_robe", "white"]], "weapon": [["staff", "simple"]] },
-        "tinkerer": { "head": [["headband", "red"]], "armor": [["overalls", "leather"]], "weapon": [["hammer", "base"]] },
-        "bard": { "head": [["cap_leather", "brown"], ["cap_feather", "red"]], "back": [["cape", "purple"]] },
-        "ranger": { "head": [["hood", "forest"]], "back": [["quiver", "quiver"], ["cape", "forest"]], "weapon": [["crossbow", "crossbow"]] },
-        "paladin": { "armor": [["chainmail", "steel"], ["tabard", "white"]], "shield": [["shield_crusader", "crusader"]], "weapon": [["sword", "silver"]] },
-        "tamer": { "head": [["bandana", "tan"]], "armor": [["armour_leather", "brown"]], "weapon": [["staff_gnarled", "medium"]] },
-        "cook": { "head": [["bandana", "white"]], "armor": [["apron", "white"]] },
-        "monk": { "back": [["cape", "orange"]], "armor": [["sash", "orange"]], "weapon": [["staff", "simple"]] }
+        "warrior": {
+            "armor": [
+                [
+                    "chainmail",
+                    "iron"
+                ]
+            ],
+            "back": [
+                [
+                    "cape",
+                    "red"
+                ]
+            ],
+            "weapon": [
+                [
+                    "sword",
+                    "iron"
+                ]
+            ]
+        },
+        "mage": {
+            "head": [
+                [
+                    "hat_wizard",
+                    "blue"
+                ]
+            ],
+            "back": [
+                [
+                    "cape",
+                    "blue"
+                ]
+            ],
+            "weapon": [
+                [
+                    "staff_diamond",
+                    "medium"
+                ]
+            ]
+        },
+        "rogue": {
+            "head": [
+                [
+                    "hood",
+                    "charcoal"
+                ]
+            ],
+            "back": [
+                [
+                    "cape_tattered",
+                    "black"
+                ]
+            ],
+            "weapon": [
+                [
+                    "dagger",
+                    "dagger"
+                ]
+            ]
+        },
+        "healer": {
+            "head": [
+                [
+                    "hood",
+                    "white"
+                ]
+            ],
+            "back": [
+                [
+                    "cape",
+                    "white"
+                ]
+            ],
+            "armor": [
+                [
+                    "belt_robe",
+                    "white"
+                ]
+            ],
+            "weapon": [
+                [
+                    "staff",
+                    "simple"
+                ]
+            ]
+        },
+        "tinkerer": {
+            "head": [
+                [
+                    "headband",
+                    "red"
+                ]
+            ],
+            "armor": [
+                [
+                    "overalls",
+                    "leather"
+                ]
+            ],
+            "weapon": [
+                [
+                    "hammer",
+                    "base"
+                ]
+            ]
+        },
+        "bard": {
+            "head": [
+                [
+                    "cap_leather",
+                    "brown"
+                ],
+                [
+                    "cap_feather",
+                    "red"
+                ]
+            ],
+            "back": [
+                [
+                    "cape",
+                    "purple"
+                ]
+            ]
+        },
+        "ranger": {
+            "head": [
+                [
+                    "hood",
+                    "forest"
+                ]
+            ],
+            "back": [
+                [
+                    "quiver",
+                    "quiver"
+                ],
+                [
+                    "cape",
+                    "forest"
+                ]
+            ],
+            "weapon": [
+                [
+                    "crossbow",
+                    "crossbow"
+                ]
+            ]
+        },
+        "paladin": {
+            "armor": [
+                [
+                    "chainmail",
+                    "steel"
+                ],
+                [
+                    "tabard",
+                    "white"
+                ]
+            ],
+            "shield": [
+                [
+                    "shield_crusader",
+                    "crusader"
+                ]
+            ],
+            "weapon": [
+                [
+                    "sword",
+                    "silver"
+                ]
+            ]
+        },
+        "tamer": {
+            "head": [
+                [
+                    "bandana",
+                    "tan"
+                ]
+            ],
+            "armor": [
+                [
+                    "armour_leather",
+                    "brown"
+                ]
+            ],
+            "weapon": [
+                [
+                    "staff_gnarled",
+                    "medium"
+                ]
+            ]
+        },
+        "cook": {
+            "head": [
+                [
+                    "bandana",
+                    "white"
+                ]
+            ],
+            "armor": [
+                [
+                    "apron",
+                    "white"
+                ]
+            ]
+        },
+        "monk": {
+            "back": [
+                [
+                    "cape",
+                    "orange"
+                ]
+            ],
+            "armor": [
+                [
+                    "sash",
+                    "orange"
+                ]
+            ],
+            "weapon": [
+                [
+                    "staff",
+                    "simple"
+                ]
+            ]
+        }
     },
     "items": {
-        "head_cap": [["cap_bonnie", "red"]],
-        "weapon_wooden_sword": [["sword", "bronze"]],
-        "shield_lid": [["shield_round", "silver"]],
-        "armor_hoodie": [["shirt_longsleeve", "purple"]],
-        "accessory_glasses": [["glasses", "black"]]
+        "head_cap": [
+            [
+                "cap_leather",
+                "brown"
+            ]
+        ],
+        "head_feather_hat": [
+            [
+                "cavalier",
+                "maroon"
+            ]
+        ],
+        "head_colander": [
+            [
+                "helmet_kettle",
+                "iron"
+            ]
+        ],
+        "head_headphones": [
+            [
+                "headband",
+                "red"
+            ]
+        ],
+        "head_knight_helm": [
+            [
+                "helmet_bascinet",
+                "steel"
+            ]
+        ],
+        "head_wizard_hat": [
+            [
+                "hat_wizard",
+                "blue"
+            ]
+        ],
+        "head_shadow_hood": [
+            [
+                "hood",
+                "charcoal"
+            ]
+        ],
+        "head_flower_crown": [
+            [
+                "headband_rune",
+                "pink"
+            ]
+        ],
+        "head_goggles": [
+            [
+                "glasses",
+                "black"
+            ]
+        ],
+        "head_bard_cap": [
+            [
+                "cap_bonnie",
+                "red"
+            ]
+        ],
+        "head_phoenix_crown": [
+            [
+                "helmet_greathelm_gold",
+                "gold"
+            ]
+        ],
+        "head_pumpkin": [
+            [
+                "hat_celestial",
+                "black"
+            ]
+        ],
+        "head_santa_hat": [
+            [
+                "hat_santa",
+                "white"
+            ]
+        ],
+        "head_bunny_ears": [
+            [
+                "bandana",
+                "white"
+            ]
+        ],
+        "head_sun_hat": [
+            [
+                "cavalier",
+                "forest"
+            ]
+        ],
+        "head_jester_cap": [
+            [
+                "hat_elf",
+                "green"
+            ]
+        ],
+        "head_straw_hat": [
+            [
+                "cap_leather",
+                "base"
+            ]
+        ],
+        "head_birthday_crown": [
+            [
+                "hat_christmas",
+                "red"
+            ]
+        ],
+        "head_bandana": [
+            [
+                "bandana",
+                "tan"
+            ]
+        ],
+        "head_helmet_leather": [
+            [
+                "helmet_spangenhelm",
+                "bronze"
+            ]
+        ],
+        "head_pointed_hat": [
+            [
+                "hat_celestial",
+                "forest"
+            ]
+        ],
+        "head_feather_cap": [
+            [
+                "cap_feather",
+                "red"
+            ]
+        ],
+        "head_visor_helm": [
+            [
+                "helmet_armet",
+                "silver"
+            ]
+        ],
+        "head_star_circlet": [
+            [
+                "headband_rune",
+                "white"
+            ]
+        ],
+        "head_earmuffs": [
+            [
+                "hood",
+                "white"
+            ]
+        ],
+        "weapon_wooden_sword": [
+            [
+                "sword",
+                "bronze"
+            ]
+        ],
+        "weapon_flint_axe": [
+            [
+                "axe",
+                "base"
+            ]
+        ],
+        "weapon_feather_duster": [
+            [
+                "staff_gnarled",
+                "light"
+            ]
+        ],
+        "weapon_mop_spear": [
+            [
+                "staff_loop",
+                "light"
+            ]
+        ],
+        "weapon_iron_sword": [
+            [
+                "sword",
+                "iron"
+            ]
+        ],
+        "weapon_oak_staff": [
+            [
+                "staff_gnarled",
+                "medium"
+            ]
+        ],
+        "weapon_twin_daggers": [
+            [
+                "dagger",
+                "dagger"
+            ]
+        ],
+        "weapon_healing_wand": [
+            [
+                "staff_crystal",
+                "green"
+            ]
+        ],
+        "weapon_wrench": [
+            [
+                "pickaxe",
+                "base"
+            ]
+        ],
+        "weapon_lute": [
+            [
+                "staff_s",
+                "medium"
+            ]
+        ],
+        "weapon_dragon_blade": [
+            [
+                "glowsword",
+                "red"
+            ]
+        ],
+        "weapon_iron_hammer": [
+            [
+                "hammer",
+                "base"
+            ]
+        ],
+        "weapon_candy_cane": [
+            [
+                "staff_s",
+                "red"
+            ]
+        ],
+        "weapon_water_blaster": [
+            [
+                "glowsword",
+                "blue"
+            ]
+        ],
+        "weapon_pitchfork": [
+            [
+                "staff_gnarled",
+                "dark"
+            ]
+        ],
+        "weapon_spring_broom": [
+            [
+                "staff",
+                "simple"
+            ]
+        ],
+        "weapon_slingshot": [
+            [
+                "slingshot",
+                "slingshot"
+            ]
+        ],
+        "weapon_magic_wand": [
+            [
+                "staff_crystal",
+                "purple"
+            ]
+        ],
+        "weapon_short_bow": [
+            [
+                "crossbow",
+                "crossbow"
+            ],
+            [
+                "quiver",
+                "quiver"
+            ]
+        ],
+        "weapon_steel_saber": [
+            [
+                "sword",
+                "steel"
+            ]
+        ],
+        "weapon_crystal_staff": [
+            [
+                "staff_diamond",
+                "medium"
+            ]
+        ],
+        "weapon_dragon_hammer": [
+            [
+                "mace",
+                "mace"
+            ]
+        ],
+        "weapon_paintbrush": [
+            [
+                "staff_crystal",
+                "orange"
+            ]
+        ],
+        "armor_hoodie": [
+            [
+                "tabard",
+                "gray"
+            ]
+        ],
+        "armor_leather": [
+            [
+                "armour_leather",
+                "brown"
+            ]
+        ],
+        "armor_apron": [
+            [
+                "apron",
+                "white"
+            ]
+        ],
+        "armor_chainmail": [
+            [
+                "chainmail",
+                "iron"
+            ]
+        ],
+        "armor_star_robe": [
+            [
+                "cape",
+                "navy"
+            ],
+            [
+                "obi",
+                "black"
+            ]
+        ],
+        "armor_shadow_cloak": [
+            [
+                "cape_tattered",
+                "black"
+            ],
+            [
+                "armour_leather",
+                "brown"
+            ]
+        ],
+        "armor_healer_robe": [
+            [
+                "cape",
+                "white"
+            ],
+            [
+                "belt_robe",
+                "white"
+            ]
+        ],
+        "armor_tool_apron": [
+            [
+                "overalls",
+                "leather"
+            ]
+        ],
+        "armor_minstrel_vest": [
+            [
+                "tabard",
+                "maroon"
+            ]
+        ],
+        "armor_dragon_scale": [
+            [
+                "armour_plate",
+                "silver"
+            ],
+            [
+                "arms_plate",
+                "silver"
+            ]
+        ],
+        "armor_silk_robe": [
+            [
+                "cape",
+                "maroon"
+            ],
+            [
+                "belt_robe",
+                "white"
+            ]
+        ],
+        "armor_ghost_sheet": [
+            [
+                "cape",
+                "white"
+            ],
+            [
+                "tabard",
+                "white"
+            ]
+        ],
+        "armor_costume_witch": [
+            [
+                "cape",
+                "purple"
+            ],
+            [
+                "obi",
+                "black"
+            ]
+        ],
+        "armor_costume_knight": [
+            [
+                "tabard",
+                "white"
+            ],
+            [
+                "chainmail",
+                "steel"
+            ]
+        ],
+        "armor_raincoat": [
+            [
+                "cape",
+                "yellow"
+            ]
+        ],
+        "armor_leather_vest": [
+            [
+                "tabard",
+                "leather"
+            ]
+        ],
+        "armor_mage_robe": [
+            [
+                "cape",
+                "teal"
+            ],
+            [
+                "obi",
+                "blue"
+            ]
+        ],
+        "armor_scale_mail": [
+            [
+                "armour_legion",
+                "bronze"
+            ]
+        ],
+        "armor_ranger_cloak": [
+            [
+                "tabard",
+                "forest"
+            ],
+            [
+                "cape",
+                "forest"
+            ]
+        ],
+        "armor_dragon_plate": [
+            [
+                "armour_plate",
+                "gold"
+            ],
+            [
+                "arms_plate",
+                "gold"
+            ],
+            [
+                "cape",
+                "red"
+            ]
+        ],
+        "shield_lid": [
+            [
+                "shield_spartan",
+                "spartan"
+            ]
+        ],
+        "shield_baking_tray": [
+            [
+                "shield_heater_trim",
+                "silver"
+            ]
+        ],
+        "shield_book": [
+            [
+                "shield_engrailed",
+                "two_engrailed"
+            ]
+        ],
+        "shield_kite": [
+            [
+                "shield_heater_paint",
+                "red"
+            ]
+        ],
+        "shield_herb_buckler": [
+            [
+                "shield_round",
+                "brown"
+            ]
+        ],
+        "shield_aegis": [
+            [
+                "shield_crusader",
+                "crusader"
+            ]
+        ],
+        "shield_wooden": [
+            [
+                "shield_heater",
+                "base"
+            ]
+        ],
+        "shield_round_iron": [
+            [
+                "shield_round",
+                "silver"
+            ]
+        ],
+        "shield_star": [
+            [
+                "shield_round",
+                "gold"
+            ]
+        ],
+        "shield_atlas": [
+            [
+                "shield_scutum",
+                "scutum"
+            ]
+        ],
+        "accessory_glasses": [
+            [
+                "glasses_halfmoon",
+                "black"
+            ]
+        ],
+        "accessory_wool_scarf": [
+            [
+                "necklace",
+                "bronze"
+            ]
+        ],
+        "accessory_dragon_amulet": [
+            [
+                "gem",
+                "red"
+            ]
+        ],
+        "accessory_rubber_duck": [
+            [
+                "gem",
+                "yellow"
+            ]
+        ],
+        "accessory_sneakers": [
+            [
+                "sash",
+                "orange"
+            ]
+        ],
+        "accessory_moon_pendant": [
+            [
+                "amulet_star",
+                "bronze_blue"
+            ]
+        ],
+        "accessory_lucky_coin": [
+            [
+                "necklace",
+                "gold"
+            ]
+        ],
+        "accessory_gear_watch": [
+            [
+                "necklace",
+                "silver"
+            ]
+        ],
+        "accessory_golden_flute": [
+            [
+                "amulet_star",
+                "brass_red"
+            ]
+        ],
+        "accessory_star_ring": [
+            [
+                "gem",
+                "blue"
+            ]
+        ],
+        "accessory_bat_wings": [
+            [
+                "wings_bat",
+                "black"
+            ]
+        ],
+        "accessory_red_scarf": [
+            [
+                "cape",
+                "red"
+            ]
+        ],
+        "accessory_egg_basket": [
+            [
+                "basket",
+                "round"
+            ]
+        ],
+        "accessory_sunglasses": [
+            [
+                "glasses",
+                "black"
+            ]
+        ],
+        "accessory_sparkler": [
+            [
+                "wings_pixie",
+                "pixie"
+            ]
+        ],
+        "accessory_lantern": [
+            [
+                "amulet_star",
+                "brass_orange"
+            ]
+        ],
+        "accessory_compass": [
+            [
+                "amulet_star",
+                "bronze_green"
+            ]
+        ],
+        "accessory_scarf": [
+            [
+                "sash",
+                "orange"
+            ]
+        ],
+        "accessory_backpack": [
+            [
+                "basket",
+                "round"
+            ]
+        ],
+        "accessory_magnifier": [
+            [
+                "necklace",
+                "iron"
+            ]
+        ],
+        "accessory_friendship_band": [
+            [
+                "gem",
+                "green"
+            ]
+        ],
+        "accessory_medal": [
+            [
+                "amulet_star",
+                "brass_yellow"
+            ]
+        ],
+        "accessory_moon_amulet": [
+            [
+                "wings_lunar",
+                "lunar"
+            ]
+        ]
     },
     "keywords": [
-        { "slot": "weapon", "words": ["stab", "staff", "zauber"], "parts": [["staff", "simple"], ["staff", "simple"], ["staff_diamond", "medium"], ["staff_diamond", "medium"], ["staff_diamond", "medium"]] },
-        { "slot": "weapon", "words": ["hammer"], "parts": [["hammer", "base"]] },
-        { "slot": "weapon", "words": ["dolch", "dagger", "messer"], "parts": [["dagger", "dagger"]] },
-        { "slot": "accessory", "words": ["brille", "glasses"], "parts": [["glasses", "black"]] }
+        {
+            "slot": "weapon",
+            "words": [
+                "stab",
+                "staff",
+                "zauber"
+            ],
+            "parts": [
+                [
+                    "staff",
+                    "simple"
+                ],
+                [
+                    "staff",
+                    "simple"
+                ],
+                [
+                    "staff_diamond",
+                    "medium"
+                ],
+                [
+                    "staff_diamond",
+                    "medium"
+                ],
+                [
+                    "staff_diamond",
+                    "medium"
+                ]
+            ]
+        },
+        {
+            "slot": "weapon",
+            "words": [
+                "hammer"
+            ],
+            "parts": [
+                [
+                    "hammer",
+                    "base"
+                ]
+            ]
+        },
+        {
+            "slot": "weapon",
+            "words": [
+                "dolch",
+                "dagger",
+                "messer"
+            ],
+            "parts": [
+                [
+                    "dagger",
+                    "dagger"
+                ]
+            ]
+        },
+        {
+            "slot": "accessory",
+            "words": [
+                "brille",
+                "glasses"
+            ],
+            "parts": [
+                [
+                    "glasses",
+                    "black"
+                ]
+            ]
+        }
     ],
-    "rarities": ["common", "uncommon", "rare", "epic", "legendary"],
+    "rarities": [
+        "common",
+        "uncommon",
+        "rare",
+        "epic",
+        "legendary"
+    ],
     "slots": {
-        "head": [[["cap_leather", "base"]], [["helmet_nasal", "iron"]], [["helmet_bascinet", "steel"]], [["helmet_armet", "silver"]], [["helmet_greathelm", "gold"]]],
-        "armor": [[["armour_leather", "brown"]], [["chainmail", "steel"]], [["armour_plate", "steel"]], [["armour_plate", "silver"], ["arms_plate", "silver"]], [["armour_plate", "gold"], ["arms_plate", "gold"]]],
-        "weapon": [[["sword", "bronze"]], [["sword", "iron"]], [["sword", "steel"]], [["sword", "silver"]], [["sword", "gold"]]],
-        "shield": [[["shield_heater", "base"]], [["shield_round", "brown"]], [["shield_round", "silver"]], [["shield_crusader", "crusader"]], [["shield_round", "gold"]]],
-        "accessory": [[["necklace", "iron"]], [["necklace", "bronze"]], [["necklace", "silver"]], [["necklace", "silver"]], [["necklace", "gold"]]]
+        "head": [
+            [
+                [
+                    "cap_leather",
+                    "base"
+                ]
+            ],
+            [
+                [
+                    "helmet_nasal",
+                    "iron"
+                ]
+            ],
+            [
+                [
+                    "helmet_bascinet",
+                    "steel"
+                ]
+            ],
+            [
+                [
+                    "helmet_armet",
+                    "silver"
+                ]
+            ],
+            [
+                [
+                    "helmet_greathelm",
+                    "gold"
+                ]
+            ]
+        ],
+        "armor": [
+            [
+                [
+                    "armour_leather",
+                    "brown"
+                ]
+            ],
+            [
+                [
+                    "chainmail",
+                    "steel"
+                ]
+            ],
+            [
+                [
+                    "armour_plate",
+                    "steel"
+                ]
+            ],
+            [
+                [
+                    "armour_plate",
+                    "silver"
+                ],
+                [
+                    "arms_plate",
+                    "silver"
+                ]
+            ],
+            [
+                [
+                    "armour_plate",
+                    "gold"
+                ],
+                [
+                    "arms_plate",
+                    "gold"
+                ]
+            ]
+        ],
+        "weapon": [
+            [
+                [
+                    "sword",
+                    "bronze"
+                ]
+            ],
+            [
+                [
+                    "sword",
+                    "iron"
+                ]
+            ],
+            [
+                [
+                    "sword",
+                    "steel"
+                ]
+            ],
+            [
+                [
+                    "sword",
+                    "silver"
+                ]
+            ],
+            [
+                [
+                    "sword",
+                    "gold"
+                ]
+            ]
+        ],
+        "shield": [
+            [
+                [
+                    "shield_heater",
+                    "base"
+                ]
+            ],
+            [
+                [
+                    "shield_round",
+                    "brown"
+                ]
+            ],
+            [
+                [
+                    "shield_round",
+                    "silver"
+                ]
+            ],
+            [
+                [
+                    "shield_crusader",
+                    "crusader"
+                ]
+            ],
+            [
+                [
+                    "shield_round",
+                    "gold"
+                ]
+            ]
+        ],
+        "accessory": [
+            [
+                [
+                    "necklace",
+                    "iron"
+                ]
+            ],
+            [
+                [
+                    "necklace",
+                    "bronze"
+                ]
+            ],
+            [
+                [
+                    "necklace",
+                    "silver"
+                ]
+            ],
+            [
+                [
+                    "necklace",
+                    "silver"
+                ]
+            ],
+            [
+                [
+                    "necklace",
+                    "gold"
+                ]
+            ]
+        ]
     }
 }

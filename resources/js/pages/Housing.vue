@@ -121,7 +121,7 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
     <AppLayout :breadcrumbs="[{ title: 'Familienhaus', href: '/housing' }]">
         <div class="flex flex-1 flex-col gap-6 p-4 md:p-6">
             <header
-                class="relative overflow-hidden rounded-3xl border-2 border-emerald-200 bg-gradient-to-b from-sky-200 via-sky-100 to-emerald-100 p-5 dark:border-emerald-900 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950/50 sm:p-6"
+                class="hh-panel relative overflow-hidden bg-gradient-to-b from-sky-200 via-sky-100 to-emerald-100 p-5 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950/50 sm:p-6"
             >
                 <div
                     class="absolute inset-x-0 bottom-0 h-[38%] bg-gradient-to-b from-[#8bcf5a] to-[#5fae42] dark:from-[#2f5d3a] dark:to-[#1c3f28]"

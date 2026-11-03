@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 
+import petLuma from '@/lib/petLuma.json';
+
 /**
  * Haustiere (Konzept §2.9): Bild der Tierart (Fluent Emoji 3D, public/images/pets) mit einem Schimmer
  * in der Farbe des Schlüpfpulvers. Fehlt ein Bild, zeichnet die SVG-Vorlage das Tier.
@@ -33,10 +35,43 @@ const PALETTES: Record<string, { main: string; belly: string }> = {
     potion_crystal: { main: '#67e8f9', belly: '#f0abfc' },
     potion_rainbow: { main: 'url(#rainbow)', belly: '#fef3c7' },
 };
+function lightness(color: string): number {
+    const hex = color.startsWith('#') ? color.slice(1) : '';
+    if (hex.length !== 6) return 0.5;
+    const [r, g, b] = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+    return (Math.max(r, g, b) + Math.min(r, g, b)) / 2;
+}
 const p = computed(() => PALETTES[props.potion] ?? { main: '#a3a3a3', belly: '#f5f5f4' });
 const species = computed(() => props.egg.replace(/^egg_/, ''));
 const uid = Math.random().toString(36).slice(2, 8);
 const imageFailed = ref(false);
+// Varianten sichtbar machen: das Tier selbst in der Pulverfarbe tönen (Mischmodus „color“, Schattierung bleibt),
+// besondere Pulver bekommen einen Effekt. Ohne Pulver (oder Standard) bleibt das Originalbild.
+const SPECIAL: Record<string, string> = {
+    potion_rainbow: 'fx-rainbow',
+    potion_golden: 'fx-golden',
+    potion_crystal: 'fx-crystal',
+    potion_night_sky: 'fx-stars',
+    potion_frost_star: 'fx-crystal',
+    potion_shadow: 'fx-shadow',
+    potion_spooky: 'fx-shadow',
+};
+const tinted = computed(() => props.potion in PALETTES && props.potion !== 'potion_rainbow');
+const tintStyle = computed(() => ({
+    backgroundColor: p.value.main,
+    maskImage: `url(/images/pets/${species.value}.webp)`,
+    WebkitMaskImage: `url(/images/pets/${species.value}.webp)`,
+}));
+const effect = computed(() => SPECIAL[props.potion] ?? null);
+// Jedes Tierbild hat eine eigene Grundhelligkeit (Frosch hell, schwarze Katze dunkel). Damit ein Pulver auf
+// allen Tieren gleich aussieht, wird das Bild entsättigt und auf die Helligkeit des Pulvers gebracht,
+// erst dann eingefärbt – Gold glänzt so auch auf dem braunen Pony golden (Messung: tools/pets/pet_luma.py).
+const baseFilter = computed(() => {
+    if (!tinted.value) return undefined;
+    const target = props.potion === 'potion_golden' ? 0.74 : 0.2 + 0.7 * lightness(p.value.main);
+    const factor = Math.min(2.6, Math.max(0.45, target / ((petLuma as Record<string, number>)[species.value] ?? 0.5)));
+    return `grayscale(1) brightness(${factor.toFixed(2)}) contrast(1.1)`;
+});
 const width = computed(() => (props.mount ? props.size * 1.3 : props.size));
 const glow = computed(() =>
     props.potion === 'potion_rainbow'
@@ -55,7 +90,19 @@ const glow = computed(() =>
     >
         <span class="pet-glow" :style="{ background: glow }" />
         <span v-if="mount" class="pet-podest" aria-hidden="true" />
-        <img :src="`/images/pets/${species}.webp`" alt="" loading="lazy" @error="imageFailed = true" />
+        <span class="pet-body" :class="effect">
+            <img :src="`/images/pets/${species}.webp`" alt="" :style="{ filter: baseFilter }" @error="imageFailed = true" />
+            <span v-if="tinted" class="pet-tint" :style="tintStyle" aria-hidden="true" />
+            <span
+                v-if="effect === 'fx-rainbow'"
+                class="pet-tint pet-rainbow"
+                :style="{ maskImage: tintStyle.maskImage, WebkitMaskImage: tintStyle.WebkitMaskImage }"
+                aria-hidden="true"
+            />
+            <span v-if="effect === 'fx-crystal' || effect === 'fx-stars' || effect === 'fx-golden'" class="pet-sparkles" aria-hidden="true">
+                <i v-for="n in 5" :key="n" :style="{ left: `${(n * 19) % 90}%`, top: `${(n * 31) % 80}%`, animationDelay: `${n * 0.35}s` }" />
+            </span>
+        </span>
     </span>
     <svg
         v-else
@@ -170,11 +217,64 @@ const glow = computed(() =>
     opacity: 0.55;
     filter: blur(6px);
 }
+.pet-body {
+    position: absolute;
+    inset: 0;
+    isolation: isolate;
+}
 .pet-image img {
     position: relative;
     width: 100%;
     height: 100%;
     object-fit: contain;
+}
+.pet-tint {
+    position: absolute;
+    inset: 0;
+    mix-blend-mode: color;
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    pointer-events: none;
+}
+.pet-rainbow {
+    background: linear-gradient(120deg, #f87171, #facc15, #4ade80, #38bdf8, #a78bfa, #f87171);
+    background-size: 300% 300%;
+    animation: rainbow 4s linear infinite;
+    opacity: 0.85;
+}
+.fx-golden {
+    filter: drop-shadow(0 0 6px rgb(250 204 21 / 0.85));
+}
+.fx-shadow {
+    filter: drop-shadow(0 0 6px rgb(88 28 135 / 0.7));
+}
+.fx-crystal {
+    filter: drop-shadow(0 0 6px rgb(103 232 249 / 0.8));
+}
+.pet-sparkles i {
+    position: absolute;
+    width: 8%;
+    aspect-ratio: 1;
+    background: radial-gradient(circle, #fff 0 30%, transparent 70%);
+    animation: twinkle 1.8s ease-in-out infinite;
+}
+.fx-golden .pet-sparkles i {
+    background: radial-gradient(circle, #fde047 0 30%, transparent 70%);
+}
+@keyframes rainbow {
+    to {
+        background-position: 300% 0;
+    }
+}
+@keyframes twinkle {
+    50% {
+        opacity: 0.1;
+        transform: scale(0.5);
+    }
 }
 .pet-podest {
     position: absolute;
@@ -196,7 +296,9 @@ const glow = computed(() =>
     }
 }
 @media (prefers-reduced-motion: reduce) {
-    .pet {
+    .pet,
+    .pet-rainbow,
+    .pet-sparkles i {
         animation: none;
     }
 }

@@ -63,7 +63,7 @@ const hint = computed(() => {
 
 <template>
     <article
-        class="group relative flex flex-col overflow-hidden rounded-3xl border-2 bg-card shadow-sm transition"
+        class="hh-panel group relative flex flex-col overflow-hidden hh-parchment transition"
         :class="
             ready
                 ? 'border-emerald-300 shadow-emerald-100 hover:-translate-y-0.5 hover:shadow-md dark:border-emerald-800 dark:shadow-none'
@@ -99,7 +99,7 @@ const hint = computed(() => {
 
         <div class="flex flex-1 flex-col gap-3 p-4">
             <div>
-                <h3 class="text-lg font-extrabold leading-tight">
+                <h3 class="font-pixel text-lg tracking-wide leading-tight">
                     {{ recipe.output.name
                     }}<span v-if="recipe.output.quantity > 1" class="text-muted-foreground"> ×{{ recipe.output.quantity }}</span>
                 </h3>
