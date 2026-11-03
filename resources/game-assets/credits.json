@@ -74,16 +74,17 @@
         ]
     },
     {
-        "title": "Item- und Monster-Bilder: Fluent Emoji (3D)",
+        "title": "Item-, Monster- und Symbol-Bilder: Fluent Emoji (3D)",
         "author": "Microsoft Corporation",
         "author_url": "https://github.com/microsoft",
         "source_url": "https://github.com/microsoft/fluentui-emoji",
         "license": "MIT",
         "license_url": "https://github.com/microsoft/fluentui-emoji/blob/main/LICENSE",
-        "changes": "Auf 128 bzw. 256 Pixel verkleinert und nach WebP umgewandelt (tools/items/build_items.py). Monster werden im Browser nach der Boss-Farbe getönt.",
+        "changes": "Auf 96–256 Pixel verkleinert und nach WebP umgewandelt (tools/items/build_items.py, tools/emoji/build_emoji.py). Monster werden im Browser nach der Boss-Farbe getönt.",
         "files": [
             "public/images/items",
-            "public/images/monsters"
+            "public/images/monsters",
+            "public/images/emoji"
         ]
     }
 ]

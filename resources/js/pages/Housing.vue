@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Emoji from '@/components/game/Emoji.vue';
 import ItemIcon from '@/components/game/ItemIcon.vue';
 import RoomEditor, { type Furniture, type Room } from '@/components/game/RoomEditor.vue';
 import { Button } from '@/components/ui/button';
@@ -215,7 +216,12 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                                 {{ showProjectForm ? 'Projektliste schließen' : 'Bauprojekt starten' }}
                             </Button>
                             <div v-if="showProjectForm" class="mt-3 grid gap-3 rounded-xl border p-3 md:grid-cols-2 xl:grid-cols-3">
-                                <Input v-model="rewardText" maxlength="120" placeholder="Gemeinsame Belohnung (optional)" class="md:col-span-2 xl:col-span-3" />
+                                <Input
+                                    v-model="rewardText"
+                                    maxlength="120"
+                                    placeholder="Gemeinsame Belohnung (optional)"
+                                    class="md:col-span-2 xl:col-span-3"
+                                />
                                 <div
                                     v-for="project in home.projects.available"
                                     :key="project.key"
@@ -416,7 +422,7 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                     <CardContent>
                         <div v-if="home.storage.length" class="flex flex-wrap gap-2">
                             <span v-for="item in home.storage" :key="item.name" class="rounded-lg bg-muted px-3 py-2 text-sm">
-                                {{ item.icon }} {{ item.name }} × {{ item.quantity }}
+                                <Emoji :char="item.icon" :size="22" class="mr-0.5" /> {{ item.name }} × {{ item.quantity }}
                             </span>
                         </div>
                         <p v-else class="text-sm text-muted-foreground">Im Familienlager liegt noch nichts.</p>
@@ -433,7 +439,7 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                             <h3 class="mb-2 text-sm font-bold">Besiegte Bosse</h3>
                             <div class="flex flex-wrap gap-2">
                                 <span v-for="boss in home.trophies.bosses" :key="boss.key" class="rounded-lg bg-muted px-3 py-2 text-sm">
-                                    {{ boss.icon }} {{ boss.name }}
+                                    <Emoji :char="boss.icon" :size="22" class="mr-0.5" /> {{ boss.name }}
                                 </span>
                             </div>
                         </section>
@@ -445,7 +451,7 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                                     :key="`${item.key}-${item.owner_id}`"
                                     class="rounded-lg bg-muted px-3 py-2 text-sm"
                                 >
-                                    {{ item.icon }} {{ item.name }}
+                                    <Emoji :char="item.icon" :size="22" class="mr-0.5" /> {{ item.name }}
                                 </span>
                             </div>
                         </section>

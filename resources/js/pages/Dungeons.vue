@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Emoji from '@/components/game/Emoji.vue';
 import MonsterArt, { type MonsterArtConfig } from '@/components/game/MonsterArt.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -260,7 +261,9 @@ function doorLabel(kind: string, target: number) {
                                 <p class="text-xs font-bold uppercase tracking-[0.16em] text-violet-200">
                                     {{ dungeon.kind === 'family' ? 'Gemeinsames Abenteuer' : 'Dein Solo-Abenteuer' }}
                                 </p>
-                                <h2 class="text-xl font-black">{{ dungeon.theme.icon }} {{ dungeon.theme.name }}</h2>
+                                <h2 class="text-xl font-black">
+                                    <Emoji :char="dungeon.theme.icon" :size="22" class="mr-0.5" /> {{ dungeon.theme.name }}
+                                </h2>
                             </div>
                             <span class="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold">
                                 {{ dungeon.status === 'active' ? '🟢 Läuft' : dungeon.status === 'completed' ? '🏆 Geschafft' : '⌛ Vorbei' }}
@@ -488,7 +491,7 @@ function doorLabel(kind: string, target: number) {
                                         variant="outline"
                                         :disabled="pending || dungeon.status !== 'active'"
                                         @click="interact({ buy: offer.key })"
-                                        >{{ offer.icon }} {{ offer.name }} · {{ offer.price }} Gold</Button
+                                        ><Emoji :char="offer.icon" :size="22" class="mr-0.5" /> {{ offer.name }} · {{ offer.price }} Gold</Button
                                     >
                                 </div>
                             </div>
@@ -508,7 +511,7 @@ function doorLabel(kind: string, target: number) {
                                 :disabled="pending"
                                 @click="usePotion(potion.id)"
                             >
-                                {{ potion.icon }} {{ potion.name }} · {{ potion.count }}
+                                <Emoji :char="potion.icon" :size="22" class="mr-0.5" /> {{ potion.name }} · {{ potion.count }}
                             </Button>
                         </div>
                         <div v-if="currentRoom?.doors && dungeon.status === 'active'" class="space-y-2 border-t pt-4">

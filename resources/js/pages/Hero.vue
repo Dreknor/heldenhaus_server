@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Emoji from '@/components/game/Emoji.vue';
 import ItemIcon from '@/components/game/ItemIcon.vue';
 import AvatarEditor from '@/components/game/AvatarEditor.vue';
 import { Button } from '@/components/ui/button';
@@ -176,7 +177,7 @@ const hoursLeft = (iso: string) => Math.max(0, Math.round((new Date(iso).getTime
 
                 <template v-else-if="hero_class && !choosing">
                     <div class="flex flex-wrap items-start gap-4">
-                        <span class="text-6xl">{{ hero_class.icon }}</span>
+                        <Emoji :char="hero_class.icon" :size="68" />
                         <div class="min-w-0 flex-1">
                             <h2 class="text-xl font-extrabold">{{ hero_class.name }} <span class="text-base font-semibold text-muted-foreground">– {{ hero_class.role }}</span></h2>
                             <p class="text-sm text-muted-foreground">{{ hero_class.description }}</p>
@@ -229,7 +230,7 @@ const hoursLeft = (iso: string) => Math.max(0, Math.round((new Date(iso).getTime
                     <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                         <div v-for="c in classes" :key="c.key" class="flex flex-col gap-2 rounded-2xl border p-4" :class="hero_class?.key === c.key ? 'border-primary' : ''">
                             <div class="flex items-center gap-3">
-                                <span class="text-4xl">{{ c.icon }}</span>
+                                <Emoji :char="c.icon" :size="46" />
                                 <div>
                                     <p class="font-extrabold">{{ c.name }}</p>
                                     <p class="text-xs text-muted-foreground">{{ c.role }}</p>

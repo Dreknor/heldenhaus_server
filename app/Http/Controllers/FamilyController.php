@@ -4,17 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Domain\Family\FamilyService;
 use App\Domain\Integrations\HomeAssistant\HomeAssistantWebhooks;
+use App\Domain\Quests\QuestService;
 use App\Domain\Rewards\RewardService;
 use App\Domain\Social\FeedService;
 use App\Domain\Support\OpenRouterClient;
 use App\Domain\Support\SupportService;
 use App\Enums\FamilyRole;
 use App\Http\Presenters\GamePresenter;
-use App\Models\FamilyInvite;
 use App\Models\FamilyEventSetting;
+use App\Models\FamilyInvite;
 use App\Models\HaAuditEntry;
 use App\Models\HaWebhook;
 use App\Models\Task;
+use App\Models\TaskCompletion;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,8 +35,16 @@ class FamilyController extends Controller
         $family = $user->family;
         $this->authorize('view', $family);
 
+        $members = $family->members()->with('stats')->orderBy('family_role')->orderBy('name')->get();
+        // Heute erledigt (nur Anzahl, keine Aufgabentitel – Privatsphäre wie im Wochenbericht)
+        $doneToday = TaskCompletion::whereIn('user_id', $members->pluck('id'))
+            ->where('direction', 'up')->where('created_at', '>=', now()->startOfDay())
+            ->selectRaw('user_id, count(*) as n')->groupBy('user_id')->pluck('n', 'user_id');
+
         return Inertia::render('family/Index', [
             'family' => ['name' => $family->name],
+            'heroes' => $members->map(fn (User $m) => GamePresenter::member($m) + ['done_today' => (int) ($doneToday[$m->id] ?? 0)])->values(),
+            'quest' => QuestService::present(app(QuestService::class)->activeFamily($family->id)),
             'feed' => FeedService::present($family->id, $user->id),
         ]);
     }

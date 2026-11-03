@@ -431,8 +431,8 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
                 </form>
             </section>
 
-            <section v-else class="grid gap-5 lg:grid-cols-[minmax(18rem,0.8fr)_minmax(0,1.2fr)]">
-                <div class="grid content-start gap-3 rounded-2xl border bg-card p-5">
+            <section v-else class="grid gap-5 xl:grid-cols-[minmax(20rem,0.8fr)_minmax(0,1.2fr)]">
+                <div class="grid min-w-0 content-start gap-3 rounded-2xl border bg-card p-5">
                     <div>
                         <h2 class="flex items-center gap-2 font-extrabold"><Handshake class="size-5 text-violet-600" /> Neues Tauschangebot</h2>
                         <p class="text-sm text-muted-foreground">
