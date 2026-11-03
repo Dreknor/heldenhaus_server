@@ -2,9 +2,9 @@
 import InputError from '@/components/InputError.vue';
 import ItemIcon from '@/components/game/ItemIcon.vue';
 import RecipeCard, { type Recipe } from '@/components/game/RecipeCard.vue';
-import { useCelebrate } from '@/composables/useCelebrate';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useCelebrate } from '@/composables/useCelebrate';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { SharedData } from '@/types';
 import { Head, router, useForm, usePage } from '@inertiajs/vue3';
@@ -23,6 +23,7 @@ interface StockItem {
 
 interface TradeItem {
     item_id: number;
+    key: string | null;
     name: string;
     icon: string;
     quantity: number;
@@ -134,7 +135,11 @@ function startCraft(recipe: Recipe) {
 }
 
 function collectJob(jobId: number) {
-    router.post(route('crafting.jobs.collect', { job: jobId }), {}, { preserveScroll: true, onSuccess: () => celebrate('big', null, 'Fertig gebaut!') });
+    router.post(
+        route('crafting.jobs.collect', { job: jobId }),
+        {},
+        { preserveScroll: true, onSuccess: () => celebrate('big', null, 'Fertig gebaut!') },
+    );
 }
 
 function learnRecipe(recipe: Recipe) {
@@ -322,12 +327,7 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
                             {{ jobIsReady(job) ? 'Fertig' : `Fertig um ${timeLabel(job.finishes_at)}` }}
                         </p>
                     </div>
-                    <Button
-                        v-if="jobIsReady(job)"
-                        :disabled="craftForm.processing"
-                        @click="collectJob(job.id)"
-                        >Abholen</Button
-                    >
+                    <Button v-if="jobIsReady(job)" :disabled="craftForm.processing" @click="collectJob(job.id)">Abholen</Button>
                     <span v-else class="rounded-full bg-sky-100 px-3 py-1 text-xs font-bold text-sky-700 dark:bg-sky-950 dark:text-sky-300"
                         >In Arbeit</span
                     >
@@ -506,13 +506,31 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
                             <span class="rounded-full bg-muted px-2.5 py-1 text-xs font-bold">{{ statusLabels[trade.status] ?? trade.status }}</span>
                         </div>
                         <div class="grid gap-2 text-sm sm:grid-cols-[1fr_auto_1fr] sm:items-center">
-                            <p class="rounded-lg bg-muted p-3">
-                                <strong>Bietet:</strong> {{ trade.offer.map((i) => `${i.icon} ${i.name} × ${i.quantity}`).join(', ') }}
-                            </p>
+                            <div class="rounded-2xl bg-muted p-3">
+                                <p class="mb-2 text-xs font-black uppercase tracking-wider text-muted-foreground">Bietet</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span
+                                        v-for="i in trade.offer"
+                                        :key="i.item_id"
+                                        class="flex items-center gap-1.5 rounded-xl bg-card py-1 pl-1 pr-2.5 font-semibold shadow-sm"
+                                    >
+                                        <ItemIcon :item="{ key: i.key, type: 'material' }" :size="28" /> {{ i.quantity }}× {{ i.name }}
+                                    </span>
+                                </div>
+                            </div>
                             <span class="text-center text-lg font-bold text-muted-foreground">⇄</span>
-                            <p class="rounded-lg bg-muted p-3">
-                                <strong>Möchte:</strong> {{ trade.want.map((i) => `${i.icon} ${i.name} × ${i.quantity}`).join(', ') }}
-                            </p>
+                            <div class="rounded-2xl bg-muted p-3">
+                                <p class="mb-2 text-xs font-black uppercase tracking-wider text-muted-foreground">Möchte</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span
+                                        v-for="i in trade.want"
+                                        :key="i.item_id"
+                                        class="flex items-center gap-1.5 rounded-xl bg-card py-1 pl-1 pr-2.5 font-semibold shadow-sm"
+                                    >
+                                        <ItemIcon :item="{ key: i.key, type: 'material' }" :size="28" /> {{ i.quantity }}× {{ i.name }}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                         <p v-if="trade.accepted_by" class="text-xs text-muted-foreground">Angenommen von {{ trade.accepted_by.name }}</p>
                         <div class="flex flex-wrap gap-2">

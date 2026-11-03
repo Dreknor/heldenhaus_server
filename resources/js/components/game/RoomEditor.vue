@@ -111,13 +111,26 @@ function boxStyle(x: number, y: number, w: number, h: number, layer: string) {
     };
 }
 // Bodenmöbel stehen auf ihrer Stellfläche und ragen nach oben (wie im echten Zimmer), Wandbilder füllen ihr Feld
-function artBox(layer: string): Record<string, string> {
-    return layer === 'floor'
-        ? { position: 'absolute', left: '0', bottom: '0', width: '100%', height: 'auto', aspectRatio: '1', transformOrigin: '50% 100%' }
-        : { position: 'absolute', inset: '-35%', width: '170%', height: '170%' };
+function artBox(layer: string, w = 1, h = 1, rotation = 0): Record<string, string> {
+    if (layer !== 'floor') return { position: 'absolute', inset: '-35%', width: '170%', height: '170%' };
+    // Größe nach der längeren Möbelseite, damit quer gestellte Möbel nicht schrumpfen
+    const ratio = Math.max(w, h) / footprint(w, h, rotation).w;
+    return {
+        position: 'absolute',
+        left: `${((1 - ratio) / 2) * 100}%`,
+        bottom: '0',
+        width: `${ratio * 100}%`,
+        height: 'auto',
+        aspectRatio: '1',
+        transformOrigin: '50% 100%',
+    };
 }
+// Drehen ändert die Stellfläche (wie von oben gesehen). In der Seitenansicht wird nichts gekippt:
+// quer gestellte Möbel wirken etwas schmaler, umgedrehte zeigen die andere Seite.
 function artTransform(p: { rotation: number; mirrored: boolean }) {
-    return `rotate(${p.rotation}deg) scaleX(${p.mirrored ? -1 : 1})`;
+    const turned = p.rotation === 90 || p.rotation === 270;
+    const flip = (p.rotation === 180 || p.rotation === 270) !== p.mirrored ? -1 : 1;
+    return `scaleX(${flip * (turned ? 0.82 : 1)})`;
 }
 function gridPos(clientX: number, clientY: number, layer: string) {
     const b = stage.value!.getBoundingClientRect();
@@ -436,7 +449,7 @@ const floor = computed(() => FLOOR[style.floor] ?? FLOOR.planks);
                         :name="p.name"
                         :master="p.master"
                         class="pointer-events-none drop-shadow-lg"
-                        :style="{ ...artBox(p.layer), transform: artTransform(p) }"
+                        :style="{ ...artBox(p.layer, p.w, p.h, p.rotation), transform: artTransform(p) }"
                     />
                 </button>
 
@@ -452,7 +465,7 @@ const floor = computed(() => FLOOR[style.floor] ?? FLOOR.planks);
                         :icon="ghost.f.icon"
                         :name="ghost.f.name"
                         class="pointer-events-none opacity-75"
-                        :style="{ ...artBox(ghost.layer), transform: artTransform(pending) }"
+                        :style="{ ...artBox(ghost.layer, ghost.f.w, ghost.f.h, pending.rotation), transform: artTransform(pending) }"
                     />
                 </div>
 
@@ -491,7 +504,9 @@ const floor = computed(() => FLOOR[style.floor] ?? FLOOR.planks);
                             <RotateCw class="size-4" /> Drehen
                         </button>
                     </p>
-                    <p v-else class="text-sm text-muted-foreground">Wähle in der Möbelkiste ein Möbelstück – oder tippe eins im Zimmer an, um es zu ändern.</p>
+                    <p v-else class="text-sm text-muted-foreground">
+                        Wähle in der Möbelkiste ein Möbelstück – oder tippe eins im Zimmer an, um es zu ändern.
+                    </p>
                     <div class="ml-auto flex gap-2">
                         <button class="tool" @click="cancel"><X class="size-4" /> Abbrechen</button>
                         <button
