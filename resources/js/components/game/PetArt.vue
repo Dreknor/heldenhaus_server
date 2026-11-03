@@ -37,6 +37,24 @@ const p = computed(() => PALETTES[props.potion] ?? { main: '#a3a3a3', belly: '#f
 const species = computed(() => props.egg.replace(/^egg_/, ''));
 const uid = Math.random().toString(36).slice(2, 8);
 const imageFailed = ref(false);
+// Varianten sichtbar machen: das Tier selbst in der Pulverfarbe tönen (Mischmodus „color“, Schattierung bleibt),
+// besondere Pulver bekommen einen Effekt. Ohne Pulver (oder Standard) bleibt das Originalbild.
+const SPECIAL: Record<string, string> = {
+    potion_rainbow: 'fx-rainbow',
+    potion_golden: 'fx-golden',
+    potion_crystal: 'fx-crystal',
+    potion_night_sky: 'fx-stars',
+    potion_frost_star: 'fx-crystal',
+    potion_shadow: 'fx-shadow',
+    potion_spooky: 'fx-shadow',
+};
+const tinted = computed(() => props.potion in PALETTES && props.potion !== 'potion_rainbow');
+const tintStyle = computed(() => ({
+    backgroundColor: p.value.main,
+    maskImage: `url(/images/pets/${species.value}.webp)`,
+    WebkitMaskImage: `url(/images/pets/${species.value}.webp)`,
+}));
+const effect = computed(() => SPECIAL[props.potion] ?? null);
 const width = computed(() => (props.mount ? props.size * 1.3 : props.size));
 const glow = computed(() =>
     props.potion === 'potion_rainbow'
@@ -55,7 +73,14 @@ const glow = computed(() =>
     >
         <span class="pet-glow" :style="{ background: glow }" />
         <span v-if="mount" class="pet-podest" aria-hidden="true" />
-        <img :src="`/images/pets/${species}.webp`" alt="" loading="lazy" @error="imageFailed = true" />
+        <span class="pet-body" :class="effect">
+            <img :src="`/images/pets/${species}.webp`" alt="" @error="imageFailed = true" />
+            <span v-if="tinted" class="pet-tint" :style="tintStyle" aria-hidden="true" />
+            <span v-if="effect === 'fx-rainbow'" class="pet-tint pet-rainbow" :style="{ maskImage: tintStyle.maskImage, WebkitMaskImage: tintStyle.WebkitMaskImage }" aria-hidden="true" />
+            <span v-if="effect === 'fx-crystal' || effect === 'fx-stars' || effect === 'fx-golden'" class="pet-sparkles" aria-hidden="true">
+                <i v-for="n in 5" :key="n" :style="{ left: `${(n * 19) % 90}%`, top: `${(n * 31) % 80}%`, animationDelay: `${n * 0.35}s` }" />
+            </span>
+        </span>
     </span>
     <svg
         v-else
@@ -170,11 +195,65 @@ const glow = computed(() =>
     opacity: 0.55;
     filter: blur(6px);
 }
+.pet-body {
+    position: absolute;
+    inset: 0;
+    isolation: isolate;
+}
 .pet-image img {
     position: relative;
     width: 100%;
     height: 100%;
     object-fit: contain;
+}
+.pet-tint {
+    position: absolute;
+    inset: 0;
+    mix-blend-mode: color;
+    opacity: 0.75;
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    pointer-events: none;
+}
+.pet-rainbow {
+    background: linear-gradient(120deg, #f87171, #facc15, #4ade80, #38bdf8, #a78bfa, #f87171);
+    background-size: 300% 300%;
+    animation: rainbow 4s linear infinite;
+    opacity: 0.85;
+}
+.fx-golden img {
+    filter: drop-shadow(0 0 6px rgb(250 204 21 / 0.8));
+}
+.fx-shadow img {
+    filter: brightness(0.7) drop-shadow(0 0 6px rgb(88 28 135 / 0.7));
+}
+.fx-crystal img {
+    filter: drop-shadow(0 0 6px rgb(103 232 249 / 0.8));
+}
+.pet-sparkles i {
+    position: absolute;
+    width: 8%;
+    aspect-ratio: 1;
+    background: radial-gradient(circle, #fff 0 30%, transparent 70%);
+    animation: twinkle 1.8s ease-in-out infinite;
+}
+.fx-golden .pet-sparkles i {
+    background: radial-gradient(circle, #fde047 0 30%, transparent 70%);
+}
+@keyframes rainbow {
+    to {
+        background-position: 300% 0;
+    }
+}
+@keyframes twinkle {
+    50% {
+        opacity: 0.1;
+        transform: scale(0.5);
+    }
 }
 .pet-podest {
     position: absolute;
@@ -196,7 +275,9 @@ const glow = computed(() =>
     }
 }
 @media (prefers-reduced-motion: reduce) {
-    .pet {
+    .pet,
+    .pet-rainbow,
+    .pet-sparkles i {
         animation: none;
     }
 }
