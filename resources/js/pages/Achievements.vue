@@ -87,7 +87,7 @@ const fmt = (n: number) => n.toLocaleString('de-DE');
 
             <section
                 v-if="almost.length"
-                class="rounded-3xl border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 p-4 dark:border-amber-900 dark:from-amber-950/30 dark:to-orange-950/20"
+                class="hh-panel bg-gradient-to-br from-amber-50 to-orange-50 p-4 dark:from-amber-950/30 dark:to-orange-950/20"
             >
                 <h2 class="mb-3 text-lg font-extrabold">Fast geschafft</h2>
                 <div class="grid gap-3 sm:grid-cols-3">

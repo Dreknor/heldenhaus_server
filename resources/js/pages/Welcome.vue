@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { emojiUrl } from '@/lib/emoji';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import YardBanner from '@/components/game/YardBanner.vue';
 import { Head, Link } from '@inertiajs/vue3';
@@ -7,7 +8,7 @@ import { CalendarCheck, Gift, Home, Swords } from 'lucide-vue-next';
 const features = [
     {
         icon: Swords,
-        art: '/images/emoji/2694.webp',
+        art: emojiUrl('⚔️'),
         title: 'Aufgaben werden Abenteuer',
         text: 'Erledigte Aufgaben bringen Erfahrung, Gold, Haustiere und Level-Ups.',
     },
@@ -19,13 +20,13 @@ const features = [
     },
     {
         icon: Gift,
-        art: '/images/emoji/1f38a.webp',
+        art: emojiUrl('🎊'),
         title: 'Echte Belohnungen',
         text: 'Sterne aus Familienaufgaben gegen Belohnungen, die Eltern festlegen.',
     },
     {
         icon: CalendarCheck,
-        art: '/images/emoji/1f4a1.webp',
+        art: emojiUrl('💡'),
         title: 'Fokus statt Chaos',
         text: 'Eine Aufgabe nach der anderen, kleine Schritte, visueller Timer und Energiespar-Tage – auch bei ADHS.',
     },
@@ -79,7 +80,7 @@ const features = [
 
             <div class="mt-10 grid gap-4 sm:grid-cols-2">
                 <div v-for="f in features" :key="f.title" class="flex gap-4 rounded-2xl bg-white/80 p-5 shadow-sm backdrop-blur dark:bg-white/5">
-                    <img :src="f.art" alt="" class="size-14 shrink-0 drop-shadow-md" />
+                    <img :src="f.art ?? undefined" alt="" class="size-14 shrink-0 drop-shadow-md" />
                     <div>
                         <p class="font-extrabold">{{ f.title }}</p>
                         <p class="text-sm text-slate-600 dark:text-slate-300">{{ f.text }}</p>

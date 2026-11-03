@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { emojiUrl } from '@/lib/emoji';
 import HeroAvatar from '@/components/game/HeroAvatar.vue';
 import VisualTimer from '@/components/game/VisualTimer.vue';
 import { praise, useCelebrate } from '@/composables/useCelebrate';
@@ -189,7 +190,7 @@ const appearance = computed(() => page.props.auth.appearance);
     <section class="focus-board grid gap-4">
         <!-- Tagesreise -->
         <div
-            class="relative overflow-hidden rounded-3xl border-2 border-emerald-200 bg-gradient-to-b from-sky-100 via-emerald-50 to-emerald-100 p-4 dark:border-emerald-900 dark:from-slate-900 dark:via-emerald-950/40 dark:to-emerald-950/60"
+            class="hh-panel relative overflow-hidden bg-gradient-to-b from-sky-100 via-emerald-50 to-emerald-100 p-4 dark:from-slate-900 dark:via-emerald-950/40 dark:to-emerald-950/60"
         >
             <div class="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 class="text-lg font-extrabold">Deine Tagesreise</h2>
@@ -295,7 +296,7 @@ const appearance = computed(() => page.props.auth.appearance);
             enter-active-class="transition duration-200"
             leave-active-class="transition duration-150"
         >
-            <div v-if="selected" key="one" class="rounded-3xl border-2 border-violet-200 bg-card p-5 shadow-lg dark:border-violet-900 sm:p-7">
+            <div v-if="selected" key="one" class="hh-panel hh-parchment p-5 sm:p-7">
                 <button
                     class="mb-3 flex items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-foreground"
                     @click="selectedId = null"
@@ -382,10 +383,10 @@ const appearance = computed(() => page.props.auth.appearance);
             <div
                 v-else-if="suggestions.length"
                 key="pick"
-                class="rounded-3xl border-2 border-dashed border-violet-300 bg-violet-50/50 p-5 dark:border-violet-800 dark:bg-violet-950/20"
+                class="hh-panel hh-parchment p-5"
             >
                 <div class="mb-4 flex items-center justify-between gap-2">
-                    <h3 class="text-xl font-black">Was machst du als Nächstes?</h3>
+                    <h3 class="font-pixel text-xl tracking-wide">Was machst du als Nächstes?</h3>
                     <button
                         v-if="candidates.length > 3"
                         class="flex items-center gap-1 rounded-lg px-2 py-1 text-sm font-semibold text-muted-foreground hover:bg-muted"
@@ -423,16 +424,16 @@ const appearance = computed(() => page.props.auth.appearance);
             <div
                 v-else
                 key="done"
-                class="rounded-3xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-rose-50 p-8 text-center dark:border-amber-800 dark:from-amber-950/30 dark:to-rose-950/30"
+                class="hh-panel bg-gradient-to-br from-amber-50 to-rose-50 p-8 text-center dark:from-amber-950/30 dark:to-rose-950/30"
             >
                 <template v-if="anyDoneToday">
-                    <img src="/images/emoji/1f38a.webp" alt="" class="mx-auto size-20 drop-shadow-md" />
-                    <h3 class="mt-2 text-2xl font-black">Alles geschafft für heute!</h3>
+                    <img :src="emojiUrl('🎊') ?? undefined" alt="" class="mx-auto size-20 drop-shadow-md" />
+                    <h3 class="mt-2 font-pixel text-2xl tracking-wide">Alles geschafft für heute!</h3>
                     <p class="mt-1 text-muted-foreground">Dein Held ist stolz auf dich. Jetzt darfst du dich ausruhen.</p>
                 </template>
                 <template v-else>
-                    <img src="/images/emoji/1f4dc.webp" alt="" class="mx-auto size-20 drop-shadow-md" />
-                    <h3 class="mt-2 text-2xl font-black">Noch keine Aufgaben da</h3>
+                    <img :src="emojiUrl('📜') ?? undefined" alt="" class="mx-auto size-20 drop-shadow-md" />
+                    <h3 class="mt-2 font-pixel text-2xl tracking-wide">Noch keine Aufgaben da</h3>
                     <p class="mt-1 text-muted-foreground">Lege eine erste kleine Aufgabe an – dann geht das Abenteuer los.</p>
                     <button class="mt-4 rounded-xl bg-violet-600 px-5 py-2.5 font-bold text-white hover:bg-violet-700" @click="emit('showAll')">
                         Aufgabe anlegen
