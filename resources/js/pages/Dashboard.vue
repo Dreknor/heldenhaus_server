@@ -64,7 +64,9 @@ function storedMode(): 'focus' | 'all' | null {
         return null;
     }
 }
-const mode = ref<'focus' | 'all'>(storedMode() ?? (props.support.focus_mode_default ? 'focus' : 'all'));
+// Kinder starten in der Fokus-Ansicht (weniger auf einmal), alle anderen nach ihrer Einstellung
+const startInFocus = props.support.focus_mode_default || page.props.auth.user.age_group === 'child';
+const mode = ref<'focus' | 'all'>(storedMode() ?? (startInFocus ? 'focus' : 'all'));
 watch(mode, (m) => {
     try {
         window.localStorage.setItem(MODE_KEY, m);

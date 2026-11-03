@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Family\FamilyService;
+use App\Http\Presenters\CharacterSheet;
 use App\Models\Family;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -30,7 +31,8 @@ class FamilyLoginController extends Controller
             'familyName' => $family?->name,
             'members' => $family
                 ? $family->members()->whereNotNull('pin')->orderBy('name')->get()
-                    ->map(fn (User $u) => ['id' => $u->id, 'name' => $u->name, 'avatar_color' => $u->avatar_color])
+                    // Die eigene Heldenfigur erkennen Kinder schneller als einen Buchstaben
+                    ->map(fn (User $u) => ['id' => $u->id, 'name' => $u->name, 'avatar_color' => $u->avatar_color, 'appearance' => CharacterSheet::appearance($u)])
                 : [],
         ]);
     }
