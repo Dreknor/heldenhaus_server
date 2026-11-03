@@ -135,6 +135,7 @@ it('Begleiter bzw. Reittier im Stall wählen', function () {
     $this->get('/dashboard')->assertInertia(fn ($page) => $page->where('companion.name', 'Gold-Fuchs')->where('companion.is_mount', false));
     $this->get('/inventory')->assertInertia(fn ($page) => $page->where('pets.0.name', 'Gold-Fuchs')->where('pets.0.is_companion', true)->where('pets.1.is_companion', false));
 
+    // eigene Tiere wählen geht auch, wenn der Stall noch gesperrt ist (Level 1)
     Sanctum::actingAs($this->child, ['app']);
     $this->postJson("/api/v1/pets/{$pony->id}/companion")->assertOk()->assertJsonPath('is_mount', true);
     $this->getJson('/api/v1/board')->assertJsonPath('companion.name', 'Gold-Pony');
