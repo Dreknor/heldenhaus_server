@@ -55,6 +55,7 @@ X-Heldenhaus-Signature: sha256=<HMAC-SHA256(secret, "<timestamp>.<body>")>
 
 - Ereignisse: `task_completed`, `approval_requested`, `all_dailies_done` (einmal pro Tag), `level_up`, `reward_redeemed`, `boss_defeated`, `quest_completed`, `ping` (Test-Knopf)
 - Fokus & Alltagshilfen (§11.5): `step_completed`, `focus_started`, `focus_ended` (mit `remaining_minutes` und `result`), `low_energy_day`
+- Erinnerungen (§14.2): `reminder` zur Erinnerungszeit (Mitglied, `task_key`, nie bei privaten Aufgaben), z. B. für ein sanftes Lichtsignal am Ort
 - Events (§12.6): `event_started`, `event_ended`, `event_tier_reached` (mit `event_key` und Farbschema)
 - Private Aufgaben werden ohne Titel und Kategorie gemeldet (§3.7)
 - Empfänger prüfen die Signatur und verwerfen Zeitstempel, die mehr als 5 Minuten abweichen

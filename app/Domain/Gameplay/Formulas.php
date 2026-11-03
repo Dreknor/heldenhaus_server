@@ -24,6 +24,26 @@ class Formulas
     }
 
     /** XP, die für den Aufstieg von $level auf $level+1 nötig sind. */
+    /**
+     * Farbe einer Aufgabe nach ihrem Wert (wie bei Habitica): dunkelrot (lange vernachlässigt) bis blau (fest im Alltag).
+     *
+     * @return array{key: string, hex: string}
+     */
+    public static function color(float $value): array
+    {
+        [$key, $hex] = match (true) {
+            $value < -20 => ['worst', '#b91c1c'],
+            $value < -10 => ['worse', '#ef4444'],
+            $value < -1 => ['bad', '#f97316'],
+            $value < 1 => ['neutral', '#facc15'],
+            $value < 5 => ['good', '#22c55e'],
+            $value < 10 => ['better', '#38bdf8'],
+            default => ['best', '#2563eb'],
+        };
+
+        return ['key' => $key, 'hex' => $hex];
+    }
+
     public static function xpToNextLevel(int $level): int
     {
         return (int) (round(($level ** 2 * 0.25 + 10 * $level + 139.75) / 10) * 10);

@@ -1,43 +1,32 @@
 <script setup lang="ts">
 import { RARITY_COLORS, shade } from '@/lib/avatar';
-import ITEM_ART from '@/lib/item-art.json';
+import { emojiUrl } from '@/lib/emoji';
 import { computed, ref } from 'vue';
 
 /**
- * Item-Grafiken (Konzept §2.9, Stufe G2): selbst gezeichnete SVGs im selben Stil wie Avatar und Monster.
- * Bekannte Items haben eigene Motive, neue (im Admin angelegte) Items bekommen das Motiv ihres Typs,
- * eingefärbt nach Seltenheit.
+ * Item-Grafiken (Konzept §2.9): das Icon-Emoji des Items als 3D-Bild (Fluent Emoji), Eier zusätzlich mit dem
+ * Tier, das daraus schlüpft. Gibt es kein Bild (z. B. im Admin mit neuem Emoji angelegt), zeichnen wir das
+ * Motiv des Typs selbst, eingefärbt nach Seltenheit.
  */
 export interface ItemLike {
     key?: string | null;
     type: string;
     slot?: string | null;
     rarity?: string | null;
+    icon?: string | null;
 }
 
 const props = withDefaults(defineProps<{ item: ItemLike; size?: number; framed?: boolean }>(), { size: 48, framed: false });
 
 const ink = '#1f2937';
-// 3D-Bilder (Fluent Emoji, tools/items/build_items.py); Eier zeigen das Tier, Schlüpfpulver ihre Farbe
-const ART = new Set<string>(ITEM_ART);
-const failed = ref(false);
-const art = computed(() => {
-    const key = props.item.key ?? '';
-    if (props.item.type === 'egg' && key.startsWith('egg_')) return { src: '/images/items/_egg.webp', pet: `/images/pets/${key.slice(4)}.webp` };
-    if (props.item.type === 'hatching_potion') return { src: '/images/items/_hatching_potion.webp', hue: hueOf(key) };
-    if (ART.has(key)) return { src: `/images/items/${key}.webp` };
-    // Neue Items ohne eigenes Bild: Grundbild ihres Ausrüstungsplatzes bzw. Typs
-    const base = props.item.type === 'equipment' && props.item.slot ? `_${props.item.slot}` : `_${props.item.type}`;
-    return ART.has(base) ? { src: `/images/items/${base}.webp` } : null;
-});
-function hueOf(key: string): number {
-    let h = 0;
-    for (const c of key) h = (h * 31 + c.charCodeAt(0)) % 360;
-    return h;
-}
 const rarity = computed(() => RARITY_COLORS[props.item.rarity ?? 'common'] ?? RARITY_COLORS.common);
 const key = computed(() => props.item.key ?? '');
 const uid = Math.random().toString(36).slice(2, 8);
+
+// Eier: das Ei vorn, das Tier daraus klein daneben (Icon-Emoji der Eier ist das Tier)
+const art = computed(() => (key.value.startsWith('egg_') ? emojiUrl('🥚') : emojiUrl(props.item.icon)));
+const petArt = computed(() => (key.value.startsWith('egg_') ? `/images/pets/${key.value.slice(4)}.webp` : null));
+const petMissing = ref(false);
 
 /** Motiv: zuerst nach Schlüssel, sonst nach Typ/Slot. */
 const motif = computed(() => {
@@ -83,22 +72,15 @@ const liquid = computed(() => HATCH[key.value] ?? rarity.value);
 <template>
     <span class="relative inline-flex shrink-0 items-center justify-center" :style="{ width: `${size}px`, height: `${size}px` }">
         <span v-if="framed" class="absolute inset-0 rounded-xl opacity-20" :style="{ background: rarity }" />
-        <template v-if="art && !failed">
+        <template v-if="art">
+            <img :src="art" alt="" class="relative h-[86%] w-[86%] object-contain drop-shadow-sm" draggable="false" />
             <img
-                :src="art.src"
+                v-if="petArt && !petMissing"
+                :src="petArt"
                 alt=""
-                class="relative h-[88%] w-[88%] object-contain drop-shadow-sm"
-                :style="art.hue !== undefined ? { filter: `hue-rotate(${art.hue}deg) saturate(1.4)` } : undefined"
+                class="absolute bottom-0 right-0 h-1/2 w-1/2 object-contain drop-shadow"
                 draggable="false"
-                aria-hidden="true"
-                @error="failed = true"
-            />
-            <img
-                v-if="art.pet"
-                :src="art.pet"
-                alt=""
-                class="absolute -bottom-0.5 -right-0.5 h-[52%] w-[52%] object-contain drop-shadow"
-                aria-hidden="true"
+                @error="petMissing = true"
             />
         </template>
         <svg

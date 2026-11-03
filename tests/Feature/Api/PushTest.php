@@ -46,7 +46,9 @@ it('benachrichtigt Eltern ohne Inhalte über neue Freigaben und das Kind über d
 
     $this->actingAs($this->child)->post('/assignments/'.assignmentOf($task, $this->child)->id.'/score/up');
 
-    Queue::assertPushed(SendPushNotification::class, fn ($job) => $job->type === 'approval_pending'
+    // Freigaben kommen als reine Datennachricht, damit die App einen Bestätigen-Knopf anbieten kann
+    Queue::assertPushed(SendPushNotification::class, fn ($job) => $job->type === null
+        && $job->data['type'] === 'approval_pending' && $job->data['show'] === '1' && isset($job->data['completion_id'], $job->data['title'])
         && DeviceToken::find($job->deviceId)->token === 'eltern'
         && ! str_contains(json_encode($job->data), 'Zimmer'));
 

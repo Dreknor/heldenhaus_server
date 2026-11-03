@@ -1,12 +1,6 @@
 <script setup lang="ts">
-import ITEM_ART from '@/lib/item-art.json';
+import { emojiUrl } from '@/lib/emoji';
 import { computed } from 'vue';
-
-/**
- * Möbel-Grafik: 3D-Bild (Fluent Emoji, tools/items/build_items.py) wie überall sonst im Spiel.
- * Pixel-Sprites und die Vektorzeichnungen unten bleiben als Ersatz für Möbel ohne Bild.
- */
-const ART = new Set<string>(ITEM_ART);
 
 const props = withDefaults(defineProps<{ itemKey: string; icon: string; name?: string; master?: boolean }>(), {
     name: 'Möbelstück',
@@ -26,15 +20,14 @@ const pixelSprites: Record<string, string> = {
     furn_wardrobe: 'cupboard',
     furn_wall_shelf: 'shelf',
 };
-const art3d = computed(() => (ART.has(props.itemKey) ? `/images/items/${props.itemKey}.webp` : null));
-const pixelSprite = computed(() => (art3d.value ? undefined : pixelSprites[props.itemKey]));
+const pixelSprite = computed(() => pixelSprites[props.itemKey]);
+// Für Möbel ohne eigene Zeichnung: 3D-Bild des Icon-Emojis (Fluent Emoji) statt Text-Emoji auf der Kiste
+const emojiArt = computed(() => emojiUrl(props.icon));
 </script>
 
 <template>
     <svg viewBox="0 0 100 100" role="img" :aria-label="name" xmlns="http://www.w3.org/2000/svg" class="h-full w-full overflow-visible">
         <title>{{ name }}</title>
-        <ellipse v-if="art3d" cx="50" cy="92" rx="34" ry="5" fill="#3c281e" opacity=".22" />
-        <image v-if="art3d" :href="art3d" x="4" y="2" width="92" height="92" preserveAspectRatio="xMidYMax meet" />
         <image
             v-if="pixelSprite"
             :href="`/images/housing/${pixelSprite}.png`"
@@ -45,8 +38,8 @@ const pixelSprite = computed(() => (art3d.value ? undefined : pixelSprites[props
             preserveAspectRatio="xMidYMid meet"
             class="[image-rendering:pixelated]"
         />
-        <ellipse v-if="!pixelSprite && !art3d" cx="50" cy="91" rx="36" ry="6" fill="#3c281e" opacity=".2" />
-        <g v-if="!pixelSprite && !art3d" stroke="#493326" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+        <ellipse v-if="!pixelSprite" cx="50" cy="91" rx="36" ry="6" fill="#3c281e" opacity=".2" />
+        <g v-if="!pixelSprite" stroke="#493326" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
             <template v-if="itemKey.includes('bunk_bed')">
                 <path d="M20 21h60v15H20zm0 37h60v15H20z" fill="#9b5f3e" />
                 <path d="M24 12h22q6 0 6 7v9H24zm0 37h22q6 0 6 7v9H24z" fill="#fff1d6" />
@@ -326,6 +319,7 @@ const pixelSprite = computed(() => (art3d.value ? undefined : pixelSprites[props
                 <path d="M50 62v15m-14 8h28v-8H36z" fill="#d39a39" />
                 <path d="m50 27 3 7 7 .5-5.5 4.5 2 7-6.5-4-6.5 4 2-7-5.5-4.5 7-.5z" fill="#fff4bd" stroke="none" />
             </template>
+            <image v-else-if="emojiArt" :href="emojiArt" x="12" y="10" width="76" height="76" preserveAspectRatio="xMidYMid meet" />
             <template v-else>
                 <path d="M20 36h60v42H20z" fill="#b77b4c" />
                 <path d="M15 31h70v10H15z" fill="#dda765" />

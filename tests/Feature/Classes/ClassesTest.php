@@ -1,17 +1,23 @@
 <?php
 
+use App\Domain\Art\AvatarSvg;
+use App\Domain\Classes\ClassCatalog;
 use App\Domain\Classes\ClassService;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\RunDayCron;
 use App\Domain\Gameplay\ScoreTask;
 use App\Domain\Inventory\DropService;
+use App\Domain\Inventory\InventoryService;
+use App\Domain\Inventory\Stock;
 use App\Domain\Quests\QuestService;
 use App\Domain\Social\FeedService;
 use App\Domain\Tasks\TaskService;
 use App\Models\ActiveBuff;
 use App\Models\FamilyDay;
+use App\Models\Item;
 use App\Models\User;
+use App\Models\UserItem;
 use Carbon\CarbonImmutable;
 use Laravel\Sanctum\Sanctum;
 use Random\Engine;
@@ -287,6 +293,108 @@ it('Gemeinschafts-Rhythmus zahlt nichts, wenn jemand eine Daily verpasst', funct
     expect($this->classes->evaluateCommunityRhythm())->toBe(0)->and(FamilyDay::first()->all_done)->toBeFalse();
 });
 
+// ---------- Waldläufer ----------
+
+it('Fährtenleser: +20 % XP und Gold nur für Sport/Draußen und Tiere/Natur', function () {
+    giveClass($this->child, 'ranger');
+    $score = app(ScoreTask::class);
+
+    $sport = $score(assignmentOf(makeTask($this->child, ['category' => 'sport']), $this->child), 'up');
+    $house = $score(assignmentOf(makeTask($this->child, ['category' => 'household']), $this->child), 'up');
+
+    expect($sport->completion->xp)->toBe(7)
+        ->and($sport->completion->gold)->toBe(1.2)
+        ->and($sport->completion->effects)->toBe(['tracker'])
+        ->and($house->completion->xp)->toBe(6);
+});
+
+it('Wildnisruf: +25 % für die ganze Familie bei Natur-Aufgaben', function () {
+    giveClass($this->parent, 'ranger');
+    $this->classes->cast($this->parent, 'wild_call');
+
+    $result = app(ScoreTask::class)(assignmentOf(makeTask($this->child, ['category' => 'nature', 'difficulty' => 2]), $this->child), 'up');
+
+    expect($result->completion->xp)->toBe(15)->and($result->completion->effects)->toBe(['wild_call']);
+});
+
+// ---------- Paladin ----------
+
+it('Treueschwur: mehr XP für Dailies ab 7 Tagen Serie', function () {
+    giveClass($this->child, 'paladin');
+    $long = makeTask($this->child, ['type' => 'daily', 'difficulty' => 2]);
+    $short = makeTask($this->child, ['type' => 'daily', 'difficulty' => 2]);
+    assignmentOf($long, $this->child)->update(['streak' => 7]);
+    assignmentOf($short, $this->child)->update(['streak' => 3]);
+    $score = app(ScoreTask::class);
+
+    expect($score(assignmentOf($long, $this->child), 'up')->completion->xp)->toBe(14)
+        ->and($score(assignmentOf($short, $this->child), 'up')->completion->xp)->toBe(12)
+        ->and(Formulas::maxHp($this->child->stats()->first()))->toBe(55.0);
+});
+
+it('Schutzsegen: halber Schaden beim Tageswechsel für die ganze Familie', function () {
+    ($c = app(RunDayCron::class))($this->parent);
+    makeTask($this->parent, ['type' => 'daily', 'difficulty' => 1]);
+    giveClass($this->child, 'paladin');
+    $this->classes->cast($this->child, 'blessing');
+
+    $this->travelTo(CarbonImmutable::parse('2026-10-20 08:00', 'Europe/Berlin'));
+    $c($this->parent->refresh());
+
+    expect($this->parent->stats()->first()->hp)->toBe(49.0); // 2 HP × 0,5
+});
+
+// ---------- Tierbändiger ----------
+
+it('Tierflüsterer: Futter wirkt doppelt; Fütterungszeit beschenkt alle', function () {
+    $this->artisan('game:content-sync')->assertSuccessful();
+    $egg = Item::create(['key' => 'egg_test', 'name' => 'Testei', 'type' => 'egg']);
+    $potion = Item::create(['key' => 'potion_test', 'name' => 'Test-Schlüpfpulver', 'type' => 'hatching_potion']);
+    Stock::addKeys($this->child->id, ['egg_test' => 1, 'potion_test' => 1, 'food_cake' => 1]);
+    $pet = app(InventoryService::class)->hatch($this->child, $egg, $potion);
+    giveClass($this->child, 'tamer');
+
+    $pet = app(InventoryService::class)->feed($this->child, $pet, Item::where('key', 'food_cake')->first());
+    expect($pet->growth)->toBe(config('game.pet_growth_per_food') * 2);
+
+    $this->classes->cast($this->child, 'feeding_time');
+    $food = fn (User $u) => UserItem::where('user_id', $u->id)->whereHas('item', fn ($q) => $q->where('type', 'food'))->sum('quantity');
+    expect($food($this->child))->toBe(1)->and($food($this->parent))->toBe(1);
+});
+
+// ---------- Koch ----------
+
+it('Hausmannskost und Festmahl', function () {
+    giveClass($this->parent, 'cook');
+    $result = app(ScoreTask::class)(assignmentOf(makeTask($this->parent, ['category' => 'household']), $this->parent), 'up');
+    expect($result->completion->xp)->toBe(7)->and($result->completion->effects)->toBe(['home_cooking']);
+
+    $this->child->stats()->update(['hp' => 20]);
+    $this->parent->stats()->update(['hp' => 48]);
+    expect($this->classes->cast($this->parent, 'feast'))->toContain('Festmahl')
+        ->and($this->child->stats()->first()->hp)->toBe(28.0)
+        ->and($this->parent->stats()->first()->hp)->toBe(50.0);
+});
+
+// ---------- Mönch ----------
+
+it('Innere Ruhe: Mana für positive Gewohnheiten mit Tageslimit; Meditation teilt Mana', function () {
+    config(['game.inner_calm_daily_limit' => 2]);
+    giveClass($this->child, 'monk', mp: 10);
+    $habit = makeTask($this->child, ['type' => 'habit', 'up' => true, 'down' => false]);
+    $score = app(ScoreTask::class);
+    foreach (range(1, 3) as $i) {
+        $score(assignmentOf($habit, $this->child), 'up');
+    }
+    expect($this->child->stats()->first()->mp)->toBe(12.0);
+
+    $this->parent->stats()->update(['mp' => 0]);
+    $this->child->stats()->update(['mp' => 20]);
+    $this->classes->cast($this->child, 'meditation');
+    expect($this->parent->stats()->first()->mp)->toBe(8.0)
+        ->and($this->child->stats()->first()->mp)->toBe(13.0); // 20 − 15 + 8
+});
+
 // ---------- Allgemein ----------
 
 it('braucht genug Mana und begrenzt Fähigkeiten pro Tag', function () {
@@ -300,6 +408,17 @@ it('braucht genug Mana und begrenzt Fähigkeiten pro Tag', function () {
     expect(fn () => $this->classes->cast($this->child, 'cheer'))->toThrow(GameException::class, 'oft genug');
 });
 
+it('gibt jeder Klasse ein Kostüm aus vorhandenen Figuren-Teilen und einen Dungeon-Text', function () {
+    $plain = count(AvatarSvg::layers(null, 3));
+    foreach (ClassCatalog::all() as $key => $class) {
+        $layers = AvatarSvg::layers(null, 3, $key);
+        expect(count($layers))->toBeGreaterThan($plain, $key)->and($class['dungeon'] ?? null)->not->toBeEmpty();
+        foreach ($layers as $file) {
+            expect(public_path("avatar/lpc/{$file}"))->toBeFile();
+        }
+    }
+});
+
 it('lässt nur Fähigkeiten der eigenen Klasse zu', function () {
     giveClass($this->child, 'rogue');
 
@@ -310,7 +429,7 @@ it('bietet Held-Seite und API an', function () {
     giveClass($this->child, 'bard');
 
     $this->actingAs($this->child)->get('/hero')->assertOk()
-        ->assertInertia(fn ($page) => $page->component('Hero')->where('hero_class.key', 'bard')->has('classes', 6));
+        ->assertInertia(fn ($page) => $page->component('Hero')->where('hero_class.key', 'bard')->has('classes', 11));
 
     Sanctum::actingAs($this->child, ['app']);
     $this->postJson('/api/v1/hero/cast', ['skill' => 'cheer'])->assertOk()->assertJsonPath('message', 'Angefeuert! +15 % Boss-Schaden für alle.');

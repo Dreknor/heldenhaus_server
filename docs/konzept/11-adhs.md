@@ -26,9 +26,10 @@ Zielkonflikt: „Sofortiges Feedback“ und „reizarm“ widersprechen sich tei
 - Kinder unter 13 können die Kopf-Ablage für sich nutzen. Eltern sehen sie nicht, solange die Einträge nicht zu Familienaufgaben werden (wie private Aufgaben, §3.7).
 
 **Mikro-Schritte (Chunking)**
+- Schritte und KI-Vorschläge gibt es nur für **Dailys und To-dos**. Gewohnheiten bleiben ein einzelner Plus/Minus-Klick ohne Schritte.
 - Große Aufgaben bestehen aus **Schritten**. Technisch ist das die vorhandene Checkliste (`checklist`-JSON), neu ist, dass **jeder Schritt sofort belohnt** wird.
 - Belohnung je Schritt: Anteil `1/n` der Aufgabenbelohnung (XP, Gold, Boss-Schaden), gerundet auf mindestens 1 XP. Die Summe entspricht der normalen Belohnung, Schritte lassen sich also nicht „farmen“. Der letzte Schritt schließt die Aufgabe ab und zählt für Streak, Quest-Sammelobjekte und Erfolge. Sterne für Familienaufgaben gibt es weiterhin erst nach der Freigabe der ganzen Aufgabe (§3.3).
-- Die Schritte werden angezeigt **einer nach dem anderen** („Nur das hier: Wäsche aufheben“), die übrigen sind eingeklappt.
+- Der nächste offene Schritt steht oben („Nur das hier: Wäsche aufheben“). Darunter lässt sich jeder einzelne Schritt direkt abhaken, auch außer der Reihe.
 - Vorschläge für Schritte kommen aus drei Quellen, in dieser Reihenfolge:
   1. **Vorlagen** in `database/content/chunk_templates.json` (z. B. „Zimmer aufräumen“ → Wäsche aufheben, Stifte einsammeln, Bett machen, Boden frei). Sie funktionieren ohne Internet und ohne KI.
   2. Gespeicherte Schritte der Familie, wenn dieselbe Aufgabe schon einmal zerlegt wurde

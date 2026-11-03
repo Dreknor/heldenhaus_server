@@ -9,6 +9,13 @@ return [
     'value_max' => 21.27,
     'delta_base' => 0.9747,
 
+    // Gewohnheiten: höchstens so oft am Tag zählen (je Aufgabe änderbar), jede Wiederholung am selben Tag bringt weniger
+    'habits' => [
+        'daily_limit' => (int) env('HABIT_DAILY_LIMIT', 8),
+        'repeat_factor' => 0.75,
+        'min_factor' => 0.2,
+    ],
+
     'difficulties' => [
         'trivial' => 0.1,
         'easy' => 1.0,
@@ -64,6 +71,11 @@ return [
     'smart_connect_daily_limit' => 10,
     'community_rhythm_gold' => 15,
     'focus_hour' => 12,
+    'inner_calm_daily_limit' => 10,          // Mönch: höchstens so viel Mana am Tag aus Gewohnheiten
+    'oath_min_streak' => 7,                  // Paladin: Treueschwur ab dieser Serie
+    'tamer_feed_factor' => 2,                // Tierbändiger: Futter wirkt so viel stärker
+    'feast_heal' => 8,
+    'meditation_mana' => 8,
 
     'max_streak_shields' => 3,
 

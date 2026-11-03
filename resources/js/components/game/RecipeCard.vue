@@ -19,6 +19,7 @@ export interface Recipe {
     key: string;
     output: RecipeItem;
     station: string;
+    station_name?: string;
     station_level: number;
     level: number;
     unlock: string;
@@ -35,7 +36,7 @@ const props = defineProps<{ recipe: Recipe; slotsFull: boolean; busy: boolean; l
 const emit = defineEmits<{ craft: [recipe: Recipe]; learn: [recipe: Recipe] }>();
 
 const STATIONS: Record<string, string> = { workbench: 'Werkbank', forge: 'Schmiede', alchemy: 'Alchemietisch', sewing: 'Nähtisch' };
-const station = computed(() => STATIONS[props.recipe.station] ?? props.recipe.station);
+const station = computed(() => props.recipe.station_name ?? STATIONS[props.recipe.station] ?? props.recipe.station);
 const ready = computed(() => !props.lockedLevel && props.recipe.unlocked && props.recipe.station_ok && props.recipe.has_materials);
 const missing = computed(() => props.recipe.inputs.filter((i) => i.have < i.quantity));
 const duration = computed(() => {
@@ -89,7 +90,7 @@ const hint = computed(() => {
         >
             <span class="absolute bottom-3 h-3 w-24 rounded-full bg-black/10 blur-sm" aria-hidden="true" />
             <ItemIcon
-                :item="{ key: recipe.output.key, type: recipe.output.type ?? 'furniture' }"
+                :item="{ key: recipe.output.key, type: recipe.output.type ?? 'furniture', icon: recipe.output.icon }"
                 :size="88"
                 class="relative transition group-hover:scale-105"
                 :class="recipe.unlocked ? '' : 'opacity-50 grayscale'"
@@ -111,7 +112,7 @@ const hint = computed(() => {
 
             <ul class="grid gap-1.5">
                 <li v-for="input in recipe.inputs" :key="input.key" class="flex items-center gap-2">
-                    <ItemIcon :item="{ key: input.key, type: input.type ?? 'material' }" :size="28" />
+                    <ItemIcon :item="{ key: input.key, type: input.type ?? 'material', icon: input.icon }" :size="28" />
                     <span class="min-w-0 flex-1 truncate text-sm font-semibold">{{ input.name }}</span>
                     <span class="h-1.5 w-12 overflow-hidden rounded-full bg-muted" aria-hidden="true">
                         <span

@@ -7,7 +7,7 @@ import { CalendarCheck, Gift, Home, Swords } from 'lucide-vue-next';
 const features = [
     {
         icon: Swords,
-        art: '/images/items/weapon_iron_sword.webp',
+        art: '/images/emoji/2694.webp',
         title: 'Aufgaben werden Abenteuer',
         text: 'Erledigte Aufgaben bringen Erfahrung, Gold, Haustiere und Level-Ups.',
     },
@@ -19,13 +19,13 @@ const features = [
     },
     {
         icon: Gift,
-        art: '/images/items/confetti_cannon.webp',
+        art: '/images/emoji/1f38a.webp',
         title: 'Echte Belohnungen',
         text: 'Sterne aus Familienaufgaben gegen Belohnungen, die Eltern festlegen.',
     },
     {
         icon: CalendarCheck,
-        art: '/images/items/elixir_wisdom.webp',
+        art: '/images/emoji/1f4a1.webp',
         title: 'Fokus statt Chaos',
         text: 'Eine Aufgabe nach der anderen, kleine Schritte, visueller Timer und Energiespar-Tage – auch bei ADHS.',
     },

@@ -114,7 +114,7 @@ function rewardIcon(item: { icon: string; title: string }) {
                     :class="item.active ? '' : 'opacity-50'"
                 >
                     <button v-if="isParent" class="absolute right-3 top-3 rounded-md p-1 hover:bg-muted" aria-label="Bearbeiten" @click="edit(item)"><Pencil class="size-4" /></button>
-                    <span class="flex size-16 items-center justify-center rounded-2xl bg-violet-50 dark:bg-violet-950/40"><Emoji :char="rewardIcon(item)" :size="48" /></span>
+                    <span class="flex size-16 items-center justify-center rounded-2xl bg-violet-50 text-4xl dark:bg-violet-950/40"><Emoji :glyph="rewardIcon(item)" /></span>
                     <div class="flex-1">
                         <p class="text-lg font-extrabold">{{ item.title }}</p>
                         <p v-if="item.description" class="text-sm text-muted-foreground">{{ item.description }}</p>

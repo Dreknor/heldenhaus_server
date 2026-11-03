@@ -9,10 +9,13 @@ use App\Models\UserStats;
 
 /**
  * Stellt die Modifikator-Kette einer Person zusammen:
- * eigene Klassen-Passive → Familien-Passive (Schildwall) → Familien-Buffs → Event-Boni → persönliche, scharfe Buffs.
+ * eigene Klassen-Passive → Familien-Passive (Schildwall) → Familien-Buffs (inkl. Schutzsegen) → Event-Boni → persönliche, scharfe Buffs.
  */
 class ModifierChain
 {
+    /** Kategorien des Waldläufers (Fährtenleser, Wildnisruf) */
+    public const WILD_CATEGORIES = ['sport', 'nature'];
+
     /** @return list<Modifier> */
     public static function for(User $user, UserStats $stats): array
     {
@@ -22,6 +25,10 @@ class ModifierChain
             'mage' => $chain[] = Modifiers::focusShield((int) ($user->family?->setting('focus_hour') ?? config('game.focus_hour'))),
             'rogue' => $chain[] = Modifiers::luckyStrike(),
             'tinkerer' => $chain[] = Modifiers::smartConnect((int) config('game.smart_connect_daily_limit')),
+            'ranger' => $chain[] = Modifiers::categoryBonus('tracker', self::WILD_CATEGORIES, 0.2),
+            'cook' => $chain[] = Modifiers::categoryBonus('home_cooking', ['household'], 0.2),
+            'paladin' => $chain[] = Modifiers::oath((int) config('game.oath_min_streak')),
+            'monk' => $chain[] = Modifiers::innerCalm((int) config('game.inner_calm_daily_limit')),
             default => null,
         };
 
@@ -36,6 +43,8 @@ class ModifierChain
                     match ($buff->key) {
                         'ancestral_wisdom' => $chain[] = Modifiers::xpBuff($buff),
                         'cheer' => $chain[] = Modifiers::bossBuff($buff),
+                        'wild_call' => $chain[] = Modifiers::categoryBonus('wild_call', self::WILD_CATEGORIES, $buff->value),
+                        'blessing' => $chain[] = Modifiers::blessing($buff),
                         default => null,
                     };
                 });

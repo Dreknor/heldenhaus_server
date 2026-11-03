@@ -43,7 +43,8 @@ it('verbündet zwei Familien nur mit Zustimmung von Eltern beider Seiten', funct
     $this->postJson('/api/v1/alliances/join', ['code' => strtolower($code)])->assertOk()->assertJsonPath('status', 'active');
 
     expect(FamilyAlliance::alliedFamilyIds($this->family->id))->toBe([$this->otherFamily->id])
-        ->and($this->getJson('/api/v1/social')->json('alliances.active.0.family'))->toBe('Familie Test');
+        ->and($this->getJson('/api/v1/social')->json('alliances.active.0.family'))->toBe('Familie Test')
+        ->and($this->getJson('/api/v1/social')->json('alliances.active.0.family_id'))->toBe($this->family->id);
 
     // Code ist verbraucht, ein Elternteil kann das Bündnis beenden
     $this->postJson('/api/v1/alliances/join', ['code' => $code])->assertUnprocessable();

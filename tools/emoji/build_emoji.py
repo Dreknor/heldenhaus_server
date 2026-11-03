@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""3D-Bilder für alle Emojis erzeugen, die Heldenhaus als Symbole verwendet (Fluent Emoji, MIT).
+"""Emoji-Bilder aus Microsoft Fluent Emoji (3D, MIT) für alle Spielinhalte erzeugen.
 
     git clone --depth 1 --filter=blob:none --sparse https://github.com/microsoft/fluentui-emoji.git
     python3 tools/emoji/build_emoji.py <fluentui-emoji-klon>
 
-Durchsucht Spielinhalte (database/content), Konfiguration, Server- und Frontend-Code nach Emojis und schreibt
-für jedes gefundene public/images/emoji/<unicode>.webp (96 px) sowie resources/js/lib/emoji-art.json
-(Zeichen ohne Variantenselektor → Dateiname). Die Komponente Emoji.vue zeigt dann das Bild statt der Systemschrift.
+Sammelt jedes "icon" aus database/content/*.json (Items, Quests, Events, Bauprojekte, Garten …) sowie die Emojis,
+die Server- und Frontend-Code als Symbole verwenden (Feed, Reaktionen, Belohnungen), und schreibt
+public/images/emoji/<codepoints>.webp (128 px, transparent), z. B. 1f9ea.webp für 🧪. Variantenselektoren (FE0F)
+zählen nicht mit. public/images/emoji/index.json listet alle vorhandenen Codes, damit Web und App ohne
+Fehlanfragen wissen, wofür es ein Bild gibt; für alles andere bleibt das Text-Emoji.
 """
 import json
 import subprocess
@@ -17,44 +19,68 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'public/images/emoji'
-MANIFEST = ROOT / 'resources/js/lib/emoji-art.json'
-SIZE = 96
-SOURCES = [('database/content', '*.json'), ('config', '*.php'), ('app', '**/*.php'), ('resources/js', '**/*.vue'), ('resources/js', '**/*.ts')]
+SIZE = 128
+# Code, in dem Emojis als Symbole stehen (z. B. Feed-Einträge, Reaktionen, Belohnungs-Symbole)
+CODE = [('app', '**/*.php'), ('config', '*.php'), ('resources/js', '**/*.vue'), ('resources/js', '**/*.ts')]
 
 
-def strip(glyph: str) -> str:
-    return glyph.replace('️', '')
+def code(glyph: str) -> str:
+    return '-'.join(f'{ord(c):x}' for c in glyph if ord(c) != 0xFE0F)
+
+
+def icons(node, found: set) -> None:
+    if isinstance(node, dict):
+        for k, v in node.items():
+            if k == 'icon' and isinstance(v, str) and v and not v.isascii():
+                found.add(v)
+            else:
+                icons(v, found)
+    elif isinstance(node, list):
+        for v in node:
+            icons(v, found)
 
 
 def main(clone: Path) -> None:
+    found: set[str] = set()
+    for f in sorted((ROOT / 'database/content').glob('*.json')):
+        icons(json.loads(f.read_text(encoding='utf-8')), found)
+
     subprocess.run(['git', '-C', str(clone), 'sparse-checkout', 'set', '--no-cone', '/assets/*/metadata.json'], check=True)
+    folders = {}
     glyphs = {}
     for meta in (clone / 'assets').glob('*/metadata.json'):
-        data = json.loads(meta.read_text(encoding='utf-8'))
-        if data.get('glyph') and data.get('unicode'):
-            glyphs[strip(data['glyph'])] = (meta.parent.name, data['unicode'].replace(' ', '-'))
+        m = json.loads(meta.read_text(encoding='utf-8'))
+        folders[code(m['glyph'])] = meta.parent.name
+        glyphs[code(m['glyph'])] = m['glyph'].replace('️', '')
 
-    text = strip(''.join(p.read_text(encoding='utf-8', errors='ignore') for base, pat in SOURCES for p in (ROOT / base).glob(pat)))
-    # Längere Sequenzen zuerst, damit z. B. „🧑‍🌾“ nicht nur als „🧑“ zählt
-    used = [g for g in sorted(glyphs, key=len, reverse=True) if g in text]
+    # Emojis im Code: jedes bekannte Fluent-Zeichen, das im Quelltext vorkommt
+    text = ''.join(f.read_text(encoding='utf-8', errors='ignore') for base, pat in CODE for f in (ROOT / base).glob(pat)).replace('️', '')
+    found |= {g for g in glyphs.values() if g in text}
 
-    folders = sorted({glyphs[g][0] for g in used})
-    subprocess.run(['git', '-C', str(clone), 'sparse-checkout', 'set', '--no-cone', '/assets/*/metadata.json', *[f'/assets/{f}/' for f in folders]], check=True)
+    wanted = {code(g): g for g in found}
+    missing = sorted(g for c, g in wanted.items() if c not in folders)
+    if missing:
+        print('Ohne Fluent-Bild (bleibt Text-Emoji):', ' '.join(missing))
+    have = sorted(c for c in wanted if c in folders)
+    patterns = [f'/assets/{folders[c]}/3D/*' for c in have] + [f'/assets/{folders[c]}/Default/3D/*' for c in have]
+    subprocess.run(['git', '-C', str(clone), 'sparse-checkout', 'set', '--no-cone', '/assets/*/metadata.json', *patterns], check=True)
 
     OUT.mkdir(parents=True, exist_ok=True)
-    manifest = {}
-    for g in used:
-        folder, code = glyphs[g]
-        base = clone / 'assets' / folder
-        pngs = sorted((base / '3D').glob('*.png')) or sorted(base.glob('Default/3D/*.png'))
+    for old in OUT.glob('*.webp'):
+        old.unlink()
+    written = []
+    for c in have:
+        base = clone / 'assets' / folders[c]
+        pngs = sorted((base / '3D').glob('*.png')) or sorted((base / 'Default' / '3D').glob('*.png'))
         if not pngs:
+            print(f'Kein 3D-Bild für {wanted[c]} ({folders[c]})')
             continue
         img = Image.open(pngs[0]).convert('RGBA')
         img.thumbnail((SIZE, SIZE), Image.LANCZOS)
-        img.save(OUT / f'{code}.webp', 'WEBP', quality=86, method=6)
-        manifest[g] = code
-    MANIFEST.write_text(json.dumps(manifest, ensure_ascii=False, sort_keys=True) + '\n', encoding='utf-8')
-    print(f'{len(manifest)} Emoji-Bilder nach {OUT.relative_to(ROOT)}')
+        img.save(OUT / f'{c}.webp', 'WEBP', quality=86, method=6)
+        written.append(c)
+    (OUT / 'index.json').write_text(json.dumps(written) + '\n')
+    print(f'{len(written)} Emoji-Bilder nach {OUT.relative_to(ROOT)}')
 
 
 if __name__ == '__main__':

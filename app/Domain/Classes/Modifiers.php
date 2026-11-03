@@ -86,6 +86,86 @@ final class Modifiers
         };
     }
 
+    /**
+     * Waldläufer „Fährtenleser“ und Koch „Hausmannskost“: +X % XP und Gold für Aufgaben bestimmter Kategorien.
+     * Mit dem Familien-Buff „Wildnisruf“ wirkt dieselbe Art Bonus auf alle.
+     *
+     * @param  list<string>  $categories
+     */
+    public static function categoryBonus(string $key, array $categories, float $bonus): Modifier
+    {
+        return new class($key, $categories, $bonus) extends Modifier
+        {
+            public function __construct(private readonly string $key, private readonly array $categories, private readonly float $bonus) {}
+
+            public function onScore(ScoreContext $c): void
+            {
+                if (in_array($c->task->category, $this->categories, true)) {
+                    $c->xpMultiplier *= 1 + $this->bonus;
+                    $c->goldMultiplier *= 1 + $this->bonus;
+                    $c->effects[] = $this->key;
+                }
+            }
+        };
+    }
+
+    /** Paladin, passiv „Treueschwur“: +15 % XP für Dailies mit einer Serie ab 7 Tagen. */
+    public static function oath(int $minStreak): Modifier
+    {
+        return new class($minStreak) extends Modifier
+        {
+            public function __construct(private readonly int $minStreak) {}
+
+            public function onScore(ScoreContext $c): void
+            {
+                if ($c->task->type === TaskType::Daily && $c->streak >= $this->minStreak) {
+                    $c->xpMultiplier *= 1.15;
+                    $c->effects[] = 'oath';
+                }
+            }
+        };
+    }
+
+    /** Mönch, passiv „Innere Ruhe“: +1 Mana je positiver Gewohnheit (Tageslimit). */
+    public static function innerCalm(int $dailyLimit): Modifier
+    {
+        return new class($dailyLimit) extends Modifier
+        {
+            public function __construct(private readonly int $dailyLimit) {}
+
+            public function onScore(ScoreContext $c): void
+            {
+                if ($c->task->type !== TaskType::Habit) {
+                    return;
+                }
+
+                $today = TaskCompletion::where('user_id', $c->user->id)
+                    ->where('created_at', '>=', now()->startOfDay())
+                    ->whereJsonContains('effects', 'inner_calm')
+                    ->count();
+
+                if ($today < $this->dailyLimit) {
+                    $c->mpGain += 1;
+                    $c->effects[] = 'inner_calm';
+                }
+            }
+        };
+    }
+
+    /** Familien-Buff (Paladin „Schutzsegen“): weniger Schaden beim Tageswechsel. */
+    public static function blessing(ActiveBuff $buff): Modifier
+    {
+        return new class($buff) extends Modifier
+        {
+            public function __construct(private readonly ActiveBuff $buff) {}
+
+            public function onCronDamage(float $damage): float
+            {
+                return round($damage * (1 - $this->buff->value), 2);
+            }
+        };
+    }
+
     /** Familien-Buff (Magier „Weisheit der Ahnen“): +X % XP. */
     public static function xpBuff(ActiveBuff $buff): Modifier
     {

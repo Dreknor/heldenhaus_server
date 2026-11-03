@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import EMOJI_ART from '@/lib/emoji-art.json';
+import { emojiUrl } from '@/lib/emoji';
 import { computed } from 'vue';
 
 /** Sammel-Quest: ein Korb, der sich mit dem Fortschritt füllt. */
@@ -7,10 +7,7 @@ const props = withDefaults(defineProps<{ icon?: string | null; ratio?: number; s
 
 const ink = '#1f2937';
 // Gesammelte Dinge als 3D-Bild (tools/emoji/build_emoji.py), sonst als Schriftzeichen
-const art = computed(() => {
-    const code = props.icon ? (EMOJI_ART as Record<string, string>)[props.icon.replace(/️/g, '')] : undefined;
-    return code ? `/images/emoji/${code}.webp` : null;
-});
+const art = computed(() => emojiUrl(props.icon));
 const fill = computed(() => Math.max(0, Math.min(1, props.ratio)));
 // Gegenstände, die mit dem Fortschritt im Korb sichtbar werden
 const items = computed(() =>

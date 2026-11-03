@@ -109,7 +109,7 @@ const statusLabel: Record<string, string> = { completed: '✅ geschafft', active
             <section v-if="report.quests.length" class="grid gap-2">
                 <h2 class="font-extrabold">Familien-Quests</h2>
                 <div v-for="(q, i) in report.quests" :key="i" class="flex items-center gap-3 rounded-xl border bg-card p-3 text-sm">
-                    <Emoji :char="q.icon" :size="30" />
+                    <span class="text-2xl"><Emoji :glyph="q.icon" /></span>
                     <span class="flex-1 font-semibold">{{ q.name }}</span>
                     <span class="tabular-nums text-muted-foreground">{{ Math.round(q.progress) }} / {{ Math.round(q.goal) }}</span>
                     <span class="font-bold">{{ statusLabel[q.status] }}</span>

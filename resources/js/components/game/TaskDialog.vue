@@ -53,6 +53,7 @@ function initial() {
         difficulty: t?.difficulty ?? 1,
         up: t?.up ?? true,
         down: t?.down ?? false,
+        daily_limit: (t?.daily_limit ?? undefined) as number | undefined,
         repeat: t?.repeat ?? { type: 'daily' as const, every: 1, days: [1, 2, 3, 4, 5] },
         due_date: t?.due_date ?? '',
         is_private: t?.is_private ?? false,
@@ -97,7 +98,7 @@ function payload() {
         data.type = d.type;
         data.scope = d.scope;
     }
-    if (d.type === 'habit') Object.assign(data, { up: d.up, down: d.down });
+    if (d.type === 'habit') Object.assign(data, { up: d.up, down: d.down, daily_limit: d.daily_limit || null });
     if (d.type === 'daily') data.repeat = d.repeat;
     if (d.type === 'todo') data.due_date = d.due_date || null;
     if (d.type === 'reward') data.gold_cost = d.gold_cost;
@@ -268,9 +269,15 @@ const chip = (active: boolean) =>
                 </div>
 
                 <!-- Gewohnheit -->
-                <div v-if="currentType === 'habit'" class="flex gap-2">
-                    <button type="button" :class="chip(form.up)" @click="form.up = !form.up">＋ positiv</button>
-                    <button type="button" :class="chip(form.down)" @click="form.down = !form.down">− negativ</button>
+                <div v-if="currentType === 'habit'" class="grid gap-2">
+                    <div class="flex gap-2">
+                        <button type="button" :class="chip(form.up)" @click="form.up = !form.up">＋ positiv</button>
+                        <button type="button" :class="chip(form.down)" @click="form.down = !form.down">− negativ</button>
+                    </div>
+                    <Label for="daily_limit">Höchstens pro Tag (leer = 8)</Label>
+                    <Input id="daily_limit" v-model.number="form.daily_limit" type="number" min="1" max="50" placeholder="8" />
+                    <p class="text-xs text-muted-foreground">Jede weitere Wiederholung am selben Tag bringt etwas weniger.</p>
+                    <InputError :message="form.errors.daily_limit" />
                 </div>
 
                 <!-- Daily: Wiederholung -->

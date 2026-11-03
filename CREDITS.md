@@ -8,7 +8,8 @@ Heldenhaus verwendet nur Grafiken mit freier Lizenz (Konzept §2.8). Die maschin
 | Heldenfiguren (LPC) | Liberated Pixel Cup und Mitwirkende, siehe unten | [OGA-BY 3.0](https://static.opengameart.org/OGA-BY-3.0.txt), [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)/[4.0](https://creativecommons.org/licenses/by/4.0/), [CC0](https://creativecommons.org/publicdomain/zero/1.0/) | [Universal LPC Spritesheet Character Generator](https://github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator) | `public/avatar/lpc/*.png`, `resources/avatars/lpc*.json` |
 | Szenen-Grafiken Fluent Emoji (3D) | Microsoft Corporation | [MIT](https://github.com/microsoft/fluentui-emoji/blob/main/LICENSE) | [GitHub](https://github.com/microsoft/fluentui-emoji) | `public/images/scene/*.webp` |
 | Haustiere Fluent Emoji (3D) | Microsoft Corporation | [MIT](https://github.com/microsoft/fluentui-emoji/blob/main/LICENSE) | [GitHub](https://github.com/microsoft/fluentui-emoji) | `public/images/pets/*.webp` |
-| Item-, Monster- und Symbol-Bilder Fluent Emoji (3D) | Microsoft Corporation | [MIT](https://github.com/microsoft/fluentui-emoji/blob/main/LICENSE) | [GitHub](https://github.com/microsoft/fluentui-emoji) | `public/images/items/*.webp`, `public/images/monsters/*.webp`, `public/images/emoji/*.webp` (`tools/items/build_items.py`, `tools/emoji/build_emoji.py`) |
+| Gegenstände und Symbole Fluent Emoji (3D) | Microsoft Corporation | [MIT](https://github.com/microsoft/fluentui-emoji/blob/main/LICENSE) | [GitHub](https://github.com/microsoft/fluentui-emoji) | `public/images/emoji/*.webp` (erzeugt mit `tools/emoji/build_emoji.py`) |
+| Monster-Bilder Fluent Emoji (3D) | Microsoft Corporation | [MIT](https://github.com/microsoft/fluentui-emoji/blob/main/LICENSE) | [GitHub](https://github.com/microsoft/fluentui-emoji) | `public/images/monsters/*.webp` (erzeugt mit `tools/monsters/build_monsters.py`) |
 | Dungeon-Bausteine *Isometric Miniature Dungeon* | [Kenney](https://kenney.nl) | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | [kenney.nl](https://kenney.nl/assets/isometric-miniature-dungeon) | `public/dungeon/` |
 | Housing-Pixel-Art *Characters Home Free Top-Down Pixel Art* | [CraftPix.net](https://craftpix.net) | [CraftPix Freebie License](https://craftpix.net/file-licenses/) | [CraftPix Freebies](https://craftpix.net/freebies/) | `public/images/housing/`, `public/images/hof/` (Pixel-Hof der Heldenszene) |
 
@@ -18,7 +19,7 @@ erscheinen nach dem Import automatisch auf der Credits-Seite.
 
 ## Heldenfiguren (LPC)
 
-Sprites by: Ahmad3366, Benjamin K. Smith (BenCreating), bluecarrot16, DarkwallLKE, Dr. Jamgo, Durrani, Eliza Wyatt (ElizaWy), ElizaWy, ElizaWy; walk and down by JaidynReiman, Evert, JaidynReiman, Joe White, Johannes Sjölund (wulax), kcilds/Rocetti/Eredah, Manuel Riecke (MrBeast), Matthew Krohn (Makrohn), Matthew Krohn (makrohn), Michael Whitlock (bigbeargames), MuffinElZangano, Napsio (Vitruvian Studio), Nila122, Pierre Vigier (pvigier), Sander Frenken (castelonia), Stephen Challener (Redshrike), thecilekli, TheraHedwig, Tracy, Tuomo Untinen (reemax).
+Sprites by: Ahmad3366, Benjamin K. Smith (BenCreating), bluecarrot16, DarkwallLKE, Dr. Jamgo, Durrani, Eliza Wyatt (ElizaWy), ElizaWy, ElizaWy; walk and down by JaidynReiman, Evert, JaidynReiman, Joe White, Johannes Sjölund (wulax), kcilds/Rocetti/Eredah, Manuel Riecke (MrBeast), Marcel van de Steeg (MadMarcel), Matthew Krohn (Makrohn), Matthew Krohn (makrohn), Michael Whitlock (bigbeargames), MuffinElZangano, Napsio (Vitruvian Studio), Nila122, Pierre Vigier (pvigier), Sander Frenken (castelonia), Stephen Challener (Redshrike), thecilekli, TheraHedwig, Tracy, Tuomo Untinen (reemax).
 Sprites contributed as part of the Liberated Pixel Cup project from OpenGameArt.org: http://opengameart.org/content/lpc-collection
 
 Verwendet werden nur Teile, die (auch) unter OGA-BY, CC-BY oder CC0 stehen; Teile, die nur unter CC-BY-SA oder GPL
@@ -53,9 +54,10 @@ nach ihrem Teil (z. B. `hair_bob-…png`); welche Quelle dazugehört, steht in d
 | `hair/curly_short` | ElizaWy | OGA-BY 3.0 | [1](https://opengameart.org/content/lpc-hair) [2](https://opengameart.org/content/lpc-expanded-sit-run-jump-more) |
 | `hair/high_ponytail` | JaidynReiman, ElizaWy, bluecarrot16 | OGA-BY 3.0 | [1](https://opengameart.org/content/lpc-hair) [2](https://opengameart.org/content/lpc-expanded-hair) |
 | `hair/long_straight` | JaidynReiman, thecilekli, bluecarrot16 | CC0 | [1](https://opengameart.org/content/lpc-long-straight-hair-with-12-colors) [2](https://opengameart.org/content/lpc-hair) [3](https://opengameart.org/content/lpc-expanded-hair) |
-| `hair/plain` | JaidynReiman, Manuel Riecke (MrBeast), Joe White | OGA-BY 3.0 | [1](https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles) [2](https://opengameart.org/content/ponytail-and-plain-hairstyles) [3](https://opengameart.org/content/lpc-expanded-hair) |
+| `hair/plain` | JaidynReiman, Manuel Riecke (MrBeast), Marcel van de Steeg (MadMarcel), Joe White | OGA-BY 3.0 | [1](https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles) [2](https://opengameart.org/content/ponytail-and-plain-hairstyles) [3](https://opengameart.org/content/lpc-expanded-hair) |
 | `hair/spiked` | kcilds/Rocetti/Eredah | CC-BY 4.0 | [1](https://opengameart.org/content/eredah-rpg-character-base-48x64-ongoing) [2](https://opengameart.org/content/lpc-hair) |
 | `hair/wavy` | JaidynReiman, Nila122 | OGA-BY 3.0 | [1](https://opengameart.org/content/3-hairs-for-lpc) [2](https://opengameart.org/content/lpc-expanded-hair) |
+| `hat/cloth/bandana` | Matthew Krohn (makrohn), JaidynReiman, Marcel van de Steeg (MadMarcel) | OGA-BY 3.0 | [1](https://opengameart.org/content/lpc-female-orcogregoblintroll-base-walkcycle) [2](https://github.com/makrohn/Universal-LPC-spritesheet/commit/f50007cb47c235d8896cafae7a613f0b6a9a09a8?short_path=02b86d4#diff-02b86d45789a3e3e8e79519c7d17d15c9e6ecc9b4ddecb1bcd8dfbbaef430b75) [3](https://opengameart.org/content/lpc-expanded-hats-facial-helmets) |
 | `hat/cloth/hood` | Johannes Sjölund (wulax), JaidynReiman | OGA-BY 3.0 | [1](https://opengameart.org/content/lpc-medieval-fantasy-character-sprites) [2](https://opengameart.org/content/lpc-expanded-hats-facial-helmets) |
 | `hat/cloth/leather_cap` | Johannes Sjölund (wulax), Matthew Krohn (Makrohn), JaidynReiman | OGA-BY 3.0 | [1](https://opengameart.org/content/lpc-medieval-fantasy-character-sprites) [2](https://opengameart.org/content/lpc-expanded-hats-facial-helmets) |
 | `hat/headband/tied` | Nila122 | OGA-BY 3.0 | [1](https://opengameart.org/content/lpc-lizard-headgear) [2](https://opengameart.org/content/lpc-expanded-hats-facial-helmets) |
@@ -80,10 +82,12 @@ nach ihrem Teil (z. B. `hair_bob-…png`); welche Quelle dazugehört, steht in d
 | `legs/pants/thin` | bluecarrot16, JaidynReiman, ElizaWy, Joe White, Matthew Krohn (makrohn), Johannes Sjölund (wulax), Stephen Challener (Redshrike) | OGA-BY 3.0 | [1](https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles) [2](https://opengameart.org/content/lpc-medieval-fantasy-character-sprites) [3](http://opengameart.org/content/lpc-clothing-updates) [4](https://opengameart.org/content/lpc-expanded-pants) |
 | `legs/skirts/plain` | bluecarrot16, Pierre Vigier (pvigier), Johannes Sjölund (wulax), Ahmad3366, JaidynReiman | OGA-BY 3.0 | [1](https://opengameart.org/content/lpc-medieval-fantasy-character-sprites) |
 | `neck/necklace/chain` | bluecarrot16 | CC0 | [1](https://opengameart.org/content/lpc-jewelry) |
+| `quiver` | Johannes Sjölund (wulax) | OGA-BY 3.0 | [1](https://opengameart.org/content/lpc-medieval-fantasy-character-sprites) |
 | `shield/crusader` | bluecarrot16, Sander Frenken (castelonia) | OGA-BY 3.0 | [1](https://opengameart.org/content/lpc-shields) |
 | `shield/heater/original/wood` | bluecarrot16, Sander Frenken (castelonia), ElizaWy | OGA-BY 3.0 | [1](https://opengameart.org/content/lpc-shields) |
 | `shield/round` | Johannes Sjölund (wulax), Michael Whitlock (bigbeargames), DarkwallLKE, Tuomo Untinen (reemax) | OGA-BY 3.0 | [1](https://opengameart.org/content/lpc-medieval-fantasy-character-sprites) [2](https://opengameart.org/content/lpc-shields-pack) |
 | `tools/hammer` | bluecarrot16, JaidynReiman, Pierre Vigier (pvigier), Tuomo Untinen (reemax) | CC-BY 4.0 | [1](https://opengameart.org/content/lpc-hand-tools) |
+| `torso/aprons/apron` | Nila122 | OGA-BY 3.0 | [1](https://opengameart.org/content/lpc-aprons) |
 | `torso/aprons/overalls` | ElizaWy, bluecarrot16, JaidynReiman | OGA-BY 3.0 | [1](https://opengameart.org/content/lpc-revised-character-basics) [2](http://opengameart.org/content/lpc-clothing-updates) |
 | `torso/armour/leather` | Johannes Sjölund (wulax), bluecarrot16, JaidynReiman | OGA-BY 3.0 | [1](https://opengameart.org/content/lpc-medieval-fantasy-character-sprites) [2](https://opengameart.org/content/lpc-clothing-updates) [3](https://opengameart.org/content/lpc-expanded-armor) |
 | `torso/armour/leather/female` | Michael Whitlock (bigbeargames), Matthew Krohn (makrohn), Johannes Sjölund (wulax), bluecarrot16, JaidynReiman | OGA-BY 3.0 | [1](https://opengameart.org/content/lpc-medieval-fantasy-character-sprites) [2](https://opengameart.org/content/lpc-combat-armor-for-women) [3](https://opengameart.org/content/lpc-clothing-updates) [4](https://opengameart.org/content/lpc-expanded-armor) |
@@ -95,12 +99,25 @@ nach ihrem Teil (z. B. `hair_bob-…png`); welche Quelle dazugehört, steht in d
 | `torso/clothes/longsleeve/longsleeve2_cardigan` | ElizaWy, JaidynReiman, Stephen Challener (Redshrike), Johannes Sjölund (wulax) | OGA-BY 3.0 | [1](http://opengameart.org/content/lpc-revised-character-basics) [2](https://github.com/ElizaWy/LPC/tree/main/Characters/Clothing) [3](https://opengameart.org/content/lpc-expanded-sit-run-jump-more) [4](https://opengameart.org/content/lpc-expanded-simple-shirts) |
 | `torso/clothes/shortsleeve/tshirt` | ElizaWy, JaidynReiman, Stephen Challener (Redshrike), Johannes Sjölund (wulax) | OGA-BY 3.0 | [1](https://opengameart.org/content/lpc-revised-character-basics) [2](https://github.com/ElizaWy/LPC/tree/main/Characters/Clothing) [3](https://opengameart.org/content/lpc-expanded-sit-run-jump-more) [4](https://opengameart.org/content/lpc-expanded-simple-shirts) |
 | `torso/clothes/shortsleeve/tshirt_scoop` | ElizaWy, JaidynReiman, Stephen Challener (Redshrike), Johannes Sjölund (wulax) | OGA-BY 3.0 | [1](http://opengameart.org/content/lpc-revised-character-basics) [2](https://github.com/ElizaWy/LPC/tree/main/Characters/Clothing) [3](https://opengameart.org/content/lpc-expanded-sit-run-jump-more) [4](https://opengameart.org/content/lpc-expanded-simple-shirts) |
+| `torso/jacket/tabard` | bluecarrot16, Johannes Sjölund (wulax) | OGA-BY 3.0 | [1](https://opengameart.org/content/lpc-medieval-fantasy-character-sprites) [2](http://opengameart.org/content/lpc-clothing-updates) |
+| `torso/jacket/tabard/female` | JaidynReiman, Matthew Krohn (makrohn), Johannes Sjölund (wulax) | OGA-BY 3.0 | [1](https://opengameart.org/content/lpc-medieval-fantasy-character-sprites) [2](https://opengameart.org/content/lpc-combat-armor-for-women) [3](http://opengameart.org/content/lpc-clothing-updates) |
 | `torso/waist/belt_robe` | Johannes Sjölund (wulax), Matthew Krohn (makrohn) | OGA-BY 3.0 | [1](https://opengameart.org/content/lpc-medieval-fantasy-character-sprites) |
+| `torso/waist/sash` | bluecarrot16, Nila122 | OGA-BY 3.0 | [1](https://opengameart.org/content/more-lpc-clothes-and-hair) [2](https://opengameart.org/content/lpc-pirates) |
 | `weapon/magic/diamond` | bluecarrot16 | OGA-BY 3.0+, CC-BY 4.0 | [1](https://opengameart.org/content/lpc-more-weapons) |
+| `weapon/magic/gnarled` | bluecarrot16 | OGA-BY 3.0+, CC-BY 4.0 | [1](https://opengameart.org/content/lpc-more-weapons) |
 | `weapon/magic/simple` | bluecarrot16, Dr. Jamgo | CC0 | [1](https://opengameart.org/content/lpc-simple-staff) |
+| `weapon/ranged/crossbow` | bluecarrot16, drjamgo@hotmail.com | CC0 | [1](https://opengameart.org/content/lpc-crossbow-final) |
 | `weapon/sword/arming` | ElizaWy; walk and down by JaidynReiman | OGA-BY 3.0 | [1](https://github.com/ElizaWy/LPC/tree/main/Characters/Props/Sword%2001%20-%20Arming%20Sword) [2](https://opengameart.org/content/lpc-expanded-sit-run-jump-more) |
 | `weapon/sword/dagger` | bluecarrot16, Johannes Sjölund (wulax), Matthew Krohn (makrohn) | OGA-BY 3.0 | [1](https://opengameart.org/content/lpc-medieval-fantasy-character-sprites) [2](https://opengameart.org/content/lpc-extended-weapon-animations) |
 
 ## Fluent Emoji
 
 MIT License, Copyright (c) Microsoft Corporation. Die Bilder wurden von PNG nach WebP umgewandelt, die Haustiere zusätzlich auf 256 Pixel verkleinert (`tools/pets/build_pets.py`).
+
+## Schrift Pixelify Sans
+
+„Pixelify Sans“ von Stefie Justprince, SIL Open Font License 1.1 (https://github.com/eifetx/Pixelify-Sans). Unverändert über `@fontsource/pixelify-sans` eingebunden, für Überschriften im Spielstil.
+
+## Dungeon-Vorschau
+
+`public/images/ui/dungeon-teaser.webp` ist aus den Kenney-Sprites „Isometric Miniature Dungeon“ (CC0) zusammengesetzt (`tools/dungeon/build_teaser.py`).

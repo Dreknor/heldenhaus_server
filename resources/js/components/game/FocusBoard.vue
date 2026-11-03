@@ -426,12 +426,12 @@ const appearance = computed(() => page.props.auth.appearance);
                 class="rounded-3xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-rose-50 p-8 text-center dark:border-amber-800 dark:from-amber-950/30 dark:to-rose-950/30"
             >
                 <template v-if="anyDoneToday">
-                    <img src="/images/items/confetti_cannon.webp" alt="" class="mx-auto size-20 drop-shadow-md" />
+                    <img src="/images/emoji/1f38a.webp" alt="" class="mx-auto size-20 drop-shadow-md" />
                     <h3 class="mt-2 text-2xl font-black">Alles geschafft für heute!</h3>
                     <p class="mt-1 text-muted-foreground">Dein Held ist stolz auf dich. Jetzt darfst du dich ausruhen.</p>
                 </template>
                 <template v-else>
-                    <img src="/images/items/parchment.webp" alt="" class="mx-auto size-20 drop-shadow-md" />
+                    <img src="/images/emoji/1f4dc.webp" alt="" class="mx-auto size-20 drop-shadow-md" />
                     <h3 class="mt-2 text-2xl font-black">Noch keine Aufgaben da</h3>
                     <p class="mt-1 text-muted-foreground">Lege eine erste kleine Aufgabe an – dann geht das Abenteuer los.</p>
                     <button class="mt-4 rounded-xl bg-violet-600 px-5 py-2.5 font-bold text-white hover:bg-violet-700" @click="emit('showAll')">

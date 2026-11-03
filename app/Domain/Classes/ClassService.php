@@ -7,18 +7,21 @@ use App\Domain\Features\Features;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
+use App\Domain\Inventory\Stock;
 use App\Domain\Social\FeedService;
 use App\Enums\FamilyRole;
 use App\Models\ActiveBuff;
 use App\Models\DayLog;
 use App\Models\Family;
 use App\Models\FamilyDay;
+use App\Models\Item;
 use App\Models\RecoveryQuest;
 use App\Models\SkillCast;
 use App\Models\TaskAssignment;
 use App\Models\User;
 use App\Models\UserStats;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\PersonalAccessToken;
 
@@ -131,6 +134,11 @@ class ClassService
                 'loot_run' => $this->armedBuff($user, 'loot_run', 2, $skill['hours'], 'Beutezug bereit – schnapp dir eine Aufgabe aus der Börse!'),
                 'overload' => $this->armedBuff($user, 'overload', 2, $skill['hours'], 'Überlastung bereit – die nächste Home-Assistant-Aufgabe zählt doppelt!'),
                 'healing_wave' => $this->heal($target, 15),
+                'wild_call' => $this->familyBuff($user, 'wild_call', 0.25, $skill['hours'], 'Wildnisruf! 24 Stunden lang +25 % XP und Gold für alle bei Sport, Draußen, Tieren und Natur.'),
+                'blessing' => $this->familyBuff($user, 'blessing', 0.5, $skill['hours'], 'Schutzsegen! 24 Stunden lang halber Schaden beim Tageswechsel für die ganze Familie.'),
+                'feeding_time' => $this->feedingTime($user),
+                'feast' => $this->feast($user, (float) config('game.feast_heal')),
+                'meditation' => $this->meditation($user, (float) config('game.meditation_mana')),
             };
         });
     }
@@ -248,6 +256,55 @@ class ClassService
         }
 
         ActiveBuff::create([...$scope, 'value' => $value, 'armed' => $armed, 'expires_at' => now()->addHours($hours), 'source_user_id' => $source->id]);
+    }
+
+    /** Alle Mitglieder der Familie (ohne Familie nur man selbst). */
+    private function family(User $user): Collection
+    {
+        return $user->family_id ? User::where('family_id', $user->family_id)->get() : collect([$user]);
+    }
+
+    /** Tierbändiger „Fütterungszeit“: jedes Familienmitglied bekommt ein zufälliges Futter aus dem Shop-Sortiment. */
+    private function feedingTime(User $user): string
+    {
+        $foods = Item::where('type', 'food')->where('rarity', 'common')->whereNotNull('price_gold')->pluck('key');
+        if ($foods->isEmpty()) {
+            throw new GameException('Gerade gibt es kein Futter zu verteilen.');
+        }
+
+        foreach ($this->family($user) as $member) {
+            Stock::addKeys($member->id, [$foods->random() => 1]);
+        }
+
+        return 'Fütterungszeit! Alle in der Familie haben ein Futter für ihre Tiere bekommen.';
+    }
+
+    /** Koch „Festmahl“: alle Familienmitglieder heilen. */
+    private function feast(User $user, float $amount): string
+    {
+        foreach ($this->family($user) as $member) {
+            $stats = UserStats::lockForUpdate()->find($member->id);
+            if ($stats) {
+                Progression::heal($stats, $amount);
+                $stats->save();
+            }
+        }
+
+        return "Festmahl! Alle in der Familie bekommen +{$amount} HP.";
+    }
+
+    /** Mönch „Meditation“: Mana für alle Familienmitglieder. */
+    private function meditation(User $user, float $amount): string
+    {
+        foreach ($this->family($user) as $member) {
+            $stats = UserStats::lockForUpdate()->find($member->id);
+            if ($stats) {
+                $stats->mp = round(min(Formulas::maxMp($stats), $stats->mp + $amount), 1);
+                $stats->save();
+            }
+        }
+
+        return "Meditation – alle in der Familie atmen durch und bekommen +{$amount} Mana.";
     }
 
     private function heal(User $target, float $amount): string

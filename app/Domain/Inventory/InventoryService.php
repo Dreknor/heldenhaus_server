@@ -196,6 +196,10 @@ class InventoryService
             if (in_array($species, $food->stats['likes'] ?? [], true)) {
                 $growth *= 2;
             }
+            // Tierbändiger, passiv „Tierflüsterer“
+            if ($user->stats()->value('class_key') === 'tamer') {
+                $growth *= (int) config('game.tamer_feed_factor');
+            }
             $pet->growth = min(config('game.pet_growth_mount'), $pet->growth + $growth);
             $pet->is_mount = $pet->growth >= config('game.pet_growth_mount');
             $pet->save();

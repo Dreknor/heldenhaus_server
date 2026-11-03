@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
-import StatsPanel from '@/components/game/StatsPanel.vue';
+import SidebarHero from '@/components/game/SidebarHero.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
@@ -20,6 +20,7 @@ import {
     PiggyBank,
     ScrollText,
     Settings,
+    Skull,
     Sparkles,
     Swords,
     Trophy,
@@ -31,33 +32,58 @@ import AppLogo from './AppLogo.vue';
 const page = usePage<SharedData>();
 const isParent = computed(() => page.props.auth.user?.family_role === 'parent');
 
-const mainNavItems = computed<NavItem[]>(() => [
-    { title: 'Mein Held', href: '/dashboard', icon: Swords },
-    { title: 'Held & Klasse', href: '/hero', icon: Sparkles },
-    { title: 'Quests', href: '/quests', icon: ScrollText },
-    { title: 'Erfolge', href: '/achievements', icon: Trophy },
-    { title: 'Inventar', href: '/inventory', icon: Backpack },
-    { title: 'Familienhaus', href: '/housing', icon: House },
-    { title: 'Handwerk & Lager', href: '/crafting', icon: Hammer },
-    { title: 'Dungeons', href: '/dungeons', icon: Swords },
-    { title: 'Events', href: '/events', icon: CalendarDays },
-    { title: 'Familie', href: '/family', icon: Users },
-    { title: 'Bündnisse & Challenges', href: '/social', icon: Handshake },
-    { title: 'Belohnungsshop', href: '/shop', icon: Gift },
-    { title: 'Taschengeld', href: '/allowance', icon: PiggyBank },
+const groups = computed<{ label: string; items: NavItem[] }[]>(() => [
+    {
+        label: 'Abenteuer',
+        items: [
+            { title: 'Helden-Board', href: '/dashboard', icon: Swords },
+            { title: 'Held & Klasse', href: '/hero', icon: Sparkles },
+            { title: 'Quests', href: '/quests', icon: ScrollText },
+            { title: 'Dungeons', href: '/dungeons', icon: Skull },
+            { title: 'Events', href: '/events', icon: CalendarDays },
+            { title: 'Erfolge', href: '/achievements', icon: Trophy },
+        ],
+    },
+    {
+        label: 'Zuhause',
+        items: [
+            { title: 'Inventar', href: '/inventory', icon: Backpack },
+            { title: 'Haus & Garten', href: '/housing', icon: House },
+            { title: 'Handwerk & Lager', href: '/crafting', icon: Hammer },
+            { title: 'Belohnungsshop', href: '/shop', icon: Gift },
+            { title: 'Taschengeld', href: '/allowance', icon: PiggyBank },
+        ],
+    },
+    {
+        label: 'Familie & Bündnisse',
+        items: [
+            { title: 'Familie', href: '/family', icon: Users },
+            { title: 'Bündnisse & Challenges', href: '/social', icon: Handshake },
+        ],
+    },
     ...(isParent.value
         ? [
-              { title: 'Familienaufgaben', href: '/family/tasks', icon: ListChecks },
-              { title: 'Familieneinstellungen', href: '/family/settings', icon: Settings },
-              { title: 'Freigaben', href: '/approvals', icon: Inbox, badge: page.props.counts?.approvals ?? 0 },
-              { title: 'Wochenbericht', href: '/family/report', icon: ChartColumn },
+              {
+                  label: 'Eltern-Hub',
+                  items: [
+                      { title: 'Freigaben', href: '/approvals', icon: Inbox, badge: page.props.counts?.approvals ?? 0 },
+                      { title: 'Familienaufgaben', href: '/family/tasks', icon: ListChecks },
+                      { title: 'Wochenbericht', href: '/family/report', icon: ChartColumn },
+                      { title: 'Familieneinstellungen', href: '/family/settings', icon: Settings },
+                  ],
+              },
           ]
         : []),
     ...(page.props.auth.user?.is_admin
         ? [
-              { title: 'Items & Drops', href: '/admin/items', icon: Dices },
-              { title: 'KI-Anfragen', href: '/admin/ai-requests', icon: Sparkles },
-              { title: 'System-Updates', href: '/admin/updates', icon: Download },
+              {
+                  label: 'Verwaltung',
+                  items: [
+                      { title: 'Items & Drops', href: '/admin/items', icon: Dices },
+                      { title: 'KI-Anfragen', href: '/admin/ai-requests', icon: Sparkles },
+                      { title: 'System-Updates', href: '/admin/updates', icon: Download },
+                  ],
+              },
           ]
         : []),
 ]);
@@ -78,8 +104,8 @@ const mainNavItems = computed<NavItem[]>(() => [
         </SidebarHeader>
 
         <SidebarContent>
-            <NavMain :items="mainNavItems" />
-            <StatsPanel v-if="page.props.auth.stats" :stats="page.props.auth.stats" class="mx-2 mt-2 group-data-[collapsible=icon]:hidden" />
+            <SidebarHero class="mt-1 group-data-[collapsible=icon]:hidden" />
+            <NavMain v-for="group in groups" :key="group.label" :label="group.label" :items="group.items" />
         </SidebarContent>
 
         <SidebarFooter>

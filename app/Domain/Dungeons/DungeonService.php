@@ -14,6 +14,7 @@ use App\Domain\Social\FeedService;
 use App\Domain\Stats\Counters;
 use App\Enums\AgeGroup;
 use App\Enums\FamilyRole;
+use App\Http\Presenters\CharacterSheet;
 use App\Models\Dungeon;
 use App\Models\DungeonAction;
 use App\Models\DungeonPosition;
@@ -74,7 +75,7 @@ class DungeonService
         });
     }
 
-    /** Solo-Gewölbe (3 Räume) pro Tag – für alle, die ihre Dailies schon geschafft haben. */
+    /** Solo-Gewölbe (5 Räume) pro Tag – für alle, die ihre Dailies schon geschafft haben. */
     public function solo(User $user): Dungeon
     {
         $today = $user->gameDate();
@@ -105,6 +106,14 @@ class DungeonService
         ]);
     }
 
+    /** Solo-Gewölbe bleiben nach dem Schatz bis zum Tagesende offen, damit man die übrigen Räume noch erkunden kann. */
+    public static function playable(Dungeon $dungeon): bool
+    {
+        $open = $dungeon->status === 'active' || ($dungeon->kind === 'solo' && $dungeon->status === 'completed');
+
+        return $open && ! $dungeon->ends_at->isPast();
+    }
+
     /** Für 9–12 leichter, sobald ein Kind in der Familie mitspielt. */
     public static function familyMode(int $familyId): string
     {
@@ -124,7 +133,7 @@ class DungeonService
         $result = DB::transaction(function () use ($user, $dungeon, $action, $input, $clientUuid) {
             $dungeon = Dungeon::lockForUpdate()->findOrFail($dungeon->id);
             $this->ensureAccess($user, $dungeon);
-            if ($dungeon->status !== 'active' || $dungeon->ends_at->isPast()) {
+            if (! self::playable($dungeon)) {
                 throw new GameException('Dieser Dungeon ist vorbei.');
             }
 
@@ -281,7 +290,13 @@ class DungeonService
         }
 
         if ($damage > 0) {
-            if ($t->rng->chance(0.05 + $attrs['per'] * 0.01)) {
+            // Tierbändiger: der Tierbegleiter beißt mit zu
+            if ($t->class() === 'tamer') {
+                $damage += 3;
+            }
+            // Waldläufer: Erstschlag – die erste Runde gegen ein Monster ist immer ein Volltreffer
+            $firstRound = ($t->position->fight['room'] ?? null) !== $id;
+            if (($t->class() === 'ranger' && $firstRound) || $t->rng->chance(0.05 + $attrs['per'] * 0.01)) {
                 $damage *= 1.5;
                 $log[] = 'Volltreffer!';
             }
@@ -313,6 +328,7 @@ class DungeonService
             [$events, $loot] = $this->defeat($t, $id, $monster);
             $result['events'] = array_merge($log, $events);
             $result['loot'] = $loot;
+            $result['found'] = self::lootList($loot);
 
             return $result;
         }
@@ -325,8 +341,21 @@ class DungeonService
         }
         $targetStats = $target === $t->position ? $t->stats : UserStats::find($target->user_id);
         $hit = round(max(1, $t->rng->vary($monster['attack']) - Attributes::for($targetStats)['con'] * 0.3), 1);
+        $targetName = $target === $t->position ? $t->user->name : $target->user->name;
+
+        // Mönch: weicht jedem vierten Gegenangriff aus
+        if ($targetStats->class_key === 'monk' && $t->rng->chance(0.25)) {
+            $log[] = "{$targetName} weicht {$monster['name']} geschickt aus.";
+            $result['events'] = $log;
+
+            return $result;
+        }
+        // Paladin im Raum: Schutzaura −30 % Schaden
+        if ($t->class() === 'paladin' || $t->othersIn($id)->contains(fn ($p) => self::classOf($p->user) === 'paladin')) {
+            $hit = round(max(1, $hit * 0.7), 1);
+        }
         $target->hp = round($target->hp - $hit, 1);
-        $log[] = "{$monster['name']} trifft ".($target === $t->position ? $t->user->name : $target->user->name)." für {$hit}.";
+        $log[] = "{$monster['name']} trifft {$targetName} für {$hit}.";
         if ($target->hp <= 0) {
             $log = array_merge($log, $this->knockout($t, $target));
         }
@@ -360,27 +389,47 @@ class DungeonService
 
     // ---------- Raum-Inhalte ----------
 
+    /**
+     * Jede Truhe ist für jede Person einmal voll: Wer sie öffnet, bekommt Gold und Material,
+     * auch wenn schon jemand aus der Familie vorher da war. Der Schlüssel liegt nur einmal darin.
+     */
     private function openChest(Turn $t, int $id): array
     {
         $room = $t->room($id);
-        if ($room['chest']['opened']) {
-            throw new GameException('Die Truhe ist leer.');
+        $uid = (string) $t->user->id;
+        if (isset($room['chest']['opened_by'][$uid])) {
+            throw new GameException('Diese Truhe hast du schon geplündert.');
         }
         $t->spend(config('game.dungeon.cost.interact'));
-        $t->state['rooms'][$id]['chest']['opened'] = true;
+        $first = empty($room['chest']['opened']);
 
-        $loot = $this->rollLoot($t, $t->rng->int(2, 3), rare: $t->dungeon->mode === 'teen' ? 0.15 : 0.10);
-        if (! empty($room['key_drop'])) {
+        $teen = $t->dungeon->mode === 'teen';
+        $loot = $this->rollLoot($t, $t->rng->int(2, 3), rare: $teen ? 0.15 : 0.10);
+        if ($first && ! empty($room['key_drop'])) {
             $loot['dungeon_key'] = ($loot['dungeon_key'] ?? 0) + 1;
         }
+        $gold = $teen ? $t->rng->int(8, 20) : $t->rng->int(5, 15);
         Stock::addKeys($t->user->id, $loot);
-        $events = ["{$t->user->name} öffnet eine Truhe."];
+        Progression::changeGold($t->stats, $gold);
+        $t->state['rooms'][$id]['chest']['opened'] = true;
+        $t->state['rooms'][$id]['chest']['opened_by'][$uid] = ['gold' => $gold, 'loot' => $loot];
+        $events = ["{$t->user->name} öffnet eine Truhe und findet {$gold} Gold."];
 
-        if ($t->dungeon->kind === 'solo' && $id === $t->state['final']) {
+        if ($first && $t->dungeon->kind === 'solo' && $id === $t->state['final']) {
             $events = array_merge($events, $this->complete($t, 'solo'));
         }
 
-        return ['action' => 'interact', 'kind' => 'chest', 'loot' => $loot, 'events' => $events];
+        return ['action' => 'interact', 'kind' => 'chest', 'loot' => $loot, 'gold' => $gold, 'found' => self::lootList($loot), 'events' => $events];
+    }
+
+    /** Beute mit Namen und Symbol für die Anzeige */
+    public static function lootList(array $loot): array
+    {
+        $items = Item::whereIn('key', array_keys($loot))->get(['key', 'name', 'icon'])->keyBy('key');
+
+        return collect($loot)->map(fn ($amount, $key) => [
+            'key' => $key, 'amount' => (int) $amount, 'name' => $items[$key]->name ?? $key, 'icon' => $items[$key]->icon ?? '📦',
+        ])->values()->all();
     }
 
     private function solvePuzzle(Turn $t, int $id, string $answer): array
@@ -398,7 +447,7 @@ class DungeonService
         $loot = $this->rollLoot($t, 2, rare: 0.25);
         Stock::addKeys($t->user->id, $loot);
 
-        return ['action' => 'interact', 'kind' => 'puzzle', 'solved' => true, 'loot' => $loot, 'events' => ["{$t->user->name} hat das Rätsel gelöst!"]];
+        return ['action' => 'interact', 'kind' => 'puzzle', 'solved' => true, 'loot' => $loot, 'found' => self::lootList($loot), 'events' => ["{$t->user->name} hat das Rätsel gelöst!"]];
     }
 
     /** Lagerfeuer: heilt einmal am Tag; Heiler heilen alle im Raum voll (ohne Fackel). */
@@ -422,8 +471,21 @@ class DungeonService
                 $t->touch($other)->hp = self::maxHpFor(UserStats::find($other->user_id));
             }
         }
+        $events = [$healer ? "{$t->user->name} heilt alle am Lagerfeuer." : "{$t->user->name} ruht sich am Feuer aus."];
 
-        return ['action' => 'interact', 'kind' => 'campfire', 'events' => [$healer ? "{$t->user->name} heilt alle am Lagerfeuer." : "{$t->user->name} ruht sich am Feuer aus."]];
+        // Koch: Proviant – alle im Raum bekommen eine Fackel (bis zum Vorratslimit)
+        if ($t->class() === 'cook') {
+            $max = config('game.dungeon.torch_store_max');
+            $t->stats->torches = min($max, $t->stats->torches + 1);
+            foreach ($t->othersIn($id) as $other) {
+                $stats = UserStats::lockForUpdate()->find($other->user_id);
+                $stats->torches = min($max, $stats->torches + 1);
+                $stats->save();
+            }
+            $events[] = "{$t->user->name} kocht Proviant – eine Fackel für alle am Feuer.";
+        }
+
+        return ['action' => 'interact', 'kind' => 'campfire', 'events' => $events];
     }
 
     private function buy(Turn $t, string $key): array
@@ -717,7 +779,7 @@ class DungeonService
         $stats = UserStats::find($viewer->id);
 
         $rooms = collect($state['rooms'])->keyBy('id')->all();
-        $rooms = collect($state['rooms'])->map(function (array $r) use ($revealed, $fog, $class, $dungeon, $visible, $rooms) {
+        $rooms = collect($state['rooms'])->map(function (array $r) use ($revealed, $fog, $class, $dungeon, $visible, $rooms, $viewer) {
             if (! in_array($r['id'], $revealed, true)) {
                 return $fog->contains($r['id']) ? ['id' => $r['id'], 'x' => $r['x'], 'y' => $r['y'], 'fog' => true] : null;
             }
@@ -729,7 +791,9 @@ class DungeonService
                     'art' => DungeonCatalog::monsterArt($m['key']), 'art_url' => route('api.v1.monsters.art', $m['key'])];
             }
             if (isset($r['chest'])) {
-                $room['chest'] = ['opened' => $r['chest']['opened']];
+                // Truhen sind je Person gefüllt: „geöffnet“ heißt hier „von dir geöffnet“
+                $mine = $r['chest']['opened_by'][(string) $viewer->id] ?? null;
+                $room['chest'] = ['opened' => $mine !== null, 'gold' => $mine['gold'] ?? null, 'found' => $mine ? self::lootList($mine['loot']) : []];
             }
             if (isset($r['trap'])) {
                 $room['trap'] = ['sprung' => $r['trap']['sprung']];
@@ -756,12 +820,15 @@ class DungeonService
             'status' => $dungeon->status,
             'ends_at' => $dungeon->ends_at->toIso8601String(),
             'boss_unlocked' => $dungeon->boss_unlocked,
+            'playable' => self::playable($dungeon),
             'quest_id' => $dungeon->quest_id,
             'rooms' => $rooms,
             'edges' => $visible->map(fn ($e) => ['a' => $e['a'], 'b' => $e['b'], 'kind' => $e['kind'], 'was' => $e['was'] ?? null])->values(),
             'art' => DungeonCatalog::art(),
             'members' => $positions->map(fn (DungeonPosition $p) => [
                 'user_id' => $p->user_id, 'name' => $p->user?->name, 'room' => $p->room, 'hp' => $p->hp, 'class' => self::classOf($p->user),
+                // Echter Avatar der Mitspielenden wie im Board
+                'appearance' => $p->user ? CharacterSheet::appearance($p->user) : null,
             ])->values(),
             'me' => [
                 'room' => $me?->room ?? $state['entrance'],

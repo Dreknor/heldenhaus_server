@@ -11,6 +11,9 @@ final class ScoreResult
     /** Event-Fortschritt (§12): Punkte, Fund, erreichte Stufen – gesetzt nach dem Abschluss */
     public ?array $event = null;
 
+    /** Gewohnheiten (§2.2): heutige Wiederholung, Tageslimit, Belohnungsfaktor, neue Farbe */
+    public ?array $habit = null;
+
     /** Zufallsereignis nur zum Spaß (§12.5) */
     public ?array $funEvent = null;
 
@@ -38,6 +41,7 @@ final class ScoreResult
             'surprise' => $this->completion->surprise,
             'event' => $this->event,
             'fun_event' => $this->funEvent,
+            'habit' => $this->habit,
             'stats' => $this->stats->only(['hp', 'mp', 'xp', 'gold', 'stars', 'level']),
         ];
     }

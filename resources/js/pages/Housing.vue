@@ -38,7 +38,7 @@ interface HousingData {
         }[];
     };
     garden: {
-        plants: { key: string; name: string; icon: string; cost: Record<string, number> }[];
+        plants: { key: string; name: string; icon: string; cost: Record<string, number>; cost_items?: { name: string; amount: number }[] }[];
         plots: {
             slot: number;
             plant_key: string | null;
@@ -341,8 +341,8 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                                     <option value="">Saatgut wählen</option>
                                     <option v-for="plant in home.garden.plants" :key="plant.key" :value="plant.key">
                                         {{ plant.icon }} {{ plant.name }} ({{
-                                            Object.entries(plant.cost)
-                                                .map(([key, count]) => `${count} ${key}`)
+                                            (plant.cost_items ?? Object.entries(plant.cost).map(([key, amount]) => ({ name: key, amount })))
+                                                .map((item) => `${item.amount} ${item.name}`)
                                                 .join(', ')
                                         }})
                                     </option>
@@ -422,7 +422,7 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                     <CardContent>
                         <div v-if="home.storage.length" class="flex flex-wrap gap-2">
                             <span v-for="item in home.storage" :key="item.name" class="rounded-lg bg-muted px-3 py-2 text-sm">
-                                <Emoji :char="item.icon" :size="22" class="mr-0.5" /> {{ item.name }} × {{ item.quantity }}
+                                <Emoji :glyph="item.icon" /> {{ item.name }} × {{ item.quantity }}
                             </span>
                         </div>
                         <p v-else class="text-sm text-muted-foreground">Im Familienlager liegt noch nichts.</p>
@@ -439,7 +439,7 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                             <h3 class="mb-2 text-sm font-bold">Besiegte Bosse</h3>
                             <div class="flex flex-wrap gap-2">
                                 <span v-for="boss in home.trophies.bosses" :key="boss.key" class="rounded-lg bg-muted px-3 py-2 text-sm">
-                                    <Emoji :char="boss.icon" :size="22" class="mr-0.5" /> {{ boss.name }}
+                                    <Emoji :glyph="boss.icon" /> {{ boss.name }}
                                 </span>
                             </div>
                         </section>
@@ -451,7 +451,7 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                                     :key="`${item.key}-${item.owner_id}`"
                                     class="rounded-lg bg-muted px-3 py-2 text-sm"
                                 >
-                                    <Emoji :char="item.icon" :size="22" class="mr-0.5" /> {{ item.name }}
+                                    <Emoji :glyph="item.icon" /> {{ item.name }}
                                 </span>
                             </div>
                         </section>

@@ -35,6 +35,7 @@ class TaskRequest extends FormRequest
             'difficulty' => ['required', Rule::in(array_values(config('game.difficulties')))],
             'up' => ['boolean'],
             'down' => ['boolean'],
+            'daily_limit' => ['nullable', 'integer', 'between:1,50'],
             'repeat' => ['nullable', 'array'],
             'repeat.type' => ['required_with:repeat', Rule::in(['daily', 'weekly', 'monthly'])],
             'repeat.every' => ['nullable', 'integer', 'min:1', 'max:365'],
