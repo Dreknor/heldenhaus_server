@@ -53,6 +53,7 @@ interface HousingData {
         bosses: { key: string; name: string; icon: string; completed_at: string | null }[];
         master_items: { key: string; name: string; icon: string; owner_id: number }[];
         achievements: number;
+        badges: { key: string; name: string; icon: string; kind_label: string; owner: string | null; awarded_at: string | null }[];
     } | null;
     can_start_projects: boolean;
     can_write_text: boolean;
@@ -455,7 +456,24 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                                 </span>
                             </div>
                         </section>
-                        <p v-if="!home.trophies.bosses.length && !home.trophies.master_items.length" class="text-sm text-muted-foreground">
+                        <section v-if="home.trophies.badges.length">
+                            <h3 class="mb-2 text-sm font-bold">Abzeichen</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <span
+                                    v-for="badge in home.trophies.badges"
+                                    :key="`${badge.owner}-${badge.key}`"
+                                    class="flex items-center gap-1.5 rounded-lg bg-amber-50 px-3 py-2 text-sm ring-1 ring-amber-200 dark:bg-amber-950/40 dark:ring-amber-800"
+                                    :title="`${badge.kind_label} · ${badge.owner ?? ''}`"
+                                >
+                                    <Emoji :glyph="badge.icon" /> {{ badge.name }}
+                                    <span v-if="badge.owner" class="text-xs text-muted-foreground">({{ badge.owner }})</span>
+                                </span>
+                            </div>
+                        </section>
+                        <p
+                            v-if="!home.trophies.bosses.length && !home.trophies.master_items.length && !home.trophies.badges.length"
+                            class="text-sm text-muted-foreground"
+                        >
                             Die ersten Trophäen warten auf euch.
                         </p>
                     </CardContent>

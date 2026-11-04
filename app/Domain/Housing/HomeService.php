@@ -2,6 +2,7 @@
 
 namespace App\Domain\Housing;
 
+use App\Domain\Badges\BadgeService;
 use App\Domain\Crafting\StorageService;
 use App\Domain\Features\Features;
 use App\Domain\Gameplay\GameException;
@@ -17,6 +18,7 @@ use App\Models\Room;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\UserAchievement;
+use App\Models\UserBadge;
 use App\Models\UserItem;
 use Illuminate\Support\Facades\DB;
 
@@ -198,6 +200,10 @@ class HomeService
                 ->whereIn('user_id', User::where('family_id', $home->family_id)->select('id'))->get()
                 ->map(fn (UserItem $u) => ['key' => $u->item->key, 'name' => $u->item->name, 'icon' => $u->item->icon, 'owner_id' => $u->user_id])->values(),
             'achievements' => UserAchievement::whereIn('user_id', User::where('family_id', $home->family_id)->select('id'))->count(),
+            // Abzeichen aus §14: erreichte Ziele, gemeisterte Gewohnheiten, Ehrensache, Heldenjahr
+            'badges' => UserBadge::with('user:id,name')->whereIn('user_id', User::where('family_id', $home->family_id)->select('id'))
+                ->latest('id')->limit(60)->get()
+                ->map(fn (UserBadge $b) => [...BadgeService::present($b), 'owner_id' => $b->user_id, 'owner' => $b->user?->name])->values(),
         ];
     }
 
