@@ -2,7 +2,9 @@
 
 namespace App\Domain\Council;
 
+use App\Domain\Achievements\ChronicleService;
 use App\Domain\Gameplay\GameException;
+use App\Domain\Goals\GoalService;
 use App\Domain\Notifications\PushNotifier;
 use App\Domain\Quests\QuestService;
 use App\Domain\Social\FeedService;
@@ -276,8 +278,47 @@ class CouncilService
                 'vote_winner' => $winner['name'] ?? null,
             ]);
 
+            $this->wishesToGoals($council);
+
             return $council;
         });
+    }
+
+    /**
+     * Wünsche „als Wochenziel“ (§14.4 Schritt 5): ein Ziel der Person für die kommende Woche, abzuhaken bis Sonntag.
+     * Es zählt nicht zu den drei eigenen Zielen; schlägt das Anlegen fehl, bleibt der Wunsch eine Notiz.
+     */
+    private function wishesToGoals(FamilyCouncil $council): void
+    {
+        $goals = app(GoalService::class);
+        foreach ($council->wishes ?? [] as $wish) {
+            $member = ($wish['kind'] ?? 'note') === 'goal' ? User::find((int) $wish['user_id']) : null;
+            if ($member === null || $member->family_id !== $council->family_id) {
+                continue;
+            }
+
+            try {
+                $goals->create($member, $member, [
+                    'type' => 'count',
+                    'title' => $wish['text'],
+                    'why' => "Mein Wunsch aus dem Familienrat vom {$council->held_on->format('d.m.')}",
+                    'icon' => '🌟',
+                    'target' => 1,
+                    'unit' => 'geschafft',
+                    'ends_on' => $member->gameDate()->next(CarbonImmutable::SUNDAY)->toDateString(),
+                ], 'council');
+            } catch (GameException) {
+                // Wunsch bleibt im Rat als Notiz erhalten
+            }
+        }
+    }
+
+    /** Der Familienrat schlägt gemeinsam das nächste Kapitel der Chronik auf (§14.8). */
+    public function openChapter(User $actor, FamilyCouncil $council): ?array
+    {
+        $this->ensureRunning($actor, $council);
+
+        return app(ChronicleService::class)->openTogether($council->family);
     }
 
     /**

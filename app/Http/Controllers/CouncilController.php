@@ -31,7 +31,7 @@ class CouncilController extends Controller
     {
         $user = $request->user();
         $data = $request->validate([
-            'action' => ['required', Rule::in(['start', 'step', 'thank', 'wish', 'open_vote', 'finish'])],
+            'action' => ['required', Rule::in(['start', 'step', 'thank', 'wish', 'open_vote', 'open_chapter', 'finish'])],
             'step' => ['required_if:action,step', 'integer', 'between:1,5'],
             'from_id' => ['required_if:action,thank', 'integer'],
             'to_id' => ['required_if:action,thank', 'integer'],
@@ -52,6 +52,9 @@ class CouncilController extends Controller
             'thank' => $this->ok($this->councils->thank($user, $council, $this->member($user, $data['from_id']), $this->member($user, $data['to_id']), (string) $data['reason']), 'Danke ist im Feed!'),
             'wish' => $this->ok($this->councils->wish($user, $council, $this->member($user, $data['member_id']), (string) $data['text'], $data['kind'] ?? 'note'), 'Wunsch notiert.'),
             'open_vote' => $votes->open($user, $council?->id) ? 'Die Abstimmung läuft!' : null,
+            'open_chapter' => ($chapter = $this->councils->openChapter($user, $council))
+                ? "Kapitel {$chapter['number']} aufgeschlagen: „{$chapter['title']}“. Viel Spaß beim Lesen!"
+                : 'Gerade gibt es kein neues Kapitel – das nächste kommt mit dem nächsten Level oder Boss.',
             'finish' => $this->ok($this->councils->finish($user, $council), 'Familienrat beendet – schön, dass ihr dabei wart!'),
         };
 

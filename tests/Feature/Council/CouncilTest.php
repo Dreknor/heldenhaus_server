@@ -3,11 +3,13 @@
 use App\Domain\Council\CouncilService;
 use App\Domain\Council\ProposalService;
 use App\Domain\Gameplay\GameException;
+use App\Domain\Goals\GoalService;
 use App\Domain\Quests\QuestService;
 use App\Jobs\SendPushNotification;
 use App\Models\DeviceToken;
 use App\Models\FamilyCouncil;
 use App\Models\FeedEntry;
+use App\Models\Goal;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Queue;
 use Laravel\Sanctum\Sanctum;
@@ -71,7 +73,15 @@ it('geführter Ablauf: Rückblick ohne Rangliste, Danke im Feed, Entscheidungen,
     $this->post('/family/council', ['action' => 'wish', 'member_id' => $this->child->id, 'text' => 'Einen Ausflug machen', 'kind' => 'goal'])
         ->assertSessionHasNoErrors();
     $this->post('/family/council', ['action' => 'step', 'step' => 5])->assertSessionHasNoErrors();
+    // Chronik gemeinsam aufschlagen (§14.8): Lea hat Level 1, also noch kein Kapitel – freundliche Antwort, kein Fehler
+    $this->post('/family/council', ['action' => 'open_chapter'])->assertSessionHasNoErrors()->assertSessionHas('success');
     $this->post('/family/council', ['action' => 'finish'])->assertSessionHasNoErrors();
+
+    // Der Wunsch „als Wochenziel“ wird ein Ziel für die kommende Woche, ohne die drei eigenen Ziele zu belegen
+    $goal = Goal::where('user_id', $this->child->id)->first();
+    expect($goal)->toMatchArray(['title' => 'Einen Ausflug machen', 'source' => 'council', 'type' => 'count', 'target' => 1])
+        ->and($goal->ends_on->toDateString())->toBe('2026-11-01')
+        ->and(GoalService::activeCount($this->child))->toBe(0);
 
     $council->refresh();
     expect($council->status)->toBe('done')

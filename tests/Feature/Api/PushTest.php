@@ -129,11 +129,12 @@ it('hält während einer laufenden Fokus-Zeit sichtbare Pushes zurück (§11.4)'
     $this->actingAs($this->child)->post('/assignments/'.assignmentOf($task, $this->child)->id.'/score/up');
     app(PushNotifier::class)->notify($this->child, 'level_up');
 
-    // Nur stille Abgleich-Nachrichten: keine Anzeige, auch die Freigabe-Datennachricht kommt ohne „show“
+    // Freigaben kommen auch in der Fokus-Zeit (§11.4: „Pushes außer Freigaben und Timer-Ende werden zurückgehalten“),
+    // alles andere nur als stille Abgleich-Nachricht
     Queue::assertPushed(SendPushNotification::class, fn ($job) => $job->type === null && $job->data['type'] === 'approval_pending'
-        && ! isset($job->data['show']) && $job->data['sync'] === '1');
-    Queue::assertPushed(SendPushNotification::class, fn ($job) => $job->type === null && $job->data['type'] === 'level_up');
-    Queue::assertNotPushed(SendPushNotification::class, fn ($job) => $job->type !== null || isset($job->data['show']));
+        && ($job->data['show'] ?? null) === '1');
+    Queue::assertPushed(SendPushNotification::class, fn ($job) => $job->type === null && $job->data['type'] === 'level_up' && ! isset($job->data['show']));
+    Queue::assertNotPushed(SendPushNotification::class, fn ($job) => $job->type !== null);
 });
 
 it('zeigt Pushes wieder an, sobald die Fokus-Zeit beendet oder abgelaufen ist', function () {

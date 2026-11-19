@@ -71,7 +71,8 @@ class PushNotifier
             $setting = $user->notificationSetting ?? new NotificationSetting;
             $visible = isset(self::TYPES[$type]) && $setting->allows($type)
                 && ! $setting->isQuiet(CarbonImmutable::now($user->timezone ?? 'Europe/Berlin'))
-                && ! self::inFocus($user);
+                // Fokus-Zeit (§11.4): alles außer Freigaben wird zurückgehalten
+                && ($type === 'approval_pending' || ! self::inFocus($user));
 
             $dataOnly = in_array($type, self::DATA_ONLY, true);
             $payload = self::data($type, $data + ($dataOnly && $visible ? ['show' => '1', 'title' => self::TYPES[$type][0], 'body' => self::TYPES[$type][1]] : []));

@@ -276,8 +276,11 @@ function wish() {
                     >
                         Weiter
                     </button>
+                    <button v-if="step === 5" class="hh-button" :disabled="busy" @click="act({ action: 'open_chapter' })">
+                        📖 Chronik-Kapitel gemeinsam aufschlagen
+                    </button>
                     <button
-                        v-else
+                        v-if="step === 5"
                         class="hh-button border-[var(--wood-edge)] bg-[var(--gold)] text-[var(--wood-edge)]"
                         :disabled="busy"
                         @click="act({ action: 'finish' })"
