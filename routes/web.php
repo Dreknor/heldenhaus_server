@@ -228,5 +228,6 @@ Route::middleware(['auth', 'can:admin'])->prefix('admin')->name('admin.')->group
     Route::delete('events/{kind}/{key}', [AdminEventController::class, 'destroy'])->whereIn('kind', ['event', 'fun'])->name('events.destroy');
 });
 
+require __DIR__.'/council.php';
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

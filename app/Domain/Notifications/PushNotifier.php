@@ -40,6 +40,12 @@ class PushNotifier
         'goal_progress' => ['Ziel-Fortschritt', 'Jemand, dem du hilfst, ist einen Schritt weiter.'],
         'goal_reached' => ['Ziel erreicht!', 'In der Familie wurde ein Ziel erreicht.'],
         'star_fade' => ['Ehrensache', 'Bei einer Familienaufgabe ändert sich etwas an den Sternen.'],
+        // Familienrat und Mitbestimmung (§14.4)
+        'family_council' => ['Familienrat', 'In einer Stunde ist Familienrat. Wer mag, ist dabei!'],
+        'proposal_new' => ['Neuer Vorschlag', 'Im Heldenhaus wartet ein Vorschlag auf euch.'],
+        'proposal_decided' => ['Vorschlag beantwortet', 'Deine Eltern haben über deinen Vorschlag entschieden.'],
+        'vote_opened' => ['Abstimmung', 'Stimm ab, welche Familien-Quest als Nächstes kommt.'],
+        'vote_tie' => ['Gleichstand', 'Bei der Abstimmung steht es unentschieden. Ihr entscheidet.'],
     ];
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Domain\Achievements\AchievementService;
+use App\Domain\Council\ProposalService;
 use App\Domain\Support\SupportService;
 use App\Enums\CompletionStatus;
 use App\Http\Presenters\CharacterSheet;
@@ -40,6 +41,7 @@ class HandleInertiaRequests extends Middleware
                     'theme' => $user->theme,
                     'avatar_color' => $user->avatar_color,
                     'is_admin' => $user->is_admin,
+                    'adult_profile' => $user->isIndependent(),
                     'created_at' => $user->created_at,
                     'updated_at' => $user->updated_at,
                 ] : null,
@@ -63,7 +65,8 @@ class HandleInertiaRequests extends Middleware
                     ->whereHas('user', fn ($q) => $q->where('family_id', $user->family_id))->count()
                     + RewardRedemption::where('status', 'pending')
                         ->whereHas('user', fn ($q) => $q->where('family_id', $user->family_id))->count(),
-            ] : ['approvals' => 0],
+                'proposals' => ProposalService::openCount($user->family_id),
+            ] : ['approvals' => 0, 'proposals' => 0],
             // Freischaltungen nach Level (§13): Navigation, Freischalt-Karte, Starter-Aufgaben, nächste Freischaltung
             'features' => fn () => $user?->family_id ? FeatureView::shared($user) : null,
             // Kurze Tour (§13.3) nach „Zeig's mir“ oder aus dem Heldenbuch

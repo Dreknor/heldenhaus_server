@@ -190,7 +190,8 @@ class Features
             $unlock->forceFill(['intro_shown_at' => now()])->save();
         }
         $f = self::get($unlock->feature_key);
-        $age = $user->ageGroup()->value;
+        // Erwachsenenprofil (§14.11): sachlicher Ton
+        $age = $user->isIndependent() ? 'adult' : $user->ageGroup()->value;
 
         return [
             'key' => $unlock->feature_key,

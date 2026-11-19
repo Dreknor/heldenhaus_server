@@ -3,6 +3,7 @@
 namespace App\Http\Presenters;
 
 use App\Domain\Art\PetArt;
+use App\Domain\Council\BoardHints;
 use App\Domain\Gameplay\RunDayCron;
 use App\Domain\Goals\GoalService;
 use App\Domain\Goals\MasteryService;
@@ -70,6 +71,8 @@ class HeroBoard
             'goals' => app(GoalService::class)->boardSummary($user),
             'mastery' => app(MasteryService::class)->cards($user),
             'star_fade' => $user->isParent() && $user->family_id ? app(StarFadeService::class)->suggestions($user->family_id) : [],
+            // Familienrat, Abstimmung, Vorschläge, Eltern-Anleitung, Altersübergänge (§14.4, §14.9, §14.11)
+            'councilHints' => BoardHints::for($user),
         ];
     }
 

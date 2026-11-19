@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Council\CouncilService;
+use App\Domain\Council\ParentHelp;
 use App\Domain\Family\FamilyService;
 use App\Domain\Features\Features;
 use App\Domain\Integrations\HomeAssistant\HomeAssistantWebhooks;
@@ -73,11 +75,12 @@ class FamilyController extends Controller
                 ] : null,
             ],
             'members' => $family->members()->with('stats')->orderBy('family_role')->orderBy('name')->get()
-                ->map(fn (User $m) => GamePresenter::member($m) + ($isParent ? [
+                ->map(fn (User $m) => GamePresenter::member($m) + ($user->overseesPersonalDataOf($m) ? [
                     'supportSettings' => SupportService::present($m),
                     // Freischaltungen (§13): früher/später freischalten, Schnellstart
                     'featureSettings' => Features::forMember($m) + ['show_all' => (bool) $m->show_all_features],
                 ] : [])),
+            'council' => $isParent ? CouncilService::settings($family) + ['weekdays' => CouncilService::WEEKDAYS] : null,
             'invites' => $isParent
                 ? $family->invites()->whereNull('used_at')->where('expires_at', '>', now())->latest()->get()
                     ->map(fn (FamilyInvite $i) => [
@@ -118,6 +121,8 @@ class FamilyController extends Controller
                 ->map(fn (User $m) => GamePresenter::member($m, false)),
             'categories' => config('game.categories'),
             'difficulties' => config('game.difficulties'),
+            // §14.9: höchstens eine neue Aufgabe pro Woche und Kind
+            'loadHints' => ParentHelp::loadHints($user->family_id),
         ]);
     }
 
@@ -131,9 +136,10 @@ class FamilyController extends Controller
             'pin' => ['required', 'digits_between:4,6'],
         ], [], ['name' => 'Name', 'birth_year' => 'Geburtsjahr', 'pin' => 'PIN']);
 
-        $this->families->addChild($request->user(), $data['name'], (int) $data['birth_year'], $data['pin']);
+        $child = $this->families->addChild($request->user(), $data['name'], (int) $data['birth_year'], $data['pin']);
 
-        return back()->with('success', "{$data['name']} ist jetzt dabei!");
+        // Startassistent (§14.9): 3–5 Aufgaben aus den Vorlagen wählen
+        return to_route('family.start-wizard', ['member' => $child->id])->with('success', "{$data['name']} ist jetzt dabei!");
     }
 
     public function updateMember(Request $request, User $member): RedirectResponse
@@ -149,6 +155,11 @@ class FamilyController extends Controller
             // Freitext im Familienbündnis für Teens (Kinder unter 13 nie, Konzept §3.6)
             'chat_allowed' => ['nullable', 'boolean'],
         ]);
+
+        // Erwachsenenprofil (§14.11): eigene Anmeldung und Daten, Eltern regeln nur noch den Chat
+        if ($member->isIndependent()) {
+            $data = array_intersect_key($data, ['chat_allowed' => true]);
+        }
 
         $member->update(array_filter($data, fn ($v) => $v !== null));
 

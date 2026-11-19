@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
+import CouncilSettings from '@/components/council/CouncilSettings.vue';
 import MemberFeatureSettings from '@/components/family/MemberFeatureSettings.vue';
 import MemberSupportSettings from '@/components/family/MemberSupportSettings.vue';
 import HeroAvatar from '@/components/game/HeroAvatar.vue';
@@ -57,6 +58,7 @@ const props = defineProps<{
     }[];
     apiUrl: string;
     weatherSetting: { source: 'none' | 'ha' | 'open_meteo'; lat: number | null; lon: number | null };
+    council?: { enabled: boolean; weekday: number; time: string; free_text: boolean; weekdays: Record<string, string> } | null;
 }>();
 const page = usePage<SharedData>();
 
@@ -155,7 +157,10 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
                         <div class="min-w-0 flex-1 space-y-1.5">
                             <div class="flex items-baseline justify-between gap-2">
                                 <p class="truncate text-lg font-bold">{{ m.name }}</p>
-                                <span class="text-xs text-muted-foreground">{{ m.role_label }} · {{ ageLabel[m.age_group] }}</span>
+                                <span class="text-xs text-muted-foreground"
+                                    >{{ m.role_label }} · {{ ageLabel[m.age_group]
+                                    }}<template v-if="m.adult_profile"> · Erwachsenenprofil</template></span
+                                >
                             </div>
                             <template v-if="m.stats">
                                 <p class="text-xs font-bold text-orange-600">Level {{ m.stats.level }}</p>
@@ -198,6 +203,8 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
             </div>
 
             <div v-if="isParent" class="grid gap-6 lg:grid-cols-2">
+                <CouncilSettings v-if="council" :council="council" />
+
                 <Card class="lg:col-span-2">
                     <CardHeader>
                         <CardTitle>Wetter in der Heldenszene</CardTitle>

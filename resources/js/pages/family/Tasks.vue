@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import TemplatePicker from '@/components/council/TemplatePicker.vue';
 import TaskDialog from '@/components/game/TaskDialog.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -16,7 +17,10 @@ const props = defineProps<{
     members: Member[];
     categories: Record<string, string>;
     difficulties: Record<string, number>;
+    loadHints?: { user_id: number; name: string; count: number; text: string }[];
 }>();
+
+const templatesOpen = ref(false);
 
 const typeMeta: Record<string, { label: string; icon: unknown }> = {
     habit: { label: 'Gewohnheit', icon: Repeat },
@@ -50,10 +54,19 @@ function edit(task: Task) {
         <div class="flex flex-1 flex-col gap-5 p-4 md:p-6">
             <div class="flex flex-wrap items-center gap-3">
                 <h1 class="flex-1 text-2xl font-extrabold tracking-tight">Familienaufgaben</h1>
+                <Button variant="outline" @click="templatesOpen = true">Aus Vorlagen</Button>
                 <Button variant="outline" @click="create('habit')">+ Gewohnheit</Button>
                 <Button variant="outline" @click="create('todo')">+ To-do / Börse</Button>
                 <Button @click="create('daily')">+ Tägliche Aufgabe</Button>
             </div>
+
+            <p
+                v-for="h in loadHints ?? []"
+                :key="h.user_id"
+                class="rounded-xl bg-amber-100 px-4 py-2 text-sm font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
+            >
+                🌱 {{ h.text }}
+            </p>
 
             <div v-if="!tasks.length" class="rounded-2xl border border-dashed p-10 text-center text-muted-foreground">
                 Noch keine Familienaufgaben. Lege z. B. „Spülmaschine ausräumen“ als tägliche Aufgabe an.
@@ -128,6 +141,7 @@ function edit(task: Task) {
             </div>
         </div>
 
+        <TemplatePicker v-model:open="templatesOpen" :members="assignable" />
         <TaskDialog
             v-model:open="open"
             :task="editing"

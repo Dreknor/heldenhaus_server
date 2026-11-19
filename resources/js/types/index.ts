@@ -141,7 +141,7 @@ export interface FeatureTour {
 export interface SharedData {
     name: string;
     auth: Auth;
-    counts: { approvals: number };
+    counts: { approvals: number; proposals?: number };
     newAchievements: NewAchievement[];
     features: FeatureState | null;
     tour: FeatureTour | null;
@@ -167,6 +167,7 @@ export interface User {
     age_group: 'child' | 'teen' | 'adult';
     theme: string;
     is_admin: boolean;
+    adult_profile?: boolean;
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;
@@ -257,6 +258,7 @@ export interface Member {
     birth_year?: number;
     avatar_color: string;
     has_email?: boolean;
+    adult_profile?: boolean;
     stats?: Stats;
     appearance?: Appearance;
     featureSettings?: MemberFeatureSettings;

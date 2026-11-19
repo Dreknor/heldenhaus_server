@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CouncilHints, { type CouncilHint } from '@/components/council/CouncilHints.vue';
 import CronDialog from '@/components/game/CronDialog.vue';
 import DailySupport from '@/components/game/DailySupport.vue';
 import EventBanner from '@/components/game/EventBanner.vue';
@@ -70,6 +71,7 @@ const props = defineProps<{
     companion: { egg_key: string; potion_key: string; is_mount: boolean; name: string } | null;
     categories: Record<string, string>;
     difficulties: Record<string, number>;
+    councilHints?: CouncilHint[];
     sceneBackground?: string | null;
     sceneWeather?: { type: 'clear' | 'cloudy' | 'fog' | 'rain' | 'snow' | 'storm'; label: string; is_day: boolean } | null;
     goals: InstanceType<typeof LongTermCards>['$props']['goals'];
@@ -226,6 +228,7 @@ const greeting = computed(() => {
             <div v-if="funEvents?.length" class="grid gap-3 md:grid-cols-2">
                 <FunEventCard v-for="fun in funEvents" :key="fun.id" :event="fun" />
             </div>
+            <CouncilHints :hints="councilHints ?? []" />
 
             <template v-if="mode === 'focus'">
                 <FocusBoard

@@ -3,6 +3,8 @@
 use App\Domain\Achievements\AchievementService;
 use App\Domain\Art\SceneBackgrounds;
 use App\Domain\Classes\ClassService;
+use App\Domain\Council\CouncilService;
+use App\Domain\Council\VoteService;
 use App\Domain\Crafting\CraftingService;
 use App\Domain\Dungeons\DungeonService;
 use App\Domain\Events\EventEngine;
@@ -127,6 +129,15 @@ Artisan::command('heldenhaus:dungeons-close', function (DungeonService $dungeons
 Artisan::command('heldenhaus:auto-approve', function (ReviewCompletion $review) {
     $this->info($review->autoApproveExpired().' Freigaben automatisch bestätigt.');
 })->purpose('Offene Freigaben nach Ablauf der Frist bestätigen');
+
+/*
+ * Familienrat (§14.4): Erinnerung eine Stunde vorher, Abstimmungen schließen und gewählte Quests starten.
+ */
+Artisan::command('heldenhaus:council-tick', function (CouncilService $councils, VoteService $votes) {
+    $reminded = $councils->sendReminders();
+    $v = $votes->tick();
+    $this->info("{$reminded} Familien an den Familienrat erinnert, {$v['closed']} Abstimmungen beendet, {$v['started']} Quests gestartet.");
+})->purpose('Familienrat-Erinnerungen senden und Abstimmungen auswerten');
 
 /*
  * Events (§12.6): Kalender planen, Instanzen starten/beenden, Ferien laden.
@@ -315,6 +326,7 @@ Schedule::command('heldenhaus:dungeons-close')->hourly()->withoutOverlapping();
 Schedule::command('heldenhaus:community-rhythm')->hourly()->withoutOverlapping();
 Schedule::command('heldenhaus:weekly-reports')->weeklyOn(0, '18:00')->timezone('Europe/Berlin');
 Schedule::command('heldenhaus:events-plan')->dailyAt('00:10')->timezone('Europe/Berlin')->withoutOverlapping();
+Schedule::command('heldenhaus:council-tick')->everyFiveMinutes()->withoutOverlapping();
 Schedule::command('heldenhaus:events-tick')->everyFifteenMinutes()->withoutOverlapping();
 Schedule::command('heldenhaus:holidays-sync')->monthlyOn(1, '04:00')->withoutOverlapping();
 Schedule::command('heldenhaus:challenges-close')->dailyAt('03:30')->withoutOverlapping();
