@@ -6,6 +6,7 @@ use App\Domain\Achievements\AchievementService;
 use App\Domain\Classes\ModifierChain;
 use App\Domain\Features\Features;
 use App\Domain\Housing\HomeService;
+use App\Domain\Insights\ActivityScores;
 use App\Domain\Quests\QuestService;
 use App\Domain\Support\SupportService;
 use App\Enums\TaskType;
@@ -175,6 +176,8 @@ class RunDayCron
         });
 
         if ($log !== null) {
+            // Tagespunkte des abgeschlossenen Tages für den Aktivitätswert nachziehen (§14.6)
+            app(ActivityScores::class)->record($user, CarbonImmutable::parse($log->date->toDateString()));
             app(AchievementService::class)->evaluate($user, ['perfect_days']);
             // Schnellstart (§13.2): eine Freischaltung pro Tag
             if ($user->fast_start_at && Features::enforced()) {

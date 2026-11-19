@@ -38,6 +38,20 @@ return [
     'boss_damage_factor' => 4,
     'boss_heal_per_missed_daily' => 3,
 
+    // Schwierigkeit passt sich an (§14.6) und Erfolgsmessung (§14.10)
+    'insights' => [
+        'window_days' => 14,          // Aktivitätswert = Median der Tagespunkte dieser Tage (ohne Gasthaus)
+        'min_days' => 3,              // weniger eigene Tage → Standardwert der Altersgruppe
+        // Standard-Tagespunkte (Boss-Schaden) und Sammel-Einheiten für neue Mitglieder
+        'default_points' => ['child' => 16, 'teen' => 16, 'adult' => 12],
+        'default_units' => ['child' => 4, 'teen' => 4, 'adult' => 3],
+        'factors' => ['easy' => 0.5, 'normal' => 0.65, 'hard' => 0.8],
+        'reward_factor' => ['easy' => 1.0, 'normal' => 1.0, 'hard' => 1.5],   // „schwer“ bringt bessere Beute
+        'bounds' => [0.5, 2.0],       // Unter-/Obergrenze, wenn quests.json keine eigene nennt (× Katalogwert)
+        'close_defeat' => 0.7,        // „knapp verloren“: mindestens 70 % geschafft
+        'clear_win' => 0.7,           // „deutlich gewonnen“: in höchstens 70 % der Zeit
+    ],
+
     // Dämpfung des Schadens nach Altersgruppe (Eltern können je Familie überschreiben)
     'age_damage_factor' => [
         'child' => 0.5,  // 9–12

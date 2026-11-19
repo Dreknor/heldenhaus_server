@@ -8,6 +8,7 @@ use App\Domain\Features\Features;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\Progression;
+use App\Domain\Insights\Difficulty;
 use App\Domain\Social\FeedService;
 use App\Enums\FamilyRole;
 use App\Events\QuestCompleted;
@@ -95,14 +96,25 @@ class QuestService
         $seed = crc32($scope.'|'.($scope === 'family' ? $user->family_id : $user->id).'|'.now()->format('o-W'));
         $picked = $eligible->sortBy(fn ($q) => [isset($q['event_key']) ? 0 : 1, crc32($seed.$q['key'])])->take(self::OFFERS);
 
-        return $picked->map(fn ($q) => [...$q, 'goal' => $this->scaledGoal($q, $scope, $user)])->values()->all();
+        // Ziele je Stufe aus dem Aktivitätswert (§14.6); „goal“ bleibt die normale Stufe
+        $difficulty = app(Difficulty::class);
+
+        return $picked->map(function ($q) use ($difficulty, $scope, $user) {
+            $goals = $difficulty->questGoals($q, $scope, $user);
+
+            return [...$q, 'goal' => $goals['normal'], 'goals' => $goals];
+        })->values()->all();
     }
 
     // ---------- Starten & Abbrechen ----------
 
-    public function start(User $user, string $key, string $scope, ?string $rewardText = null): Quest
+    public function start(User $user, string $key, string $scope, ?string $rewardText = null, ?string $difficulty = null): Quest
     {
         $definition = self::catalog()[$key] ?? throw new GameException('Diese Quest gibt es nicht.');
+        $difficulty ??= 'normal';
+        if (! in_array($difficulty, Difficulty::LEVELS, true)) {
+            throw new GameException('Diese Schwierigkeit gibt es nicht.');
+        }
 
         if (! in_array($scope, $definition['scopes'], true)) {
             throw new GameException($scope === 'family' ? 'Diese Quest ist nur für Solo-Abenteuer.' : 'Diese Quest geht nur gemeinsam als Familie.');
@@ -128,7 +140,7 @@ class QuestService
             throw new GameException($scope === 'family' ? 'Es läuft schon eine Familien-Quest.' : 'Du hast schon eine Solo-Quest.');
         }
 
-        $quest = $this->create($definition, $scope, $user->family_id, $scope === 'solo' ? $user->id : null, $user, $rewardText);
+        $quest = $this->create($definition, $scope, $user->family_id, $scope === 'solo' ? $user->id : null, $user, $rewardText, null, $difficulty);
 
         if ($scope === 'solo') {
             Features::starterDone($user, 'quests');
@@ -171,8 +183,11 @@ class QuestService
         return $quest;
     }
 
-    private function create(array $definition, string $scope, int $familyId, ?int $userId, User $user, ?string $rewardText, $endsAt = null): Quest
+    private function create(array $definition, string $scope, int $familyId, ?int $userId, User $user, ?string $rewardText, $endsAt = null, string $difficulty = 'normal'): Quest
     {
+        // Ziel nur beim Start berechnen (§14.6) – danach bleibt es fest
+        $scaled = app(Difficulty::class)->questGoal($definition, $scope, $user, $difficulty);
+
         return Quest::create([
             'family_id' => $familyId,
             'user_id' => $userId,
@@ -181,7 +196,7 @@ class QuestService
             'quest_key' => $definition['key'],
             'name' => $definition['name'],
             'icon' => $definition['icon'],
-            'goal' => $this->scaledGoal($definition, $scope, $user),
+            'goal' => $scaled['goal'],
             'progress' => 0,
             'status' => 'active',
             'data' => array_filter([
@@ -194,8 +209,10 @@ class QuestService
                 'item_name' => $definition['item_name'] ?? null,
                 'item_icon' => $definition['item_icon'] ?? null,
                 'event_key' => $definition['event_key'] ?? null,
+                'difficulty' => $difficulty,
+                'activity' => $scaled['own'] ? $scaled['activity'] : null,
             ]),
-            'rewards' => $definition['rewards'] ?? [],
+            'rewards' => Difficulty::rewards($definition['rewards'] ?? [], $difficulty),
             'reward_text' => $scope === 'family' ? $rewardText : null,
             'ends_at' => $endsAt ? min($endsAt, now()->addDays($definition['days'])) : now()->addDays($definition['days']),
             'started_by' => $endsAt ? null : $user->id,
@@ -328,6 +345,7 @@ class QuestService
             'weakness' => ($w = self::weakness($quest)) ? $categories[$w] ?? null : null,
             'phase' => isset($quest->data['phases']) ? collect($quest->data['phases'])->filter(fn ($p) => $quest->goal > 0 && $quest->remaining() / $quest->goal <= $p['below'])->count() : null,
             'event_key' => $quest->data['event_key'] ?? null,
+            'difficulty' => $quest->data['difficulty'] ?? 'normal',
             'resist' => isset($quest->data['resist']) ? $categories[$quest->data['resist']] ?? null : null,
             'rage' => $quest->data['rage'] ?? null,
             'categories' => array_map(fn ($c) => $categories[$c] ?? $c, $quest->data['categories'] ?? []),
@@ -423,19 +441,6 @@ class QuestService
         }
 
         return $task->difficulty >= 2 ? 2 : 1;
-    }
-
-    /** Familien-Quests wachsen mit der Zahl der Mitspieler. */
-    private function scaledGoal(array $definition, string $scope, User $user): float
-    {
-        $base = (float) ($definition['type'] === 'boss' ? $definition['hp'] : $definition['goal']);
-        if ($scope === 'solo') {
-            return $base;
-        }
-
-        $players = User::where('family_id', $user->family_id)->where('family_role', '!=', FamilyRole::Guest->value)->count();
-
-        return round($base * max(1, $players / 2));
     }
 
     private function familyLevel(User $user): int
