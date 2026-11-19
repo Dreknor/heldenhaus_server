@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import FeatureLock from '@/components/game/FeatureLock.vue';
 import ItemIcon from '@/components/game/ItemIcon.vue';
 import PetArt from '@/components/game/PetArt.vue';
 import { Button } from '@/components/ui/button';
+import { useFeatures } from '@/composables/useFeatures';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/vue3';
-import { Coins, Egg } from 'lucide-vue-next';
+import { Coins, Egg, Lock } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 interface Item {
@@ -45,7 +47,14 @@ const props = defineProps<{
 
 const page = usePage<SharedData>();
 const gold = computed(() => page.props.auth.stats?.gold ?? 0);
-const tab = ref<'bag' | 'shop' | 'stable'>('bag');
+type Tab = 'bag' | 'shop' | 'stable';
+// ?tab=shop|stable öffnet direkt den Bereich (z. B. aus der Freischalt-Tour)
+const initialTab = new URLSearchParams(page.url.split('?')[1] ?? '').get('tab');
+const tab = ref<Tab>(initialTab === 'shop' || initialTab === 'stable' ? initialTab : 'bag');
+// Freischaltungen (§13): Gold-Shop/Anlegen ab Level 3, Ausbrüten/Füttern ab Level 4; eigene Tiere wählen geht immer
+const { isOpen } = useFeatures();
+const shopOpen = computed(() => isOpen('shop'));
+const petsOpen = computed(() => isOpen('pets'));
 
 const groups = computed(() => {
     const result: Record<string, Item[]> = {};
@@ -94,9 +103,13 @@ const tabClass = (active: boolean) =>
         <div class="flex min-w-0 flex-1 flex-col gap-5 p-4 md:p-6">
             <div class="flex flex-wrap items-center gap-2">
                 <h1 class="mr-auto text-2xl font-extrabold tracking-tight">Inventar</h1>
-                <button :class="tabClass(tab === 'bag')" @click="tab = 'bag'">Rucksack</button>
-                <button :class="tabClass(tab === 'shop')" @click="tab = 'shop'">Gold-Shop</button>
-                <button :class="tabClass(tab === 'stable')" @click="tab = 'stable'">Stall ({{ pets.length }})</button>
+                <button :class="tabClass(tab === 'bag')" data-tour="inventory.equip" @click="tab = 'bag'">Rucksack</button>
+                <button :class="tabClass(tab === 'shop')" data-tour="shop" @click="tab = 'shop'">
+                    <Lock v-if="!shopOpen" class="mr-1 inline size-3.5" aria-label="gesperrt" />Gold-Shop
+                </button>
+                <button :class="tabClass(tab === 'stable')" data-tour="stable" @click="tab = 'stable'">
+                    <Lock v-if="!petsOpen" class="mr-1 inline size-3.5" aria-label="gesperrt" />Stall ({{ pets.length }})
+                </button>
             </div>
 
             <!-- Rucksack -->
@@ -120,7 +133,7 @@ const tabClass = (active: boolean) =>
                                 >×{{ item.quantity }}</span
                             >
                             <button
-                                v-if="item.type === 'equipment'"
+                                v-if="item.type === 'equipment' && shopOpen"
                                 class="mt-1 rounded-md px-2 py-1 text-xs font-bold"
                                 :class="item.equipped ? 'bg-emerald-100 text-emerald-700' : 'bg-primary text-primary-foreground'"
                                 :disabled="item.equipped"
@@ -141,7 +154,8 @@ const tabClass = (active: boolean) =>
             </template>
 
             <!-- Gold-Shop -->
-            <template v-if="tab === 'shop'">
+            <FeatureLock v-if="tab === 'shop' && !shopOpen" feature="shop" />
+            <template v-if="tab === 'shop' && shopOpen">
                 <p class="flex items-center gap-2 font-bold text-amber-600"><Coins class="size-5" /> {{ gold.toFixed(0) }} Gold</p>
                 <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                     <div v-for="item in shop" :key="item.id" class="flex items-center gap-3 rounded-2xl border bg-card p-4">
@@ -169,7 +183,8 @@ const tabClass = (active: boolean) =>
 
             <!-- Stall -->
             <template v-if="tab === 'stable'">
-                <section class="grid gap-3 rounded-2xl border bg-card p-5">
+                <FeatureLock v-if="!petsOpen" feature="pets" />
+                <section v-else class="grid gap-3 rounded-2xl border bg-card p-5" data-tour="pets.hatch">
                     <h2 class="flex items-center gap-2 font-extrabold"><Egg class="size-5" /> Ausbrüten</h2>
                     <p v-if="!eggs.length || !potions.length" class="text-sm text-muted-foreground">
                         Du brauchst ein Ei und ein Schlüpfpulver – beides findest du beim Erledigen von Aufgaben.
@@ -189,7 +204,7 @@ const tabClass = (active: boolean) =>
                 </section>
 
                 <p v-if="!pets.length" class="rounded-2xl border border-dashed p-10 text-center text-muted-foreground">Dein Stall ist noch leer.</p>
-                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5" data-tour="pets.list">
                     <div
                         v-for="pet in pets"
                         :key="pet.id"
@@ -207,7 +222,7 @@ const tabClass = (active: boolean) =>
                             {{ pet.is_companion ? (pet.is_mount ? 'du reitest' : 'ist dabei') : pet.is_mount ? 'Aufsitzen' : 'Mitnehmen' }}
                         </button>
                         <p v-if="pet.is_mount" class="rounded-full bg-amber-100 px-2 text-xs font-bold text-amber-700">Reittier 🏇</p>
-                        <template v-else>
+                        <template v-else-if="petsOpen">
                             <div class="h-2 w-full overflow-hidden rounded-full bg-muted">
                                 <div
                                     class="h-full rounded-full bg-emerald-500 transition-all"

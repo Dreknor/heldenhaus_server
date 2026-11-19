@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Family\FamilyService;
+use App\Domain\Features\Features;
 use App\Domain\Integrations\HomeAssistant\HomeAssistantWebhooks;
 use App\Domain\Quests\QuestService;
 use App\Domain\Rewards\RewardService;
@@ -72,7 +73,11 @@ class FamilyController extends Controller
                 ] : null,
             ],
             'members' => $family->members()->with('stats')->orderBy('family_role')->orderBy('name')->get()
-                ->map(fn (User $m) => GamePresenter::member($m) + ($isParent ? ['supportSettings' => SupportService::present($m)] : [])),
+                ->map(fn (User $m) => GamePresenter::member($m) + ($isParent ? [
+                    'supportSettings' => SupportService::present($m),
+                    // Freischaltungen (§13): früher/später freischalten, Schnellstart
+                    'featureSettings' => Features::forMember($m) + ['show_all' => (bool) $m->show_all_features],
+                ] : [])),
             'invites' => $isParent
                 ? $family->invites()->whereNull('used_at')->where('expires_at', '>', now())->latest()->get()
                     ->map(fn (FamilyInvite $i) => [

@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import Emoji from '@/components/game/Emoji.vue';
 import CollectArt from '@/components/game/CollectArt.vue';
+import Emoji from '@/components/game/Emoji.vue';
+import FeatureLock from '@/components/game/FeatureLock.vue';
 import MonsterArt, { type MonsterArtConfig } from '@/components/game/MonsterArt.vue';
 import QuestCard, { type ActiveQuest } from '@/components/game/QuestCard.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useFeatures } from '@/composables/useFeatures';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
-import { Coins, Sparkles, Swords, Users, User } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { Coins, Sparkles, Swords, User, Users } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 
 interface Offer {
     key: string;
@@ -39,12 +41,19 @@ const props = defineProps<{
     bestiary: { key: string; name: string; art: MonsterArtConfig | null; min_level: number; defeated: number }[];
 }>();
 
+// Vor der Freischaltung „Quests“ (§13) gibt es nur den Familien-Boss
+const { isOpen } = useFeatures();
+const questsOpen = computed(() => isOpen('quests'));
 const rewardText = ref('');
 
 function start(offer: Offer, scope: 'family' | 'solo') {
     const what = scope === 'family' ? 'für die ganze Familie' : 'als Solo-Quest';
     if (!confirm(`„${offer.name}“ ${what} starten?`)) return;
-    router.post(route('quests.start'), { quest: offer.key, scope, reward_text: scope === 'family' ? rewardText.value || null : null }, { preserveScroll: true });
+    router.post(
+        route('quests.start'),
+        { quest: offer.key, scope, reward_text: scope === 'family' ? rewardText.value || null : null },
+        { preserveScroll: true },
+    );
 }
 
 function abandon(quest: ActiveQuest) {
@@ -64,19 +73,24 @@ const cat = (key?: string) => (key ? (props.categories[key] ?? key) : '');
             <div>
                 <h1 class="text-2xl font-extrabold tracking-tight">Quests</h1>
                 <p class="text-sm text-muted-foreground">
-                    Jede erledigte Aufgabe bringt eure Quests voran: Bosse bekommen Schaden, bei Sammel-Quests findet ihr Gegenstände. Die Quest-Tafel wechselt jede Woche.
+                    Jede erledigte Aufgabe bringt eure Quests voran: Bosse bekommen Schaden, bei Sammel-Quests findet ihr Gegenstände. Die Quest-Tafel
+                    wechselt jede Woche.
                 </p>
             </div>
 
             <!-- Familie -->
-            <section class="grid gap-3">
+            <section class="grid gap-3" data-tour="quests.family">
                 <h2 class="flex items-center gap-2 text-lg font-extrabold"><Users class="size-5" /> Gemeinsam als Familie</h2>
                 <template v-if="family">
                     <QuestCard :quest="family" />
-                    <button v-if="canStartFamily" class="justify-self-start text-xs text-muted-foreground underline" @click="abandon(family)">Familien-Quest abbrechen</button>
+                    <button v-if="canStartFamily" class="justify-self-start text-xs text-muted-foreground underline" @click="abandon(family)">
+                        Familien-Quest abbrechen
+                    </button>
                 </template>
                 <template v-else>
-                    <p v-if="!canStartFamily" class="text-sm text-muted-foreground">Gerade läuft keine Familien-Quest – frag deine Eltern, welche ihr als Nächstes angeht!</p>
+                    <p v-if="!canStartFamily" class="text-sm text-muted-foreground">
+                        Gerade läuft keine Familien-Quest – frag deine Eltern, welche ihr als Nächstes angeht!
+                    </p>
                     <div v-if="canStartFamily" class="flex flex-wrap items-end gap-2">
                         <div class="grid min-w-64 gap-1">
                             <label for="reward" class="text-sm font-semibold">Gemeinsame Belohnung bei Erfolg (optional)</label>
@@ -102,7 +116,9 @@ const cat = (key?: string) => (key ? (props.categories[key] ?? key) : '');
                                 <span v-if="o.weakness" class="rounded-full bg-muted px-2 py-0.5">💥 {{ cat(o.weakness) }}</span>
                                 <span v-if="o.resist" class="rounded-full bg-muted px-2 py-0.5">🛡️ {{ cat(o.resist) }}</span>
                                 <span v-if="o.rage" class="rounded-full bg-muted px-2 py-0.5">😠 Wut ×{{ o.rage }}</span>
-                                <span v-if="o.categories?.length" class="rounded-full bg-muted px-2 py-0.5">nur {{ o.categories.map(cat).join(', ') }}</span>
+                                <span v-if="o.categories?.length" class="rounded-full bg-muted px-2 py-0.5"
+                                    >nur {{ o.categories.map(cat).join(', ') }}</span
+                                >
                             </div>
                             <p class="mt-auto flex items-center gap-2 text-xs font-semibold text-amber-600">
                                 <Coins class="size-3.5" /> {{ o.rewards.gold }} · <Sparkles class="size-3.5" /> {{ o.rewards.xp }} XP für alle
@@ -113,8 +129,10 @@ const cat = (key?: string) => (key ? (props.categories[key] ?? key) : '');
                 </template>
             </section>
 
+            <FeatureLock v-if="!questsOpen" feature="quests" />
+
             <!-- Solo -->
-            <section class="grid gap-3">
+            <section v-if="questsOpen" class="grid gap-3" data-tour="quests.board">
                 <h2 class="flex items-center gap-2 text-lg font-extrabold"><User class="size-5" /> Dein Solo-Abenteuer</h2>
                 <template v-if="solo">
                     <QuestCard :quest="solo" />
@@ -124,7 +142,7 @@ const cat = (key?: string) => (key ? (props.categories[key] ?? key) : '');
                     <article v-for="o in soloOffers" :key="o.key" class="flex flex-col gap-2 rounded-2xl border bg-card p-4">
                         <div class="flex items-center gap-3">
                             <MonsterArt v-if="o.type === 'boss'" :art="o.art" :size="84" class="shrink-0" />
-                                <CollectArt v-else :icon="o.item_icon" :ratio="0.6" :size="84" class="shrink-0" />
+                            <CollectArt v-else :icon="o.item_icon" :ratio="0.6" :size="84" class="shrink-0" />
                             <div>
                                 <p class="font-extrabold">{{ o.name }}</p>
                                 <p class="text-xs text-muted-foreground">
@@ -137,7 +155,9 @@ const cat = (key?: string) => (key ? (props.categories[key] ?? key) : '');
                         <p class="text-sm">{{ o.description }}</p>
                         <div class="flex flex-wrap gap-1.5 text-[11px] font-semibold">
                             <span v-if="o.weakness" class="rounded-full bg-muted px-2 py-0.5">💥 {{ cat(o.weakness) }}</span>
-                            <span v-if="o.categories?.length" class="rounded-full bg-muted px-2 py-0.5">nur {{ o.categories.map(cat).join(', ') }}</span>
+                            <span v-if="o.categories?.length" class="rounded-full bg-muted px-2 py-0.5"
+                                >nur {{ o.categories.map(cat).join(', ') }}</span
+                            >
                         </div>
                         <p class="mt-auto flex items-center gap-2 text-xs font-semibold text-amber-600">
                             <Coins class="size-3.5" /> {{ o.rewards.gold }} · <Sparkles class="size-3.5" /> {{ o.rewards.xp }} XP
@@ -148,7 +168,7 @@ const cat = (key?: string) => (key ? (props.categories[key] ?? key) : '');
                 </div>
             </section>
 
-            <section class="grid gap-3">
+            <section v-if="questsOpen" class="grid gap-3" data-tour="quests.bestiary">
                 <h2 class="text-lg font-extrabold">Monster-Lexikon</h2>
                 <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
                     <div v-for="b in bestiary" :key="b.key" class="flex flex-col items-center gap-1 rounded-2xl border bg-card p-3 text-center">

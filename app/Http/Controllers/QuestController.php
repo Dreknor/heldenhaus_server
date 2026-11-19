@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Features\Features;
 use App\Domain\Quests\QuestService;
 use App\Models\Quest;
 use Illuminate\Http\JsonResponse;
@@ -19,8 +20,20 @@ class QuestController extends Controller
     public function index(Request $request): Response|JsonResponse
     {
         $data = $this->board($request);
+        if ($request->expectsJson()) {
+            return response()->json($data);
+        }
+        // Vor der Freischaltung „Quests“ (§13) gibt es nur den Familien-Boss; Quest-Tafel, Lexikon und Verlauf kommen später
+        if (! Features::has($request->user(), 'quests')) {
+            $data['soloOffers'] = [];
+            $data['bestiary'] = [];
+            $data['history'] = [];
+            if (! $data['canStartFamily']) {
+                $data['familyOffers'] = [];
+            }
+        }
 
-        return $request->expectsJson() ? response()->json($data) : Inertia::render('Quests', $data);
+        return Inertia::render('Quests', $data);
     }
 
     public function start(Request $request): RedirectResponse|JsonResponse

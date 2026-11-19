@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import CronDialog from '@/components/game/CronDialog.vue';
 import DailySupport from '@/components/game/DailySupport.vue';
+import FeatureProgress from '@/components/game/FeatureProgress.vue';
 import FocusBoard from '@/components/game/FocusBoard.vue';
 import GamePanel from '@/components/game/GamePanel.vue';
 import HeroScene from '@/components/game/HeroScene.vue';
@@ -352,6 +353,9 @@ const greeting = computed(() => {
 
                     <!-- Rechte Spalte -->
                     <div class="flex flex-col gap-5 xl:col-span-4">
+                        <!-- Freischaltungen (§13): nächste Freischaltung und erste Mini-Aufgaben -->
+                        <FeatureProgress />
+
                         <GamePanel
                             tone="wood"
                             title="Dungeon"

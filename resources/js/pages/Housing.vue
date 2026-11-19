@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import Emoji from '@/components/game/Emoji.vue';
+import FeatureLock from '@/components/game/FeatureLock.vue';
 import ItemIcon from '@/components/game/ItemIcon.vue';
 import RoomEditor, { type Furniture, type Room } from '@/components/game/RoomEditor.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { useFeatures } from '@/composables/useFeatures';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Boxes, Hammer, Sprout, Trash2, Trophy } from 'lucide-vue-next';
@@ -63,6 +65,8 @@ interface HousingData {
 }
 
 const props = defineProps<{ home: HousingData; furniture: Furniture[]; visitor: boolean; alliedFamilies: { id: number; name: string }[] }>();
+// Freischaltungen (§13): Bauprojekte, Garten und Gästebuch kommen später als das Haus
+const { isOpen } = useFeatures();
 const selectedRoom = ref(props.home.rooms[0]?.id ?? 0);
 const gardenPlants = ref<Record<number, string>>({});
 const contribution = ref<Record<number, { item: string; amount: number; from_storage: boolean }>>({});
@@ -122,6 +126,7 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
     <AppLayout :breadcrumbs="[{ title: 'Familienhaus', href: '/housing' }]">
         <div class="flex flex-1 flex-col gap-6 p-4 md:p-6">
             <header
+                data-tour="home"
                 class="hh-panel relative overflow-hidden bg-gradient-to-b from-sky-200 via-sky-100 to-emerald-100 p-5 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950/50 sm:p-6"
             >
                 <div
@@ -188,7 +193,7 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                 </Link>
             </nav>
 
-            <section class="grid gap-3">
+            <section class="grid gap-3" data-tour="room.own">
                 <nav v-if="home.rooms.length > 1" class="flex gap-2 overflow-x-auto pb-1" aria-label="Zimmer">
                     <button
                         v-for="room in home.rooms"
@@ -206,7 +211,8 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
             </section>
 
             <section class="grid gap-4 lg:grid-cols-2">
-                <Card v-if="!visitor" class="lg:col-span-2">
+                <FeatureLock v-if="!visitor && !isOpen('building')" feature="building" class="lg:col-span-2" />
+                <Card v-else-if="!visitor" class="lg:col-span-2" data-tour="build">
                     <CardHeader>
                         <CardTitle class="flex items-center gap-2"><Hammer class="size-5" /> Bauprojekte</CardTitle>
                         <CardDescription>Der aktuelle Stand gemeinsamer Bauvorhaben.</CardDescription>
@@ -323,7 +329,8 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                     </CardContent>
                 </Card>
 
-                <Card v-if="!visitor">
+                <FeatureLock v-if="!visitor && !isOpen('garden')" feature="garden" />
+                <Card v-else-if="!visitor" data-tour="garden">
                     <CardHeader>
                         <CardTitle class="flex items-center gap-2"><Sprout class="size-5" /> Garten</CardTitle>
                         <CardDescription v-if="home.garden">Der Zustand eurer Beete.</CardDescription>
@@ -359,7 +366,8 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                     </CardContent>
                 </Card>
 
-                <Card>
+                <FeatureLock v-if="!isOpen('alliances')" feature="alliances" />
+                <Card v-else>
                     <CardHeader>
                         <CardTitle>Gästebuch</CardTitle>
                         <CardDescription>{{
@@ -415,7 +423,7 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                     </CardContent>
                 </Card>
 
-                <Card v-if="!visitor">
+                <Card v-if="!visitor && isOpen('building')" data-tour="storage">
                     <CardHeader>
                         <CardTitle class="flex items-center gap-2"><Boxes class="size-5" /> Familienlager</CardTitle>
                         <CardDescription>Gemeinsam eingelagerte Materialien.</CardDescription>

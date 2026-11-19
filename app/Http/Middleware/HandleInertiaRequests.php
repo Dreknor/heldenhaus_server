@@ -6,6 +6,7 @@ use App\Domain\Achievements\AchievementService;
 use App\Domain\Support\SupportService;
 use App\Enums\CompletionStatus;
 use App\Http\Presenters\CharacterSheet;
+use App\Http\Presenters\FeatureView;
 use App\Http\Presenters\GamePresenter;
 use App\Models\RewardRedemption;
 use App\Models\TaskCompletion;
@@ -63,6 +64,10 @@ class HandleInertiaRequests extends Middleware
                     + RewardRedemption::where('status', 'pending')
                         ->whereHas('user', fn ($q) => $q->where('family_id', $user->family_id))->count(),
             ] : ['approvals' => 0],
+            // Freischaltungen nach Level (§13): Navigation, Freischalt-Karte, Starter-Aufgaben, nächste Freischaltung
+            'features' => fn () => $user?->family_id ? FeatureView::shared($user) : null,
+            // Kurze Tour (§13.3) nach „Zeig's mir“ oder aus dem Heldenbuch
+            'tour' => fn () => FeatureView::tour($request, $user),
             // Neu erreichte Erfolge, deren Feier noch aussteht (auch wenn sie z. B. durch eine Freigabe entstanden sind)
             'newAchievements' => fn () => $user?->family_id ? AchievementService::unseen($user) : [],
             'flash' => [

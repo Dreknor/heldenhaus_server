@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import AvatarEditor from '@/components/game/AvatarEditor.vue';
 import Emoji from '@/components/game/Emoji.vue';
+import FeatureLock from '@/components/game/FeatureLock.vue';
 import ItemIcon from '@/components/game/ItemIcon.vue';
 import { Button } from '@/components/ui/button';
+import { useFeatures } from '@/composables/useFeatures';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { SharedData, Stats } from '@/types';
 import { Head, router, usePage } from '@inertiajs/vue3';
@@ -66,7 +68,11 @@ const attributeInfo = [
 const page = usePage<SharedData>();
 const choosing = ref(false);
 const target = ref<number | null>(null);
-const unlocked = computed(() => props.stats.level >= props.unlock_level);
+// Freischaltungen (§13): Klassen und Attribut-Punkte kommen mit dem Level (oder früher durch die Eltern)
+const { isOpen, entry } = useFeatures();
+const unlocked = computed(() => isOpen('classes'));
+const attributesOpen = computed(() => isOpen('attributes'));
+const classLevel = computed(() => entry('classes')?.level ?? props.unlock_level);
 
 function allocate(attribute: string) {
     router.post(route('hero.allocate'), { attribute }, { preserveScroll: true });
@@ -110,10 +116,13 @@ const hoursLeft = (iso: string) => Math.max(0, Math.round((new Date(iso).getTime
 
             <div class="grid gap-6 lg:grid-cols-2">
                 <!-- Attribute -->
-                <section class="rounded-2xl border bg-card p-5">
+                <section class="rounded-2xl border bg-card p-5" data-tour="hero.attributes">
                     <div class="mb-3 flex items-center justify-between">
                         <h2 class="font-extrabold">Attribute</h2>
-                        <span v-if="stats.unspent_points" class="rounded-full bg-amber-500 px-3 py-0.5 text-sm font-bold text-white">
+                        <span
+                            v-if="stats.unspent_points && attributesOpen"
+                            class="rounded-full bg-amber-500 px-3 py-0.5 text-sm font-bold text-white"
+                        >
                             {{ stats.unspent_points }} Punkt{{ stats.unspent_points > 1 ? 'e' : '' }} frei
                         </span>
                     </div>
@@ -130,7 +139,7 @@ const hoursLeft = (iso: string) => Math.max(0, Math.round((new Date(iso).getTime
                                 </p>
                             </div>
                             <button
-                                v-if="stats.unspent_points"
+                                v-if="stats.unspent_points && attributesOpen"
                                 class="flex size-9 items-center justify-center rounded-lg bg-amber-500 text-white hover:bg-amber-600"
                                 :aria-label="`${a.name} erhöhen`"
                                 @click="allocate(a.key)"
@@ -139,10 +148,11 @@ const hoursLeft = (iso: string) => Math.max(0, Math.round((new Date(iso).getTime
                             </button>
                         </div>
                     </div>
+                    <FeatureLock v-if="!attributesOpen" feature="attributes" compact class="mt-3" />
                 </section>
 
                 <!-- Ausrüstung -->
-                <section class="rounded-2xl border bg-card p-5">
+                <section class="rounded-2xl border bg-card p-5" data-tour="hero.equipment">
                     <h2 class="mb-3 font-extrabold">Ausrüstung</h2>
                     <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
                         <div
@@ -177,11 +187,12 @@ const hoursLeft = (iso: string) => Math.max(0, Math.round((new Date(iso).getTime
             </div>
 
             <!-- Klasse -->
-            <section class="rounded-2xl border bg-card p-5">
+            <section class="rounded-2xl border bg-card p-5" data-tour="hero.class">
                 <div v-if="!unlocked" class="flex items-center gap-3 text-muted-foreground">
                     <Lock class="size-6" />
-                    <p>
-                        Ab <strong>Level {{ unlock_level }}</strong> wählst du deine Klasse – noch {{ unlock_level - stats.level }} Level!
+                    <p v-if="entry('classes')?.state === 'deferred'">Deine Klasse wählst du etwas später – das haben deine Eltern so eingestellt.</p>
+                    <p v-else>
+                        Ab <strong>Level {{ classLevel }}</strong> wählst du deine Klasse – noch {{ Math.max(1, classLevel - stats.level) }} Level!
                     </p>
                 </div>
 

@@ -122,7 +122,7 @@ const time = (iso: string) => new Date(iso).toLocaleString('de-DE', { weekday: '
             <h1 class="text-2xl font-extrabold tracking-tight">Bündnisse & Challenges</h1>
 
             <!-- Challenges -->
-            <section class="grid gap-3">
+            <section class="grid gap-3" data-tour="challenges">
                 <div class="flex items-center justify-between gap-3">
                     <h2 class="flex items-center gap-2 text-lg font-extrabold"><Trophy class="size-5" /> Challenges</h2>
                     <Button v-if="isParent" variant="outline" size="sm" @click="showChallengeForm = !showChallengeForm"
@@ -295,7 +295,7 @@ const time = (iso: string) => new Date(iso).toLocaleString('de-DE', { weekday: '
 
             <div class="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
                 <!-- Bündnisse -->
-                <Card>
+                <Card data-tour="alliances">
                     <CardHeader>
                         <CardTitle class="flex items-center gap-2"><Handshake class="size-5" /> Familienbündnisse</CardTitle>
                         <CardDescription
