@@ -9,6 +9,7 @@ use App\Http\Presenters\CharacterSheet;
 use App\Http\Presenters\GamePresenter;
 use App\Models\RewardRedemption;
 use App\Models\TaskCompletion;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -56,6 +57,8 @@ class HandleInertiaRequests extends Middleware
                         'haptics' => $s->haptics,
                     ];
                 })() : null,
+                // Darstellung und Barrierefreiheit (§11.4, Phase 8): wirkt als Klassen und Variablen am <html>
+                'display' => fn () => $user ? self::display($user) : null,
             ],
             'counts' => fn () => $user?->isParent() ? [
                 'approvals' => TaskCompletion::where('status', CompletionStatus::Pending)
@@ -70,6 +73,25 @@ class HandleInertiaRequests extends Middleware
                 'levelUp' => fn () => $request->session()->get('levelUp'),
                 'drop' => fn () => $request->session()->get('drop'),
             ],
+        ];
+    }
+
+    /** @return array{theme: string, theme_dark: bool, reduce_motion: bool, high_contrast: bool, text_scale: float, dyslexia_font: bool, color_vision: string, focus_mode_default: bool, timer_style: string} */
+    public static function display(User $user): array
+    {
+        $s = SupportService::settings($user);
+        $theme = SupportService::theme($user);
+
+        return [
+            'theme' => $theme,
+            'theme_dark' => (bool) config("game.themes.$theme.dark", false),
+            'reduce_motion' => (bool) $s->reduce_motion,
+            'high_contrast' => (bool) $s->high_contrast,
+            'text_scale' => (float) ($s->text_scale ?: 1),
+            'dyslexia_font' => (bool) $s->dyslexia_font,
+            'color_vision' => $s->color_vision ?: 'normal',
+            'focus_mode_default' => (bool) $s->focus_mode_default,
+            'timer_style' => $s->timer_style ?: 'disc',
         ];
     }
 }

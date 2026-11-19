@@ -1,9 +1,13 @@
+import { themeForcesDark } from '@/lib/display';
 import { onMounted, ref } from 'vue';
 
 type Appearance = 'light' | 'dark' | 'system';
 
 export function updateTheme(value: Appearance) {
-    if (value === 'system') {
+    // Dunkle Themes (Mitternacht, Neon …) bleiben immer dunkel
+    if (themeForcesDark()) {
+        document.documentElement.classList.add('dark');
+    } else if (value === 'system') {
         const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         document.documentElement.classList.toggle('dark', systemTheme === 'dark');
     } else {

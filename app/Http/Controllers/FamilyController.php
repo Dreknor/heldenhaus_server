@@ -72,7 +72,8 @@ class FamilyController extends Controller
                 ] : null,
             ],
             'members' => $family->members()->with('stats')->orderBy('family_role')->orderBy('name')->get()
-                ->map(fn (User $m) => GamePresenter::member($m) + ($isParent ? ['supportSettings' => SupportService::present($m)] : [])),
+                // can_change aus Sicht der Eltern: Kinder unter 13 ganz, bei Teens und Erwachsenen bleibt das Theme deren Sache
+                ->map(fn (User $m) => GamePresenter::member($m) + ($isParent ? ['supportSettings' => ['can_change' => SupportService::editableBy($request->user(), $m)] + SupportService::present($m)] : [])),
             'invites' => $isParent
                 ? $family->invites()->whereNull('used_at')->where('expires_at', '>', now())->latest()->get()
                     ->map(fn (FamilyInvite $i) => [

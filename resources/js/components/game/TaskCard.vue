@@ -73,7 +73,7 @@ function scoreStep(index: number) {
         <!-- Gewohnheit: Plus -->
         <button
             v-if="task.type === 'habit' && task.up"
-            class="flex w-11 shrink-0 items-center justify-center bg-black/5 transition hover:bg-emerald-500 hover:text-white active:scale-95 dark:bg-white/5"
+            class="flex w-11 shrink-0 items-center justify-center bg-black/5 transition hover:bg-good hover:text-white active:scale-95 dark:bg-white/5"
             :disabled="busy"
             aria-label="Gut gemacht"
             @click="score('up')"
@@ -97,10 +97,7 @@ function scoreStep(index: number) {
         >
             <span
                 class="flex size-7 items-center justify-center rounded-lg border-2 transition"
-                :class="[
-                    task.completed ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-400 bg-white dark:bg-slate-900',
-                    pop ? 'scale-125' : '',
-                ]"
+                :class="[task.completed ? 'border-good bg-good text-white' : 'border-slate-400 bg-white dark:bg-slate-900', pop ? 'scale-125' : '']"
             >
                 <Check v-if="task.completed" class="size-5 stroke-[3]" />
             </span>
@@ -125,7 +122,7 @@ function scoreStep(index: number) {
                     <span class="font-semibold">Als Nächstes:</span>
                     {{ task.steps.find((step) => !step.done)?.title }}
                 </p>
-                <p v-else-if="task.completed" class="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Alle Schritte erledigt</p>
+                <p v-else-if="task.completed" class="text-sm font-semibold text-good">Alle Schritte erledigt</p>
                 <p class="mt-1.5 text-xs font-semibold text-muted-foreground">
                     Schritte ({{ task.steps.filter((step) => step.done).length }}/{{ task.steps.length }}) – tippe einen Schritt an, wenn er erledigt
                     ist
@@ -139,7 +136,7 @@ function scoreStep(index: number) {
                             :aria-label="step.done ? `Erledigt: ${step.title}` : `Schritt erledigen: ${step.title}`"
                             @click="scoreStep(step.index)"
                         >
-                            <Check v-if="step.done" class="mt-0.5 size-4 shrink-0 text-emerald-600" />
+                            <Check v-if="step.done" class="mt-0.5 size-4 shrink-0 text-good" />
                             <span v-else class="mt-0.5 size-4 shrink-0 rounded-full border-2 border-muted-foreground/50" />
                             <span :class="step.done ? 'text-muted-foreground line-through' : ''">{{ step.title }}</span>
                         </button>
@@ -213,7 +210,7 @@ function scoreStep(index: number) {
         <!-- Gewohnheit: Minus -->
         <button
             v-if="task.type === 'habit' && task.down"
-            class="flex w-11 shrink-0 items-center justify-center bg-black/5 transition hover:bg-rose-500 hover:text-white active:scale-95 dark:bg-white/5"
+            class="flex w-11 shrink-0 items-center justify-center bg-black/5 transition hover:bg-bad hover:text-white active:scale-95 dark:bg-white/5"
             :disabled="busy"
             aria-label="Nicht so gut"
             @click="score('down')"

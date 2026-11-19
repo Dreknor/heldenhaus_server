@@ -144,6 +144,7 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
     Route::post('messages', [SocialController::class, 'sendMessage'])->middleware('throttle:30,1')->name('messages.store');
 
     // Fokus & Alltagshilfen (Konzept §11)
+    Route::get('settings/focus', [SupportController::class, 'edit'])->name('support.edit');
     Route::get('me/support-settings', [SupportController::class, 'settings'])->name('support.settings');
     Route::put('me/support-settings', [SupportController::class, 'updateSettings'])->name('support.settings.update');
     Route::get('members/{member}/support-settings', [SupportController::class, 'settings'])->name('members.support.settings');
