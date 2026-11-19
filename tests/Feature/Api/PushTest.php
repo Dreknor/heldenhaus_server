@@ -1,10 +1,12 @@
 <?php
 
 use App\Domain\Notifications\FcmClient;
+use App\Domain\Notifications\PushNotifier;
 use App\Domain\Rewards\RewardService;
 use App\Domain\Tasks\ReviewCompletion;
 use App\Jobs\SendPushNotification;
 use App\Models\DeviceToken;
+use App\Models\FocusSession;
 use App\Models\NotificationSetting;
 use App\Models\RewardItem;
 use App\Models\TaskCompletion;
@@ -114,4 +116,34 @@ it('spricht FCM HTTP v1 mit Dienstkonto an und räumt ungültige Tokens ab', fun
     (new SendPushNotification($device->id, null, ['type' => 'sync', 'sync' => '1']))->handle(app(FcmClient::class));
     expect(DeviceToken::find($device->id))->toBeNull();
     unlink($path);
+});
+
+it('hält während einer laufenden Fokus-Zeit sichtbare Pushes zurück (§11.4)', function () {
+    Queue::fake();
+    DeviceToken::create(['user_id' => $this->parent->id, 'token' => 'eltern']);
+    DeviceToken::create(['user_id' => $this->child->id, 'token' => 'kind']);
+    FocusSession::create(['user_id' => $this->parent->id, 'planned_minutes' => 15, 'started_at' => now(), 'ends_at' => now()->addMinutes(15)]);
+    FocusSession::create(['user_id' => $this->child->id, 'planned_minutes' => 10, 'started_at' => now(), 'ends_at' => now()->addMinutes(10)]);
+    $task = familyTaskNeedingApproval($this->parent, $this->child);
+
+    $this->actingAs($this->child)->post('/assignments/'.assignmentOf($task, $this->child)->id.'/score/up');
+    app(PushNotifier::class)->notify($this->child, 'level_up');
+
+    // Nur stille Abgleich-Nachrichten: keine Anzeige, auch die Freigabe-Datennachricht kommt ohne „show“
+    Queue::assertPushed(SendPushNotification::class, fn ($job) => $job->type === null && $job->data['type'] === 'approval_pending'
+        && ! isset($job->data['show']) && $job->data['sync'] === '1');
+    Queue::assertPushed(SendPushNotification::class, fn ($job) => $job->type === null && $job->data['type'] === 'level_up');
+    Queue::assertNotPushed(SendPushNotification::class, fn ($job) => $job->type !== null || isset($job->data['show']));
+});
+
+it('zeigt Pushes wieder an, sobald die Fokus-Zeit beendet oder abgelaufen ist', function () {
+    Queue::fake();
+    DeviceToken::create(['user_id' => $this->child->id, 'token' => 'kind']);
+    FocusSession::create(['user_id' => $this->child->id, 'planned_minutes' => 10, 'started_at' => now()->subMinutes(20), 'ends_at' => now()->subMinutes(10)]);
+    FocusSession::create(['user_id' => $this->child->id, 'planned_minutes' => 5, 'started_at' => now(), 'ends_at' => now()->addMinutes(5), 'ended_at' => now(), 'result' => 'done']);
+
+    expect(PushNotifier::inFocus($this->child))->toBeFalse();
+    app(PushNotifier::class)->notify($this->child, 'level_up');
+
+    Queue::assertPushed(SendPushNotification::class, fn ($job) => $job->type === 'level_up');
 });
