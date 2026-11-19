@@ -20,7 +20,7 @@ class StatsController extends Controller
         $viewer = $request->user();
         abort_unless($viewer->is($member) || ($viewer->isParent() && $viewer->sameFamilyAs($member)), 403);
 
-        return response()->json(StatsService::forUser($member));
+        return response()->json(StatsService::forUser($member, $viewer));
     }
 
     public function family(Request $request): JsonResponse

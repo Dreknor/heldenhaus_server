@@ -15,6 +15,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\FamilyHubController;
 use App\Http\Controllers\FeatureController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InsightsController;
 use App\Http\Controllers\QuestController;
 use App\Http\Controllers\SocialController;
 use App\Http\Controllers\StatsController;
@@ -175,6 +176,16 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
             Route::get('stats/family', [StatsController::class, 'family'])->name('stats.family');
             Route::get('members/{member}/stats', [StatsController::class, 'member'])->name('members.stats');
             Route::get('monsters/{key}.svg', [DungeonController::class, 'monsterArt'])->name('monsters.art');
+
+            // Rückblick und Erfolgsmessung (Konzept §14.5, §14.10)
+            Route::get('me/review/{kind}', [InsightsController::class, 'review'])->whereIn('kind', ['week', 'month', 'year'])->name('review');
+            Route::post('me/review/{review}/seen', [InsightsController::class, 'seen'])->whereNumber('review')->name('review.seen');
+            Route::post('me/review/{review}/share', [InsightsController::class, 'share'])->whereNumber('review')->name('review.share');
+            Route::get('members/{member}/review/{kind}', [InsightsController::class, 'memberReview'])->whereIn('kind', ['week', 'month', 'year'])->name('members.review');
+            Route::get('surveys/due', [InsightsController::class, 'dueSurvey'])->name('surveys.due');
+            Route::post('surveys', [InsightsController::class, 'storeSurvey'])->name('surveys.store');
+            Route::get('family/metrics', [InsightsController::class, 'metrics'])->name('family.metrics');
+            Route::get('family/metrics/compare', [InsightsController::class, 'compare'])->name('family.metrics.compare');
 
             // Fokus & Alltagshilfen (Konzept §11)
             Route::get('me/support-settings', [SupportController::class, 'settings'])->name('support.settings');

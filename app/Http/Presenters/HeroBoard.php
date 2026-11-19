@@ -4,6 +4,7 @@ namespace App\Http\Presenters;
 
 use App\Domain\Art\PetArt;
 use App\Domain\Gameplay\RunDayCron;
+use App\Domain\Insights\InsightsBoard;
 use App\Domain\Support\FocusService;
 use App\Domain\Support\SupportService;
 use App\Enums\CompletionStatus;
@@ -62,6 +63,8 @@ class HeroBoard
             'support' => SupportService::present($user),
             'recoveries' => SupportService::presentRecoveries($user),
             'focus' => FocusService::present(FocusService::running($user)),
+            // Rückblick, Umfrage, Hinweise für Eltern (§14.5, §14.10)
+            'insights' => InsightsBoard::for($user),
         ];
     }
 

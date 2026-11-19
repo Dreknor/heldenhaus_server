@@ -4,6 +4,7 @@ import DailySupport from '@/components/game/DailySupport.vue';
 import FocusBoard from '@/components/game/FocusBoard.vue';
 import GamePanel from '@/components/game/GamePanel.vue';
 import HeroScene from '@/components/game/HeroScene.vue';
+import InsightsCards, { type BoardInsights } from '@/components/game/InsightsCards.vue';
 import QuestCard, { type ActiveQuest } from '@/components/game/QuestCard.vue';
 import StatsPanel from '@/components/game/StatsPanel.vue';
 import TaskCard from '@/components/game/TaskCard.vue';
@@ -63,6 +64,7 @@ const props = defineProps<{
     cronPending: { assignment_id: number; title: string }[];
     quests: { family: ActiveQuest | null; solo: ActiveQuest | null };
     companion: { egg_key: string; potion_key: string; is_mount: boolean; name: string } | null;
+    insights?: BoardInsights;
     categories: Record<string, string>;
     difficulties: Record<string, number>;
     sceneBackground?: string | null;
@@ -221,6 +223,7 @@ const greeting = computed(() => {
                     @show-all="mode = 'all'"
                 />
                 <QuestCard v-if="quests.family" :quest="quests.family" compact />
+                <InsightsCards :insights="insights" />
             </template>
 
             <template v-else>
@@ -340,6 +343,7 @@ const greeting = computed(() => {
 
                 <!-- Rechte Spalte -->
                 <div class="flex flex-col gap-5 xl:col-span-4">
+                    <InsightsCards :insights="insights" />
                     <GamePanel
                         tone="wood"
                         title="Dungeon"
