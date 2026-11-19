@@ -12,6 +12,12 @@ import { Head, router } from '@inertiajs/vue3';
 import { Coins, Sparkles, Swords, User, Users } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
+type Level = 'easy' | 'normal' | 'hard';
+interface Suggestion {
+    difficulty: Level;
+    reason: string;
+}
+
 interface Offer {
     key: string;
     type: 'boss' | 'collect';
@@ -20,6 +26,7 @@ interface Offer {
     art?: MonsterArtConfig;
     description: string;
     goal: number;
+    goals?: Record<Level, number>;
     days: number;
     weakness?: string;
     resist?: string;
@@ -36,6 +43,9 @@ const props = defineProps<{
     familyOffers: Offer[];
     soloOffers: Offer[];
     canStartFamily: boolean;
+    difficulties: { key: Level; label: string; factor: number; reward_factor: number }[];
+    familySuggestion: Suggestion | null;
+    soloSuggestion: Suggestion | null;
     categories: Record<string, string>;
     history: { id: number; name: string; icon: string; scope: string; status: string; date: string }[];
     bestiary: { key: string; name: string; art: MonsterArtConfig | null; min_level: number; defeated: number }[];
@@ -45,13 +55,22 @@ const props = defineProps<{
 const { isOpen } = useFeatures();
 const questsOpen = computed(() => isOpen('quests'));
 const rewardText = ref('');
+// Schwierigkeit (§14.6): Vorschlag der Quest-Tafel ist vorausgewählt
+const level = ref<Record<'family' | 'solo', Level>>({
+    family: props.familySuggestion?.difficulty ?? 'normal',
+    solo: props.soloSuggestion?.difficulty ?? 'normal',
+});
+const goalOf = (o: Offer, scope: 'family' | 'solo') => o.goals?.[level.value[scope]] ?? o.goal;
+const rewardFactor = (scope: 'family' | 'solo') => props.difficulties.find((d) => d.key === level.value[scope])?.reward_factor ?? 1;
+const reward = (value: number | undefined, scope: 'family' | 'solo') => Math.round((value ?? 0) * rewardFactor(scope));
+const levelIcon: Record<Level, string> = { easy: '🌱', normal: '⚔️', hard: '🔥' };
 
 function start(offer: Offer, scope: 'family' | 'solo') {
     const what = scope === 'family' ? 'für die ganze Familie' : 'als Solo-Quest';
     if (!confirm(`„${offer.name}“ ${what} starten?`)) return;
     router.post(
         route('quests.start'),
-        { quest: offer.key, scope, reward_text: scope === 'family' ? rewardText.value || null : null },
+        { quest: offer.key, scope, difficulty: level.value[scope], reward_text: scope === 'family' ? rewardText.value || null : null },
         { preserveScroll: true },
     );
 }
@@ -97,6 +116,24 @@ const cat = (key?: string) => (key ? (props.categories[key] ?? key) : '');
                             <Input id="reward" v-model="rewardText" placeholder="z. B. Pizza-Abend" />
                         </div>
                     </div>
+                    <div v-if="canStartFamily" class="grid gap-1.5">
+                        <p class="text-sm font-semibold">Wie schwer soll es werden?</p>
+                        <div class="flex flex-wrap gap-2" role="radiogroup" aria-label="Schwierigkeit der Familien-Quest">
+                            <button
+                                v-for="d in difficulties"
+                                :key="d.key"
+                                role="radio"
+                                :aria-checked="level.family === d.key"
+                                class="rounded-full border-2 px-3 py-1 text-sm font-bold"
+                                :class="level.family === d.key ? 'border-amber-600 bg-amber-400 text-white' : 'border-muted bg-card'"
+                                @click="level.family = d.key"
+                            >
+                                {{ levelIcon[d.key] }} {{ d.label }}<span v-if="familySuggestion?.difficulty === d.key"> · Vorschlag</span>
+                            </button>
+                        </div>
+                        <p v-if="familySuggestion" class="text-xs font-semibold text-amber-700 dark:text-amber-400">{{ familySuggestion.reason }}</p>
+                        <p class="text-xs text-muted-foreground">Die Lebenspunkte richten sich nach eurer Aktivität der letzten zwei Wochen.</p>
+                    </div>
                     <div class="grid gap-3 md:grid-cols-3">
                         <article v-for="o in familyOffers" :key="o.key" class="flex flex-col gap-2 rounded-2xl border bg-card p-4">
                             <div class="flex items-center gap-3">
@@ -105,8 +142,10 @@ const cat = (key?: string) => (key ? (props.categories[key] ?? key) : '');
                                 <div>
                                     <p class="font-extrabold">{{ o.name }}</p>
                                     <p class="text-xs text-muted-foreground">
-                                        <template v-if="o.type === 'boss'"><Swords class="inline size-3" /> Boss · {{ o.goal }} HP</template>
-                                        <template v-else><Emoji :glyph="o.item_icon" /> Sammle {{ o.goal }} {{ o.item_name }}</template>
+                                        <template v-if="o.type === 'boss'"
+                                            ><Swords class="inline size-3" /> Boss · {{ goalOf(o, 'family') }} HP</template
+                                        >
+                                        <template v-else><Emoji :glyph="o.item_icon" /> Sammle {{ goalOf(o, 'family') }} {{ o.item_name }}</template>
                                         · {{ o.days }} Tage
                                     </p>
                                 </div>
@@ -121,7 +160,8 @@ const cat = (key?: string) => (key ? (props.categories[key] ?? key) : '');
                                 >
                             </div>
                             <p class="mt-auto flex items-center gap-2 text-xs font-semibold text-amber-600">
-                                <Coins class="size-3.5" /> {{ o.rewards.gold }} · <Sparkles class="size-3.5" /> {{ o.rewards.xp }} XP für alle
+                                <Coins class="size-3.5" /> {{ reward(o.rewards.gold, 'family') }} · <Sparkles class="size-3.5" />
+                                {{ reward(o.rewards.xp, 'family') }} XP für alle
                             </p>
                             <Button v-if="canStartFamily" @click="start(o, 'family')">Gemeinsam starten</Button>
                         </article>
@@ -138,7 +178,26 @@ const cat = (key?: string) => (key ? (props.categories[key] ?? key) : '');
                     <QuestCard :quest="solo" />
                     <button class="justify-self-start text-xs text-muted-foreground underline" @click="abandon(solo)">Solo-Quest abbrechen</button>
                 </template>
-                <div v-else class="grid gap-3 md:grid-cols-3">
+                <div
+                    v-if="!solo && soloOffers.length"
+                    class="flex flex-wrap items-center gap-2"
+                    role="radiogroup"
+                    aria-label="Schwierigkeit der Solo-Quest"
+                >
+                    <button
+                        v-for="d in difficulties"
+                        :key="d.key"
+                        role="radio"
+                        :aria-checked="level.solo === d.key"
+                        class="rounded-full border-2 px-3 py-1 text-sm font-bold"
+                        :class="level.solo === d.key ? 'border-amber-600 bg-amber-400 text-white' : 'border-muted bg-card'"
+                        @click="level.solo = d.key"
+                    >
+                        {{ levelIcon[d.key] }} {{ d.label }}<span v-if="soloSuggestion?.difficulty === d.key"> · Vorschlag</span>
+                    </button>
+                    <span v-if="soloSuggestion" class="text-xs font-semibold text-amber-700 dark:text-amber-400">{{ soloSuggestion.reason }}</span>
+                </div>
+                <div v-if="!solo" class="grid gap-3 md:grid-cols-3">
                     <article v-for="o in soloOffers" :key="o.key" class="flex flex-col gap-2 rounded-2xl border bg-card p-4">
                         <div class="flex items-center gap-3">
                             <MonsterArt v-if="o.type === 'boss'" :art="o.art" :size="84" class="shrink-0" />
@@ -146,8 +205,8 @@ const cat = (key?: string) => (key ? (props.categories[key] ?? key) : '');
                             <div>
                                 <p class="font-extrabold">{{ o.name }}</p>
                                 <p class="text-xs text-muted-foreground">
-                                    <template v-if="o.type === 'boss'">Boss · {{ o.goal }} HP</template>
-                                    <template v-else><Emoji :glyph="o.item_icon" /> Sammle {{ o.goal }} {{ o.item_name }}</template>
+                                    <template v-if="o.type === 'boss'">Boss · {{ goalOf(o, 'solo') }} HP</template>
+                                    <template v-else><Emoji :glyph="o.item_icon" /> Sammle {{ goalOf(o, 'solo') }} {{ o.item_name }}</template>
                                     · {{ o.days }} Tage
                                 </p>
                             </div>
@@ -160,7 +219,8 @@ const cat = (key?: string) => (key ? (props.categories[key] ?? key) : '');
                             >
                         </div>
                         <p class="mt-auto flex items-center gap-2 text-xs font-semibold text-amber-600">
-                            <Coins class="size-3.5" /> {{ o.rewards.gold }} · <Sparkles class="size-3.5" /> {{ o.rewards.xp }} XP
+                            <Coins class="size-3.5" /> {{ reward(o.rewards.gold, 'solo') }} · <Sparkles class="size-3.5" />
+                            {{ reward(o.rewards.xp, 'solo') }} XP
                         </p>
                         <Button variant="outline" @click="start(o, 'solo')">Solo starten</Button>
                     </article>

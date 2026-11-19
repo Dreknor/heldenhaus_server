@@ -20,6 +20,7 @@ use App\Domain\Goals\MasteryService;
 use App\Domain\Goals\ReminderService;
 use App\Domain\Goals\StarFadeService;
 use App\Domain\Housing\BuildService;
+use App\Domain\Insights\NightlyInsights;
 use App\Domain\Notifications\PushNotifier;
 use App\Domain\Social\ChallengeService;
 use App\Domain\Tasks\ReviewCompletion;
@@ -113,6 +114,16 @@ Artisan::command('heldenhaus:weekly-reports', function (PushNotifier $push) {
     }
     $this->info('Wochenberichte verschickt.');
 })->purpose('Wochenbericht an Eltern senden');
+
+/*
+ * Langzeitmotivation (§14.5, §14.6, §14.10): stündlich prüfen, wo es in der Zeitzone der Familie
+ * nach 02:00 ist (Aktivitätswerte, Kennzahlen) bzw. Montag/Monatserster/Neujahr nach 05:00 (Rückblicke).
+ * Alles ist idempotent, ein verpasster Lauf wird beim nächsten nachgeholt.
+ */
+Artisan::command('heldenhaus:insights', function (NightlyInsights $nightly) {
+    $c = $nightly->run();
+    $this->info("{$c['families']} Familien ausgewertet, {$c['reviews']} Rückblicke erzeugt.");
+})->purpose('Aktivitätswerte, Kennzahlen und Rückblicke in der Zeitzone der Familie erzeugen');
 
 Artisan::command('heldenhaus:challenges-close', function (ChallengeService $challenges) {
     $this->info($challenges->closeExpired().' Challenges abgeschlossen.');
@@ -330,6 +341,7 @@ Schedule::command('heldenhaus:council-tick')->everyFiveMinutes()->withoutOverlap
 Schedule::command('heldenhaus:events-tick')->everyFifteenMinutes()->withoutOverlapping();
 Schedule::command('heldenhaus:holidays-sync')->monthlyOn(1, '04:00')->withoutOverlapping();
 Schedule::command('heldenhaus:challenges-close')->dailyAt('03:30')->withoutOverlapping();
+Schedule::command('heldenhaus:insights')->hourlyAt(7)->withoutOverlapping();
 Schedule::command('model:prune')->daily();
 Schedule::command('queue:prune-failed --hours=168')->daily();
 

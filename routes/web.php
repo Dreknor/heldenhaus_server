@@ -19,6 +19,7 @@ use App\Http\Controllers\FeatureWebController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\HeroController;
 use App\Http\Controllers\HousingController;
+use App\Http\Controllers\InsightsController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\QuestController;
 use App\Http\Controllers\RewardShopController;
@@ -196,6 +197,13 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
     Route::post('focus-sessions/{session}/{action}', [SupportController::class, 'focusAction'])
         ->whereIn('action', ['finish', 'extend', 'abort', 'invite'])->name('focus.action');
 
+    // Statistik, Rückblick, Umfragen und „So läuft's“ (Konzept §14.5, §14.10)
+    Route::get('stats', [InsightsController::class, 'stats'])->name('stats.index');
+    Route::post('reviews/{review}/seen', [InsightsController::class, 'seen'])->name('reviews.seen');
+    Route::post('reviews/{review}/share', [InsightsController::class, 'share'])->name('reviews.share');
+    Route::post('surveys', [InsightsController::class, 'storeSurvey'])->name('surveys.store');
+    Route::get('family/insights', [InsightsController::class, 'metrics'])->name('family.insights');
+
     Route::get('shop', [RewardShopController::class, 'index'])->name('shop.index');
     Route::post('shop/items', [RewardShopController::class, 'store'])->name('shop.items.store');
     Route::put('shop/items/{item}', [RewardShopController::class, 'update'])->name('shop.items.update');
@@ -215,6 +223,7 @@ Route::middleware(['auth', 'can:admin'])->prefix('admin')->name('admin.')->group
     Route::post('updates/backgrounds/import', [SceneBackgroundController::class, 'import'])->name('updates.backgrounds.import');
     Route::delete('updates/backgrounds', [SceneBackgroundController::class, 'destroy'])->name('updates.backgrounds.destroy');
 
+    Route::get('insights', [InsightsController::class, 'admin'])->name('insights.index');
     Route::get('items', [ItemController::class, 'index'])->name('items.index');
     Route::post('items', [ItemController::class, 'store'])->name('items.store');
     Route::put('items/{item}', [ItemController::class, 'update'])->name('items.update');

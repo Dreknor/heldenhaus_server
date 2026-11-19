@@ -8,9 +8,7 @@ use App\Enums\FamilyRole;
 use App\Models\CraftJob;
 use App\Models\DayLog;
 use App\Models\Dungeon;
-use App\Models\DungeonAction;
 use App\Models\Family;
-use App\Models\GardenPlot;
 use App\Models\TaskAssignment;
 use App\Models\TaskCompletion;
 use App\Models\User;
@@ -27,28 +25,36 @@ class StatsService
 
     public const DAYS = 90;
 
-    public static function forUser(User $user): array
+    /**
+     * Statistik einer Person. Sieht jemand anderes (Eltern) sie an, erscheinen private Aufgaben von Teens
+     * nur als Anzahl (§3.7): keine Titel, keine Kategorien, keine Uhrzeiten.
+     */
+    public static function forUser(User $user, ?User $viewer = null): array
     {
         $today = $user->gameDate();
-        $completions = self::completions(collect([$user->id]), $today->subDays(self::DAYS));
+        $all = self::completions(collect([$user->id]), $today->subDays(self::DAYS));
+        $redact = $viewer !== null && $viewer->id !== $user->id;
+        $completions = $redact ? $all->reject(fn ($c) => (bool) $c->is_private)->values() : $all;
         $achievements = app(AchievementService::class);
 
         $days = DayLog::where('user_id', $user->id)->where('date', '>=', $today->subDays(30)->toDateString())->get();
 
         return [
             'period' => ['from' => $today->subDays(self::DAYS)->toDateString(), 'to' => $today->toDateString()],
-            'weeks' => self::weekly($completions, $today),
+            'private_tasks' => $redact ? $all->count() - $completions->count() : 0,
+            'weeks' => self::weekly($all, $today),
             'categories' => self::categories($completions->where('created_at', '>=', $today->subDays(30))),
             'weekdays' => self::weekdays($completions, $user),
             'hours' => self::hours($completions, $user),
             'last_30_days' => [
-                'tasks' => $completions->where('created_at', '>=', $today->subDays(30))->count(),
-                'xp' => (int) $completions->where('created_at', '>=', $today->subDays(30))->sum('xp'),
-                'gold' => round((float) $completions->where('created_at', '>=', $today->subDays(30))->sum('gold'), 1),
+                'tasks' => $all->where('created_at', '>=', $today->subDays(30))->count(),
+                'xp' => (int) $all->where('created_at', '>=', $today->subDays(30))->sum('xp'),
+                'gold' => round((float) $all->where('created_at', '>=', $today->subDays(30))->sum('gold'), 1),
                 'perfect_days' => $days->filter(fn ($d) => $d->dailies_due > 0 && $d->dailies_done >= $d->dailies_due)->count(),
                 'dailies_rate' => $days->sum('dailies_due') > 0 ? round($days->sum('dailies_done') / $days->sum('dailies_due'), 2) : null,
             ],
             'streaks' => TaskAssignment::with('task:id,title,type')->where('user_id', $user->id)->where('streak', '>', 0)
+                ->when($redact, fn ($q) => $q->whereHas('task', fn ($t) => $t->where('is_private', false)))
                 ->orderByDesc('streak')->limit(5)->get()
                 ->map(fn (TaskAssignment $a) => ['task' => $a->task?->title, 'type' => $a->task?->type, 'streak' => $a->streak])->values(),
             'totals' => [
@@ -98,7 +104,7 @@ class StatsService
             ->where('task_completions.direction', 'up')
             ->whereIn('task_completions.status', [CompletionStatus::None, CompletionStatus::Approved, CompletionStatus::Auto])
             ->where('task_completions.created_at', '>=', $since->utc())
-            ->get(['task_completions.user_id', 'task_completions.xp', 'task_completions.gold', 'task_completions.created_at', 'tasks.category', 'tasks.type', 'tasks.scope']);
+            ->get(['task_completions.user_id', 'task_completions.xp', 'task_completions.gold', 'task_completions.created_at', 'tasks.category', 'tasks.type', 'tasks.scope', 'tasks.is_private']);
     }
 
     private static function weekly(Collection $completions, CarbonImmutable $today, int $weeks = self::WEEKS): array

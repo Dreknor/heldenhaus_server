@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Features\Features;
+use App\Domain\Insights\Difficulty;
 use App\Domain\Quests\QuestService;
 use App\Models\Quest;
 use Illuminate\Http\JsonResponse;
@@ -42,9 +43,10 @@ class QuestController extends Controller
             'quest' => ['required', 'string'],
             'scope' => ['required', Rule::in(['family', 'solo'])],
             'reward_text' => ['nullable', 'string', 'max:120'],
+            'difficulty' => ['nullable', Rule::in(Difficulty::LEVELS)],
         ]);
 
-        $quest = $this->quests->start($request->user(), $data['quest'], $data['scope'], $data['reward_text'] ?? null);
+        $quest = $this->quests->start($request->user(), $data['quest'], $data['scope'], $data['reward_text'] ?? null, $data['difficulty'] ?? null);
 
         return $request->expectsJson()
             ? response()->json(QuestService::present($quest), 201)
@@ -68,6 +70,10 @@ class QuestController extends Controller
             'familyOffers' => $this->quests->offers($user, 'family'),
             'soloOffers' => $this->quests->offers($user, 'solo'),
             'canStartFamily' => $user->isParent(),
+            // Schwierigkeit (§14.6): Stufen und Vorschlag der Quest-Tafel
+            'difficulties' => Difficulty::options(),
+            'familySuggestion' => Difficulty::suggestion($user->family_id, 'family'),
+            'soloSuggestion' => Difficulty::suggestion($user->family_id, 'solo', $user->id),
             // Monster-Lexikon: alle Bosse, besiegte markiert
             'bestiary' => collect(QuestService::catalog())->where('type', 'boss')->map(fn ($q) => [
                 'key' => $q['key'],

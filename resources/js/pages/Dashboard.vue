@@ -8,6 +8,7 @@ import FocusBoard from '@/components/game/FocusBoard.vue';
 import FunEventCard from '@/components/game/FunEventCard.vue';
 import GamePanel from '@/components/game/GamePanel.vue';
 import HeroScene from '@/components/game/HeroScene.vue';
+import InsightsCards, { type BoardInsights } from '@/components/game/InsightsCards.vue';
 import LongTermCards from '@/components/game/LongTermCards.vue';
 import QuestCard, { type ActiveQuest } from '@/components/game/QuestCard.vue';
 import StatsPanel from '@/components/game/StatsPanel.vue';
@@ -74,6 +75,7 @@ const props = defineProps<{
     councilHints?: CouncilHint[];
     sceneBackground?: string | null;
     sceneWeather?: { type: 'clear' | 'cloudy' | 'fog' | 'rain' | 'snow' | 'storm'; label: string; is_day: boolean } | null;
+    insights?: BoardInsights;
     goals: InstanceType<typeof LongTermCards>['$props']['goals'];
     mastery: InstanceType<typeof LongTermCards>['$props']['mastery'];
     star_fade: InstanceType<typeof LongTermCards>['$props']['starFade'];
@@ -241,6 +243,7 @@ const greeting = computed(() => {
                 />
                 <LongTermCards :goals="goals" :mastery="mastery" :star-fade="star_fade" :tasks="[...dailies, ...habits, ...todos]" compact />
                 <QuestCard v-if="quests.family" :quest="quests.family" compact />
+                <InsightsCards :insights="insights" />
             </template>
 
             <template v-else>
@@ -368,6 +371,7 @@ const greeting = computed(() => {
 
                     <!-- Rechte Spalte -->
                     <div class="flex flex-col gap-5 xl:col-span-4">
+                        <InsightsCards :insights="insights" />
                         <!-- Freischaltungen (§13): nächste Freischaltung und erste Mini-Aufgaben -->
                         <FeatureProgress />
 

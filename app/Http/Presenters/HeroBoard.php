@@ -8,6 +8,7 @@ use App\Domain\Gameplay\RunDayCron;
 use App\Domain\Goals\GoalService;
 use App\Domain\Goals\MasteryService;
 use App\Domain\Goals\StarFadeService;
+use App\Domain\Insights\InsightsBoard;
 use App\Domain\Support\FocusService;
 use App\Domain\Support\SupportService;
 use App\Enums\CompletionStatus;
@@ -73,6 +74,8 @@ class HeroBoard
             'star_fade' => $user->isParent() && $user->family_id ? app(StarFadeService::class)->suggestions($user->family_id) : [],
             // Familienrat, Abstimmung, Vorschläge, Eltern-Anleitung, Altersübergänge (§14.4, §14.9, §14.11)
             'councilHints' => BoardHints::for($user),
+            // Rückblick, Umfrage, Hinweise für Eltern (§14.5, §14.10)
+            'insights' => InsightsBoard::for($user),
         ];
     }
 

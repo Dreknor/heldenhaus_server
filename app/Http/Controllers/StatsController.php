@@ -21,7 +21,7 @@ class StatsController extends Controller
         // Erwachsenenprofil (§14.11): Eltern sehen keine persönliche Statistik mehr
         abort_unless($viewer->is($member) || $viewer->overseesPersonalDataOf($member), 403);
 
-        return response()->json(StatsService::forUser($member));
+        return response()->json(StatsService::forUser($member, $viewer));
     }
 
     public function family(Request $request): JsonResponse
