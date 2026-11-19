@@ -133,5 +133,17 @@
         "files": [
             "node_modules/@fontsource/atkinson-hyperlegible"
         ]
+    },
+    {
+        "title": "App-Symbol: Heldenhaus-Wappen",
+        "author": "Heldenhaus",
+        "author_url": "https://github.com/Dreknor/heldenhaus_server",
+        "source_url": "https://github.com/Dreknor/heldenhaus_server",
+        "license": "Eigene Arbeit (wie der Quellcode des Projekts)",
+        "license_url": "https://github.com/Dreknor/heldenhaus_server",
+        "changes": "Eigene Zeichnung des Wappens aus AppLogoIcon.vue auf Holzgrund, als SVG und PNG für das PWA-Manifest.",
+        "files": [
+            "public/icons"
+        ]
     }
 ]
