@@ -2,6 +2,8 @@
 
 namespace App\Http\Presenters;
 
+use App\Domain\Achievements\AlbumService;
+use App\Domain\Achievements\ChronicleService;
 use App\Domain\Art\PetArt;
 use App\Domain\Gameplay\RunDayCron;
 use App\Domain\Support\FocusService;
@@ -62,7 +64,20 @@ class HeroBoard
             'support' => SupportService::present($user),
             'recoveries' => SupportService::presentRecoveries($user),
             'focus' => FocusService::present(FocusService::running($user)),
+            // Knappe Hinweise auf Langzeitziele (§14.7, §14.8): neues Chronik-Kapitel, neue Album-Belohnung
+            'longTerm' => [
+                'chapter' => self::chapterHint($user),
+                'album_rewards' => AlbumService::unseenRewards($user),
+            ],
         ];
+    }
+
+    /** Erstes ungelesenes Chronik-Kapitel; vorher freischalten, was schon erreicht ist. */
+    private static function chapterHint(User $user): ?array
+    {
+        app(ChronicleService::class)->sync($user);
+
+        return ChronicleService::firstUnread($user);
     }
 
     public static function companion(User $user): ?UserPet

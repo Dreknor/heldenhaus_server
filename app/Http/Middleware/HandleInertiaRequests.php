@@ -3,6 +3,8 @@
 namespace App\Http\Middleware;
 
 use App\Domain\Achievements\AchievementService;
+use App\Domain\Achievements\ChronicleService;
+use App\Domain\Achievements\TitleService;
 use App\Domain\Support\SupportService;
 use App\Enums\CompletionStatus;
 use App\Http\Presenters\CharacterSheet;
@@ -44,7 +46,9 @@ class HandleInertiaRequests extends Middleware
                 ] : null,
                 'appearance' => fn () => $user ? CharacterSheet::appearance($user) : null,
                 'stats' => fn () => $user?->stats ? GamePresenter::stats($user->stats()->first()) : null,
-                'family' => fn () => $user?->family ? ['id' => $user->family->id, 'name' => $user->family->name] : null,
+                'family' => fn () => $user?->family ? ['id' => $user->family->id, 'name' => $user->family->name, 'crest' => ChronicleService::crest($user->family)] : null,
+                // Titel unter dem Namen (§14.7): Level-Titel und beste Meisterschaft
+                'title' => fn () => $user?->family_id ? TitleService::display($user) : null,
                 // Rückmeldung beim Abhaken (§11.4): Stärke, Bewegung und Ton für alle Seiten
                 'feedback' => fn () => $user ? (function () use ($user) {
                     $s = SupportService::settings($user);

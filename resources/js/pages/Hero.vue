@@ -15,6 +15,10 @@ interface Skill {
     description: string;
     mana?: number;
     hours?: number;
+    level?: number;
+    kind?: 'passive' | 'active';
+    per_day?: number;
+    target?: 'member';
 }
 interface GameClass {
     key: string;
@@ -28,6 +32,7 @@ interface GameClass {
     mp_multiplier: number;
     passive: Skill;
     active: Skill;
+    tiers?: Skill[];
     choice: { allowed: boolean; reason: string | null };
 }
 interface ItemInfo {
@@ -54,6 +59,20 @@ const props = defineProps<{
     family_members: { id: number; name: string; avatar_color: string }[];
     equipment: Record<string, ItemInfo>;
     slots: Record<string, string>;
+    masteries: {
+        category: string;
+        name: string;
+        label: string;
+        icon: string;
+        count: number;
+        level: number;
+        numeral: string | null;
+        title: string | null;
+        next: number | null;
+        progress: number;
+    }[];
+    title: { level: string | null; mastery: string | null };
+    next_title: { level: number; name: string } | null;
 }>();
 
 const attributeInfo = [
@@ -83,6 +102,13 @@ function cast() {
     router.post(route('hero.cast'), { skill: props.hero_class.active.key, target_id: target.value }, { preserveScroll: true });
 }
 
+// Fähigkeiten-Stufen ab Level 15/20/25 (§14.7)
+const tierTargets = ref<Record<string, number | null>>({});
+function castTier(skill: Skill) {
+    router.post(route('hero.cast'), { skill: skill.key, target_id: tierTargets.value[skill.key] ?? null }, { preserveScroll: true });
+}
+const tierCastsLeft = (skill: Skill) => (skill.per_day ?? 3) - (props.skills_today[skill.key] ?? 0);
+
 function secondChance(assignmentId: number) {
     router.post(route('hero.second-chance'), { assignment_id: assignmentId }, { preserveScroll: true });
 }
@@ -96,7 +122,15 @@ const hoursLeft = (iso: string) => Math.max(0, Math.round((new Date(iso).getTime
 
     <AppLayout :breadcrumbs="[{ title: 'Held & Klasse', href: '/hero' }]">
         <div class="flex min-w-0 flex-1 flex-col gap-6 p-4 md:p-6">
-            <h1 class="text-2xl font-extrabold tracking-tight">Held & Klasse</h1>
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-tight">Held & Klasse</h1>
+                <p v-if="title.level || title.mastery" class="font-semibold italic text-amber-700 dark:text-amber-300">
+                    {{ [title.level, title.mastery].filter(Boolean).join(' · ') }}
+                </p>
+                <p v-if="next_title" class="text-xs text-muted-foreground">
+                    Nächster Titel: „{{ next_title.name }}“ ab Level {{ next_title.level }} – noch {{ next_title.level - stats.level }} Level.
+                </p>
+            </div>
 
             <section v-if="page.props.auth.appearance" class="rounded-2xl border bg-card p-5">
                 <h2 class="mb-3 font-extrabold">Aussehen</h2>
@@ -246,7 +280,44 @@ const hoursLeft = (iso: string) => Math.max(0, Math.round((new Date(iso).getTime
                     </div>
                 </template>
 
-                <template v-else>
+                <template v-if="hero_class && !choosing && hero_class.tiers?.length">
+                    <h3 class="mb-2 mt-5 font-extrabold">Fähigkeiten-Stufen</h3>
+                    <div class="grid gap-3 md:grid-cols-3">
+                        <div
+                            v-for="t in hero_class.tiers"
+                            :key="t.key"
+                            class="flex flex-col gap-1 rounded-xl border p-4"
+                            :class="stats.level >= (t.level ?? 0) ? 'bg-card' : 'bg-muted/40 text-muted-foreground'"
+                        >
+                            <p class="flex items-center gap-1 text-xs font-bold uppercase text-muted-foreground">
+                                <Lock v-if="stats.level < (t.level ?? 0)" class="size-3" />
+                                Level {{ t.level }} · {{ t.kind === 'active' ? `Aktiv · ${t.mana} Mana` : 'Passiv' }}
+                            </p>
+                            <p class="font-bold">{{ t.name }}</p>
+                            <p class="text-sm">{{ t.description }}</p>
+                            <p v-if="stats.level < (t.level ?? 0)" class="mt-1 text-xs font-semibold">
+                                Noch {{ (t.level ?? 0) - stats.level }} Level bis zur Freischaltung.
+                            </p>
+                            <div v-else-if="t.kind === 'active'" class="mt-2 flex flex-wrap items-center gap-2">
+                                <select
+                                    v-if="t.target === 'member'"
+                                    v-model="tierTargets[t.key]"
+                                    class="h-9 rounded-md border border-input bg-background px-2 text-sm"
+                                    :aria-label="`Ziel für ${t.name}`"
+                                >
+                                    <option :value="null">mich selbst</option>
+                                    <option v-for="m in family_members" :key="m.id" :value="m.id">{{ m.name }}</option>
+                                </select>
+                                <Button size="sm" :disabled="stats.mp < (t.mana ?? 0) || tierCastsLeft(t) <= 0" @click="castTier(t)">
+                                    <Sparkles class="size-4" /> Einsetzen
+                                </Button>
+                                <span class="text-xs text-muted-foreground">heute noch {{ Math.max(0, tierCastsLeft(t)) }}×</span>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <template v-if="unlocked && (!hero_class || choosing)">
                     <div class="mb-4 flex items-center justify-between">
                         <h2 class="text-xl font-extrabold">Wähle deine Klasse</h2>
                         <Button v-if="hero_class" variant="ghost" @click="choosing = false">Abbrechen</Button>
@@ -283,6 +354,37 @@ const hoursLeft = (iso: string) => Math.max(0, Math.round((new Date(iso).getTime
                         </div>
                     </div>
                 </template>
+            </section>
+
+            <!-- Meisterschaften (§14.7) -->
+            <section class="rounded-2xl border bg-card p-5">
+                <h2 class="font-extrabold">Meisterschaften</h2>
+                <p class="mb-3 text-sm text-muted-foreground">Für jede Aufgabe einer Kategorie geht es ein Stück weiter – bis Stufe V.</p>
+                <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+                    <div v-for="m in masteries" :key="m.category" class="flex flex-col gap-1 rounded-xl bg-muted/50 p-3">
+                        <p class="flex items-center gap-2 font-bold">
+                            <Emoji :glyph="m.icon" /> {{ m.name }}
+                            <span v-if="m.numeral" class="ml-auto rounded-full bg-amber-500 px-2 text-xs font-extrabold text-white">{{
+                                m.numeral
+                            }}</span>
+                        </p>
+                        <div
+                            class="h-2 overflow-hidden rounded-full bg-background"
+                            role="progressbar"
+                            :aria-valuenow="m.count"
+                            :aria-valuemax="m.next ?? m.count"
+                        >
+                            <div
+                                class="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500"
+                                :style="{ width: `${m.progress * 100}%` }"
+                            />
+                        </div>
+                        <p class="text-xs text-muted-foreground">
+                            <template v-if="m.next">{{ m.count }} / {{ m.next }} Aufgaben</template>
+                            <template v-else>{{ m.count }} Aufgaben – höchste Stufe!</template>
+                        </p>
+                    </div>
+                </div>
             </section>
 
             <!-- Aktive Buffs -->

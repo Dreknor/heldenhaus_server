@@ -28,8 +28,10 @@ export interface Auth {
     user: User;
     stats: Stats | null;
     appearance: Appearance | null;
-    family: { id: number; name: string } | null;
+    family: { id: number; name: string; crest?: string } | null;
     feedback?: Feedback | null;
+    /** Titel unter dem Namen (§14.7) */
+    title?: { level: string | null; mastery: string | null } | null;
 }
 
 export interface Feedback {

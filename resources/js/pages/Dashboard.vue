@@ -4,6 +4,7 @@ import DailySupport from '@/components/game/DailySupport.vue';
 import FocusBoard from '@/components/game/FocusBoard.vue';
 import GamePanel from '@/components/game/GamePanel.vue';
 import HeroScene from '@/components/game/HeroScene.vue';
+import LongTermHints from '@/components/game/LongTermHints.vue';
 import QuestCard, { type ActiveQuest } from '@/components/game/QuestCard.vue';
 import StatsPanel from '@/components/game/StatsPanel.vue';
 import TaskCard from '@/components/game/TaskCard.vue';
@@ -76,6 +77,7 @@ const props = defineProps<{
         garden: { unlocked: boolean; unlockLevel: number; planted: number; ready: number };
         homeAssistant: { connected: boolean; lastEventAt: string | null };
     };
+    longTerm?: { chapter: { key: string; number: number; title: string } | null; album_rewards: number } | null;
 }>();
 
 const page = usePage<SharedData>();
@@ -210,6 +212,8 @@ const greeting = computed(() => {
                     </button>
                 </div>
             </div>
+
+            <LongTermHints :hints="longTerm" />
 
             <template v-if="mode === 'focus'">
                 <FocusBoard

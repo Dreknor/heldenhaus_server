@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 class Family extends Model
 {
-    protected $fillable = ['name', 'login_code', 'timezone', 'settings'];
+    protected $fillable = ['name', 'crest', 'login_code', 'timezone', 'settings'];
 
     protected function casts(): array
     {

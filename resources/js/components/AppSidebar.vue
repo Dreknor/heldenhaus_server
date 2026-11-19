@@ -7,7 +7,10 @@ import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import {
     Backpack,
+    BookMarked,
+    BookOpen,
     CalendarDays,
+    CalendarHeart,
     ChartColumn,
     Dices,
     Download,
@@ -42,6 +45,9 @@ const groups = computed<{ label: string; items: NavItem[] }[]>(() => [
             { title: 'Dungeons', href: '/dungeons', icon: Skull },
             { title: 'Events', href: '/events', icon: CalendarDays },
             { title: 'Erfolge', href: '/achievements', icon: Trophy },
+            { title: 'Sammelalbum', href: '/album', icon: BookOpen },
+            { title: 'Heldenjahr', href: '/hero-year', icon: CalendarHeart },
+            { title: 'Chronik', href: '/chronicle', icon: BookMarked },
         ],
     },
     {
