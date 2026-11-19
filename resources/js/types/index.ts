@@ -32,6 +32,7 @@ export interface Auth {
     feedback?: Feedback | null;
     /** Titel unter dem Namen (§14.7) */
     title?: { level: string | null; mastery: string | null } | null;
+    display?: Display | null;
 }
 
 export interface Feedback {
@@ -39,6 +40,44 @@ export interface Feedback {
     reduce_motion: boolean;
     sound: boolean;
     haptics: boolean;
+}
+
+export type ColorVision = 'normal' | 'protan' | 'deutan' | 'tritan';
+
+/** Darstellung und Barrierefreiheit (§11.4, Phase 8), wirkt als Klassen und Variablen am <html>. */
+export interface Display {
+    theme: string;
+    theme_dark: boolean;
+    reduce_motion: boolean;
+    high_contrast: boolean;
+    text_scale: number;
+    dyslexia_font: boolean;
+    color_vision: ColorVision;
+    focus_mode_default: boolean;
+    timer_style: 'disc' | 'digits';
+}
+
+/** Fokus- und Darstellungseinstellungen einer Person, wie SupportService::present() sie liefert. */
+export interface SupportSettings {
+    gentle_mode: boolean;
+    gentle_mode_own: boolean | null;
+    focus_mode_default: boolean;
+    feedback_level: Feedback['level'];
+    reduce_motion: boolean;
+    sound: boolean;
+    haptics: boolean;
+    timer_style: 'disc' | 'digits';
+    max_steps: number;
+    low_energy_per_week: number;
+    ai_steps: boolean;
+    theme: string;
+    theme_own: string | null;
+    themes: { key: string; name: string; dark: boolean }[];
+    high_contrast: boolean;
+    text_scale: number;
+    dyslexia_font: boolean;
+    color_vision: ColorVision;
+    can_change: string[];
 }
 
 export interface BreadcrumbItem {
@@ -264,19 +303,8 @@ export interface Member {
     stats?: Stats;
     appearance?: Appearance;
     featureSettings?: MemberFeatureSettings;
-    supportSettings?: {
-        gentle_mode: boolean;
-        gentle_mode_own: boolean | null;
-        focus_mode_default: boolean;
-        feedback_level: 'full' | 'subtle' | 'haptic';
-        reduce_motion: boolean;
-        sound: boolean;
-        haptics: boolean;
-        timer_style: 'disc' | 'digits';
-        max_steps: number;
-        low_energy_per_week: number;
-        ai_steps: boolean;
-    };
+    /** Nur für Eltern; can_change aus Sicht der Eltern (SupportService::editableBy) */
+    supportSettings?: SupportSettings;
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;

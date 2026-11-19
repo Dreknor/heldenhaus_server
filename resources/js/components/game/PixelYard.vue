@@ -321,4 +321,15 @@ function poke() {
         animation-duration: 0s;
     }
 }
+/* Einstellung „Animationen aus“ (§11.4) wirkt wie die Systemeinstellung */
+:root.hh-reduce-motion .tree,
+:root.hh-reduce-motion .bird,
+:root.hh-reduce-motion .smoke,
+:root.hh-reduce-motion .clouds,
+:root.hh-reduce-motion .twinkle {
+    animation: none;
+}
+:root.hh-reduce-motion .cat {
+    animation-duration: 0s;
+}
 </style>

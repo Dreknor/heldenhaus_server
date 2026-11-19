@@ -385,6 +385,14 @@ const markers = computed(() =>
         transform: translate(-50%, -58%);
     }
 }
+@media (prefers-reduced-motion: reduce) {
+    .fog {
+        animation: none;
+    }
+}
+:root.hh-reduce-motion .fog {
+    animation: none;
+}
 .door {
     transition: transform 0.12s;
 }

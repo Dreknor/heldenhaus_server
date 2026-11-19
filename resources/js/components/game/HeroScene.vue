@@ -276,4 +276,13 @@ const snowflakes = Array.from({ length: 26 }, (_, i) => ({
         animation: none;
     }
 }
+/* Einstellung „Animationen aus“ (§11.4) wirkt wie die Systemeinstellung */
+:root.hh-reduce-motion .rider,
+:root.hh-reduce-motion .saddle,
+:root.hh-reduce-motion .twinkle,
+:root.hh-reduce-motion .clouds,
+:root.hh-reduce-motion .rain-drop,
+:root.hh-reduce-motion .snowflake {
+    animation: none;
+}
 </style>

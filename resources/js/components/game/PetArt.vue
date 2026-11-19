@@ -302,4 +302,10 @@ const glow = computed(() =>
         animation: none;
     }
 }
+/* Einstellung „Animationen aus“ (§11.4) wirkt wie die Systemeinstellung */
+:root.hh-reduce-motion .pet,
+:root.hh-reduce-motion .pet-rainbow,
+:root.hh-reduce-motion .pet-sparkles i {
+    animation: none;
+}
 </style>

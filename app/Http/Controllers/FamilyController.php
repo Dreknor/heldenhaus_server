@@ -75,8 +75,9 @@ class FamilyController extends Controller
                 ] : null,
             ],
             'members' => $family->members()->with('stats')->orderBy('family_role')->orderBy('name')->get()
+                // can_change aus Sicht der Eltern: Kinder unter 13 ganz, bei Teens und Erwachsenen bleibt das Theme deren Sache
                 ->map(fn (User $m) => GamePresenter::member($m) + ($user->overseesPersonalDataOf($m) ? [
-                    'supportSettings' => SupportService::present($m),
+                    'supportSettings' => ['can_change' => SupportService::editableBy($request->user(), $m)] + SupportService::present($m),
                     // Freischaltungen (§13): früher/später freischalten, Schnellstart
                     'featureSettings' => Features::forMember($m) + ['show_all' => (bool) $m->show_all_features],
                 ] : [])),

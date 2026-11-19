@@ -159,3 +159,469 @@ html {
         image-rendering: pixelated;
     }
 }
+
+/*
+ * Status-Farben (HP/XP/Mana, gut/schlecht, Farbstufen der Gewohnheiten) als Variablen,
+ * damit das Farbschema für Farbsehschwächen (data-cv) sie austauschen kann.
+ */
+@layer base {
+    :root {
+        --good: 158 64% 40%;
+        --bad: 350 80% 55%;
+        --hp-from: 347 77% 50%;
+        --hp-to: 0 84% 60%;
+        --xp-from: 43 96% 56%;
+        --xp-to: 48 96% 53%;
+        --mp-from: 199 89% 48%;
+        --mp-to: 239 84% 67%;
+        --value-1: 0 70% 35%;
+        --value-2: 0 84% 60%;
+        --value-3: 27 96% 61%;
+        --value-4: 46 97% 65%;
+        --value-5: 158 64% 52%;
+        --value-6: 198 93% 60%;
+        --value-7: 221 83% 53%;
+    }
+
+    /* Rot-Grün-Schwäche: Orange ↔ Blau (Okabe-Ito), Stufen zusätzlich über die Helligkeit unterscheidbar */
+    :root[data-cv='protan'],
+    :root[data-cv='deutan'] {
+        --good: 202 100% 35%;
+        --bad: 24 100% 42%;
+        --hp-from: 24 100% 36%;
+        --hp-to: 24 100% 46%;
+        --xp-from: 54 90% 55%;
+        --xp-to: 50 95% 65%;
+        --mp-from: 202 100% 30%;
+        --mp-to: 202 77% 55%;
+        --value-1: 25 100% 25%;
+        --value-2: 24 100% 42%;
+        --value-3: 37 100% 50%;
+        --value-4: 45 15% 70%;
+        --value-5: 202 77% 70%;
+        --value-6: 202 100% 40%;
+        --value-7: 225 75% 28%;
+    }
+
+    /* Blau-Gelb-Schwäche: Rot ↔ Türkis */
+    :root[data-cv='tritan'] {
+        --good: 180 80% 30%;
+        --bad: 355 80% 48%;
+        --hp-from: 355 80% 42%;
+        --hp-to: 355 80% 56%;
+        --xp-from: 175 70% 35%;
+        --xp-to: 175 60% 50%;
+        --mp-from: 285 45% 30%;
+        --mp-to: 285 40% 50%;
+        --value-1: 350 80% 28%;
+        --value-2: 355 75% 48%;
+        --value-3: 340 70% 72%;
+        --value-4: 0 0% 72%;
+        --value-5: 180 50% 62%;
+        --value-6: 180 80% 35%;
+        --value-7: 185 90% 20%;
+    }
+}
+
+/*
+ * Themes (config/game.php → themes). Helle Themes wirken nur ohne .dark, dunkle setzen .dark immer
+ * (resources/js/lib/display.ts). „classic“ ist der Pergament-Stil oben.
+ */
+@layer base {
+    /* Zuckerwatte: Rosa und Flieder */
+    :root[data-theme='candy']:not(.dark) {
+        --background: 320 70% 92%;
+        --foreground: 300 35% 18%;
+        --card: 320 80% 97%;
+        --card-foreground: 300 35% 18%;
+        --popover: 320 80% 97%;
+        --popover-foreground: 300 35% 18%;
+        --primary: 322 70% 52%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 270 60% 88%;
+        --secondary-foreground: 300 35% 18%;
+        --muted: 300 45% 90%;
+        --muted-foreground: 300 18% 40%;
+        --accent: 270 70% 86%;
+        --accent-foreground: 300 35% 18%;
+        --border: 300 35% 78%;
+        --input: 300 35% 78%;
+        --ring: 322 70% 52%;
+        --sidebar-background: 282 40% 24%;
+        --sidebar-foreground: 300 60% 92%;
+        --sidebar-primary: 322 85% 70%;
+        --sidebar-primary-foreground: 282 40% 14%;
+        --sidebar-accent: 282 35% 32%;
+        --sidebar-accent-foreground: 322 90% 80%;
+        --sidebar-border: 282 30% 34%;
+        --sidebar-ring: 322 85% 70%;
+        --wood-dark: #2a1838;
+        --wood: #4a2a5e;
+        --wood-light: #7a4f8f;
+        --wood-edge: #2a1838;
+        --gold: #ff8fd1;
+        --parchment-edge: #e7a6d6;
+    }
+
+    /* Zauberwald: Moos und dunkles Grün */
+    :root[data-theme='forest']:not(.dark) {
+        --background: 95 35% 84%;
+        --foreground: 120 35% 13%;
+        --card: 85 45% 93%;
+        --card-foreground: 120 35% 13%;
+        --popover: 85 45% 93%;
+        --popover-foreground: 120 35% 13%;
+        --primary: 140 55% 30%;
+        --primary-foreground: 80 60% 96%;
+        --secondary: 95 30% 76%;
+        --secondary-foreground: 120 35% 13%;
+        --muted: 95 30% 80%;
+        --muted-foreground: 120 18% 30%;
+        --accent: 60 50% 72%;
+        --accent-foreground: 120 35% 13%;
+        --border: 110 22% 58%;
+        --input: 110 22% 62%;
+        --ring: 140 55% 35%;
+        --sidebar-background: 140 35% 12%;
+        --sidebar-foreground: 90 40% 84%;
+        --sidebar-primary: 75 70% 55%;
+        --sidebar-primary-foreground: 140 40% 10%;
+        --sidebar-accent: 140 30% 19%;
+        --sidebar-accent-foreground: 75 75% 62%;
+        --sidebar-border: 140 25% 22%;
+        --sidebar-ring: 75 70% 55%;
+        --wood-dark: #15281a;
+        --wood: #23402a;
+        --wood-light: #3f6b45;
+        --wood-edge: #0d1a10;
+        --gold: #b9e05a;
+        --parchment-edge: #8fb17a;
+    }
+
+    /* Meeresgrund: Türkis und Tiefblau */
+    :root[data-theme='ocean']:not(.dark) {
+        --background: 190 55% 85%;
+        --foreground: 210 50% 16%;
+        --card: 185 60% 95%;
+        --card-foreground: 210 50% 16%;
+        --popover: 185 60% 95%;
+        --popover-foreground: 210 50% 16%;
+        --primary: 200 80% 36%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 190 45% 78%;
+        --secondary-foreground: 210 50% 16%;
+        --muted: 190 40% 82%;
+        --muted-foreground: 205 25% 32%;
+        --accent: 170 50% 76%;
+        --accent-foreground: 210 50% 16%;
+        --border: 200 30% 60%;
+        --input: 200 30% 64%;
+        --ring: 200 80% 40%;
+        --sidebar-background: 215 55% 14%;
+        --sidebar-foreground: 190 55% 86%;
+        --sidebar-primary: 175 70% 50%;
+        --sidebar-primary-foreground: 215 60% 10%;
+        --sidebar-accent: 215 45% 22%;
+        --sidebar-accent-foreground: 175 75% 60%;
+        --sidebar-border: 215 40% 24%;
+        --sidebar-ring: 175 70% 50%;
+        --wood-dark: #0c2238;
+        --wood: #12385a;
+        --wood-light: #2d6a8f;
+        --wood-edge: #071524;
+        --gold: #4fd8c4;
+        --parchment-edge: #7ab8cc;
+    }
+
+    /* Schlicht: ruhiges Grau ohne Maserung, wenig Kontrast-Wechsel */
+    :root[data-theme='minimal']:not(.dark) {
+        --background: 220 14% 95%;
+        --foreground: 222 25% 14%;
+        --card: 0 0% 100%;
+        --card-foreground: 222 25% 14%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 222 25% 14%;
+        --primary: 222 47% 38%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 220 14% 90%;
+        --secondary-foreground: 222 25% 14%;
+        --muted: 220 14% 92%;
+        --muted-foreground: 220 9% 40%;
+        --accent: 220 14% 88%;
+        --accent-foreground: 222 25% 14%;
+        --border: 220 13% 82%;
+        --input: 220 13% 82%;
+        --ring: 222 47% 45%;
+        --sidebar-background: 220 14% 98%;
+        --sidebar-foreground: 222 25% 20%;
+        --sidebar-primary: 222 47% 38%;
+        --sidebar-primary-foreground: 0 0% 100%;
+        --sidebar-accent: 220 14% 92%;
+        --sidebar-accent-foreground: 222 47% 30%;
+        --sidebar-border: 220 13% 88%;
+        --sidebar-ring: 222 47% 45%;
+        --wood-dark: #e5e7eb;
+        --wood: #f3f4f6;
+        --wood-light: #d1d5db;
+        --wood-edge: #9ca3af;
+        --gold: #3b5bab;
+        --parchment-edge: #e5e7eb;
+    }
+
+    /* Mitternacht: Nachtblau und Violett */
+    :root[data-theme='midnight'].dark {
+        --background: 232 40% 11%;
+        --foreground: 225 60% 92%;
+        --card: 232 36% 16%;
+        --card-foreground: 225 60% 92%;
+        --popover: 232 36% 16%;
+        --popover-foreground: 225 60% 92%;
+        --primary: 255 75% 66%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 232 30% 22%;
+        --secondary-foreground: 225 60% 92%;
+        --muted: 232 30% 20%;
+        --muted-foreground: 228 25% 68%;
+        --accent: 245 35% 26%;
+        --accent-foreground: 250 90% 82%;
+        --border: 232 25% 28%;
+        --input: 232 25% 28%;
+        --ring: 255 75% 66%;
+        --sidebar-background: 234 45% 7%;
+        --sidebar-foreground: 225 50% 86%;
+        --sidebar-primary: 255 80% 72%;
+        --sidebar-primary-foreground: 234 50% 8%;
+        --sidebar-accent: 234 35% 14%;
+        --sidebar-accent-foreground: 255 90% 80%;
+        --sidebar-border: 234 30% 16%;
+        --sidebar-ring: 255 80% 72%;
+        --wood-dark: #0b0e24;
+        --wood: #151a3d;
+        --wood-light: #2a3170;
+        --wood-edge: #05061a;
+        --gold: #a99bff;
+        --parchment-edge: #343c78;
+    }
+
+    /* Neon-Arcade: fast schwarz mit Pink und Cyan */
+    :root[data-theme='neon'].dark {
+        --background: 260 30% 6%;
+        --foreground: 180 100% 92%;
+        --card: 260 28% 10%;
+        --card-foreground: 180 100% 92%;
+        --popover: 260 28% 10%;
+        --popover-foreground: 180 100% 92%;
+        --primary: 182 100% 45%;
+        --primary-foreground: 260 40% 6%;
+        --secondary: 300 30% 16%;
+        --secondary-foreground: 180 100% 92%;
+        --muted: 260 25% 14%;
+        --muted-foreground: 280 30% 72%;
+        --accent: 312 60% 22%;
+        --accent-foreground: 312 100% 75%;
+        --border: 300 60% 30%;
+        --input: 300 50% 26%;
+        --ring: 312 100% 60%;
+        --sidebar-background: 260 35% 4%;
+        --sidebar-foreground: 182 90% 80%;
+        --sidebar-primary: 312 100% 62%;
+        --sidebar-primary-foreground: 260 40% 5%;
+        --sidebar-accent: 300 35% 12%;
+        --sidebar-accent-foreground: 182 100% 60%;
+        --sidebar-border: 300 50% 18%;
+        --sidebar-ring: 312 100% 62%;
+        --wood-dark: #0a0614;
+        --wood: #140a24;
+        --wood-light: #3a1458;
+        --wood-edge: #ff2bd6;
+        --gold: #19f0ff;
+        --parchment-edge: #8a1f7a;
+    }
+
+    /* Retro-Pixel: Handheld-Grün wie alte Spielkonsolen */
+    :root[data-theme='retro'].dark {
+        --background: 100 40% 9%;
+        --foreground: 80 60% 75%;
+        --card: 100 38% 13%;
+        --card-foreground: 80 60% 75%;
+        --popover: 100 38% 13%;
+        --popover-foreground: 80 60% 75%;
+        --primary: 80 55% 50%;
+        --primary-foreground: 100 45% 8%;
+        --secondary: 100 30% 18%;
+        --secondary-foreground: 80 60% 75%;
+        --muted: 100 30% 16%;
+        --muted-foreground: 85 30% 55%;
+        --accent: 95 35% 22%;
+        --accent-foreground: 75 70% 70%;
+        --border: 95 30% 26%;
+        --input: 95 30% 26%;
+        --ring: 80 55% 50%;
+        --radius: 0.125rem;
+        --sidebar-background: 100 45% 6%;
+        --sidebar-foreground: 80 55% 70%;
+        --sidebar-primary: 75 65% 55%;
+        --sidebar-primary-foreground: 100 45% 6%;
+        --sidebar-accent: 100 35% 12%;
+        --sidebar-accent-foreground: 75 70% 65%;
+        --sidebar-border: 100 30% 14%;
+        --sidebar-ring: 75 65% 55%;
+        --wood-dark: #0f1f0a;
+        --wood: #1a3010;
+        --wood-light: #306230;
+        --wood-edge: #071004;
+        --gold: #9bbc0f;
+        --parchment-edge: #306230;
+    }
+
+    /* Graphit: neutrales Dunkelgrau mit Orange */
+    :root[data-theme='graphite'].dark {
+        --background: 220 6% 11%;
+        --foreground: 220 10% 90%;
+        --card: 220 6% 15%;
+        --card-foreground: 220 10% 90%;
+        --popover: 220 6% 15%;
+        --popover-foreground: 220 10% 90%;
+        --primary: 24 95% 53%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 220 6% 20%;
+        --secondary-foreground: 220 10% 90%;
+        --muted: 220 6% 19%;
+        --muted-foreground: 220 8% 62%;
+        --accent: 220 6% 23%;
+        --accent-foreground: 24 95% 65%;
+        --border: 220 6% 26%;
+        --input: 220 6% 26%;
+        --ring: 24 95% 53%;
+        --sidebar-background: 220 7% 8%;
+        --sidebar-foreground: 220 10% 84%;
+        --sidebar-primary: 24 95% 58%;
+        --sidebar-primary-foreground: 0 0% 100%;
+        --sidebar-accent: 220 6% 14%;
+        --sidebar-accent-foreground: 24 95% 65%;
+        --sidebar-border: 220 6% 16%;
+        --sidebar-ring: 24 95% 58%;
+        --wood-dark: #16171a;
+        --wood: #202226;
+        --wood-light: #3a3d44;
+        --wood-edge: #0b0c0e;
+        --gold: #f97316;
+        --parchment-edge: #3a3d44;
+    }
+
+    /* Helle Themes im Dunkelmodus: dunkle Grundfarben bleiben, der Akzent passt zum Theme */
+    :root[data-theme='candy'].dark {
+        --primary: 322 70% 60%;
+        --ring: 322 70% 60%;
+        --sidebar-primary: 322 85% 70%;
+        --gold: #ff8fd1;
+    }
+    :root[data-theme='forest'].dark {
+        --primary: 140 50% 42%;
+        --ring: 140 50% 42%;
+        --sidebar-primary: 75 70% 55%;
+        --gold: #b9e05a;
+    }
+    :root[data-theme='ocean'].dark {
+        --primary: 195 75% 45%;
+        --ring: 195 75% 45%;
+        --sidebar-primary: 175 70% 50%;
+        --gold: #4fd8c4;
+    }
+    :root[data-theme='minimal'].dark {
+        --primary: 222 60% 62%;
+        --ring: 222 60% 62%;
+        --sidebar-primary: 222 60% 62%;
+        --gold: #8aa4e8;
+    }
+}
+
+@layer components {
+    /* Schlicht und Graphit: keine Holzmaserung, ruhige Rahmen */
+    :root[data-theme='minimal'] .hh-wood,
+    :root[data-theme='graphite'] .hh-wood,
+    :root[data-theme='minimal'] .hh-parchment {
+        background-image: none;
+    }
+    :root[data-theme='minimal'] .hh-panel {
+        border-width: 1px;
+        border-color: hsl(var(--border));
+        box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+    }
+    :root[data-theme='minimal'] main h1,
+    :root[data-theme='minimal'] main h2,
+    :root[data-theme='minimal'] .hh-panel-title {
+        font-family: Nunito, ui-sans-serif, system-ui, sans-serif;
+        text-transform: none;
+        letter-spacing: normal;
+    }
+    /* Neon: leuchtende Kanten */
+    :root[data-theme='neon'] .hh-panel {
+        box-shadow:
+            inset 0 0 0 1px rgb(25 240 255 / 0.35),
+            0 0 14px rgb(255 43 214 / 0.35);
+    }
+}
+
+/* ---------- Barrierefreiheit ---------- */
+
+/* Hoher Kontrast: kräftige Schrift- und Randfarben */
+:root.hh-contrast:not(.dark) {
+    --foreground: 0 0% 0%;
+    --card-foreground: 0 0% 0%;
+    --popover-foreground: 0 0% 0%;
+    --muted-foreground: 0 0% 18%;
+    --border: 0 0% 25%;
+    --input: 0 0% 25%;
+    --card: 0 0% 100%;
+    --popover: 0 0% 100%;
+    --ring: 220 100% 40%;
+    --parchment-edge: #1a1a1a;
+}
+:root.hh-contrast.dark {
+    --foreground: 0 0% 100%;
+    --card-foreground: 0 0% 100%;
+    --popover-foreground: 0 0% 100%;
+    --muted-foreground: 0 0% 85%;
+    --border: 0 0% 75%;
+    --input: 0 0% 75%;
+    --background: 0 0% 4%;
+    --card: 0 0% 8%;
+    --popover: 0 0% 8%;
+    --ring: 50 100% 60%;
+    --parchment-edge: #e5e5e5;
+}
+:root.hh-contrast .hh-parchment {
+    background-image: none;
+}
+:root.hh-contrast :focus-visible {
+    outline: 3px solid hsl(var(--ring));
+    outline-offset: 2px;
+}
+
+/* Lesefreundliche Schrift (Atkinson Hyperlegible), auch statt der Pixelschrift */
+:root.hh-readable body,
+:root.hh-readable .font-sans,
+:root.hh-readable .font-pixel,
+:root.hh-readable main h1,
+:root.hh-readable main h2,
+:root.hh-readable .hh-panel-title {
+    font-family: 'Atkinson Hyperlegible', ui-sans-serif, system-ui, sans-serif;
+}
+:root.hh-readable body {
+    letter-spacing: 0.01em;
+    word-spacing: 0.06em;
+}
+
+/*
+ * Bewegung reduzieren (Einstellung „Animationen aus“): dieselbe Wirkung wie prefers-reduced-motion.
+ * Endlos-Animationen der Spielgrafiken schalten die Komponenten selbst ab (:global(.hh-reduce-motion)).
+ */
+:root.hh-reduce-motion *,
+:root.hh-reduce-motion *::before,
+:root.hh-reduce-motion *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+}

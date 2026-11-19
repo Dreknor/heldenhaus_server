@@ -3,6 +3,7 @@
 namespace App\Domain\Notifications;
 
 use App\Jobs\SendPushNotification;
+use App\Models\FocusSession;
 use App\Models\NotificationSetting;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -12,7 +13,8 @@ use Illuminate\Support\Collection;
 /**
  * Push über FCM (Konzept §5.1, §8): Benachrichtigungen enthalten keine Inhalte, nur die Art
  * („Neue Freigabe“). Die App holt die Details selbst. In der Ruhezeit oder bei abgeschalteter Art
- * geht nur eine stille Datennachricht raus, die einen Abgleich auslöst.
+ * geht nur eine stille Datennachricht raus, die einen Abgleich auslöst. Dasselbe gilt während einer
+ * laufenden Fokus-Zeit (§11.4): Dann poppt nichts auf, auch keine Freigabe-Datennachricht mit Anzeige.
  */
 class PushNotifier
 {
@@ -67,7 +69,9 @@ class PushNotifier
             }
 
             $setting = $user->notificationSetting ?? new NotificationSetting;
-            $visible = isset(self::TYPES[$type]) && $setting->allows($type) && ! $setting->isQuiet(CarbonImmutable::now($user->timezone ?? 'Europe/Berlin'));
+            $visible = isset(self::TYPES[$type]) && $setting->allows($type)
+                && ! $setting->isQuiet(CarbonImmutable::now($user->timezone ?? 'Europe/Berlin'))
+                && ! self::inFocus($user);
 
             $dataOnly = in_array($type, self::DATA_ONLY, true);
             $payload = self::data($type, $data + ($dataOnly && $visible ? ['show' => '1', 'title' => self::TYPES[$type][0], 'body' => self::TYPES[$type][1]] : []));
@@ -79,6 +83,12 @@ class PushNotifier
         }
 
         return $count;
+    }
+
+    /** Läuft gerade eine Fokus-Zeit (Timer noch nicht abgelaufen)? Dann werden sichtbare Pushes zurückgehalten. */
+    public static function inFocus(User $user): bool
+    {
+        return FocusSession::where('user_id', $user->id)->whereNull('ended_at')->where('ends_at', '>', now())->exists();
     }
 
     public static function parentsOf(?int $familyId): Collection
