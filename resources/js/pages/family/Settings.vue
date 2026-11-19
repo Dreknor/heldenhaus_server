@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
 import CouncilSettings from '@/components/council/CouncilSettings.vue';
+import CrestPicker from '@/components/family/CrestPicker.vue';
 import MemberFeatureSettings from '@/components/family/MemberFeatureSettings.vue';
 import MemberSupportSettings from '@/components/family/MemberSupportSettings.vue';
 import HeroAvatar from '@/components/game/HeroAvatar.vue';
@@ -542,6 +543,8 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
                         </form>
                     </CardContent>
                 </Card>
+
+                <CrestPicker class="lg:col-span-2" />
             </div>
         </div>
     </AppLayout>

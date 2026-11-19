@@ -24,6 +24,8 @@ const user = computed(() => page.props.auth.user);
 const stats = computed(() => page.props.auth.stats);
 const appearance = computed(() => page.props.auth.appearance);
 const className = computed(() => (stats.value?.class_key ? classNames[stats.value.class_key] : null));
+// Titel unter dem Namen (§14.7): beste Meisterschaft und Level-Titel
+const titleLine = computed(() => [page.props.auth.title?.mastery, page.props.auth.title?.level].filter(Boolean).join(' · '));
 const percent = (value: number, max: number) => `${Math.max(0, Math.min(100, (value / Math.max(1, max)) * 100))}%`;
 </script>
 
@@ -50,6 +52,7 @@ const percent = (value: number, max: number) => `${Math.max(0, Math.min(100, (va
                     Level {{ stats.level }}<template v-if="className"> · {{ className }}</template>
                     <Moon v-if="stats.sleeping" class="ml-1 inline size-3" />
                 </p>
+                <p v-if="titleLine" class="text-[var(--gold)]/90 truncate text-[11px] font-semibold italic" :title="titleLine">{{ titleLine }}</p>
             </div>
         </div>
         <template v-if="stats">

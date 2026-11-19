@@ -20,6 +20,7 @@ use App\Http\Controllers\GoalController;
 use App\Http\Controllers\HeroController;
 use App\Http\Controllers\HousingController;
 use App\Http\Controllers\InsightsController;
+use App\Http\Controllers\LongTermController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\QuestController;
 use App\Http\Controllers\RewardShopController;
@@ -164,6 +165,13 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
 
     Route::get('achievements', [AchievementController::class, 'index'])->name('achievements.index');
     Route::post('achievements/seen', [AchievementController::class, 'seen'])->name('achievements.seen');
+
+    // Langzeitziele (§14.7) und Chronik (§14.8)
+    Route::get('album', [LongTermController::class, 'album'])->name('album.index');
+    Route::get('hero-year', [LongTermController::class, 'heroYear'])->name('hero-year.index');
+    Route::get('chronicle', [LongTermController::class, 'chronicle'])->name('chronicle.index');
+    Route::post('chronicle/{key}/read', [LongTermController::class, 'readChapter'])->where('key', '[a-z0-9_]+')->name('chronicle.read');
+    Route::put('family/crest', [LongTermController::class, 'crest'])->name('family.crest');
 
     Route::get('quests', [QuestController::class, 'index'])->name('quests.index');
     Route::post('quests', [QuestController::class, 'start'])->name('quests.start');

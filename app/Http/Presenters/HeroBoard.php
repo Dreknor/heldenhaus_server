@@ -2,6 +2,8 @@
 
 namespace App\Http\Presenters;
 
+use App\Domain\Achievements\AlbumService;
+use App\Domain\Achievements\ChronicleService;
 use App\Domain\Art\PetArt;
 use App\Domain\Council\BoardHints;
 use App\Domain\Gameplay\RunDayCron;
@@ -76,7 +78,20 @@ class HeroBoard
             'councilHints' => BoardHints::for($user),
             // Rückblick, Umfrage, Hinweise für Eltern (§14.5, §14.10)
             'insights' => InsightsBoard::for($user),
+            // Knappe Hinweise auf Langzeitziele (§14.7, §14.8): neues Chronik-Kapitel, neue Album-Belohnung
+            'longTerm' => [
+                'chapter' => self::chapterHint($user),
+                'album_rewards' => AlbumService::unseenRewards($user),
+            ],
         ];
+    }
+
+    /** Erstes ungelesenes Chronik-Kapitel; vorher freischalten, was schon erreicht ist. */
+    private static function chapterHint(User $user): ?array
+    {
+        app(ChronicleService::class)->sync($user);
+
+        return ChronicleService::firstUnread($user);
     }
 
     public static function companion(User $user): ?UserPet

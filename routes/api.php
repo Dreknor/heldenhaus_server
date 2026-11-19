@@ -19,6 +19,7 @@ use App\Http\Controllers\FeatureController;
 use App\Http\Controllers\GrowingUpController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InsightsController;
+use App\Http\Controllers\LongTermController;
 use App\Http\Controllers\ParentHelpController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\QuestController;
@@ -110,6 +111,13 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
             Route::get('family/report', [FamilyHubController::class, 'report'])->name('family.report');
             Route::get('achievements', [AchievementController::class, 'index'])->name('achievements');
             Route::post('achievements/seen', [AchievementController::class, 'seen'])->name('achievements.seen');
+            // Langzeitziele (§14.7) und Chronik (§14.8)
+            Route::get('me/album', [LongTermController::class, 'album'])->name('me.album');
+            Route::get('me/masteries', [LongTermController::class, 'masteries'])->name('me.masteries');
+            Route::get('me/hero-year', [LongTermController::class, 'heroYear'])->name('me.hero-year');
+            Route::get('chronicle', [LongTermController::class, 'chronicle'])->name('chronicle');
+            Route::post('chronicle/{key}/read', [LongTermController::class, 'readChapter'])->where('key', '[a-z0-9_]+')->name('chronicle.read');
+            Route::put('family/crest', [LongTermController::class, 'crest'])->name('family.crest');
             Route::get('quests', [QuestController::class, 'index'])->name('quests');
             Route::post('quests', [QuestController::class, 'start'])->name('quests.start');
             Route::post('quests/{quest}/abandon', [QuestController::class, 'abandon'])->name('quests.abandon');

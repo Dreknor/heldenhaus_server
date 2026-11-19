@@ -32,6 +32,13 @@ class ModifierChain
             default => null,
         };
 
+        // Passive Fähigkeiten-Stufen ab Level 15/20/25 (§14.7), Wirkung aus classes.json
+        foreach (ClassCatalog::tiers($stats->class_key, $stats->level) as $tier) {
+            if ($tier['kind'] === 'passive') {
+                $chain[] = Modifiers::skillEffect($tier['key'], $tier['effect']);
+            }
+        }
+
         if (self::familyHasClass($user, 'warrior')) {
             $chain[] = Modifiers::shieldWall();
         }
@@ -45,10 +52,16 @@ class ModifierChain
                         'cheer' => $chain[] = Modifiers::bossBuff($buff),
                         'wild_call' => $chain[] = Modifiers::categoryBonus('wild_call', self::WILD_CATEGORIES, $buff->value),
                         'blessing' => $chain[] = Modifiers::blessing($buff),
-                        default => null,
+                        default => self::tierBuff($chain, $buff),
                     };
                 });
         }
+
+        // Persönliche Buffs aus Fähigkeiten-Stufen (Schutzschild von anderen, eigene Buffs ohne Familie)
+        ActiveBuff::current()->where('user_id', $user->id)->where('armed', false)->get()->unique('key')
+            ->each(function (ActiveBuff $buff) use (&$chain) {
+                self::tierBuff($chain, $buff);
+            });
 
         // Laufende Events der Familie (§12.2); gleichartige Boni stapeln nicht
         foreach (EventEngine::modifiersFor($user) as $m) {
@@ -63,10 +76,20 @@ class ModifierChain
 
         ActiveBuff::current()->where('user_id', $user->id)->where('armed', true)->get()->unique('key')
             ->each(function (ActiveBuff $buff) use (&$chain) {
-                $chain[] = Modifiers::armed($buff);
+                $effect = ClassCatalog::skill($buff->key)['effect'] ?? null;
+                $chain[] = $effect !== null ? Modifiers::skillEffect($buff->key, $effect, $buff) : Modifiers::armed($buff);
             });
 
         return $chain;
+    }
+
+    /** Buff einer Fähigkeiten-Stufe anhängen, falls der Schlüssel eine ist (sonst nichts). */
+    private static function tierBuff(array &$chain, ActiveBuff $buff): void
+    {
+        $effect = ClassCatalog::skill($buff->key)['effect'] ?? null;
+        if ($effect !== null) {
+            $chain[] = Modifiers::skillEffect($buff->key, $effect, $buff);
+        }
     }
 
     public static function applyScore(ScoreContext $context): ScoreContext

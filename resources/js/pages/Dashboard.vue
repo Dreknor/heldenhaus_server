@@ -10,6 +10,7 @@ import GamePanel from '@/components/game/GamePanel.vue';
 import HeroScene from '@/components/game/HeroScene.vue';
 import InsightsCards, { type BoardInsights } from '@/components/game/InsightsCards.vue';
 import LongTermCards from '@/components/game/LongTermCards.vue';
+import LongTermHints from '@/components/game/LongTermHints.vue';
 import QuestCard, { type ActiveQuest } from '@/components/game/QuestCard.vue';
 import StatsPanel from '@/components/game/StatsPanel.vue';
 import TaskCard from '@/components/game/TaskCard.vue';
@@ -90,6 +91,7 @@ const props = defineProps<{
     };
     events?: EventSummary[];
     funEvents?: FunEvent[];
+    longTerm?: { chapter: { key: string; number: number; title: string } | null; album_rewards: number } | null;
 }>();
 
 const page = usePage<SharedData>();
@@ -231,6 +233,7 @@ const greeting = computed(() => {
                 <FunEventCard v-for="fun in funEvents" :key="fun.id" :event="fun" />
             </div>
             <CouncilHints :hints="councilHints ?? []" />
+            <LongTermHints :hints="longTerm" />
 
             <template v-if="mode === 'focus'">
                 <FocusBoard
