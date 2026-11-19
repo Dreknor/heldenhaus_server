@@ -3,6 +3,7 @@
 namespace App\Domain\Classes;
 
 use App\Domain\Achievements\AchievementService;
+use App\Domain\Dungeons\Torches;
 use App\Domain\Features\Features;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\GameException;
@@ -103,15 +104,20 @@ class ClassService
             throw new GameException('Diese Fähigkeit hat deine Klasse nicht.');
         }
 
+        // Fähigkeiten-Stufen (§14.7) gibt es erst ab ihrem Level
+        if ($stats->level < ($skill['level'] ?? 0)) {
+            throw new GameException("{$skill['name']} lernst du ab Level {$skill['level']}.");
+        }
+
         $castsToday = SkillCast::where('user_id', $user->id)->where('skill_key', $skillKey)->where('created_at', '>=', now()->startOfDay())->count();
-        if ($castsToday >= config('game.skill_casts_per_day')) {
+        if ($castsToday >= ($skill['per_day'] ?? config('game.skill_casts_per_day'))) {
             throw new GameException('Diese Fähigkeit hast du heute schon oft genug eingesetzt.');
         }
 
-        if ($skillKey === 'healing_wave') {
+        if ($skillKey === 'healing_wave' || ($skill['target'] ?? null) === 'member') {
             $target ??= $user;
             if (! $user->is($target) && ! $user->sameFamilyAs($target)) {
-                throw new GameException('Du kannst nur deine Familie heilen.');
+                throw new GameException($skillKey === 'healing_wave' ? 'Du kannst nur deine Familie heilen.' : 'Das geht nur für deine Familie.');
             }
         }
 
@@ -126,6 +132,10 @@ class ClassService
             SkillCast::create(['user_id' => $user->id, 'skill_key' => $skillKey, 'target_user_id' => $target?->id, 'mana_cost' => $skill['mana']]);
 
             Features::starterDone($user, 'classes');
+
+            if (isset($skill['effect'])) {
+                return $this->tierEffect($user, $skill, $target);
+            }
 
             return match ($skillKey) {
                 'ancestral_wisdom' => $this->familyBuff($user, 'ancestral_wisdom', 0.2, $skill['hours'], 'Die ganze Familie bekommt 24 Stunden lang +20 % XP!'),
@@ -264,8 +274,44 @@ class ClassService
         return $user->family_id ? User::where('family_id', $user->family_id)->get() : collect([$user]);
     }
 
-    /** Tierbändiger „Fütterungszeit“: jedes Familienmitglied bekommt ein zufälliges Futter aus dem Shop-Sortiment. */
-    private function feedingTime(User $user): string
+    /**
+     * Fähigkeiten-Stufen ab Level 15/20/25 (§14.7): Ihre Wirkung steht als Effekt-Typ in classes.json,
+     * programmiert sind nur die Typen. Buffs wirken danach über die Modifikator-Kette.
+     */
+    private function tierEffect(User $user, array $skill, ?User $target): string
+    {
+        $effect = $skill['effect'];
+        $hours = (int) ($skill['hours'] ?? 24);
+
+        match ($effect['type']) {
+            'family_buff' => $this->upsertBuff([...($user->family_id ? ['family_id' => $user->family_id] : ['user_id' => $user->id]), 'key' => $skill['key']], 1, $hours, false, $user),
+            'armed_next' => $this->upsertBuff(['user_id' => $user->id, 'key' => $skill['key']], 1, $hours, true, $user),
+            'member_shield' => $this->upsertBuff(['user_id' => ($target ?? $user)->id, 'key' => $skill['key']], (float) $effect['reduce'], $hours, false, $user),
+            'family_restore' => $this->restoreFamily($user, (float) ($effect['hp'] ?? 0), (float) ($effect['mp'] ?? 0)),
+            'family_gold' => UserStats::whereIn('user_id', $this->family($user)->pluck('id'))->increment('gold', (float) $effect['gold']),
+            'family_torches' => $this->family($user)->filter(fn (User $m) => Features::has($m, 'dungeons'))
+                ->each(fn (User $m) => Torches::award($m, (int) $effect['torches'])),
+            'family_items' => $this->feedingTime($user, (int) ($effect['amount'] ?? 1)),
+            default => throw new GameException('Diese Fähigkeit kennt das Spiel noch nicht.'),
+        };
+
+        return str_replace('{target}', ($target ?? $user)->name, $skill['message'] ?? "{$skill['name']} gewirkt!");
+    }
+
+    private function restoreFamily(User $user, float $hp, float $mp): void
+    {
+        foreach ($this->family($user) as $member) {
+            $stats = UserStats::lockForUpdate()->find($member->id);
+            if ($stats) {
+                Progression::heal($stats, $hp);
+                $stats->mp = round(min(Formulas::maxMp($stats), $stats->mp + $mp), 1);
+                $stats->save();
+            }
+        }
+    }
+
+    /** Tierbändiger „Fütterungszeit“ (und „Leckerlitüte“): jedes Familienmitglied bekommt zufälliges Futter aus dem Shop-Sortiment. */
+    private function feedingTime(User $user, int $amount = 1): string
     {
         $foods = Item::where('type', 'food')->where('rarity', 'common')->whereNotNull('price_gold')->pluck('key');
         if ($foods->isEmpty()) {
@@ -273,7 +319,9 @@ class ClassService
         }
 
         foreach ($this->family($user) as $member) {
-            Stock::addKeys($member->id, [$foods->random() => 1]);
+            foreach (range(1, max(1, $amount)) as $i) {
+                Stock::addKeys($member->id, [$foods->random() => 1]);
+            }
         }
 
         return 'Fütterungszeit! Alle in der Familie haben ein Futter für ihre Tiere bekommen.';

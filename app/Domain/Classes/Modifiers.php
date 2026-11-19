@@ -230,6 +230,68 @@ final class Modifiers
         };
     }
 
+    /**
+     * Fähigkeiten-Stufen ab Level 15/20/25 (§14.7) – ein Modifikator für alle Effekt-Typen aus classes.json:
+     * score_bonus (passiv), family_buff (Familien-Buff), armed_next (nächster passender Abschluss, wird verbraucht),
+     * cron_shield (passiv, eigener Schaden) und member_shield (Schutz für ein Familienmitglied).
+     * Bedingungen in „when“: categories, task_types, min_difficulty, pool, min_streak.
+     */
+    public static function skillEffect(string $key, array $effect, ?ActiveBuff $buff = null): Modifier
+    {
+        return new class($key, $effect, $buff) extends Modifier
+        {
+            public function __construct(private readonly string $key, private readonly array $e, private readonly ?ActiveBuff $buff) {}
+
+            public function onScore(ScoreContext $c): void
+            {
+                if (! in_array($this->e['type'], ['score_bonus', 'family_buff', 'armed_next'], true) || ! $this->matches($c)) {
+                    return;
+                }
+
+                $xp = (float) ($this->e['xp'] ?? 0);
+                $gold = (float) ($this->e['gold'] ?? 0);
+                $boss = (float) ($this->e['boss'] ?? 0);
+                $mp = (float) ($this->e['mp'] ?? 0);
+                if ($xp == 0 && $gold == 0 && $boss == 0 && $mp == 0) {
+                    return;
+                }
+
+                $c->xpMultiplier *= 1 + $xp;
+                $c->goldMultiplier *= 1 + $gold;
+                $c->bossMultiplier *= 1 + $boss;
+                $c->mpGain += $mp;
+                $c->effects[] = $this->key;
+
+                if ($this->buff?->armed) {
+                    $this->buff->delete();
+                }
+            }
+
+            public function onCronDamage(float $damage): float
+            {
+                $reduce = match ($this->e['type']) {
+                    'cron_shield', 'member_shield' => (float) ($this->buff?->value ?? $this->e['reduce'] ?? 0),
+                    'family_buff' => (float) ($this->e['cron'] ?? 0),
+                    default => 0.0,
+                };
+
+                // Nicht auf 2 Stellen runden: der Wert ist meist ein Faktor (1.0 → 0,375), gerundet wird beim Schaden
+                return $reduce > 0 ? round($damage * max(0, 1 - $reduce), 4) : $damage;
+            }
+
+            private function matches(ScoreContext $c): bool
+            {
+                $when = $this->e['when'] ?? [];
+
+                return (! isset($when['categories']) || in_array($c->task->category, $when['categories'], true))
+                    && (! isset($when['task_types']) || in_array($c->task->type->value, $when['task_types'], true))
+                    && (! isset($when['min_difficulty']) || $c->task->difficulty >= $when['min_difficulty'])
+                    && (! isset($when['pool']) || $c->isPoolTask() === (bool) $when['pool'])
+                    && (! isset($when['min_streak']) || $c->streak >= $when['min_streak']);
+            }
+        };
+    }
+
     /** Familien-Buff (Barde „Anfeuern“): +X % Boss-Schaden. */
     public static function bossBuff(ActiveBuff $buff): Modifier
     {

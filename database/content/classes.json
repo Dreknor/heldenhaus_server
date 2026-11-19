@@ -6,7 +6,12 @@
     "dungeon": "Schlägt rissige Wände ein und zieht Monsterangriffe auf sich.",
     "max_hp": 60, "mp_multiplier": 1.0,
     "passive": { "key": "shield_wall", "name": "Schildwall", "description": "−25 % HP-Schaden für die ganze Familie, wenn jemand eine Daily verpasst (stapelt nicht)." },
-    "active": { "key": "mighty_blow", "name": "Mächtiger Hieb", "mana": 10, "hours": 24, "description": "Die nächste schwere Aufgabe macht dreifachen Schaden am Familien-Boss." }
+    "active": { "key": "mighty_blow", "name": "Mächtiger Hieb", "mana": 10, "hours": 24, "description": "Die nächste schwere Aufgabe macht dreifachen Schaden am Familien-Boss." },
+    "tiers": [
+      {"level": 15, "kind": "active", "key": "protective_shield", "name": "Schutzschild", "mana": 15, "hours": 24, "target": "member", "description": "Ein Familienmitglied deiner Wahl bekommt 24 Stunden lang nur halben HP-Schaden beim Tageswechsel.", "message": "{target} steht hinter deinem Schutzschild – 24 Stunden lang nur halber Schaden beim Tageswechsel!", "effect": {"type": "member_shield", "reduce": 0.5}},
+      {"level": 20, "kind": "passive", "key": "heavy_lifter", "name": "Schwerarbeiter", "description": "+15 % XP und Gold für schwere Aufgaben.", "effect": {"type": "score_bonus", "when": {"min_difficulty": 2}, "xp": 0.15, "gold": 0.15}},
+      {"level": 25, "kind": "active", "key": "battle_cry", "name": "Schlachtruf", "mana": 20, "hours": 12, "description": "+25 % Boss-Schaden für alle Familienmitglieder für 12 Stunden.", "message": "Schlachtruf! 12 Stunden lang +25 % Boss-Schaden für alle.", "effect": {"type": "family_buff", "boss": 0.25}}
+    ]
   },
   {
     "key": "mage", "name": "Magier", "role": "Der Stratege", "icon": "🔮",
@@ -15,7 +20,12 @@
     "dungeon": "Deckt Nachbarräume im Nebel auf und bekommt bei Rätseln einen Hinweis.",
     "max_hp": 50, "mp_multiplier": 1.5,
     "passive": { "key": "focus_shield", "name": "Fokus-Schild", "description": "+2 Mana für jede Daily, die vor der Fokus-Uhrzeit (Standard 12 Uhr) erledigt wird." },
-    "active": { "key": "ancestral_wisdom", "name": "Weisheit der Ahnen", "mana": 20, "hours": 24, "description": "+20 % XP für alle Familienmitglieder für 24 Stunden." }
+    "active": { "key": "ancestral_wisdom", "name": "Weisheit der Ahnen", "mana": 20, "hours": 24, "description": "+20 % XP für alle Familienmitglieder für 24 Stunden." },
+    "tiers": [
+      {"level": 15, "kind": "passive", "key": "bookworm", "name": "Bücherwurm", "description": "+15 % XP für Aufgaben aus „Schule & Lernen“.", "effect": {"type": "score_bonus", "when": {"categories": ["school"]}, "xp": 0.15}},
+      {"level": 20, "kind": "active", "key": "brainwave", "name": "Geistesblitz", "mana": 10, "hours": 24, "description": "Die nächste Aufgabe aus „Schule & Lernen“ bringt doppelte XP.", "message": "Geistesblitz bereit – die nächste Lernaufgabe bringt doppelte XP!", "effect": {"type": "armed_next", "when": {"categories": ["school"]}, "xp": 1.0}},
+      {"level": 25, "kind": "active", "key": "time_magic", "name": "Zeitzauber", "mana": 25, "hours": 24, "description": "+10 % XP und Gold für alle Familienmitglieder für 24 Stunden.", "message": "Zeitzauber! 24 Stunden lang +10 % XP und Gold für alle.", "effect": {"type": "family_buff", "xp": 0.1, "gold": 0.1}}
+    ]
   },
   {
     "key": "rogue", "name": "Schurke", "role": "Der Beutejäger", "icon": "🗡️",
@@ -24,7 +34,12 @@
     "dungeon": "Entschärft jede Falle, ohne HP zu verlieren.",
     "max_hp": 50, "mp_multiplier": 1.0,
     "passive": { "key": "lucky_strike", "name": "Glückstreffer", "description": "15 % Chance auf dreifaches Gold bei jeder Aufgabe." },
-    "active": { "key": "loot_run", "name": "Beutezug", "mana": 10, "hours": 24, "description": "Die nächste Aufgabe aus der Aufgabenbörse bringt doppeltes Gold plus 10 Gold." }
+    "active": { "key": "loot_run", "name": "Beutezug", "mana": 10, "hours": 24, "description": "Die nächste Aufgabe aus der Aufgabenbörse bringt doppeltes Gold plus 10 Gold." },
+    "tiers": [
+      {"level": 15, "kind": "passive", "key": "quick_fingers", "name": "Flinke Finger", "description": "+25 % Gold für Aufgaben aus der Aufgabenbörse.", "effect": {"type": "score_bonus", "when": {"pool": true}, "gold": 0.25}},
+      {"level": 20, "kind": "active", "key": "treasure_map", "name": "Schatzkarte", "mana": 15, "hours": 0, "per_day": 1, "description": "Jedes Familienmitglied bekommt 5 Gold (einmal am Tag).", "message": "Schatzkarte gelesen – alle in der Familie finden 5 Gold!", "effect": {"type": "family_gold", "gold": 5}},
+      {"level": 25, "kind": "passive", "key": "master_thief", "name": "Meisterdieb", "description": "+10 % Gold für alle Aufgaben.", "effect": {"type": "score_bonus", "gold": 0.1}}
+    ]
   },
   {
     "key": "healer", "name": "Heiler", "role": "Der Supporter", "icon": "💚",
@@ -33,7 +48,12 @@
     "dungeon": "Heilt am Lagerfeuer alle im Raum voll und belebt K.O.-Mitglieder wieder.",
     "max_hp": 50, "mp_multiplier": 1.0,
     "passive": { "key": "second_chance", "name": "Zweite Chance", "description": "Einmal pro Woche eine verpasste Daily bis 24 h nach dem Tageswechsel ohne HP-Abzug glätten." },
-    "active": { "key": "healing_wave", "name": "Heilende Welle", "mana": 15, "hours": 0, "description": "+15 HP für dich oder ein gewähltes Familienmitglied." }
+    "active": { "key": "healing_wave", "name": "Heilende Welle", "mana": 15, "hours": 0, "description": "+15 HP für dich oder ein gewähltes Familienmitglied." },
+    "tiers": [
+      {"level": 15, "kind": "active", "key": "healing_circle", "name": "Heilkreis", "mana": 20, "hours": 0, "description": "+8 HP für alle Familienmitglieder.", "message": "Heilkreis! Alle in der Familie bekommen +8 HP.", "effect": {"type": "family_restore", "hp": 8}},
+      {"level": 20, "kind": "passive", "key": "gentle_hands", "name": "Sanfte Hände", "description": "−20 % HP-Schaden beim Tageswechsel für dich.", "effect": {"type": "cron_shield", "reduce": 0.2}},
+      {"level": 25, "kind": "active", "key": "healing_light", "name": "Heillicht", "mana": 25, "hours": 24, "description": "−25 % HP-Schaden beim Tageswechsel für die ganze Familie für 24 Stunden.", "message": "Heillicht! 24 Stunden lang weniger Schaden beim Tageswechsel für alle.", "effect": {"type": "family_buff", "cron": 0.25}}
+    ]
   },
   {
     "key": "tinkerer", "name": "Tüftler", "role": "Der Automatisierer", "icon": "🔧",
@@ -42,7 +62,12 @@
     "dungeon": "Bedient Hebel und Mechanismen, auch mit einem echten Taster zu Hause.",
     "max_hp": 50, "mp_multiplier": 1.0, "requires_home_assistant": true,
     "passive": { "key": "smart_connect", "name": "Smart-Connect", "description": "+25 % XP und Gold für Aufgaben, die über Home Assistant ausgelöst werden (max. 10 pro Tag)." },
-    "active": { "key": "overload", "name": "Überlastung", "mana": 10, "hours": 24, "description": "Verdoppelt den Effekt der nächsten über Home Assistant ausgelösten Aufgabe." }
+    "active": { "key": "overload", "name": "Überlastung", "mana": 10, "hours": 24, "description": "Verdoppelt den Effekt der nächsten über Home Assistant ausgelösten Aufgabe." },
+    "tiers": [
+      {"level": 15, "kind": "passive", "key": "handy", "name": "Bastelgeschick", "description": "+15 % XP und Gold für Kreativ-Aufgaben.", "effect": {"type": "score_bonus", "when": {"categories": ["creative"]}, "xp": 0.15, "gold": 0.15}},
+      {"level": 20, "kind": "active", "key": "little_helper", "name": "Helferlein", "mana": 10, "hours": 24, "description": "Die nächste Haushaltsaufgabe bringt doppeltes Gold.", "message": "Helferlein bereit – die nächste Haushaltsaufgabe bringt doppeltes Gold!", "effect": {"type": "armed_next", "when": {"categories": ["household"]}, "gold": 1.0}},
+      {"level": 25, "kind": "passive", "key": "clockwork", "name": "Uhrwerk", "description": "+1 Mana für jede erledigte Daily.", "effect": {"type": "score_bonus", "when": {"task_types": ["daily"]}, "mp": 1}}
+    ]
   },
   {
     "key": "bard", "name": "Barde", "role": "Der Motivator", "icon": "🎵",
@@ -51,7 +76,12 @@
     "dungeon": "Wege durch bekannte Räume kosten keine Fackel, und gemeinsam im Raum trifft man stärker.",
     "max_hp": 50, "mp_multiplier": 1.0,
     "passive": { "key": "community_rhythm", "name": "Gemeinschafts-Rhythmus", "description": "Schaffen alle aktiven Familienmitglieder (mind. 2) einen Tag lang 100 % ihrer Dailies, bekommt jedes Mitglied 15 Gold." },
-    "active": { "key": "cheer", "name": "Anfeuern", "mana": 15, "hours": 12, "description": "+15 % Boss-Schaden für alle Familienmitglieder für 12 Stunden." }
+    "active": { "key": "cheer", "name": "Anfeuern", "mana": 15, "hours": 12, "description": "+15 % Boss-Schaden für alle Familienmitglieder für 12 Stunden." },
+    "tiers": [
+      {"level": 15, "kind": "passive", "key": "encore", "name": "Zugabe", "description": "+15 % Gold für positive Gewohnheiten.", "effect": {"type": "score_bonus", "when": {"task_types": ["habit"]}, "gold": 0.15}},
+      {"level": 20, "kind": "active", "key": "serenade", "name": "Ständchen", "mana": 10, "hours": 0, "per_day": 1, "description": "+1 Fackel für alle Familienmitglieder, die schon in den Dungeon dürfen (einmal am Tag).", "message": "Ständchen! Alle in der Familie bekommen eine Fackel für den Dungeon.", "effect": {"type": "family_torches", "torches": 1}},
+      {"level": 25, "kind": "active", "key": "hero_song", "name": "Heldenlied", "mana": 20, "hours": 12, "description": "+15 % XP und Gold für alle Familienmitglieder für 12 Stunden.", "message": "Heldenlied! 12 Stunden lang +15 % XP und Gold für alle.", "effect": {"type": "family_buff", "xp": 0.15, "gold": 0.15}}
+    ]
   },
   {
     "key": "ranger", "name": "Waldläufer", "role": "Der Entdecker", "icon": "🏹",
@@ -60,7 +90,12 @@
     "dungeon": "Erstschlag: Die erste Runde gegen jedes Monster ist ein Volltreffer.",
     "max_hp": 50, "mp_multiplier": 1.0,
     "passive": { "key": "tracker", "name": "Fährtenleser", "description": "+20 % XP und Gold für Aufgaben aus „Sport & Draußen“ und „Tiere & Natur“." },
-    "active": { "key": "wild_call", "name": "Wildnisruf", "mana": 15, "hours": 24, "description": "+25 % XP und Gold für alle Familienmitglieder bei Aufgaben aus „Sport & Draußen“ und „Tiere & Natur“ für 24 Stunden." }
+    "active": { "key": "wild_call", "name": "Wildnisruf", "mana": 15, "hours": 24, "description": "+25 % XP und Gold für alle Familienmitglieder bei Aufgaben aus „Sport & Draußen“ und „Tiere & Natur“ für 24 Stunden." },
+    "tiers": [
+      {"level": 15, "kind": "active", "key": "tracking", "name": "Spurensuche", "mana": 10, "hours": 24, "description": "Die nächste Aufgabe aus „Sport & Draußen“ oder „Tiere & Natur“ bringt doppelte XP und doppeltes Gold.", "message": "Spurensuche bereit – die nächste Aufgabe draußen oder mit Tieren zählt doppelt!", "effect": {"type": "armed_next", "when": {"categories": ["sport", "nature"]}, "xp": 1.0, "gold": 1.0}},
+      {"level": 20, "kind": "passive", "key": "trailblazer", "name": "Wegbereiter", "description": "+20 % Boss-Schaden bei Aufgaben aus „Sport & Draußen“ und „Tiere & Natur“.", "effect": {"type": "score_bonus", "when": {"categories": ["sport", "nature"]}, "boss": 0.2}},
+      {"level": 25, "kind": "active", "key": "hunting_fever", "name": "Jagdfieber", "mana": 20, "hours": 24, "description": "+25 % Boss-Schaden für alle Familienmitglieder bei Aufgaben aus „Sport & Draußen“ und „Tiere & Natur“ für 24 Stunden.", "message": "Jagdfieber! 24 Stunden lang +25 % Boss-Schaden für alle bei Sport, Draußen, Tieren und Natur.", "effect": {"type": "family_buff", "when": {"categories": ["sport", "nature"]}, "boss": 0.25}}
+    ]
   },
   {
     "key": "paladin", "name": "Paladin", "role": "Der Beschützer", "icon": "🛡️",
@@ -69,7 +104,12 @@
     "dungeon": "Schutzaura: −30 % Monsterschaden für alle im selben Raum.",
     "max_hp": 55, "mp_multiplier": 1.0,
     "passive": { "key": "oath", "name": "Treueschwur", "description": "+15 % XP für Dailies mit einer Serie ab 7 Tagen." },
-    "active": { "key": "blessing", "name": "Schutzsegen", "mana": 15, "hours": 24, "description": "Halbiert 24 Stunden lang den HP-Schaden beim Tageswechsel für die ganze Familie." }
+    "active": { "key": "blessing", "name": "Schutzsegen", "mana": 15, "hours": 24, "description": "Halbiert 24 Stunden lang den HP-Schaden beim Tageswechsel für die ganze Familie." },
+    "tiers": [
+      {"level": 15, "kind": "passive", "key": "steadfast", "name": "Standhaft", "description": "+15 % Gold für Dailies mit einer Serie ab 7 Tagen.", "effect": {"type": "score_bonus", "when": {"task_types": ["daily"], "min_streak": 7}, "gold": 0.15}},
+      {"level": 20, "kind": "active", "key": "light_shield", "name": "Lichtschild", "mana": 25, "hours": 24, "per_day": 1, "target": "member", "description": "Ein Familienmitglied deiner Wahl bekommt 24 Stunden lang keinen HP-Schaden beim Tageswechsel (einmal am Tag).", "message": "{target} leuchtet im Lichtschild – 24 Stunden lang kein Schaden beim Tageswechsel!", "effect": {"type": "member_shield", "reduce": 1.0}},
+      {"level": 25, "kind": "passive", "key": "iron_will", "name": "Eiserner Wille", "description": "−25 % HP-Schaden beim Tageswechsel für dich.", "effect": {"type": "cron_shield", "reduce": 0.25}}
+    ]
   },
   {
     "key": "tamer", "name": "Tierbändiger", "role": "Der Tierfreund", "icon": "🐾",
@@ -78,7 +118,12 @@
     "dungeon": "Ein Tierbegleiter kämpft mit: +3 Schaden bei jedem Treffer.",
     "max_hp": 50, "mp_multiplier": 1.0,
     "passive": { "key": "animal_whisperer", "name": "Tierflüsterer", "description": "Futter lässt die eigenen Haustiere doppelt so schnell wachsen." },
-    "active": { "key": "feeding_time", "name": "Fütterungszeit", "mana": 15, "hours": 0, "description": "Jedes Familienmitglied bekommt ein zufälliges Futter." }
+    "active": { "key": "feeding_time", "name": "Fütterungszeit", "mana": 15, "hours": 0, "description": "Jedes Familienmitglied bekommt ein zufälliges Futter." },
+    "tiers": [
+      {"level": 15, "kind": "passive", "key": "pet_care", "name": "Tierpflege", "description": "+15 % XP und Gold für Aufgaben aus „Tiere & Natur“.", "effect": {"type": "score_bonus", "when": {"categories": ["nature"]}, "xp": 0.15, "gold": 0.15}},
+      {"level": 20, "kind": "active", "key": "treat_bag", "name": "Leckerlitüte", "mana": 15, "hours": 0, "per_day": 1, "description": "Jedes Familienmitglied bekommt 2 Futter aus dem Shop-Sortiment (einmal am Tag).", "message": "Leckerlitüte! Alle in der Familie haben 2 Futter für ihre Tiere bekommen.", "effect": {"type": "family_items", "item_type": "food", "amount": 2}},
+      {"level": 25, "kind": "passive", "key": "beast_bond", "name": "Tierbund", "description": "+10 % Boss-Schaden bei allen Aufgaben – deine Tiere kämpfen mit.", "effect": {"type": "score_bonus", "boss": 0.1}}
+    ]
   },
   {
     "key": "cook", "name": "Koch", "role": "Der Versorger", "icon": "🍲",
@@ -87,7 +132,12 @@
     "dungeon": "Proviant: Am Lagerfeuer bekommt jeder im Raum eine Fackel.",
     "max_hp": 50, "mp_multiplier": 1.0,
     "passive": { "key": "home_cooking", "name": "Hausmannskost", "description": "+20 % XP und Gold für Aufgaben aus „Haushalt“." },
-    "active": { "key": "feast", "name": "Festmahl", "mana": 20, "hours": 0, "description": "+8 HP für alle Familienmitglieder." }
+    "active": { "key": "feast", "name": "Festmahl", "mana": 20, "hours": 0, "description": "+8 HP für alle Familienmitglieder." },
+    "tiers": [
+      {"level": 15, "kind": "active", "key": "lunch_break", "name": "Pausenbrot", "mana": 15, "hours": 0, "description": "+5 HP und +3 Mana für alle Familienmitglieder.", "message": "Pausenbrot! Alle in der Familie bekommen +5 HP und +3 Mana.", "effect": {"type": "family_restore", "hp": 5, "mp": 3}},
+      {"level": 20, "kind": "passive", "key": "kitchen_hero", "name": "Küchenheld", "description": "+1 Mana für jede Haushaltsaufgabe.", "effect": {"type": "score_bonus", "when": {"categories": ["household"]}, "mp": 1}},
+      {"level": 25, "kind": "active", "key": "banquet", "name": "Festbankett", "mana": 25, "hours": 24, "description": "+20 % XP und Gold für alle Familienmitglieder bei Haushaltsaufgaben für 24 Stunden.", "message": "Festbankett! 24 Stunden lang +20 % XP und Gold für alle bei Haushaltsaufgaben.", "effect": {"type": "family_buff", "when": {"categories": ["household"]}, "xp": 0.2, "gold": 0.2}}
+    ]
   },
   {
     "key": "monk", "name": "Mönch", "role": "Der Ruhepol", "icon": "🧘",
@@ -96,6 +146,11 @@
     "dungeon": "Weicht jedem vierten Gegenangriff aus.",
     "max_hp": 50, "mp_multiplier": 1.25,
     "passive": { "key": "inner_calm", "name": "Innere Ruhe", "description": "+1 Mana für jede positive Gewohnheit (max. 10 pro Tag)." },
-    "active": { "key": "meditation", "name": "Meditation", "mana": 15, "hours": 0, "description": "+8 Mana für alle Familienmitglieder." }
+    "active": { "key": "meditation", "name": "Meditation", "mana": 15, "hours": 0, "description": "+8 Mana für alle Familienmitglieder." },
+    "tiers": [
+      {"level": 15, "kind": "passive", "key": "mindfulness", "name": "Achtsamkeit", "description": "+15 % XP für positive Gewohnheiten.", "effect": {"type": "score_bonus", "when": {"task_types": ["habit"]}, "xp": 0.15}},
+      {"level": 20, "kind": "active", "key": "calm_spot", "name": "Ruhepol", "mana": 15, "hours": 24, "target": "member", "description": "Ein Familienmitglied deiner Wahl bekommt 24 Stunden lang nur halben HP-Schaden beim Tageswechsel.", "message": "{target} kommt zur Ruhe – 24 Stunden lang nur halber Schaden beim Tageswechsel!", "effect": {"type": "member_shield", "reduce": 0.5}},
+      {"level": 25, "kind": "active", "key": "enlightenment", "name": "Erleuchtung", "mana": 25, "hours": 24, "description": "+15 % XP für alle Familienmitglieder für 24 Stunden.", "message": "Erleuchtung! 24 Stunden lang +15 % XP für alle.", "effect": {"type": "family_buff", "xp": 0.15}}
+    ]
   }
 ]
