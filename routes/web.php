@@ -3,6 +3,7 @@
 use App\Domain\Dungeons\DungeonService;
 use App\Http\Controllers\AchievementController;
 use App\Http\Controllers\Admin\AiRequestController;
+use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\ItemController;
 use App\Http\Controllers\Admin\SceneBackgroundController;
 use App\Http\Controllers\Admin\UpdateController;
@@ -64,6 +65,13 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
     Route::get('family/event-settings', [EventController::class, 'webSettings'])->name('web.events.settings');
     Route::put('family/event-settings', [EventController::class, 'webUpdateSettings'])
         ->name('web.events.settings.update');
+    Route::post('events/start', [EventController::class, 'webStart'])->middleware('throttle:20,1')->name('web.events.start');
+    // Zufallsereignisse (§12.5) und Gasthaus
+    Route::post('fun-events/roll', [EventController::class, 'webRollFunEvent'])->middleware('throttle:30,1')->name('web.fun-events.roll');
+    Route::post('fun-events/{instance}/interact', [EventController::class, 'webInteract'])
+        ->whereNumber('instance')->middleware('throttle:60,1')->name('web.fun-events.interact');
+    Route::post('me/inn', [EventController::class, 'webEnterInn'])->name('web.inn.enter');
+    Route::delete('me/inn', [EventController::class, 'webLeaveInn'])->name('web.inn.leave');
     Route::get('housing', [HousingController::class, 'index'])->name('housing.index');
     Route::get('housing/visit/{family}', [HousingController::class, 'visit'])->name('housing.visit');
     Route::put('housing/rooms/{room}', [HousingController::class, 'customize'])->name('housing.rooms.customize');
@@ -186,6 +194,12 @@ Route::middleware(['auth', 'can:admin'])->prefix('admin')->name('admin.')->group
     Route::put('items/{item}', [ItemController::class, 'update'])->name('items.update');
     Route::delete('items/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
     Route::put('drop-settings', [ItemController::class, 'updateSettings'])->name('drop-settings.update');
+
+    // Event-Editor (§12.6)
+    Route::get('events', [AdminEventController::class, 'index'])->name('events.index');
+    Route::post('events/start', [AdminEventController::class, 'start'])->name('events.start');
+    Route::put('events/{kind}/{key}', [AdminEventController::class, 'update'])->whereIn('kind', ['event', 'fun'])->name('events.update');
+    Route::delete('events/{kind}/{key}', [AdminEventController::class, 'destroy'])->whereIn('kind', ['event', 'fun'])->name('events.destroy');
 });
 
 require __DIR__.'/settings.php';

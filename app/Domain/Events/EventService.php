@@ -76,12 +76,34 @@ class EventService
                 'name' => $e->definition()['name'],
                 'icon' => $e->definition()['icon'],
                 'status' => $e->status,
-                'decor' => $e->definition()['decor'] ?? null,
+                'ending_soon' => $e->status === 'ending',
+                'subject_name' => ($e->definition()['personal'] ?? false) ? $e->subject?->name : null,
+                'decor' => self::decorView($e->definition()['decor'] ?? null),
                 'modifiers' => $e->definition()['modifiers'] ?? [],
                 'time_progress' => self::timeProgress($e),
                 'goal_percent' => isset($e->progress['goal']) ? min(100, (int) floor(100 * ($e->progress['points'] ?? 0) / max(1, $e->progress['goal']))) : null,
+                // Stufen des Familienziels (für Banner und Symbole)
+                'tiers' => collect($e->definition()['goal']['tiers'] ?? [])->map(fn ($t) => [
+                    'percent' => $t['percent'], 'reached' => in_array($t['percent'], $e->progress['tiers'] ?? [], true),
+                ])->values()->all(),
                 'ends_at' => $e->ends_at->toIso8601String(),
             ])->values()->all();
+    }
+
+    /** Deko eines Events mit den Symbolen der Deko-Möbel, damit Szene und Haus sie ohne weitere Abfrage zeigen. */
+    public static function decorView(?array $decor): ?array
+    {
+        if (! $decor) {
+            return null;
+        }
+        $keys = array_values($decor['items'] ?? []);
+        $icons = $keys ? Item::whereIn('key', $keys)->pluck('icon', 'key') : collect();
+
+        return [
+            'colors' => array_values($decor['colors'] ?? []),
+            'items' => $keys,
+            'icons' => collect($keys)->map(fn ($k) => $icons[$k] ?? null)->filter()->values()->all(),
+        ];
     }
 
     public function history(User $user): array
@@ -121,7 +143,7 @@ class EventService
             'ending_soon' => $e->status === 'ending',
             // Zeit als Balken, nicht als Countdown (§11)
             'time_progress' => self::timeProgress($e),
-            'decor' => $def['decor'] ?? null,
+            'decor' => self::decorView($def['decor'] ?? null),
             'modifiers' => $def['modifiers'] ?? [],
             'goal' => isset($progress['goal']) ? [
                 'goal' => $progress['goal'],
