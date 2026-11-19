@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import CronDialog from '@/components/game/CronDialog.vue';
 import DailySupport from '@/components/game/DailySupport.vue';
+import EventBanner from '@/components/game/EventBanner.vue';
 import FeatureProgress from '@/components/game/FeatureProgress.vue';
 import FocusBoard from '@/components/game/FocusBoard.vue';
+import FunEventCard from '@/components/game/FunEventCard.vue';
 import GamePanel from '@/components/game/GamePanel.vue';
 import HeroScene from '@/components/game/HeroScene.vue';
 import LongTermCards from '@/components/game/LongTermCards.vue';
@@ -13,6 +15,7 @@ import TaskDialog from '@/components/game/TaskDialog.vue';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { AssignedTask, SharedData, Task, TaskType } from '@/types';
+import type { EventSummary, FunEvent } from '@/types/events';
 import { Head, router, useForm, usePage } from '@inertiajs/vue3';
 import {
     CalendarCheck,
@@ -81,6 +84,8 @@ const props = defineProps<{
         garden: { unlocked: boolean; unlockLevel: number; planted: number; ready: number };
         homeAssistant: { connected: boolean; lastEventAt: string | null };
     };
+    events?: EventSummary[];
+    funEvents?: FunEvent[];
 }>();
 
 const page = usePage<SharedData>();
@@ -216,6 +221,12 @@ const greeting = computed(() => {
                 </div>
             </div>
 
+            <!-- Laufende Events und kleine Zufallsereignisse (§12.5, §12.7) -->
+            <EventBanner v-if="events?.length" :events="events" />
+            <div v-if="funEvents?.length" class="grid gap-3 md:grid-cols-2">
+                <FunEventCard v-for="fun in funEvents" :key="fun.id" :event="fun" />
+            </div>
+
             <template v-if="mode === 'focus'">
                 <FocusBoard
                     :dailies="dailies"
@@ -237,6 +248,7 @@ const greeting = computed(() => {
                     :companion="companion"
                     :background="sceneBackground"
                     :weather="sceneWeather"
+                    :events="events"
                     :hurt="(stats?.hp ?? 50) < 15"
                 >
                     <div class="inline-block rounded-xl bg-white/85 px-3 py-2 text-left shadow-sm backdrop-blur dark:bg-slate-900/80">

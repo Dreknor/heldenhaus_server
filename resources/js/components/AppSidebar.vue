@@ -19,6 +19,7 @@ import {
     House,
     Inbox,
     ListChecks,
+    PartyPopper,
     PiggyBank,
     ScrollText,
     Settings,
@@ -92,6 +93,7 @@ const groups = computed<{ label: string; items: NavItem[] }[]>(() => [
                   label: 'Verwaltung',
                   items: [
                       { title: 'Items & Drops', href: '/admin/items', icon: Dices },
+                      { title: 'Event-Editor', href: '/admin/events', icon: PartyPopper },
                       { title: 'KI-Anfragen', href: '/admin/ai-requests', icon: Sparkles },
                       { title: 'System-Updates', href: '/admin/updates', icon: Download },
                   ],

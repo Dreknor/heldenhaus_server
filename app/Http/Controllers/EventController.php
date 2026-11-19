@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Classes\ClassCatalog;
+use App\Domain\Events\EventCatalog;
 use App\Domain\Events\EventService;
 use App\Domain\Events\FunEventService;
 use App\Domain\Support\InnService;
@@ -11,6 +12,7 @@ use App\Enums\TaskType;
 use App\Models\EventParticipation;
 use App\Models\FamilyEvent;
 use App\Models\FunEventInstance;
+use App\Models\Item;
 use App\Models\TaskAssignment;
 use App\Models\TaskCompletion;
 use App\Models\User;
@@ -27,7 +29,82 @@ class EventController extends Controller
 
     public function webIndex(Request $request): InertiaResponse
     {
-        return Inertia::render('events/Index', $this->events->index($request->user()) + ['canManage' => $request->user()->isParent()]);
+        $user = $request->user();
+        $fun = app(FunEventService::class);
+
+        return Inertia::render('events/Index', $this->events->index($user) + [
+            'canManage' => $user->isParent(),
+            'funEvents' => $fun->visible($user),
+            'funUsage' => FunEventService::dailyUsage($user),
+            'funGreeting' => FunEventService::wishGreeting($user),
+            // Eltern: Event von Hand starten (§12.3 „manual“)
+            'startable' => $user->isParent() ? collect(EventCatalog::all())->map(fn (array $e) => [
+                'key' => $e['key'], 'name' => $e['name'], 'icon' => $e['icon'], 'category' => $e['category'],
+                'needs_subject' => (bool) ($e['personal'] ?? false) || $e['key'] === 'welcome_party',
+            ])->values() : [],
+            'members' => $user->isParent()
+                ? User::where('family_id', $user->family_id)->orderBy('name')->get(['id', 'name'])->map->only(['id', 'name'])->values()
+                : [],
+        ]);
+    }
+
+    /** Eltern starten ein Event von Hand, wie POST /api/v1/events/start. */
+    public function webStart(Request $request): RedirectResponse
+    {
+        abort_unless($request->user()->isParent(), 403);
+        $data = $request->validate(['key' => ['required', 'string', 'max:32'], 'subject_user_id' => ['nullable', 'integer']]);
+        $event = $this->events->startManually($request->user(), $data['key'], $data['subject_user_id'] ?? null);
+        $def = $event->definition();
+        $message = $event->status === 'scheduled' ? "{$def['icon']} {$def['name']} wartet, bis Platz ist." : "{$def['icon']} {$def['name']} hat begonnen!";
+
+        return to_route('web.events.show', ['event' => $event->id])->with('success', $message);
+    }
+
+    /** Zufallsereignis an einem Ort suchen (Familienhaus, Stall, Lagerfeuer). Der Server entscheidet mit festem Seed. */
+    public function webRollFunEvent(Request $request, FunEventService $fun): RedirectResponse
+    {
+        $data = $request->validate(['context' => ['required', 'in:'.implode(',', FunEventService::CONTEXTS)]]);
+        $found = $fun->forContext($request->user(), $data['context']);
+
+        return back()->with('success', $found ? "{$found['icon']} {$found['name']}!" : 'Hier ist gerade alles ruhig. Schau später wieder vorbei.');
+    }
+
+    public function webInteract(Request $request, FunEventInstance $instance, FunEventService $fun): RedirectResponse
+    {
+        $data = $request->validate(['wish' => ['nullable', 'integer', 'min:0'], 'room' => ['nullable', 'string', 'max:32']]);
+        $result = $fun->interact($request->user(), $instance, $data);
+        $reward = self::rewardText($result['reward'] ?? null);
+
+        return back()->with('success', trim(($result['message'] ?? 'Geschafft!').($reward ? " {$reward}" : '')));
+    }
+
+    public function webEnterInn(Request $request, InnService $inn): RedirectResponse
+    {
+        $inn->enter($request->user(), $request->user());
+
+        return back()->with('success', 'Du ruhst dich im Gasthaus aus. Gute Erholung!');
+    }
+
+    public function webLeaveInn(Request $request, InnService $inn): RedirectResponse
+    {
+        $inn->leave($request->user(), $request->user());
+
+        return back()->with('success', 'Willkommen zurück im Abenteuer!');
+    }
+
+    /** „+3 Gold, 1× Frisches Ei“ */
+    private static function rewardText(?array $reward): ?string
+    {
+        if (! $reward) {
+            return null;
+        }
+        $names = Item::whereIn('key', array_keys($reward['items'] ?? []))->pluck('name', 'key');
+        $parts = array_filter([
+            ($reward['gold'] ?? 0) > 0 ? "+{$reward['gold']} Gold" : null,
+            ...collect($reward['items'] ?? [])->map(fn ($q, $k) => "{$q}× ".($names[$k] ?? $k))->values()->all(),
+        ]);
+
+        return $parts ? implode(', ', $parts) : null;
     }
 
     public function webHistory(Request $request): InertiaResponse

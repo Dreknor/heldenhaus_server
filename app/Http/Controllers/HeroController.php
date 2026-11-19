@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Art\SceneBackgrounds;
+use App\Domain\Events\EventService;
+use App\Domain\Events\FunEventService;
 use App\Domain\Events\WeatherSource;
 use App\Domain\Gameplay\RunDayCron;
 use App\Http\Presenters\HeroBoard;
@@ -16,7 +18,7 @@ use Inertia\Response;
 
 class HeroController extends Controller
 {
-    public function index(Request $request, WeatherSource $weather): Response
+    public function index(Request $request, WeatherSource $weather, FunEventService $fun): Response
     {
         $user = $request->user();
         $sceneWeather = null;
@@ -40,6 +42,9 @@ class HeroController extends Controller
             'sceneBackground' => SceneBackgrounds::forToday($user->id),
             'sceneWeather' => $sceneWeather,
             'hub' => HubSummary::for($user),
+            // Laufende Events (Banner, Deko der Szene) und offene Zufallsereignisse (§12.5, §12.7)
+            'events' => EventService::summary($user),
+            'funEvents' => $fun->visible($user),
         ]);
     }
 

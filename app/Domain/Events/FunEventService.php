@@ -196,6 +196,19 @@ class FunEventService
             ->map(fn (FunEventInstance $i) => $this->present($i, $user))->values()->all();
     }
 
+    /** Wie viele Zufallsereignisse heute schon kamen (Tageslimits je Person und Familie, §12.5). */
+    public static function dailyUsage(User $user): array
+    {
+        $dayStart = $user->gameDate()->utc();
+
+        return [
+            'user' => FunEventInstance::where('user_id', $user->id)->where('created_at', '>=', $dayStart)->count(),
+            'user_limit' => (int) config('game.fun_events.per_user_daily'),
+            'family' => FunEventInstance::where('family_id', $user->family_id)->where('created_at', '>=', $dayStart)->count(),
+            'family_limit' => (int) config('game.fun_events.per_family_daily'),
+        ];
+    }
+
     /** Ein erfüllter Sternschnuppen-Wunsch erscheint am nächsten Morgen als Gruß. */
     public static function wishGreeting(User $user): ?string
     {
