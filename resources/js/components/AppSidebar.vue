@@ -7,6 +7,7 @@ import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import {
     Backpack,
+    BookOpen,
     CalendarDays,
     ChartColumn,
     Dices,
@@ -16,6 +17,8 @@ import {
     Handshake,
     House,
     Inbox,
+    Landmark,
+    Lightbulb,
     ListChecks,
     PiggyBank,
     ScrollText,
@@ -58,6 +61,8 @@ const groups = computed<{ label: string; items: NavItem[] }[]>(() => [
         label: 'Familie & Bündnisse',
         items: [
             { title: 'Familie', href: '/family', icon: Users },
+            { title: 'Familienrat', href: '/family/council', icon: Landmark },
+            { title: 'Vorschläge', href: '/proposals', icon: Lightbulb, badge: isParent.value ? (page.props.counts?.proposals ?? 0) : 0 },
             { title: 'Bündnisse & Challenges', href: '/social', icon: Handshake },
         ],
     },
@@ -70,6 +75,7 @@ const groups = computed<{ label: string; items: NavItem[] }[]>(() => [
                       { title: 'Familienaufgaben', href: '/family/tasks', icon: ListChecks },
                       { title: 'Wochenbericht', href: '/family/report', icon: ChartColumn },
                       { title: 'Familieneinstellungen', href: '/family/settings', icon: Settings },
+                      { title: 'Eltern-Anleitung', href: '/help/parents', icon: BookOpen },
                   ],
               },
           ]
