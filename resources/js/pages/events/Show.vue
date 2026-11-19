@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Emoji from '@/components/game/Emoji.vue';
+import InnCard from '@/components/game/InnCard.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -305,7 +306,7 @@ const classTrialForm = useForm({ class: '' });
             </section>
 
             <section
-                v-if="chapter || year_review || suggestions?.habit || suggestions?.steps?.length || suggestions?.inn"
+                v-if="chapter || year_review || suggestions?.habit || suggestions?.steps?.length"
                 class="grid gap-3 rounded-2xl border bg-card p-4"
             >
                 <h2 class="font-extrabold">Weitere Ereignisinhalte</h2>
@@ -326,8 +327,10 @@ const classTrialForm = useForm({ class: '' });
                         <li v-for="step in suggestions.steps" :key="step">{{ step }}</li>
                     </ul>
                 </div>
-                <p v-if="suggestions?.inn" class="text-sm">Das Gasthaus steht für Erholung und Pausen jederzeit offen.</p>
             </section>
+
+            <!-- Ferien-Events bieten das Gasthaus an (§12.4) -->
+            <InnCard v-if="suggestions?.inn" class="max-w-2xl" />
 
             <Link
                 :href="route('web.events.index')"

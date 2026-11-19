@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import Emoji from '@/components/game/Emoji.vue';
+import EventDecor from '@/components/game/EventDecor.vue';
+import FunEventCard from '@/components/game/FunEventCard.vue';
 import ItemIcon from '@/components/game/ItemIcon.vue';
 import RoomEditor, { type Furniture, type Room } from '@/components/game/RoomEditor.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
+import type { EventSummary, FunEvent } from '@/types/events';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Boxes, Hammer, Sprout, Trash2, Trophy } from 'lucide-vue-next';
 import { ref } from 'vue';
@@ -62,7 +65,15 @@ interface HousingData {
     emojis: string[];
 }
 
-const props = defineProps<{ home: HousingData; furniture: Furniture[]; visitor: boolean; alliedFamilies: { id: number; name: string }[] }>();
+const props = defineProps<{
+    home: HousingData;
+    furniture: Furniture[];
+    visitor: boolean;
+    alliedFamilies: { id: number; name: string }[];
+    /** Laufende Events (Deko im Haus) und offene Zufallsereignisse, nur im eigenen Haus */
+    events?: EventSummary[];
+    funEvents?: FunEvent[];
+}>();
 const selectedRoom = ref(props.home.rooms[0]?.id ?? 0);
 const gardenPlants = ref<Record<number, string>>({});
 const contribution = ref<Record<number, { item: string; amount: number; from_storage: boolean }>>({});
@@ -146,6 +157,7 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                     class="absolute bottom-3 right-36 w-6 [image-rendering:pixelated] sm:right-56"
                     aria-hidden="true"
                 />
+                <EventDecor v-if="events?.length" :events="events" variant="house" />
                 <div class="relative max-w-[60%] pb-14 sm:pb-16">
                     <p class="text-xs font-black uppercase tracking-widest text-emerald-800 dark:text-emerald-300">{{ home.family.name }}</p>
                     <h1 class="text-2xl font-black tracking-tight sm:text-3xl">Familienhaus</h1>
@@ -172,6 +184,10 @@ const plantName = (key: string | null) => props.home.garden?.plants.find((plant)
                     }}</span>
                 </div>
             </header>
+
+            <div v-if="funEvents?.length" class="grid gap-3 md:grid-cols-2" aria-label="Zufallsereignisse im Haus">
+                <FunEventCard v-for="fun in funEvents" :key="fun.id" :event="fun" />
+            </div>
 
             <nav v-if="alliedFamilies.length" class="flex flex-wrap items-center gap-2" aria-label="Verbündete Familien besuchen">
                 <span class="text-sm font-semibold text-muted-foreground">Besuchen:</span>

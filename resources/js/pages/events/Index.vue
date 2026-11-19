@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import Emoji from '@/components/game/Emoji.vue';
+import FunEventCard from '@/components/game/FunEventCard.vue';
+import InnCard from '@/components/game/InnCard.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
-import { CalendarDays, Clock3, History, Sparkles } from 'lucide-vue-next';
+import type { FunEvent } from '@/types/events';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { CalendarDays, Clock3, Dices, History, Play, Sparkles } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 
 interface EventCard {
     id: number;
@@ -20,7 +24,37 @@ interface EventCard {
     own?: { points: number };
 }
 
-defineProps<{ running: EventCard[]; upcoming: EventCard[]; canManage: boolean }>();
+const props = defineProps<{
+    running: EventCard[];
+    upcoming: EventCard[];
+    canManage: boolean;
+    funEvents: FunEvent[];
+    funUsage: { user: number; user_limit: number; family: number; family_limit: number };
+    funGreeting: string | null;
+    startable: { key: string; name: string; icon: string; category: string; needs_subject: boolean }[];
+    members: { id: number; name: string }[];
+}>();
+
+// Zufallsereignisse suchen (§12.5): der Server würfelt mit festem Seed und achtet auf die Tageslimits
+const places = [
+    { context: 'home', label: 'Im Familienhaus umsehen', icon: '🏠' },
+    { context: 'stable', label: 'Im Stall vorbeischauen', icon: '🐴' },
+    { context: 'campfire', label: 'Ans Lagerfeuer setzen', icon: '🔥' },
+] as const;
+const rolling = ref(false);
+const limitReached = computed(() => props.funUsage.user >= props.funUsage.user_limit || props.funUsage.family >= props.funUsage.family_limit);
+function look(context: string) {
+    rolling.value = true;
+    router.post(route('web.fun-events.roll'), { context }, { preserveScroll: true, onFinish: () => (rolling.value = false) });
+}
+
+// Eltern: Event von Hand starten
+const categoryLabel: Record<string, string> = { calendar: 'Kalender', game: 'Spiel', family: 'Familie', world: 'Welt' };
+const startForm = useForm({ key: '', subject_user_id: null as number | null });
+const selected = computed(() => props.startable.find((event) => event.key === startForm.key));
+function start() {
+    startForm.transform((d) => ({ ...d, subject_user_id: selected.value?.needs_subject ? d.subject_user_id : null })).post(route('web.events.start'));
+}
 
 const date = (iso: string) => new Date(iso).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
 </script>
@@ -119,6 +153,72 @@ const date = (iso: string) => new Date(iso).toLocaleDateString('de-DE', { day: '
                 </div>
                 <p v-else class="rounded-2xl border border-dashed p-5 text-sm text-muted-foreground">
                     In den nächsten Tagen ist noch kein Kalenderereignis geplant.
+                </p>
+            </section>
+
+            <section class="grid gap-3" aria-labelledby="fun-title">
+                <h2 id="fun-title" class="flex items-center gap-2 text-lg font-extrabold">
+                    <Dices class="size-5 text-violet-600" /> Kleine Überraschungen
+                </h2>
+                <p class="text-sm text-muted-foreground">
+                    Manchmal passiert einfach etwas Lustiges. Höchstens {{ funUsage.user_limit }} am Tag für dich – heute schon {{ funUsage.user }}.
+                </p>
+                <p v-if="funGreeting" class="rounded-2xl border bg-card p-3 text-sm">🌠 {{ funGreeting }}</p>
+                <div class="flex flex-wrap gap-2">
+                    <button
+                        v-for="place in places"
+                        :key="place.context"
+                        class="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold hover:bg-muted disabled:opacity-50"
+                        :disabled="rolling || limitReached"
+                        @click="look(place.context)"
+                    >
+                        <Emoji :glyph="place.icon" /> {{ place.label }}
+                    </button>
+                </div>
+                <p v-if="limitReached" class="text-sm text-muted-foreground">Für heute war genug los. Morgen gibt es neue Überraschungen!</p>
+                <div v-if="funEvents.length" class="grid gap-3 md:grid-cols-2">
+                    <FunEventCard v-for="fun in funEvents" :key="fun.id" :event="fun" />
+                </div>
+            </section>
+
+            <InnCard class="max-w-2xl" />
+
+            <section v-if="canManage" class="grid gap-3 rounded-2xl border bg-card p-4" aria-labelledby="start-title">
+                <div>
+                    <h2 id="start-title" class="flex items-center gap-2 text-lg font-extrabold">
+                        <Play class="size-5 text-emerald-600" /> Event starten
+                    </h2>
+                    <p class="text-sm text-muted-foreground">
+                        Startet ein Event sofort für eure Familie, auch wenn es gerade nicht dran wäre. Laufen schon drei, wartet es kurz.
+                    </p>
+                </div>
+                <form class="flex flex-wrap items-center gap-2" @submit.prevent="start">
+                    <select v-model="startForm.key" required class="h-10 min-w-56 rounded-md border bg-background px-3 text-sm" aria-label="Event">
+                        <option value="" disabled>Event wählen</option>
+                        <option v-for="event in startable" :key="event.key" :value="event.key">
+                            {{ event.icon }} {{ event.name }} ({{ categoryLabel[event.category] ?? event.category }})
+                        </option>
+                    </select>
+                    <select
+                        v-if="selected?.needs_subject"
+                        v-model.number="startForm.subject_user_id"
+                        required
+                        class="h-10 min-w-44 rounded-md border bg-background px-3 text-sm"
+                        aria-label="Für wen"
+                    >
+                        <option :value="null" disabled>Für wen?</option>
+                        <option v-for="member in members" :key="member.id" :value="member.id">{{ member.name }}</option>
+                    </select>
+                    <button
+                        type="submit"
+                        class="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50"
+                        :disabled="startForm.processing || !startForm.key || (selected?.needs_subject && !startForm.subject_user_id)"
+                    >
+                        Jetzt starten
+                    </button>
+                </form>
+                <p v-if="startForm.errors.key || startForm.errors.subject_user_id" class="text-sm text-red-600">
+                    {{ startForm.errors.key ?? startForm.errors.subject_user_id }}
                 </p>
             </section>
         </div>
