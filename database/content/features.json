@@ -16,7 +16,11 @@
         "tour": [
             {
                 "anchor": "hero.attributes",
-                "text": "Hier verteilst du Punkte."
+                "text": "Hier verteilst du Punkte: Kraft, Köpfchen, Ausdauer oder Spürsinn."
+            },
+            {
+                "anchor": "hero.equipment",
+                "text": "Ausrüstung gibt dir noch mehr Punkte obendrauf."
             }
         ],
         "starter_task": {
@@ -26,7 +30,10 @@
                 "xp": 10
             }
         },
-        "preview_image": "/images/features/attributes.svg"
+        "preview_image": "/images/features/attributes.svg",
+        "emoji": "🌟",
+        "teaser": "Verteile Punkte auf Kraft, Köpfchen, Ausdauer und Spürsinn.",
+        "href": "/hero"
     },
     {
         "key": "shop",
@@ -45,11 +52,11 @@
         "tour": [
             {
                 "anchor": "shop",
-                "text": "Der Gold-Shop."
+                "text": "Im Gold-Shop tauschst du Gold gegen Ausrüstung."
             },
             {
                 "anchor": "inventory.equip",
-                "text": "Anlegen macht dich stärker."
+                "text": "Gekaufte Teile liegen im Rucksack. Dort tippst du auf „Anlegen“."
             }
         ],
         "starter_task": {
@@ -59,7 +66,10 @@
                 "xp": 10
             }
         },
-        "preview_image": "/images/features/shop.svg"
+        "preview_image": "/images/features/shop.svg",
+        "emoji": "🛒",
+        "teaser": "Tausche Gold gegen Ausrüstung für deinen Helden.",
+        "href": "/inventory?tab=shop"
     },
     {
         "key": "pets",
@@ -78,7 +88,15 @@
         "tour": [
             {
                 "anchor": "stable",
-                "text": "Dein Stall."
+                "text": "Das ist dein Stall. Hier wohnen deine Tiere."
+            },
+            {
+                "anchor": "pets.hatch",
+                "text": "Ei und Schlüpfpulver zusammen ergeben ein Haustier. Ein Starter-Ei hast du schon!"
+            },
+            {
+                "anchor": "pets.list",
+                "text": "Füttere dein Tier, dann wird es zum Reittier."
             }
         ],
         "starter_task": {
@@ -92,7 +110,10 @@
         "starter_items": {
             "egg_cat": 1,
             "potion_forest": 1
-        }
+        },
+        "emoji": "🥚",
+        "teaser": "Brüte Eier aus und zieh Haustiere groß.",
+        "href": "/inventory?tab=stable"
     },
     {
         "key": "quests",
@@ -111,7 +132,15 @@
         "tour": [
             {
                 "anchor": "quests.board",
-                "text": "Die Quest-Tafel."
+                "text": "Auf der Quest-Tafel suchst du dir eine Solo-Quest aus."
+            },
+            {
+                "anchor": "quests.family",
+                "text": "Die Familien-Quest spielt ihr alle zusammen."
+            },
+            {
+                "anchor": "quests.bestiary",
+                "text": "Im Monster-Lexikon siehst du, wen ihr schon besiegt habt."
             }
         ],
         "starter_task": {
@@ -121,7 +150,10 @@
                 "xp": 10
             }
         },
-        "preview_image": "/images/features/quests.svg"
+        "preview_image": "/images/features/quests.svg",
+        "emoji": "📜",
+        "teaser": "Such dir Solo-Quests gegen Monster aus.",
+        "href": "/quests"
     },
     {
         "key": "classes",
@@ -140,7 +172,11 @@
         "tour": [
             {
                 "anchor": "hero.class",
-                "text": "Klasse wählen."
+                "text": "Hier wählst du deine Klasse. Jede kann etwas Besonderes."
+            },
+            {
+                "anchor": "hero.class",
+                "text": "Danach wirkst du hier deine Fähigkeit. Das kostet Mana."
             }
         ],
         "starter_task": {
@@ -155,7 +191,10 @@
             "child": 5,
             "teen": 8,
             "adult": 5
-        }
+        },
+        "emoji": "🧙",
+        "teaser": "Wähle eine Klasse mit eigener Fähigkeit.",
+        "href": "/hero"
     },
     {
         "key": "home",
@@ -174,11 +213,11 @@
         "tour": [
             {
                 "anchor": "home",
-                "text": "Das Familienhaus."
+                "text": "Das ist euer Familienhaus."
             },
             {
                 "anchor": "room.own",
-                "text": "Dein Zimmer."
+                "text": "Hier richtest du dein Zimmer ein. Das Starter-Bett wartet schon!"
             }
         ],
         "starter_task": {
@@ -191,7 +230,10 @@
         "preview_image": "/images/features/home.svg",
         "starter_items": {
             "furn_bed": 1
-        }
+        },
+        "emoji": "🏠",
+        "teaser": "Euer Familienhaus und dein eigenes Zimmer.",
+        "href": "/housing"
     },
     {
         "key": "garden",
@@ -210,7 +252,11 @@
         "tour": [
             {
                 "anchor": "garden",
-                "text": "Die Beete."
+                "text": "Das sind eure Beete. Wähle Saatgut und säe es aus."
+            },
+            {
+                "anchor": "garden",
+                "text": "Durstige Pflanzen gießt du, reife erntest du."
             }
         ],
         "starter_task": {
@@ -223,7 +269,10 @@
         "preview_image": "/images/features/garden.svg",
         "starter_items": {
             "seeds": 3
-        }
+        },
+        "emoji": "🌱",
+        "teaser": "Säe, gieße und ernte im Garten.",
+        "href": "/housing"
     },
     {
         "key": "crafting",
@@ -242,11 +291,11 @@
         "tour": [
             {
                 "anchor": "workshop",
-                "text": "Die Werkstatt."
+                "text": "Das ist die Werkstatt. Oben wählst du Rezepte, Aufträge oder das Lager."
             },
             {
                 "anchor": "materials",
-                "text": "Deine Materialtasche."
+                "text": "Hier siehst du, was du mit deinem Material schon bauen kannst."
             }
         ],
         "starter_task": {
@@ -256,7 +305,10 @@
                 "xp": 10
             }
         },
-        "preview_image": "/images/features/crafting.svg"
+        "preview_image": "/images/features/crafting.svg",
+        "emoji": "🔨",
+        "teaser": "Baue aus Material Tränke, Ausrüstung und Möbel.",
+        "href": "/crafting"
     },
     {
         "key": "building",
@@ -275,7 +327,11 @@
         "tour": [
             {
                 "anchor": "build",
-                "text": "Bauprojekte."
+                "text": "Hier seht ihr eure Bauprojekte."
+            },
+            {
+                "anchor": "storage",
+                "text": "Im Familienlager sammelt ihr Material für alle."
             }
         ],
         "starter_task": {
@@ -285,7 +341,10 @@
                 "xp": 10
             }
         },
-        "preview_image": "/images/features/building.svg"
+        "preview_image": "/images/features/building.svg",
+        "emoji": "🧱",
+        "teaser": "Baut gemeinsam das Familienhaus aus.",
+        "href": "/housing"
     },
     {
         "key": "dungeons",
@@ -304,7 +363,11 @@
         "tour": [
             {
                 "anchor": "dungeon.solo",
-                "text": "Das Solo-Gewölbe."
+                "text": "Hier geht es ins Solo-Gewölbe."
+            },
+            {
+                "anchor": "dungeon.solo",
+                "text": "Jede erledigte Aufgabe gibt dir Fackeln. Damit erkundest du Raum für Raum."
             }
         ],
         "starter_task": {
@@ -314,7 +377,10 @@
                 "xp": 10
             }
         },
-        "preview_image": "/images/features/dungeons.svg"
+        "preview_image": "/images/features/dungeons.svg",
+        "emoji": "🔦",
+        "teaser": "Erkunde jeden Tag ein Solo-Gewölbe.",
+        "href": "/dungeons?tab=solo"
     },
     {
         "key": "family_dungeon",
@@ -333,7 +399,11 @@
         "tour": [
             {
                 "anchor": "dungeon.family",
-                "text": "Gemeinsam in den Dungeon."
+                "text": "Hier geht ihr gemeinsam in den Familien-Dungeon."
+            },
+            {
+                "anchor": "dungeon.family",
+                "text": "Der Endboss ist euer Familien-Boss."
             }
         ],
         "starter_task": {
@@ -343,7 +413,10 @@
                 "xp": 10
             }
         },
-        "preview_image": "/images/features/family_dungeon.svg"
+        "preview_image": "/images/features/family_dungeon.svg",
+        "emoji": "🏰",
+        "teaser": "Geht jede Woche gemeinsam in den Familien-Dungeon.",
+        "href": "/dungeons?tab=family"
     },
     {
         "key": "alliances",
@@ -362,7 +435,11 @@
         "tour": [
             {
                 "anchor": "alliances",
-                "text": "Eure Bündnisse."
+                "text": "Hier seht ihr eure Bündnisse mit anderen Familien."
+            },
+            {
+                "anchor": "challenges",
+                "text": "Bei Challenges macht ihr gemeinsam mit."
             }
         ],
         "starter_task": {
@@ -372,6 +449,9 @@
                 "xp": 10
             }
         },
-        "preview_image": "/images/features/alliances.svg"
+        "preview_image": "/images/features/alliances.svg",
+        "emoji": "🤝",
+        "teaser": "Besucht befreundete Familien und macht bei Challenges mit.",
+        "href": "/social"
     }
 ]

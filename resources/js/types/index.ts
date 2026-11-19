@@ -50,6 +50,8 @@ export interface NavItem {
     icon?: LucideIcon;
     isActive?: boolean;
     badge?: number;
+    /** Noch gesperrt (§13): ab welchem Level, oder von den Eltern aufgeschoben */
+    lock?: { level: number; deferred: boolean };
 }
 
 export interface NewAchievement {
@@ -63,11 +65,86 @@ export interface NewAchievement {
     gold: number;
 }
 
+export type FeatureKey =
+    | 'attributes'
+    | 'shop'
+    | 'pets'
+    | 'quests'
+    | 'classes'
+    | 'home'
+    | 'garden'
+    | 'crafting'
+    | 'building'
+    | 'dungeons'
+    | 'family_dungeon'
+    | 'alliances';
+
+/** Eine Funktion aus dem Freischalt-Plan (§13). */
+export interface FeatureEntry {
+    key: FeatureKey;
+    title: string;
+    emoji: string;
+    teaser: string | null;
+    href: string;
+    level: number;
+    state: 'unlocked' | 'deferred' | 'locked';
+    open: boolean;
+}
+
+export interface FeatureRewards {
+    gold?: number;
+    xp?: number;
+}
+
+export interface FeatureTourStep {
+    anchor: string;
+    text: string;
+}
+
+export interface FeatureIntro {
+    key: FeatureKey;
+    title: string;
+    text: string;
+    emoji: string;
+    href: string;
+    tour: FeatureTourStep[];
+    starter_task: { goal: string; rewards?: FeatureRewards } | null;
+    collected: { key: string; name: string; icon: string; quantity: number }[] | null;
+}
+
+export interface FeatureStarter {
+    key: FeatureKey;
+    goal: string;
+    rewards: FeatureRewards | null;
+    title: string;
+    emoji: string;
+    href: string;
+}
+
+export interface FeatureState {
+    enforced: boolean;
+    show_all: boolean;
+    can_show_all: boolean;
+    list: FeatureEntry[];
+    next: { key: FeatureKey; title: string; level: number; levels_to_go: number; emoji: string; teaser: string | null } | null;
+    intro: FeatureIntro | null;
+    starters: FeatureStarter[];
+}
+
+export interface FeatureTour {
+    key: FeatureKey;
+    title: string;
+    emoji: string | null;
+    steps: FeatureTourStep[];
+}
+
 export interface SharedData {
     name: string;
     auth: Auth;
     counts: { approvals: number };
     newAchievements: NewAchievement[];
+    features: FeatureState | null;
+    tour: FeatureTour | null;
     flash: { success: string | null; levelUp: number | null; drop: { name: string; icon: string; rarity: string; key: string; type: string } | null };
     errors: Record<string, string>;
     ziggy: {
@@ -147,6 +224,20 @@ export interface AssignedTask extends Task {
     team: { done: number; total: number } | null;
 }
 
+/** Eltern-Einstellung der Freischaltungen eines Mitglieds (§13). */
+export interface MemberFeatureSettings {
+    fast_start: boolean;
+    show_all: boolean;
+    features: {
+        key: FeatureKey;
+        title: string;
+        level: number;
+        state: 'unlocked' | 'available' | 'deferred' | 'locked';
+        override: 'early' | 'defer' | null;
+        can_defer: boolean;
+    }[];
+}
+
 export interface Member {
     id: number;
     name: string;
@@ -159,6 +250,7 @@ export interface Member {
     has_email?: boolean;
     stats?: Stats;
     appearance?: Appearance;
+    featureSettings?: MemberFeatureSettings;
     supportSettings?: {
         gentle_mode: boolean;
         gentle_mode_own: boolean | null;

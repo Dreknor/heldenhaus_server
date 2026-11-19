@@ -3,10 +3,12 @@ import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import SidebarHero from '@/components/game/SidebarHero.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem, type SharedData } from '@/types';
+import { useFeatures } from '@/composables/useFeatures';
+import { type FeatureKey, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import {
     Backpack,
+    BookOpen,
     CalendarDays,
     ChartColumn,
     Dices,
@@ -31,6 +33,13 @@ import AppLogo from './AppLogo.vue';
 
 const page = usePage<SharedData>();
 const isParent = computed(() => page.props.auth.user?.family_role === 'parent');
+const { lockOf } = useFeatures();
+
+// Ganz gesperrte Seiten (§13) zeigen in der Navigation ein Schloss mit Level; ein Klick öffnet die Vorschau
+const locked = (keys: FeatureKey[]): Pick<NavItem, 'lock'> => {
+    const f = lockOf(keys);
+    return f ? { lock: { level: f.level, deferred: f.state === 'deferred' } } : {};
+};
 
 const groups = computed<{ label: string; items: NavItem[] }[]>(() => [
     {
@@ -39,17 +48,18 @@ const groups = computed<{ label: string; items: NavItem[] }[]>(() => [
             { title: 'Helden-Board', href: '/dashboard', icon: Swords },
             { title: 'Held & Klasse', href: '/hero', icon: Sparkles },
             { title: 'Quests', href: '/quests', icon: ScrollText },
-            { title: 'Dungeons', href: '/dungeons', icon: Skull },
+            { title: 'Dungeons', href: '/dungeons', icon: Skull, ...locked(['dungeons', 'family_dungeon']) },
             { title: 'Events', href: '/events', icon: CalendarDays },
             { title: 'Erfolge', href: '/achievements', icon: Trophy },
+            { title: 'Heldenbuch', href: '/heldenbuch', icon: BookOpen },
         ],
     },
     {
         label: 'Zuhause',
         items: [
             { title: 'Inventar', href: '/inventory', icon: Backpack },
-            { title: 'Haus & Garten', href: '/housing', icon: House },
-            { title: 'Handwerk & Lager', href: '/crafting', icon: Hammer },
+            { title: 'Haus & Garten', href: '/housing', icon: House, ...locked(['home']) },
+            { title: 'Handwerk & Lager', href: '/crafting', icon: Hammer, ...locked(['crafting', 'building']) },
             { title: 'Belohnungsshop', href: '/shop', icon: Gift },
             { title: 'Taschengeld', href: '/allowance', icon: PiggyBank },
         ],
@@ -58,7 +68,7 @@ const groups = computed<{ label: string; items: NavItem[] }[]>(() => [
         label: 'Familie & Bündnisse',
         items: [
             { title: 'Familie', href: '/family', icon: Users },
-            { title: 'Bündnisse & Challenges', href: '/social', icon: Handshake },
+            { title: 'Bündnisse & Challenges', href: '/social', icon: Handshake, ...locked(['alliances']) },
         ],
     },
     ...(isParent.value

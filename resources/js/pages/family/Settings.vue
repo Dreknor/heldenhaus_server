@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
+import MemberFeatureSettings from '@/components/family/MemberFeatureSettings.vue';
 import MemberSupportSettings from '@/components/family/MemberSupportSettings.vue';
 import HeroAvatar from '@/components/game/HeroAvatar.vue';
 import StatBar from '@/components/game/StatBar.vue';
@@ -8,8 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
-import type { Member } from '@/types';
-import { Head, router, useForm } from '@inertiajs/vue3';
+import type { Member, SharedData } from '@/types';
+import { Head, router, useForm, usePage } from '@inertiajs/vue3';
 import { Coins, Copy, Star, Trash2, UserPlus } from 'lucide-vue-next';
 import { ref } from 'vue';
 
@@ -57,6 +58,7 @@ const props = defineProps<{
     apiUrl: string;
     weatherSetting: { source: 'none' | 'ha' | 'open_meteo'; lat: number | null; lon: number | null };
 }>();
+const page = usePage<SharedData>();
 
 const haTokenApprove = ref(false);
 const webhook = useForm({
@@ -128,7 +130,12 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
 <template>
     <Head title="Familieneinstellungen" />
 
-    <AppLayout :breadcrumbs="[{ title: 'Familie', href: '/family' }, { title: 'Einstellungen', href: '/family/settings' }]">
+    <AppLayout
+        :breadcrumbs="[
+            { title: 'Familie', href: '/family' },
+            { title: 'Einstellungen', href: '/family/settings' },
+        ]"
+    >
         <div class="flex flex-1 flex-col gap-6 p-4 md:p-6">
             <h1 class="text-2xl font-extrabold tracking-tight">Einstellungen für {{ family.name }}</h1>
 
@@ -200,7 +207,10 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <form class="grid gap-4 sm:grid-cols-2" @submit.prevent="weather.put(route('family.weather.update'), { preserveScroll: true })">
+                        <form
+                            class="grid gap-4 sm:grid-cols-2"
+                            @submit.prevent="weather.put(route('family.weather.update'), { preserveScroll: true })"
+                        >
                             <label class="grid gap-1.5 text-sm sm:col-span-2">
                                 <span>Wetterquelle</span>
                                 <select v-model="weather.weather_source" class="h-9 rounded-md border border-input bg-background px-3">
@@ -277,6 +287,16 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
                         :member-id="m.id"
                         :member-name="m.name"
                         :support-settings="m.supportSettings"
+                    />
+                </template>
+
+                <!-- Freischaltungen nach Level (§13): je Mitglied früher/später, Schnellstart -->
+                <template v-for="m in members" :key="`features-${m.id}`">
+                    <MemberFeatureSettings
+                        v-if="m.featureSettings && m.role !== 'guest' && m.id !== page.props.auth.user.id"
+                        :member-id="m.id"
+                        :member-name="m.name"
+                        :settings="m.featureSettings"
                     />
                 </template>
 

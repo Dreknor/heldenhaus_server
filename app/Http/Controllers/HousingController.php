@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Crafting\Catalog;
+use App\Domain\Features\Features;
 use App\Domain\Housing\BuildService;
 use App\Domain\Housing\GardenService;
 use App\Domain\Housing\GuestbookService;
@@ -54,16 +55,29 @@ class HousingController extends Controller
                 'master_quantity' => $row->master_quantity,
             ])->values();
 
+        // Teile, die erst später freigeschaltet werden (§13), bleiben leer – die Seite zeigt dort eine Vorschau
+        $user = $request->user();
+        if (! Features::has($user, 'building')) {
+            $data['projects'] = ['active' => [], 'available' => []];
+            $data['storage'] = [];
+        }
+        if (! Features::has($user, 'garden')) {
+            $data['garden'] = null;
+        }
+        if (! Features::has($user, 'alliances')) {
+            $data['guestbook'] = [];
+        }
+
         return Inertia::render('Housing', [
             'home' => $data + [
-                'can_start_projects' => $request->user()->isParent(),
+                'can_start_projects' => $user->isParent(),
                 'can_write_text' => true,
                 'presets' => MessageService::PRESETS,
                 'emojis' => MessageService::EMOJIS,
             ],
             'furniture' => $furniture,
             'visitor' => false,
-            'alliedFamilies' => $this->alliedFamilies((int) $request->user()->family_id),
+            'alliedFamilies' => Features::has($user, 'alliances') ? $this->alliedFamilies((int) $user->family_id) : [],
         ]);
     }
 

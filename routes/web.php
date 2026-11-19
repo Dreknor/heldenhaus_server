@@ -14,6 +14,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\FamilyHubController;
 use App\Http\Controllers\FamilyLoginController;
+use App\Http\Controllers\FeatureWebController;
 use App\Http\Controllers\HeroController;
 use App\Http\Controllers\HousingController;
 use App\Http\Controllers\OnboardingController;
@@ -41,8 +42,8 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
     Route::get('dashboard', [HeroController::class, 'index'])->name('dashboard');
-    Route::get('dungeons', [DungeonWebController::class, 'index'])->name('dungeons.index');
-    Route::post('dungeons/solo', [DungeonWebController::class, 'solo'])->name('dungeons.solo');
+    Route::get('dungeons', [DungeonWebController::class, 'index'])->middleware('feature:dungeons,family_dungeon')->name('dungeons.index');
+    Route::post('dungeons/solo', [DungeonWebController::class, 'solo'])->middleware('feature:dungeons')->name('dungeons.solo');
     Route::post('dungeons/{dungeon}/{action}', [DungeonWebController::class, 'act'])
         ->whereIn('action', DungeonService::ACTIONS)->middleware('throttle:60,1')->name('dungeons.act');
 
@@ -64,19 +65,25 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
     Route::get('family/event-settings', [EventController::class, 'webSettings'])->name('web.events.settings');
     Route::put('family/event-settings', [EventController::class, 'webUpdateSettings'])
         ->name('web.events.settings.update');
-    Route::get('housing', [HousingController::class, 'index'])->name('housing.index');
-    Route::get('housing/visit/{family}', [HousingController::class, 'visit'])->name('housing.visit');
-    Route::put('housing/rooms/{room}', [HousingController::class, 'customize'])->name('housing.rooms.customize');
-    Route::put('housing/rooms/{room}/layout', [HousingController::class, 'layout'])->name('housing.rooms.layout');
+    Route::get('housing', [HousingController::class, 'index'])->middleware('feature:home')->name('housing.index');
+    Route::get('housing/visit/{family}', [HousingController::class, 'visit'])->middleware('feature:alliances')->name('housing.visit');
+    Route::put('housing/rooms/{room}', [HousingController::class, 'customize'])->middleware('feature:home')->name('housing.rooms.customize');
+    Route::put('housing/rooms/{room}/layout', [HousingController::class, 'layout'])->middleware('feature:home')->name('housing.rooms.layout');
     Route::post('housing/projects', [HousingController::class, 'startProject'])->name('housing.projects.start');
-    Route::post('housing/projects/{project}/contribute', [HousingController::class, 'contribute'])->name('housing.projects.contribute');
+    Route::post('housing/projects/{project}/contribute', [HousingController::class, 'contribute'])->middleware('feature:building')->name('housing.projects.contribute');
     Route::delete('housing/projects/{project}', [HousingController::class, 'cancelProject'])->name('housing.projects.cancel');
     Route::post('housing/garden/{slot}/{action}', [HousingController::class, 'gardenAction'])
-        ->whereNumber('slot')->whereIn('action', ['sow', 'water', 'harvest'])->name('housing.garden.action');
-    Route::post('housing/guestbook', [HousingController::class, 'writeGuestbook'])->name('housing.guestbook.store');
-    Route::post('housing/visit/{family}/guestbook', [HousingController::class, 'writeGuestbookTo'])->name('housing.visit.guestbook.store');
+        ->whereNumber('slot')->whereIn('action', ['sow', 'water', 'harvest'])->middleware('feature:garden')->name('housing.garden.action');
+    Route::post('housing/guestbook', [HousingController::class, 'writeGuestbook'])->middleware('feature:alliances')->name('housing.guestbook.store');
+    Route::post('housing/visit/{family}/guestbook', [HousingController::class, 'writeGuestbookTo'])->middleware('feature:alliances')->name('housing.visit.guestbook.store');
     Route::delete('housing/guestbook/{entry}', [HousingController::class, 'deleteGuestbook'])->name('housing.guestbook.destroy');
     Route::post('cron', [HeroController::class, 'runCron'])->name('cron.run');
+
+    // Freischaltungen nach Level (Konzept §13): Heldenbuch, Freischalt-Karte, Eltern-Einstellung
+    Route::get('heldenbuch', [FeatureWebController::class, 'book'])->name('features.book');
+    Route::post('heldenbuch/alles-zeigen', [FeatureWebController::class, 'showAll'])->name('features.show-all');
+    Route::post('heldenbuch/{key}/gesehen', [FeatureWebController::class, 'introSeen'])->name('features.intro-seen');
+    Route::put('family/members/{member}/features', [FeatureWebController::class, 'updateMember'])->name('family.members.features');
 
     Route::post('tasks', [TaskController::class, 'store'])->name('tasks.store');
     Route::put('tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
@@ -109,18 +116,19 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
 
     Route::get('hero', [CharacterController::class, 'hero'])->name('hero');
     Route::put('hero/avatar', [CharacterController::class, 'saveAvatar'])->name('hero.avatar');
-    Route::post('hero/allocate', [CharacterController::class, 'allocate'])->name('hero.allocate');
-    Route::post('hero/class', [CharacterController::class, 'chooseClass'])->name('hero.class');
-    Route::post('hero/cast', [CharacterController::class, 'cast'])->name('hero.cast');
-    Route::post('hero/second-chance', [CharacterController::class, 'secondChance'])->name('hero.second-chance');
+    Route::post('hero/allocate', [CharacterController::class, 'allocate'])->middleware('feature:attributes')->name('hero.allocate');
+    Route::post('hero/class', [CharacterController::class, 'chooseClass'])->middleware('feature:classes')->name('hero.class');
+    Route::post('hero/cast', [CharacterController::class, 'cast'])->middleware('feature:classes')->name('hero.cast');
+    Route::post('hero/second-chance', [CharacterController::class, 'secondChance'])->middleware('feature:classes')->name('hero.second-chance');
     Route::post('hero/unequip', [CharacterController::class, 'unequip'])->name('hero.unequip');
 
     Route::get('inventory', [CharacterController::class, 'inventory'])->name('inventory.index');
-    Route::post('inventory/{item}/buy', [CharacterController::class, 'buy'])->name('inventory.buy');
-    Route::post('inventory/{item}/equip', [CharacterController::class, 'equip'])->name('inventory.equip');
+    Route::post('inventory/{item}/buy', [CharacterController::class, 'buy'])->middleware('feature:shop')->name('inventory.buy');
+    Route::post('inventory/{item}/equip', [CharacterController::class, 'equip'])->middleware('feature:shop')->name('inventory.equip');
     Route::post('inventory/{item}/use', [CharacterController::class, 'use'])->name('inventory.use');
-    Route::post('pets/hatch', [CharacterController::class, 'hatch'])->name('pets.hatch');
-    Route::post('pets/{pet}/feed', [CharacterController::class, 'feed'])->name('pets.feed');
+    Route::post('pets/hatch', [CharacterController::class, 'hatch'])->middleware('feature:pets')->name('pets.hatch');
+    Route::post('pets/{pet}/feed', [CharacterController::class, 'feed'])->middleware('feature:pets')->name('pets.feed');
+    // Eigene Tiere wählen bleibt bewusst frei (auch vor dem Stall-Level)
     Route::post('pets/{pet}/companion', [CharacterController::class, 'companion'])->name('pets.companion');
     Route::post('feed/{entry}/react', [FamilyHubController::class, 'react'])->name('feed.react');
     Route::get('allowance', [FamilyHubController::class, 'allowance'])->name('allowance.index');
@@ -133,12 +141,12 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
     Route::get('quests', [QuestController::class, 'index'])->name('quests.index');
     Route::post('quests', [QuestController::class, 'start'])->name('quests.start');
     Route::post('quests/{quest}/abandon', [QuestController::class, 'abandon'])->name('quests.abandon');
-    Route::get('social', [SocialController::class, 'index'])->name('social.index');
+    Route::get('social', [SocialController::class, 'index'])->middleware('feature:alliances')->name('social.index');
     Route::post('alliances', [SocialController::class, 'invite'])->name('alliances.invite');
     Route::post('alliances/join', [SocialController::class, 'join'])->middleware('throttle:10,1')->name('alliances.join');
     Route::delete('alliances/{alliance}', [SocialController::class, 'endAlliance'])->name('alliances.destroy');
     Route::post('challenges', [SocialController::class, 'storeChallenge'])->name('challenges.store');
-    Route::post('challenges/{challenge}/join', [SocialController::class, 'joinChallenge'])->name('challenges.join');
+    Route::post('challenges/{challenge}/join', [SocialController::class, 'joinChallenge'])->middleware('feature:alliances')->name('challenges.join');
     Route::post('challenges/{challenge}/leave', [SocialController::class, 'leaveChallenge'])->name('challenges.leave');
     Route::delete('challenges/{challenge}', [SocialController::class, 'destroyChallenge'])->name('challenges.destroy');
     Route::post('messages', [SocialController::class, 'sendMessage'])->middleware('throttle:30,1')->name('messages.store');
