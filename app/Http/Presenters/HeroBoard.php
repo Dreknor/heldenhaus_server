@@ -3,6 +3,7 @@
 namespace App\Http\Presenters;
 
 use App\Domain\Art\PetArt;
+use App\Domain\Council\BoardHints;
 use App\Domain\Gameplay\RunDayCron;
 use App\Domain\Support\FocusService;
 use App\Domain\Support\SupportService;
@@ -62,6 +63,8 @@ class HeroBoard
             'support' => SupportService::present($user),
             'recoveries' => SupportService::presentRecoveries($user),
             'focus' => FocusService::present(FocusService::running($user)),
+            // Familienrat, Abstimmung, Vorschläge, Eltern-Anleitung, Altersübergänge (§14.4, §14.9, §14.11)
+            'councilHints' => BoardHints::for($user),
         ];
     }
 

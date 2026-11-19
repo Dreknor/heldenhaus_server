@@ -47,6 +47,8 @@ class GamePresenter
             'avatar_color' => $user->avatar_color,
             'has_email' => $user->email !== null,
             'chat_allowed' => $user->ageGroup() === AgeGroup::Teen ? (bool) $user->chat_allowed : null,
+            // Erwachsenenprofil (§14.11): Eltern sehen nur noch Familienaufgaben und Sterne
+            'adult_profile' => $user->isIndependent() ? true : null,
             'stats' => $withStats && $user->stats ? self::stats($user->stats) : null,
             'appearance' => $withStats ? CharacterSheet::appearance($user) : null,
         ], fn ($v) => $v !== null);

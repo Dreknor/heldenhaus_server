@@ -40,13 +40,14 @@ class FeatureController extends Controller
 
     public function member(Request $request, User $member): JsonResponse
     {
-        abort_unless($request->user()->isParent() && $request->user()->sameFamilyAs($member), 403);
+        abort_unless($request->user()->overseesPersonalDataOf($member), 403);
 
         return response()->json(Features::forMember($member));
     }
 
     public function updateMember(Request $request, User $member, Features $features): JsonResponse
     {
+        abort_if($member->isIndependent(), 403);
         $data = $request->validate([
             'features' => ['sometimes', 'array'],
             'features.*' => ['nullable', 'in:early,defer'],

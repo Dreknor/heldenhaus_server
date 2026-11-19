@@ -188,5 +188,6 @@ Route::middleware(['auth', 'can:admin'])->prefix('admin')->name('admin.')->group
     Route::put('drop-settings', [ItemController::class, 'updateSettings'])->name('drop-settings.update');
 });
 
+require __DIR__.'/council.php';
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

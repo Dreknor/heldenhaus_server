@@ -35,6 +35,12 @@ class PushNotifier
         'dungeon' => ['Dungeon', 'Im Familien-Dungeon wartet der Endboss auf euch!'],
         'event_started' => ['Ein Event beginnt', 'Im Heldenhaus ist etwas Besonderes los.'],
         'event_tier' => ['Event-Stufe geschafft!', 'Ihr habt gemeinsam eine Event-Stufe erreicht.'],
+        // Familienrat und Mitbestimmung (§14.4)
+        'family_council' => ['Familienrat', 'In einer Stunde ist Familienrat. Wer mag, ist dabei!'],
+        'proposal_new' => ['Neuer Vorschlag', 'Im Heldenhaus wartet ein Vorschlag auf euch.'],
+        'proposal_decided' => ['Vorschlag beantwortet', 'Deine Eltern haben über deinen Vorschlag entschieden.'],
+        'vote_opened' => ['Abstimmung', 'Stimm ab, welche Familien-Quest als Nächstes kommt.'],
+        'vote_tie' => ['Gleichstand', 'Bei der Abstimmung steht es unentschieden. Ihr entscheidet.'],
     ];
 
     /**

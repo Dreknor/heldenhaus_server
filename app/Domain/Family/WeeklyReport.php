@@ -30,6 +30,17 @@ class WeeklyReport
             $completions = TaskCompletion::with('task')->where('user_id', $m->id)->where('direction', 'up')
                 ->whereIn('status', $counted)->whereBetween('created_at', [$start, $end])->get();
 
+            // Erwachsenenprofil (§14.11): nur Familienaufgaben und Sterne
+            if ($m->isIndependent()) {
+                return [
+                    'id' => $m->id, 'name' => $m->name, 'avatar_color' => $m->avatar_color, 'adult_profile' => true,
+                    'dailies_due' => null, 'dailies_done' => null, 'tasks_done' => null,
+                    'family_tasks_done' => $completions->filter(fn ($c) => $c->task?->isFamilyTask())->count(),
+                    'stars' => (int) $completions->whereIn('status', [CompletionStatus::Approved, CompletionStatus::Auto])->sum('stars'),
+                    'xp' => null, 'quest_progress' => null, 'knocked_out' => null, 'low_energy_days' => null,
+                ];
+            }
+
             return [
                 'id' => $m->id,
                 'name' => $m->name,

@@ -220,6 +220,9 @@ class SupportController extends Controller
         if (! $request->user()->isParent() || ! $request->user()->sameFamilyAs($member)) {
             throw new GameException('Das dürfen nur Eltern der Familie.');
         }
+        if ($member->isIndependent()) {
+            throw new GameException("{$member->name} hat ein Erwachsenenprofil und stellt das selbst ein.");
+        }
 
         return $member;
     }
