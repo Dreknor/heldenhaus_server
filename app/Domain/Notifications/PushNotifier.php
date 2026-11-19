@@ -35,6 +35,11 @@ class PushNotifier
         'dungeon' => ['Dungeon', 'Im Familien-Dungeon wartet der Endboss auf euch!'],
         'event_started' => ['Ein Event beginnt', 'Im Heldenhaus ist etwas Besonderes los.'],
         'event_tier' => ['Event-Stufe geschafft!', 'Ihr habt gemeinsam eine Event-Stufe erreicht.'],
+        'reminder' => ['Erinnerung', 'Eine Erinnerung wartet.'],
+        'goal_confirm' => ['Meilenstein geschafft?', 'Ein Meilenstein wartet auf deine Bestätigung.'],
+        'goal_progress' => ['Ziel-Fortschritt', 'Jemand, dem du hilfst, ist einen Schritt weiter.'],
+        'goal_reached' => ['Ziel erreicht!', 'In der Familie wurde ein Ziel erreicht.'],
+        'star_fade' => ['Ehrensache', 'Bei einer Familienaufgabe ändert sich etwas an den Sternen.'],
     ];
 
     /**

@@ -11,6 +11,7 @@ class TaskAssignment extends Model
 {
     protected $fillable = [
         'task_id', 'user_id', 'value', 'streak', 'streak_best', 'streak_paused_at', 'completed', 'completed_at', 'counter_up', 'counter_down', 'checklist_done',
+        'ignored_reminders', 'reminder_snoozed_until', 'reminder_question',
     ];
 
     protected function casts(): array
@@ -25,6 +26,9 @@ class TaskAssignment extends Model
             'checklist_done' => 'array',
             'streak_paused_at' => 'datetime',
             'streak_best' => 'integer',
+            'ignored_reminders' => 'integer',
+            'reminder_snoozed_until' => 'datetime',
+            'reminder_question' => 'boolean',
         ];
     }
 

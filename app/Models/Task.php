@@ -16,6 +16,8 @@ class Task extends Model
         'family_id', 'challenge_id', 'owner_id', 'created_by', 'scope', 'type', 'status', 'is_core', 'title', 'notes', 'category', 'difficulty',
         'up', 'down', 'daily_limit', 'repeat', 'start_date', 'due_date', 'checklist', 'is_private', 'approval_mode',
         'assignment_mode', 'rotation', 'star_reward', 'team_bonus_gold', 'gold_cost', 'ha_event_key', 'sort', 'archived_at',
+        'anchor', 'remind_at', 'remind_ha', 'paused_until', 'mastered_at', 'mastery_check_until', 'mastery_checked_on', 'mastery_offer_after', 'mastery_offered_at',
+        'star_fade_base', 'star_fade_from', 'star_fade_step', 'star_fade_offered_at',
     ];
 
     protected function casts(): array
@@ -38,6 +40,17 @@ class Task extends Model
             'gold_cost' => 'integer',
             'daily_limit' => 'integer',
             'archived_at' => 'datetime',
+            'remind_ha' => 'boolean',
+            'paused_until' => 'date',
+            'mastered_at' => 'datetime',
+            'mastery_check_until' => 'date',
+            'mastery_checked_on' => 'date',
+            'mastery_offer_after' => 'date',
+            'mastery_offered_at' => 'datetime',
+            'star_fade_base' => 'integer',
+            'star_fade_from' => 'date',
+            'star_fade_step' => 'integer',
+            'star_fade_offered_at' => 'datetime',
         ];
     }
 
@@ -82,6 +95,18 @@ class Task extends Model
         return $query->whereNull('archived_at');
     }
 
+    /** Gemeistert (§14.3): verlässt die tägliche Liste, bis „Klappt es noch?“ mit Nein beantwortet wird. */
+    public function isMastered(): bool
+    {
+        return $this->mastered_at !== null;
+    }
+
+    /** Ehrensache (§14.3): Sterne sind vollständig ausgeschlichen. */
+    public function isHonor(): bool
+    {
+        return $this->star_fade_base !== null && (int) $this->star_reward === 0;
+    }
+
     /** Ist eine tägliche Aufgabe an diesem (Spiel-)Tag fällig? */
     public function isDueOn(\DateTimeInterface $date): bool
     {
@@ -94,6 +119,11 @@ class Task extends Model
         $start = $this->start_date ? CarbonImmutable::parse($this->start_date->format('Y-m-d')) : null;
 
         if ($start && $day->lt($start)) {
+            return false;
+        }
+
+        // Pausiert (§14.2) oder gemeistert (§14.3): nicht fällig
+        if ($this->mastered_at !== null || ($this->paused_until !== null && $day->lte(CarbonImmutable::parse($this->paused_until->format('Y-m-d'))))) {
             return false;
         }
 

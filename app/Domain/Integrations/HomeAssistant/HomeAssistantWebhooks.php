@@ -33,6 +33,7 @@ class HomeAssistantWebhooks
         'event_tier_reached' => 'Event-Stufe erreicht',
         'event_advent_door' => 'Adventskalender-Türchen geöffnet',
         'fun_haunt' => 'Spuk im Smart Home (Lampe kurz flackern lassen)',
+        'reminder' => 'Erinnerung zur Aufgabe (Mitglied, task_key; nie bei privaten Aufgaben)',
     ];
 
     /** Zeitfenster, in dem HA eine Signatur akzeptieren sollte (gegen Replay). */

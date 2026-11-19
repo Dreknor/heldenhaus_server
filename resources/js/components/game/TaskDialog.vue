@@ -41,6 +41,14 @@ const stepsMessage = ref('');
 const stepsError = ref('');
 const canEditSteps = computed(() => editing.value && (currentType.value === 'todo' || currentType.value === 'daily'));
 const maxSteps = computed(() => props.maxSteps ?? 7);
+const anchorIdeas = [
+    'nach dem Aufstehen',
+    'nach dem Frühstück',
+    'wenn ich von der Schule komme',
+    'vor dem Abendessen',
+    'nach dem Abendessen',
+    'vor dem Schlafengehen',
+];
 
 function initial() {
     const t = props.task;
@@ -65,6 +73,9 @@ function initial() {
         team_bonus_gold: t?.team_bonus_gold ?? 5,
         star_reward: t?.star_reward ?? 1,
         ha_event_key: t?.ha_event_key ?? '',
+        anchor: t?.anchor ?? '',
+        remind_at: t?.remind_at ?? '',
+        remind_ha: t?.remind_ha ?? false,
     };
 }
 
@@ -102,6 +113,7 @@ function payload() {
     if (d.type === 'daily') data.repeat = d.repeat;
     if (d.type === 'todo') data.due_date = d.due_date || null;
     if (d.type === 'reward') data.gold_cost = d.gold_cost;
+    if (d.type !== 'reward') Object.assign(data, { anchor: d.anchor || null, remind_at: d.remind_at || null, remind_ha: d.remind_ha });
     if (isFamily.value) {
         Object.assign(data, {
             approval_mode: d.approval_mode,
@@ -317,6 +329,36 @@ const chip = (active: boolean) =>
                     <Label for="due">Fällig bis (optional)</Label>
                     <Input id="due" v-model="form.due_date" type="date" />
                 </div>
+
+                <!-- Wenn-dann-Plan (§14.2): Auslöser und Erinnerung machen Gewohnheiten leichter -->
+                <section v-if="currentType !== 'reward'" class="grid gap-2 rounded-xl border bg-sky-50/60 p-3 dark:bg-sky-950/30">
+                    <h3 class="font-bold">Wann und wo machst du das?</h3>
+                    <p class="text-xs text-muted-foreground">Ein fester Auslöser hilft dem Kopf: „Wenn ich …, dann …“</p>
+                    <Input
+                        id="anchor"
+                        v-model="form.anchor"
+                        maxlength="80"
+                        list="anchor-ideas"
+                        placeholder="z. B. nach dem Frühstück"
+                        aria-label="Anker"
+                    />
+                    <datalist id="anchor-ideas">
+                        <option v-for="a in anchorIdeas" :key="a" :value="a" />
+                    </datalist>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <label class="flex items-center gap-2 text-sm">
+                            Erinnerung um
+                            <Input v-model="form.remind_at" type="time" class="h-9 w-32" aria-label="Erinnerungszeit" />
+                        </label>
+                        <button v-if="form.remind_at" type="button" class="text-xs text-muted-foreground underline" @click="form.remind_at = ''">
+                            keine Erinnerung
+                        </button>
+                        <label v-if="form.remind_at && !form.is_private" class="flex items-center gap-2 text-xs">
+                            <input v-model="form.remind_ha" type="checkbox" class="size-4" /> auch als Signal im Zuhause (Home Assistant)
+                        </label>
+                    </div>
+                    <InputError :message="form.errors.remind_at || form.errors.anchor" />
+                </section>
 
                 <section v-if="canEditSteps" class="grid gap-2 rounded-xl border bg-muted/30 p-3">
                     <div class="flex flex-wrap items-center justify-between gap-2">

@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\CharacterController;
 use App\Http\Controllers\Api\V1\DeviceController;
 use App\Http\Controllers\Api\V1\FamilyController;
 use App\Http\Controllers\Api\V1\GameController;
+use App\Http\Controllers\Api\V1\GoalController;
 use App\Http\Controllers\Api\V1\HomeAssistantController;
 use App\Http\Controllers\CraftingController;
 use App\Http\Controllers\DungeonController;
@@ -55,6 +56,26 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
             Route::delete('tasks/{task}', [GameController::class, 'destroyTask'])->name('tasks.destroy');
             Route::post('tasks/{task}/claim', [GameController::class, 'claim'])->name('tasks.claim');
             Route::post('tasks/{task}/buy', [GameController::class, 'buy'])->name('tasks.buy');
+
+            // Langzeitmotivation (§14.12): Ziele, Erinnerungen, Meistern, Ehrensache
+            Route::get('goals', [GoalController::class, 'index'])->name('goals.index');
+            Route::get('goals/templates', [GoalController::class, 'templates'])->name('goals.templates');
+            Route::post('goals', [GoalController::class, 'store'])->name('goals.store');
+            Route::put('goals/{goal}', [GoalController::class, 'update'])->name('goals.update');
+            Route::post('goals/{goal}/release', [GoalController::class, 'release'])->name('goals.release');
+            Route::post('goals/{goal}/count', [GoalController::class, 'count'])->name('goals.count');
+            Route::post('goals/{goal}/milestones/{milestone}/done', [GoalController::class, 'milestone'])->name('goals.milestone');
+            Route::post('goals/{goal}/milestones/{milestone}/decline', [GoalController::class, 'declineMilestone'])->name('goals.milestone.decline');
+            Route::post('goals/{goal}/support', [GoalController::class, 'support'])->name('goals.support');
+            Route::post('tasks/{task}/reminder/snooze', [GoalController::class, 'snooze'])->name('tasks.reminder.snooze');
+            Route::post('tasks/{task}/reminder/feedback', [GoalController::class, 'reminderFeedback'])->name('tasks.reminder.feedback');
+            Route::get('mastery', [GoalController::class, 'mastery'])->name('mastery');
+            Route::post('tasks/{task}/master', [GoalController::class, 'master'])->name('tasks.master');
+            Route::post('tasks/{task}/less-often', [GoalController::class, 'lessOften'])->name('tasks.less-often');
+            Route::post('tasks/{task}/keep', [GoalController::class, 'keep'])->name('tasks.keep');
+            Route::post('tasks/{task}/still-ok', [GoalController::class, 'stillOk'])->name('tasks.still-ok');
+            Route::post('tasks/{task}/fade-stars', [GoalController::class, 'fadeStars'])->name('tasks.fade-stars');
+            Route::get('fade-stars/suggestions', [GoalController::class, 'fadeSuggestions'])->name('fade-stars.suggestions');
 
             Route::get('family', [FamilyController::class, 'show'])->name('family');
             Route::get('approvals', [FamilyController::class, 'approvals'])->name('approvals');

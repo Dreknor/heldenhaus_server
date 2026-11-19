@@ -14,6 +14,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\FamilyHubController;
 use App\Http\Controllers\FamilyLoginController;
+use App\Http\Controllers\GoalController;
 use App\Http\Controllers\HeroController;
 use App\Http\Controllers\HousingController;
 use App\Http\Controllers\OnboardingController;
@@ -122,6 +123,23 @@ Route::middleware(['auth', 'family', 'day-cron'])->group(function () {
     Route::post('pets/hatch', [CharacterController::class, 'hatch'])->name('pets.hatch');
     Route::post('pets/{pet}/feed', [CharacterController::class, 'feed'])->name('pets.feed');
     Route::post('pets/{pet}/companion', [CharacterController::class, 'companion'])->name('pets.companion');
+
+    // Ziele (§14.1), Erinnerungen (§14.2), Meistern und Ehrensache (§14.3)
+    Route::get('goals', [GoalController::class, 'index'])->name('goals.index');
+    Route::post('goals', [GoalController::class, 'store'])->name('goals.store');
+    Route::put('goals/{goal}', [GoalController::class, 'update'])->name('goals.update');
+    Route::post('goals/{goal}/release', [GoalController::class, 'release'])->name('goals.release');
+    Route::post('goals/{goal}/count', [GoalController::class, 'count'])->name('goals.count');
+    Route::post('goals/{goal}/milestones/{milestone}/done', [GoalController::class, 'milestone'])->name('goals.milestone');
+    Route::post('goals/{goal}/milestones/{milestone}/decline', [GoalController::class, 'declineMilestone'])->name('goals.milestone.decline');
+    Route::post('goals/{goal}/support', [GoalController::class, 'support'])->name('goals.support');
+    Route::post('tasks/{task}/reminder/snooze', [GoalController::class, 'snooze'])->name('tasks.reminder.snooze');
+    Route::post('tasks/{task}/reminder/feedback', [GoalController::class, 'reminderFeedback'])->name('tasks.reminder.feedback');
+    Route::post('tasks/{task}/master', [GoalController::class, 'master'])->name('tasks.master');
+    Route::post('tasks/{task}/less-often', [GoalController::class, 'lessOften'])->name('tasks.less-often');
+    Route::post('tasks/{task}/keep', [GoalController::class, 'keep'])->name('tasks.keep');
+    Route::post('tasks/{task}/still-ok', [GoalController::class, 'stillOk'])->name('tasks.still-ok');
+    Route::post('tasks/{task}/fade-stars', [GoalController::class, 'fadeStars'])->name('tasks.fade-stars');
     Route::post('feed/{entry}/react', [FamilyHubController::class, 'react'])->name('feed.react');
     Route::get('allowance', [FamilyHubController::class, 'allowance'])->name('allowance.index');
     Route::post('allowance', [FamilyHubController::class, 'storeAllowance'])->name('allowance.store');

@@ -4,6 +4,9 @@ namespace App\Http\Presenters;
 
 use App\Domain\Art\PetArt;
 use App\Domain\Gameplay\RunDayCron;
+use App\Domain\Goals\GoalService;
+use App\Domain\Goals\MasteryService;
+use App\Domain\Goals\StarFadeService;
 use App\Domain\Support\FocusService;
 use App\Domain\Support\SupportService;
 use App\Enums\CompletionStatus;
@@ -25,7 +28,8 @@ class HeroBoard
             'completions' => fn ($q) => $q->where('direction', 'up')->latest('id')->limit(1),
         ])
             ->where('user_id', $user->id)
-            ->whereHas('task', fn ($q) => $q->whereNull('archived_at'))
+            // Gemeisterte Gewohnheiten (§14.3) verlassen die tägliche Liste
+            ->whereHas('task', fn ($q) => $q->whereNull('archived_at')->whereNull('mastered_at'))
             ->get()
             ->sortBy(fn (TaskAssignment $a) => [$a->task->sort, $a->task->id])
             ->map(fn (TaskAssignment $a) => GamePresenter::assignment($a, $today))
@@ -62,6 +66,10 @@ class HeroBoard
             'support' => SupportService::present($user),
             'recoveries' => SupportService::presentRecoveries($user),
             'focus' => FocusService::present(FocusService::running($user)),
+            // Langzeitmotivation (§14.1–§14.3): eigene Ziele, Meister-Angebote, Ehrensache-Vorschläge für Eltern
+            'goals' => app(GoalService::class)->boardSummary($user),
+            'mastery' => app(MasteryService::class)->cards($user),
+            'star_fade' => $user->isParent() && $user->family_id ? app(StarFadeService::class)->suggestions($user->family_id) : [],
         ];
     }
 

@@ -13,6 +13,10 @@ use App\Domain\Family\FamilyService;
 use App\Domain\Family\WeeklyReport;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\RunDayCron;
+use App\Domain\Goals\GoalService;
+use App\Domain\Goals\MasteryService;
+use App\Domain\Goals\ReminderService;
+use App\Domain\Goals\StarFadeService;
 use App\Domain\Housing\BuildService;
 use App\Domain\Notifications\PushNotifier;
 use App\Domain\Social\ChallengeService;
@@ -268,6 +272,32 @@ Artisan::command('updater:run
 })->purpose('Aktualisiert Heldenhaus aus dem Git-Repository (Online-Updater)');
 
 /*
+ * Erinnerungen (§14.2): inhaltsleere Push-Nachricht und optional HA-Ereignis zur Erinnerungszeit.
+ */
+Artisan::command('heldenhaus:reminders', function (ReminderService $reminders) {
+    $this->info($reminders->dispatchDue().' Erinnerungen gesendet.');
+})->purpose('Fällige Erinnerungen senden');
+
+/*
+ * Ziele und Gewohnheiten (§14.1/§14.3): Wochenziele Sonntagabend auswerten, abgelaufene Ziele markieren,
+ * ignorierte Erinnerungen zählen, einmal täglich Meister-Angebote suchen und Sterne ausschleichen.
+ */
+Artisan::command('heldenhaus:goals-tick', function (GoalService $goals, ReminderService $reminders, MasteryService $mastery, StarFadeService $fade) {
+    $weeks = 0;
+    User::whereNotNull('family_id')->chunkById(200, function ($users) use ($goals, $reminders, $mastery, &$weeks) {
+        foreach ($users as $user) {
+            $weeks += $goals->evaluateWeeks($user);
+            $goals->expireDue($user);
+            $reminders->evaluatePast($user);
+            Cache::remember("mastery-scan:{$user->id}:".$user->gameDate()->toDateString(), now()->addDay(), fn () => $mastery->scan($user) + 1);
+        }
+    });
+    $faded = $fade->apply();
+
+    $this->info("{$weeks} Wochenziele ausgewertet, {$faded} Aufgaben beim Ausschleichen angepasst.");
+})->purpose('Wochenziele, Erinnerungs-Auswertung, Meistern und Ehrensache');
+
+/*
  * Scheduler – auf dem Hetzner-Webhosting per konsoleH-Cron jede Minute:
  *   php artisan schedule:run
  * Es gibt keine Dauerprozesse: die Queue wird hier kurz abgearbeitet.
@@ -277,6 +307,8 @@ Schedule::command('queue:work --stop-when-empty --max-time=50 --tries=3')
     ->withoutOverlapping(5);
 
 Schedule::command('heldenhaus:day-cron')->everyFifteenMinutes()->withoutOverlapping();
+Schedule::command('heldenhaus:reminders')->everyMinute()->withoutOverlapping();
+Schedule::command('heldenhaus:goals-tick')->everyFifteenMinutes()->withoutOverlapping();
 Schedule::command('heldenhaus:auto-approve')->everyFifteenMinutes()->withoutOverlapping();
 Schedule::command('heldenhaus:housing-tick')->everyFiveMinutes()->withoutOverlapping();
 Schedule::command('heldenhaus:dungeons-close')->hourly()->withoutOverlapping();

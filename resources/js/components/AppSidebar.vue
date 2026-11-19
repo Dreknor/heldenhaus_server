@@ -23,6 +23,7 @@ import {
     Skull,
     Sparkles,
     Swords,
+    Target,
     Trophy,
     Users,
 } from 'lucide-vue-next';
@@ -37,6 +38,7 @@ const groups = computed<{ label: string; items: NavItem[] }[]>(() => [
         label: 'Abenteuer',
         items: [
             { title: 'Helden-Board', href: '/dashboard', icon: Swords },
+            { title: 'Ziele', href: '/goals', icon: Target },
             { title: 'Held & Klasse', href: '/hero', icon: Sparkles },
             { title: 'Quests', href: '/quests', icon: ScrollText },
             { title: 'Dungeons', href: '/dungeons', icon: Skull },

@@ -128,6 +128,13 @@ export interface Task {
     star_reward: number;
     gold_cost: number;
     ha_event_key: string | null;
+    // Wenn-dann-Plan und Erinnerung (§14.2), Meistern und Ehrensache (§14.3)
+    anchor?: string | null;
+    remind_at?: string | null;
+    remind_ha?: boolean;
+    paused_until?: string | null;
+    mastered?: boolean;
+    star_fade?: { base: number; from: string | null; step: number; steps: number; honor: boolean } | null;
     assignees: number[];
 }
 
@@ -145,6 +152,8 @@ export interface AssignedTask extends Task {
     pending_approval: boolean;
     on_duty: boolean | null;
     team: { done: number; total: number } | null;
+    reminder_snoozed_until?: string | null;
+    reminder_question?: boolean;
 }
 
 export interface Member {
