@@ -70,7 +70,7 @@ const props = defineProps<{
     pool: Task[];
     cronPending: { assignment_id: number; title: string }[];
     quests: { family: ActiveQuest | null; solo: ActiveQuest | null };
-    companion: { egg_key: string; potion_key: string; is_mount: boolean; name: string } | null;
+    companion: { egg_key: string; potion_key: string; is_mount: boolean; name: string; rideable?: boolean } | null;
     categories: Record<string, string>;
     difficulties: Record<string, number>;
     councilHints?: CouncilHint[];

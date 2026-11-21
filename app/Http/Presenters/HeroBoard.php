@@ -63,7 +63,9 @@ class HeroBoard
             // Begleiter in der Szene: der im Stall gewählte, sonst ein Reittier, sonst das neueste Haustier
             'companion' => ($pet = self::companion($user))
                 ? ['egg_key' => $pet->egg->key, 'potion_key' => $pet->potion->key, 'is_mount' => $pet->is_mount, 'name' => $pet->name,
-                    'art_url' => PetArt::url($pet->egg->key), 'palette' => PetArt::palette($pet->potion)]
+                    'art_url' => PetArt::url($pet->egg->key), 'palette' => PetArt::palette($pet->potion),
+                    // Kopf-Bilder (Fuchs, Bär …) und Tiere wie Biene oder Qualle trägt niemand: dann steht das Reittier neben dem Helden
+                    'rideable' => PetArt::rideable($pet->egg->key)]
                 : null,
             'recentPending' => $user->completions()->where('status', CompletionStatus::Pending)->count(),
             // Fokus & Alltagshilfen
