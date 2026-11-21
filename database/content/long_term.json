@@ -1,0 +1,60 @@
+{
+  "albums": {
+    "steps": [25, 50, 75, 100],
+    "step_rewards": {
+      "25": { "gold": 25 },
+      "50": { "gold": 50, "item": "potion_golden" },
+      "75": { "gold": 100 },
+      "100": { "gold": 200 }
+    },
+    "list": [
+      { "key": "pets", "name": "Haustiere", "icon": "🐣", "description": "Jede Tierart, die bei dir geschlüpft ist.", "final_item": "potion_rainbow" },
+      { "key": "mounts", "name": "Reittiere", "icon": "🐎", "description": "Jede Tierart, die du zum Reittier großgezogen hast.", "final_item": "furn_hammock" },
+      { "key": "monsters", "name": "Monster-Lexikon", "icon": "👾", "description": "Jeder Boss, den deine Familie oder du allein besiegt habt.", "final_item": "furn_dragon_trophy" },
+      { "key": "furniture", "name": "Möbel", "icon": "🛋️", "description": "Jedes Möbelstück, das du einmal hattest.", "final_item": "furn_chandelier" },
+      { "key": "recipes", "name": "Rezepte", "icon": "📜", "description": "Jeder Bauplan, den du kennst.", "final_item": "furn_cookbook" },
+      { "key": "badges", "name": "Abzeichen", "icon": "🏆", "description": "Jede Stufe deiner Erfolge.", "final_item": "furn_trophy" }
+    ]
+  },
+  "masteries": {
+    "thresholds": [25, 100, 250, 500, 1000],
+    "gold": [20, 40, 80, 150, 300],
+    "numerals": ["I", "II", "III", "IV", "V"],
+    "categories": {
+      "household": { "name": "Haushalt", "icon": "🧹" },
+      "school": { "name": "Schule", "icon": "📚" },
+      "sport": { "name": "Sport", "icon": "⚽" },
+      "nature": { "name": "Natur", "icon": "🌿" },
+      "creative": { "name": "Kreativ", "icon": "🎨" }
+    }
+  },
+  "titles": [
+    { "level": 20, "key": "title_20", "name": "Stern des Hauses", "icon": "⭐" },
+    { "level": 30, "key": "title_30", "name": "Stütze der Familie", "icon": "🏰" },
+    { "level": 50, "key": "title_50", "name": "Licht der Burg", "icon": "🕯️" },
+    { "level": 75, "key": "title_75", "name": "Legende des Heldenhauses", "icon": "🐉" },
+    { "level": 100, "key": "title_100", "name": "Sagengestalt", "icon": "👑" }
+  ],
+  "hero_year": {
+    "levels": 50,
+    "points_per_level": 90,
+    "task_points": { "trivial": 2, "easy": 5, "medium": 7, "hard": 10 },
+    "event_bonus": 2,
+    "daily_task_cap": 60,
+    "usual_day": { "tasks": 6, "difficulty": 1 },
+    "fallback_start": "08-01",
+    "default_reward": { "gold": 10 },
+    "rewards": {
+      "5": { "gold": 10, "item": "furn_fairy_lights" },
+      "10": { "gold": 10, "item": "head_feather_cap" },
+      "15": { "gold": 10, "item": "furn_star_chart" },
+      "20": { "gold": 10, "item": "accessory_friendship_band" },
+      "25": { "gold": 25, "item": "furn_moon_lamp" },
+      "30": { "gold": 10, "item": "head_star_circlet" },
+      "35": { "gold": 10, "item": "furn_swing_chair" },
+      "40": { "gold": 10, "item": "furn_telescope" },
+      "45": { "gold": 10, "item": "shield_star" },
+      "50": { "gold": 50, "item": "furn_throne", "badge": true }
+    }
+  }
+}

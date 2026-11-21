@@ -197,6 +197,7 @@ function doorLabel(kind: string, target: number) {
                         class="rounded px-4 py-2 text-sm font-bold transition"
                         :class="selectedTab === 'family' ? 'bg-[var(--gold)] text-[var(--wood-edge)]' : 'text-amber-50/80 hover:bg-black/20'"
                         role="tab"
+                        data-tour="dungeon.family"
                         :aria-selected="selectedTab === 'family'"
                         @click="selectedTab = 'family'"
                     >
@@ -206,6 +207,7 @@ function doorLabel(kind: string, target: number) {
                         class="rounded px-4 py-2 text-sm font-bold transition"
                         :class="selectedTab === 'solo' ? 'bg-[var(--gold)] text-[var(--wood-edge)]' : 'text-amber-50/80 hover:bg-black/20'"
                         role="tab"
+                        data-tour="dungeon.solo"
                         :aria-selected="selectedTab === 'solo'"
                         @click="selectedTab = 'solo'"
                     >

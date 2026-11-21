@@ -18,6 +18,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
+use Inertia\Response;
 
 /** Fokus & Alltagshilfen (Konzept §11): Einstellungen, Energiespar-Tag, Kopf-Ablage, Schritte, Fokus-Zeiten – Web und API. */
 class SupportController extends Controller
@@ -30,7 +32,19 @@ class SupportController extends Controller
     {
         $target = $this->target($request, $member);
 
-        return response()->json(SupportService::present($target) + ['can_change' => SupportService::editableBy($request->user(), $target)]);
+        // can_change aus Sicht der anfragenden Person (Eltern sehen bei Kindern mehr Felder)
+        return response()->json(['can_change' => SupportService::editableBy($request->user(), $target)] + SupportService::present($target));
+    }
+
+    /** Einstellungsseite „Fokus & Darstellung“ im Web (§11.4, Phase 8). */
+    public function edit(Request $request): Response
+    {
+        $user = $request->user();
+
+        return Inertia::render('settings/Focus', [
+            'settings' => SupportService::present($user),
+            'ageGroup' => $user->ageGroup()->value,
+        ]);
     }
 
     public function updateSettings(Request $request, ?User $member = null): RedirectResponse|JsonResponse
@@ -219,6 +233,9 @@ class SupportController extends Controller
         }
         if (! $request->user()->isParent() || ! $request->user()->sameFamilyAs($member)) {
             throw new GameException('Das dürfen nur Eltern der Familie.');
+        }
+        if ($member->isIndependent()) {
+            throw new GameException("{$member->name} hat ein Erwachsenenprofil und stellt das selbst ein.");
         }
 
         return $member;

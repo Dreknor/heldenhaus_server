@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Council\ParentHelp;
 use App\Domain\Gameplay\ScoreTask;
 use App\Domain\Rewards\RewardService;
 use App\Domain\Tasks\TaskService;
@@ -17,9 +18,12 @@ class TaskController extends Controller
 
     public function store(TaskRequest $request): RedirectResponse
     {
-        $this->tasks->create($request->user(), $request->validated(), autoSuggestSteps: true);
+        $task = $this->tasks->create($request->user(), $request->validated(), autoSuggestSteps: true);
 
-        return back()->with('success', 'Aufgabe angelegt.');
+        // §14.9: Hinweis, wenn ein Kind mehr als eine neue Aufgabe pro Woche bekommt
+        $hints = $task->isFamilyTask() ? ParentHelp::loadHints($request->user()->family_id, $task->assignments()->pluck('user_id')->all()) : [];
+
+        return back()->with('success', 'Aufgabe angelegt.'.($hints ? ' '.implode(' ', array_column($hints, 'text')) : ''));
     }
 
     public function update(TaskRequest $request, Task $task): RedirectResponse

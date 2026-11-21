@@ -7,7 +7,7 @@ Route::middleware(['web', 'auth', 'family', 'day-cron'])
     ->prefix('crafting')
     ->name('crafting.')
     ->group(function () {
-        Route::get('/', [CraftingWebController::class, 'index'])->name('index');
+        Route::get('/', [CraftingWebController::class, 'index'])->middleware('feature:crafting,building')->name('index');
         Route::post('/craft', [CraftingWebController::class, 'craft'])->middleware('feature:crafting')->name('craft');
         Route::post('/jobs/{job}/collect', [CraftingWebController::class, 'collect'])->middleware('feature:crafting')->name('jobs.collect');
         Route::post('/recipes/learn', [CraftingWebController::class, 'learn'])->middleware('feature:crafting')->name('learn');

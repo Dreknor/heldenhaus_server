@@ -3,6 +3,7 @@
 namespace App\Domain\Notifications;
 
 use App\Jobs\SendPushNotification;
+use App\Models\FocusSession;
 use App\Models\NotificationSetting;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -12,7 +13,8 @@ use Illuminate\Support\Collection;
 /**
  * Push über FCM (Konzept §5.1, §8): Benachrichtigungen enthalten keine Inhalte, nur die Art
  * („Neue Freigabe“). Die App holt die Details selbst. In der Ruhezeit oder bei abgeschalteter Art
- * geht nur eine stille Datennachricht raus, die einen Abgleich auslöst.
+ * geht nur eine stille Datennachricht raus, die einen Abgleich auslöst. Dasselbe gilt während einer
+ * laufenden Fokus-Zeit (§11.4): Dann poppt nichts auf, auch keine Freigabe-Datennachricht mit Anzeige.
  */
 class PushNotifier
 {
@@ -28,6 +30,7 @@ class PushNotifier
         'challenge' => ['Neue Challenge', 'Es gibt eine neue Challenge.'],
         'message' => ['Neue Nachricht', 'Im Heldenhaus gibt es eine neue Nachricht.'],
         'weekly_report' => ['Wochenbericht', 'Der Wochenbericht ist da.'],
+        'weekly_review' => ['Dein Wochenrückblick', 'Schau, was du diese Woche geschafft hast.'],
         'craft_ready' => ['Fertig!', 'In der Werkstatt ist etwas fertig geworden.'],
         'build_done' => ['Einweihung!', 'Ein Bauprojekt im Familienhaus ist fertig.'],
         'trade' => ['Tauschangebot', 'Es gibt Neuigkeiten zu einem Tausch.'],
@@ -35,6 +38,17 @@ class PushNotifier
         'dungeon' => ['Dungeon', 'Im Familien-Dungeon wartet der Endboss auf euch!'],
         'event_started' => ['Ein Event beginnt', 'Im Heldenhaus ist etwas Besonderes los.'],
         'event_tier' => ['Event-Stufe geschafft!', 'Ihr habt gemeinsam eine Event-Stufe erreicht.'],
+        'reminder' => ['Erinnerung', 'Eine Erinnerung wartet.'],
+        'goal_confirm' => ['Meilenstein geschafft?', 'Ein Meilenstein wartet auf deine Bestätigung.'],
+        'goal_progress' => ['Ziel-Fortschritt', 'Jemand, dem du hilfst, ist einen Schritt weiter.'],
+        'goal_reached' => ['Ziel erreicht!', 'In der Familie wurde ein Ziel erreicht.'],
+        'star_fade' => ['Ehrensache', 'Bei einer Familienaufgabe ändert sich etwas an den Sternen.'],
+        // Familienrat und Mitbestimmung (§14.4)
+        'family_council' => ['Familienrat', 'In einer Stunde ist Familienrat. Wer mag, ist dabei!'],
+        'proposal_new' => ['Neuer Vorschlag', 'Im Heldenhaus wartet ein Vorschlag auf euch.'],
+        'proposal_decided' => ['Vorschlag beantwortet', 'Deine Eltern haben über deinen Vorschlag entschieden.'],
+        'vote_opened' => ['Abstimmung', 'Stimm ab, welche Familien-Quest als Nächstes kommt.'],
+        'vote_tie' => ['Gleichstand', 'Bei der Abstimmung steht es unentschieden. Ihr entscheidet.'],
     ];
 
     /**
@@ -55,7 +69,10 @@ class PushNotifier
             }
 
             $setting = $user->notificationSetting ?? new NotificationSetting;
-            $visible = isset(self::TYPES[$type]) && $setting->allows($type) && ! $setting->isQuiet(CarbonImmutable::now($user->timezone ?? 'Europe/Berlin'));
+            $visible = isset(self::TYPES[$type]) && $setting->allows($type)
+                && ! $setting->isQuiet(CarbonImmutable::now($user->timezone ?? 'Europe/Berlin'))
+                // Fokus-Zeit (§11.4): alles außer Freigaben wird zurückgehalten
+                && ($type === 'approval_pending' || ! self::inFocus($user));
 
             $dataOnly = in_array($type, self::DATA_ONLY, true);
             $payload = self::data($type, $data + ($dataOnly && $visible ? ['show' => '1', 'title' => self::TYPES[$type][0], 'body' => self::TYPES[$type][1]] : []));
@@ -67,6 +84,12 @@ class PushNotifier
         }
 
         return $count;
+    }
+
+    /** Läuft gerade eine Fokus-Zeit (Timer noch nicht abgelaufen)? Dann werden sichtbare Pushes zurückgehalten. */
+    public static function inFocus(User $user): bool
+    {
+        return FocusSession::where('user_id', $user->id)->whereNull('ended_at')->where('ends_at', '>', now())->exists();
     }
 
     public static function parentsOf(?int $familyId): Collection

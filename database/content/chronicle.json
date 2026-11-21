@@ -1,0 +1,212 @@
+[
+  {
+    "key": "ch01_old_house",
+    "number": 1,
+    "title": "Das Haus am Ende des Weges",
+    "unlock": {
+      "level": 2
+    },
+    "image": "/images/scene/house.webp",
+    "text": [
+      "Am Ende eines schmalen Weges, hinter hohen Tannen, steht ein altes Haus. Die Fenster sind grau vor Staub. Der Garten ist wild. Und über der Tür hängt ein Schild, das kaum noch jemand lesen kann: „Heldenhaus“.",
+      "An einem windigen Nachmittag kommt {family} genau dort vorbei. {hero} bleibt stehen und zeigt auf die Tür. In das Holz ist ein Wappen geschnitzt. Es sieht genauso aus wie das Zeichen, das {family} schon lange benutzt: {crest}.",
+      "„Das ist doch unser Wappen!“, ruft {hero}. Alle schauen sich an. Vorsichtig drückt jemand die Klinke. Die Tür knarrt und geht auf, als hätte sie schon lange gewartet.",
+      "Drinnen ist es still. Auf einem Tisch liegt ein dickes Buch mit Ledereinband. Auf dem Deckel steht: „Chronik des Heldenhauses“. Die ersten Seiten sind voll mit alten Geschichten. Dann kommt eine leere Seite. Und während {hero} noch schaut, erscheinen dort langsam neue Buchstaben: „Willkommen, {family}. Ihr habt den Weg gefunden.“",
+      "Niemand weiß, wie das möglich ist. Aber eines ist klar: Dieses Haus hat auf eine Familie gewartet. Und vielleicht ist das genau {family}."
+    ]
+  },
+  {
+    "key": "ch02_dust_monster",
+    "number": 2,
+    "title": "Wer wohnt denn hier?",
+    "unlock": {
+      "level": 4
+    },
+    "image": "/images/monsters/dust.webp",
+    "monster": "dust_monster",
+    "text": [
+      "Am nächsten Tag kommt {family} zurück, mit Eimern, Lappen und viel Mut. Kaum ist die Tür offen, hört {hero} ein leises Rascheln aus der Ecke. Dort bewegt sich etwas Graues, Flauschiges.",
+      "Es ist ein Staubmonster. Es ist rund wie ein Kissen, hat zwei kleine Augen und kichert. „Hier wohne ich!“, sagt es. „Hier hat seit hundert Jahren keiner mehr geputzt. Das ist mein Haus!“",
+      "In der Chronik steht ein neuer Satz: „Staubmonster wachsen, wo niemand hinschaut. Sie werden kleiner, wenn eine Familie sich kümmert.“ {hero} liest es laut vor. Dann nehmen alle einen Lappen.",
+      "Es ist nicht schwer, aber es dauert. Einer wischt die Fensterbank, eine fegt den Flur, einer schüttelt die Teppiche aus. Jeden Tag ein bisschen. Und jeden Tag wird das Staubmonster ein Stück kleiner.",
+      "Am Ende ist es nur noch so groß wie eine Murmel. „Na gut“, piepst es. „Ihr habt gewonnen. Aber passt auf: Ich habe viele Verwandte.“ Dann rollt es zur Tür hinaus. {hero} lacht. Das erste Zimmer im Heldenhaus glänzt."
+    ]
+  },
+  {
+    "key": "ch03_laundry_hydra",
+    "number": 3,
+    "title": "Socken, überall Socken",
+    "unlock": {
+      "level": 6
+    },
+    "image": "/images/monsters/heads.webp",
+    "monster": "laundry_hydra",
+    "text": [
+      "Im Keller des Heldenhauses gibt es einen alten Waschraum. Als {hero} die Treppe hinuntergeht, rutscht eine Socke von der Stufe. Dann noch eine. Und noch eine. Der ganze Boden ist voller Wäsche.",
+      "Aus dem Berg hebt sich ein Kopf. Dann ein zweiter. Dann ein dritter. Es ist die Wäsche-Hydra. „Für jede vergessene Socke wächst mir ein neuer Kopf!“, zischt sie stolz.",
+      "{hero} will schon weglaufen. Doch dann fällt der Blick auf ein altes Schild an der Wand. Darauf steht: „Eine Socke allein ist ein Rätsel. Zwei Socken sind ein Paar.“ Das bringt {hero} auf eine Idee.",
+      "{family} macht einen Plan. Wer die Wäsche sortiert, wer sie aufhängt, wer sie zusammenlegt. Niemand muss alles allein machen. Jedes Paar Socken, das zusammenfindet, lässt einen Kopf der Hydra schrumpfen.",
+      "Manchmal bleibt doch ein Korb stehen. Dann wächst wieder ein Kopf nach. Aber das ist nicht schlimm. Am nächsten Tag macht man einfach weiter. Nach zwei Wochen ist die Hydra so klein, dass sie in einen Wäschekorb passt. Beleidigt kriecht sie durch das Kellerfenster davon.",
+      "In der Chronik steht am Abend: „Was man gemeinsam trägt, ist nur halb so schwer.“"
+    ]
+  },
+  {
+    "key": "ch04_procrastination_troll",
+    "number": 4,
+    "title": "Mach ich morgen",
+    "unlock": {
+      "level": 8
+    },
+    "image": "/images/monsters/troll.webp",
+    "monster": "procrastination_troll",
+    "text": [
+      "Im Arbeitszimmer des Heldenhauses steht ein großer Schreibtisch. Darunter schnarcht jemand. Es ist ein grüner Troll mit dicken Socken und einer Schlafmütze. Auf seinem Bauch liegt ein Zettel: „Mach ich morgen.“",
+      "„Psst“, flüstert der Troll, als {hero} die Hausaufgaben auspacken will. „Das hat doch Zeit. Leg dich lieber hin. Morgen ist auch noch ein Tag.“ Seine Stimme klingt so gemütlich, dass {hero} fast gähnen muss.",
+      "Aber die Chronik weiß Rat: „Der Aufschiebe-Troll mag keine kleinen Schritte. Große Berge machen ihn stark, kleine Steine machen ihn schwach.“",
+      "Also teilt {hero} die Aufgaben in kleine Stücke. Erst nur das Heft aufschlagen. Dann nur eine Aufgabe. Dann eine kurze Pause. Bei jedem kleinen Schritt rutscht dem Troll die Mütze ein Stück tiefer ins Gesicht. Auch der Rest von {family} macht mit, bei Briefen, Anrufen und anderen Dingen, die schon lange warten.",
+      "An einem Tag klappt es nicht so gut. Der Troll grinst. Doch {hero} sagt: „Heute war schwer. Morgen fange ich mit einem kleinen Schritt an.“ Und genau das passiert. Am Ende stolpert der Troll über seine eigene Mütze und rollt aus dem Haus. Der Zettel bleibt liegen. Jemand hat das Wort „morgen“ durchgestrichen und „jetzt“ darübergeschrieben."
+    ]
+  },
+  {
+    "key": "ch05_couch_golem",
+    "number": 5,
+    "title": "Der schwerste Gast",
+    "unlock": {
+      "level": 10,
+      "bosses": 1
+    },
+    "image": "/images/monsters/golem.webp",
+    "monster": "couch_golem",
+    "text": [
+      "Im Wohnzimmer steht ein riesiges altes Sofa. Es ist weich, warm und sehr bequem. Zu bequem. Denn als sich {hero} hineinfallen lässt, bewegt sich das Sofa. Es hat Arme aus Kissen und einen Kopf aus einer Decke. Es ist der Sofa-Golem.",
+      "„Bleib doch liegen“, brummt er. „Draußen ist es kalt. Und Bewegung ist so anstrengend.“ Mit jedem Wort wird {hero} schwerer und müder. Auch die anderen von {family} sitzen plötzlich da und schauen nur noch an die Decke.",
+      "Da fällt die Chronik vom Regal und klappt auf. Ein Satz leuchtet: „Wer sich bewegt, wird leicht. Wer leicht ist, wird frei.“ {hero} holt tief Luft und streckt einen Arm. Dann den anderen. Dann steht {hero} auf.",
+      "„Kommt, wir gehen raus!“, ruft {hero}. Erst wollen nicht alle. Aber dann tanzt jemand durch das Zimmer, jemand anderes holt den Ball, und bald läuft die ganze Familie durch den Garten. Jeder Schritt lässt den Golem wackeln.",
+      "Nach ein paar Tagen ist er wieder ein ganz normales Sofa. Ein gemütlicher Platz zum Ausruhen, aber nicht mehr zum Festkleben. In der Chronik steht: „Ausruhen ist gut. Liegenbleiben ist etwas anderes.“"
+    ]
+  },
+  {
+    "key": "ch06_boredom_ghost",
+    "number": 6,
+    "title": "Alles wird grau",
+    "unlock": {
+      "level": 12,
+      "bosses": 1
+    },
+    "image": "/images/monsters/ghost.webp",
+    "monster": "boredom_ghost",
+    "text": [
+      "Eines Morgens ist im Heldenhaus alles grau. Die Blumen auf dem Fensterbrett sind grau. Die Bilder an der Wand sind grau. Sogar das Wappen {crest} an der Tür sieht blass aus.",
+      "Durch die Flure schwebt ein dünnes Gespenst. Es seufzt. „Mir ist so langweilig“, sagt es. „Euch doch auch, oder?“ Und wirklich: Plötzlich hat niemand mehr Lust auf irgendwas. Selbst die Lieblingsspiele wirken öde.",
+      "{hero} blättert in der Chronik. Dort steht: „Das Langeweile-Gespenst fürchtet nur eines: Farbe, die du selbst machst.“ Also holt {hero} Stifte, Papier und Kleber aus der Kiste.",
+      "Ein Bild entsteht. Dann ein Lied. Dann ein Turm aus Pappe, eine Geschichte und ein Kuchen mit viel zu viel Zuckerguss. {family} bastelt, singt und erfindet. Mit jedem neuen Werk kommt ein Stück Farbe zurück ins Haus.",
+      "Das Gespenst wird durchsichtiger und durchsichtiger. Zum Schluss sagt es leise: „Das sieht ja schön aus.“ Dann ist es fort. Und das Wappen {crest} an der Tür leuchtet heller als je zuvor."
+    ]
+  },
+  {
+    "key": "ch07_screen_kraken",
+    "number": 7,
+    "title": "Die Arme aus Licht",
+    "unlock": {
+      "level": 14,
+      "bosses": 2
+    },
+    "image": "/images/monsters/octopus.webp",
+    "monster": "screen_kraken",
+    "text": [
+      "In der Bibliothek des Heldenhauses steht ein alter Spiegel. Eines Abends beginnt er zu flimmern. Aus dem Glas kommen lange, leuchtende Arme. Es ist die Bildschirm-Krake.",
+      "„Schau nur noch ein bisschen“, flüstert sie. „Nur noch ein Film. Nur noch eine Runde.“ Ihre Arme greifen nach den Minuten im Haus. Das Abendessen wird kalt. Das Buch bleibt liegen. Und keiner merkt, wie spät es schon ist.",
+      "{hero} merkt es zuerst. Der Hund wartet an der Tür. Die Blumen im Garten lassen die Köpfe hängen. „Wir haben die Zeit vergessen“, sagt {hero}. In der Chronik steht dazu: „Die Krake ist stark im Dunkeln. Draußen im Licht wird sie schwach.“",
+      "{family} trifft eine Abmachung: feste Zeiten für Bildschirme, und danach gemeinsam hinaus. Tiere füttern, im Garten graben, Vögel beobachten. Die Krake zappelt. Sie sendet Töne und Lichter. Aber jedes Mal, wenn jemand nach draußen geht, zieht sie einen Arm zurück.",
+      "Bildschirme sind nicht böse, das weiß {hero}. Man muss nur selbst bestimmen, wann sie an sind. Als die Krake das merkt, wird sie ganz klein und schlüpft zurück in den Spiegel. Seitdem zeigt er nur noch das, was davorsteht: eine Familie mit roten Wangen und Erde an den Händen."
+    ]
+  },
+  {
+    "key": "ch08_fog_and_mistakes",
+    "number": 8,
+    "title": "Der Nebel und der Fehler",
+    "unlock": {
+      "level": 16,
+      "bosses": 2
+    },
+    "image": "/images/scene/cloud.webp",
+    "monster": "fog_queen",
+    "text": [
+      "Eines Morgens ist das Heldenhaus voller Nebel. Man sieht kaum die eigene Hand. Durch den Flur schwebt eine Gestalt mit einem langen grauen Mantel. Es ist die Nebelkönigin. „Wer nicht weiß, was zu tun ist, tut gar nichts“, sagt sie und lächelt kühl.",
+      "{hero} will besonders mutig sein und rennt los, um allein etwas gegen den Nebel zu tun. Dabei stolpert {hero} über einen Eimer. Wasser läuft über den Boden, eine Vase fällt um. „So ein Mist“, murmelt {hero}. „Ich habe alles schlimmer gemacht.“",
+      "Da kommt der Rest von {family} dazu. Niemand schimpft. Jemand holt einen Lappen, jemand stellt die Vase wieder auf. „Fehler passieren“, sagt eine Stimme. „Wichtig ist, was wir danach machen.“ Und in der Chronik erscheint ein Satz: „Jeder Held stolpert. Ein Heldenhaus hilft beim Aufstehen.“",
+      "Dann hat {hero} eine Idee. Statt blind loszulaufen, schreibt die Familie einen Plan an die Tafel: Was ist heute zu tun? Wer macht was? Was zuerst? Jeder Punkt auf der Liste ist wie eine kleine Laterne im Nebel.",
+      "Mit jedem erledigten Punkt wird es heller. Die Nebelkönigin zieht ihren Mantel enger und verschwindet durch den Kamin. Zurück bleibt eine Pfütze, über die alle lachen müssen. {hero} ist ein bisschen stolz. Nicht, weil alles geklappt hat. Sondern weil es trotzdem weiterging."
+    ]
+  },
+  {
+    "key": "ch09_shadow_king",
+    "number": 9,
+    "title": "Der Schattenkönig",
+    "unlock": {
+      "level": 18,
+      "bosses": 3
+    },
+    "image": "/images/monsters/king.webp",
+    "monster": "shadow_king",
+    "text": [
+      "Nachts hört {hero} Schritte auf dem Dachboden. Mit einer Taschenlampe steigt {hero} die Leiter hinauf. Oben, zwischen alten Kisten, sitzt eine dunkle Gestalt auf einem Thron aus Gerümpel. Sie trägt eine Krone aus Schatten.",
+      "„Ich bin der Schattenkönig“, sagt die Gestalt mit tiefer Stimme. „Ich habe all die Monster geschickt. Den Staub, die Socken, den Troll und die anderen. Ich wollte sehen, ob ihr aufgebt. Denn wer aufgibt, gehört mir.“",
+      "{hero} zittert ein wenig. Aber {hero} ist nicht allein. Hinter {hero} stehen alle von {family}, einer nach dem anderen, mit Lampen in der Hand. „Wir geben nicht auf“, sagt {hero}. „Wir machen einfach weiter. Jeden Tag ein Stück.“",
+      "Der Schattenkönig ist stark. Er hat keine Schwäche, über die man ihn leicht packen kann. Aber er mag kein Licht. Und jede erledigte Aufgabe, jedes Danke und jede Hilfe macht das Haus heller. Viele Tage lang tun alle, was sie können. Manche Tage sind gut, manche nicht so gut. Aber das Licht wird mehr.",
+      "Am Ende ist der Thron leer. Nur die Krone liegt noch da. Sie ist nicht mehr dunkel, sondern aus altem Gold. Darauf steht ein Name, den {hero} noch nie gehört hat: „Für den Drachenfürsten.“"
+    ]
+  },
+  {
+    "key": "ch10_old_letter",
+    "number": 10,
+    "title": "Ein Brief aus alter Zeit",
+    "unlock": {
+      "level": 20,
+      "bosses": 4
+    },
+    "image": "/images/scene/castle.webp",
+    "text": [
+      "In der goldenen Krone steckt ein zusammengefaltetes Papier. Es ist ein Brief. Die Schrift ist schnörkelig und alt. {hero} liest ihn am Abend der ganzen Familie vor.",
+      "„Wer dies liest, hat das Heldenhaus gerettet. Vor langer Zeit lebte hier eine Familie, die alles gemeinsam machte. Sie hatte einen Freund: einen großen Drachen, den Drachenfürsten. Er passte auf das Haus auf. Doch eines Tages zog die Familie fort. Der Drache wurde einsam. Und weil niemand mehr da war, kamen die Schatten und der Staub.“",
+      "„Der Drachenfürst wartet seitdem auf dem Berg hinter dem Wald“, liest {hero} weiter. „Er wird nur zurückkommen, wenn eine Familie zeigt, dass sie zusammenhält. Nicht perfekt, sondern zusammen.“",
+      "Lange ist es still im Raum. Dann fragt jemand: „Ist der Drache gefährlich?“ {hero} schaut auf das Bild in der Chronik. Es zeigt einen großen Drachen mit freundlichen Augen. Er sieht nicht böse aus. Er sieht traurig aus.",
+      "„Ich glaube, er will einfach wissen, ob wir es ernst meinen“, sagt {hero}. Alle nicken. In der Chronik erscheint ein Bild von einem hohen Berg. Darunter steht: „Bald.“"
+    ]
+  },
+  {
+    "key": "ch11_mountain_path",
+    "number": 11,
+    "title": "Der Weg zum Berg",
+    "unlock": {
+      "level": 22,
+      "bosses": 5
+    },
+    "image": "/images/scene/mountain.webp",
+    "text": [
+      "{family} bereitet sich vor. Die Rucksäcke werden gepackt, die Wanderschuhe geputzt. Jeder bekommt eine Aufgabe: Einer trägt den Proviant, eine die Karte, einer die Lampe, eine die Chronik. {hero} trägt das Wappen {crest} auf einer kleinen Fahne.",
+      "Der Weg ist lang und steil. Nach einer Weile werden die Beine müde. „Ich kann nicht mehr“, sagt jemand leise. Niemand lacht darüber. Alle machen eine Pause, trinken Wasser und essen einen Apfel. Dann geht es langsamer weiter. Das ist auch in Ordnung.",
+      "Unterwegs erinnert sich {hero} an alles, was passiert ist. Das Staubmonster in der Ecke. Die Hydra im Keller. Der Troll unter dem Schreibtisch. Das Sofa, das nicht loslassen wollte. Der Nebel und die Pfütze. Damals hat {hero} gedacht, das schafft man nie. Und doch steht die Familie jetzt hier.",
+      "Als die Sonne untergeht, erreichen sie eine Hütte am Hang. Dort übernachten sie. Unter dem Sternenhimmel erzählt jeder, worauf er stolz ist. Keiner erzählt von großen Siegen. Alle erzählen von kleinen Schritten.",
+      "In der Nacht hört {hero} ein tiefes Brummen vom Gipfel. Es klingt nicht wütend. Es klingt fast wie ein Lied. „Er weiß, dass wir kommen“, flüstert {hero} und schläft lächelnd ein."
+    ]
+  },
+  {
+    "key": "ch12_dragon_lord",
+    "number": 12,
+    "title": "Der Drachenfürst",
+    "unlock": {
+      "level": 24,
+      "bosses": 6
+    },
+    "image": "/images/monsters/dragon.webp",
+    "monster": "dragon_lord",
+    "text": [
+      "Oben auf dem Gipfel liegt der Drachenfürst. Er ist riesig, mit Schuppen wie alte Münzen und Augen wie Bernstein. Als er die Familie sieht, hebt er langsam den Kopf. „Ihr seid also {family}“, sagt er. Seine Stimme rollt wie Donner über den Berg.",
+      "„Ich habe gehört, dass ihr meine alten Wächter überlistet habt“, brummt er. „Aber ich will es selbst sehen. Zeigt mir, was eine Familie kann.“ Dann stellt er Aufgaben. Jeden Tag neue. Manche sind leicht, manche schwer, und manchmal ändert er die Regeln.",
+      "{family} macht, was sie in all den Monaten gelernt hat. Alle helfen sich. Wer müde ist, ruht sich aus, und die anderen machen weiter. Wer einen Fehler macht, bekommt eine zweite Chance. Und {hero} sagt immer wieder: „Schritt für Schritt.“",
+      "Nach vielen Tagen legt der Drache den Kopf auf die Pfoten. „Ich habe lange gewartet“, sagt er leise. „Ich wollte keine perfekte Familie finden. Ich wollte eine finden, die zusammenhält. Ihr seid es.“ Dann breitet er seine Flügel aus. Sie leuchten golden in der Sonne.",
+      "Gemeinsam fliegen sie zurück zum Heldenhaus. {hero} sitzt ganz vorne, das Wappen {crest} flattert im Wind. Seitdem wohnt der Drachenfürst im Garten und passt auf alle auf. Und manchmal, wenn {hero} abends die Chronik öffnet, steht dort ein neuer Satz: „Das Abenteuer geht weiter. Mit euch.“"
+    ]
+  }
+]

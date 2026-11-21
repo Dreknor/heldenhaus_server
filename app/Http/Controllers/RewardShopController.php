@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Council\ParentHelp;
 use App\Domain\Rewards\RewardService;
 use App\Models\RewardItem;
 use App\Models\RewardRedemption;
@@ -39,6 +40,9 @@ class RewardShopController extends Controller
                     'created_at' => $r->created_at->toDateString(),
                 ]),
             'isParent' => $user->isParent(),
+            // Preis-Hilfe und Sterne-Polster (§14.9)
+            'priceHelp' => $user->isParent() ? ParentHelp::starRates($family->id)->map(fn ($r) => array_intersect_key($r, array_flip(['id', 'name', 'stars_per_day'])))->values() : [],
+            'cushions' => $user->isParent() ? ParentHelp::starCushions($family->id) : [],
         ]);
     }
 

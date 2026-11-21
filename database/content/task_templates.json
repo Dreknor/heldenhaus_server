@@ -1,0 +1,1752 @@
+[
+  {
+    "key": "make_bed",
+    "area": "room",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Bett machen",
+    "type": "daily",
+    "difficulty": 0.1,
+    "category": "household",
+    "stars": 0,
+    "icon": "🛏️",
+    "steps": [
+      "Decke ausschütteln",
+      "Kissen hinlegen",
+      "Decke glatt ziehen"
+    ],
+    "anchor": "nach dem Aufstehen"
+  },
+  {
+    "key": "open_window",
+    "area": "room",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Fenster öffnen und lüften",
+    "type": "daily",
+    "difficulty": 0.1,
+    "category": "household",
+    "stars": 0,
+    "icon": "🪟",
+    "steps": [],
+    "anchor": "nach dem Aufstehen"
+  },
+  {
+    "key": "clothes_away",
+    "area": "room",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Kleidung wegräumen",
+    "type": "daily",
+    "difficulty": 1,
+    "category": "household",
+    "stars": 0,
+    "icon": "👕",
+    "steps": [
+      "Schmutzige Sachen in den Wäschekorb",
+      "Saubere Sachen in den Schrank",
+      "Schuhe an ihren Platz"
+    ],
+    "anchor": "vor dem Schlafengehen"
+  },
+  {
+    "key": "floor_clear",
+    "area": "room",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Boden frei räumen",
+    "type": "daily",
+    "difficulty": 1,
+    "category": "household",
+    "stars": 1,
+    "icon": "🧸",
+    "steps": [
+      "Spielzeug in die Kiste",
+      "Bücher ins Regal",
+      "Kleinkram in die Schublade"
+    ],
+    "anchor": "vor dem Abendessen"
+  },
+  {
+    "key": "desk_tidy",
+    "area": "room",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Schreibtisch aufräumen",
+    "type": "daily",
+    "difficulty": 1,
+    "category": "household",
+    "stars": 0,
+    "icon": "🗂️",
+    "steps": [
+      "Stifte ins Mäppchen",
+      "Blätter in die Mappe",
+      "Müll in den Eimer"
+    ],
+    "anchor": "nach den Hausaufgaben"
+  },
+  {
+    "key": "ten_minute_tidy",
+    "area": "room",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Zehn Minuten aufräumen",
+    "type": "habit",
+    "difficulty": 1,
+    "category": "household",
+    "stars": 1,
+    "icon": "⏲️",
+    "steps": [
+      "Wecker auf 10 Minuten stellen",
+      "Von links nach rechts aufräumen",
+      "Bei Klingeln aufhören"
+    ],
+    "anchor": "wenn ich von der Schule komme"
+  },
+  {
+    "key": "empty_room_bin",
+    "area": "room",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Mülleimer im Zimmer leeren",
+    "type": "todo",
+    "difficulty": 1,
+    "category": "household",
+    "stars": 1,
+    "icon": "🗑️",
+    "steps": [
+      "Beutel zuknoten",
+      "In die große Tonne bringen",
+      "Neuen Beutel einlegen"
+    ]
+  },
+  {
+    "key": "change_bedding",
+    "area": "room",
+    "ages": [
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Bett neu beziehen",
+    "type": "todo",
+    "difficulty": 1.5,
+    "category": "household",
+    "stars": 2,
+    "icon": "🛌",
+    "steps": [
+      "Alte Bezüge abziehen",
+      "Bezüge in die Wäsche bringen",
+      "Frische Bezüge holen",
+      "Kissen und Decke beziehen",
+      "Laken spannen"
+    ]
+  },
+  {
+    "key": "vacuum_room",
+    "area": "room",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Zimmer staubsaugen",
+    "type": "todo",
+    "difficulty": 1.5,
+    "category": "household",
+    "stars": 2,
+    "icon": "🧹",
+    "steps": [
+      "Boden frei räumen",
+      "Staubsauger holen",
+      "Ecken und unter dem Bett saugen",
+      "Staubsauger wegräumen"
+    ]
+  },
+  {
+    "key": "dust_shelves",
+    "area": "room",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Regale abstauben",
+    "type": "todo",
+    "difficulty": 1,
+    "category": "household",
+    "stars": 1,
+    "icon": "🪶",
+    "steps": [
+      "Tuch holen und anfeuchten",
+      "Dinge kurz hochheben",
+      "Von oben nach unten wischen"
+    ]
+  },
+  {
+    "key": "sort_toys",
+    "area": "room",
+    "ages": [
+      "9-10",
+      "11-12"
+    ],
+    "title": "Spielsachen aussortieren",
+    "type": "todo",
+    "difficulty": 1.5,
+    "category": "household",
+    "stars": 2,
+    "icon": "📦",
+    "steps": [
+      "Alles aus einer Kiste ausräumen",
+      "Drei Haufen machen: behalten, verschenken, Müll",
+      "Kiste wieder einräumen"
+    ]
+  },
+  {
+    "key": "clean_closet",
+    "area": "room",
+    "ages": [
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Kleiderschrank ausmisten",
+    "type": "todo",
+    "difficulty": 2,
+    "category": "household",
+    "stars": 3,
+    "icon": "👚",
+    "steps": [
+      "Alles aus einem Fach nehmen",
+      "Zu kleine Sachen beiseitelegen",
+      "Ordentlich zurücklegen",
+      "Aussortiertes in einen Beutel packen"
+    ]
+  },
+  {
+    "key": "wipe_windowsill",
+    "area": "room",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Fensterbank abwischen",
+    "type": "todo",
+    "difficulty": 0.1,
+    "category": "household",
+    "stars": 1,
+    "icon": "🧽",
+    "steps": [
+      "Sachen abräumen",
+      "Feucht abwischen",
+      "Sachen zurückstellen"
+    ]
+  },
+  {
+    "key": "room_deep_clean",
+    "area": "room",
+    "ages": [
+      "13-14",
+      "15-16"
+    ],
+    "title": "Zimmer gründlich putzen",
+    "type": "todo",
+    "difficulty": 2,
+    "category": "household",
+    "stars": 4,
+    "icon": "✨",
+    "steps": [
+      "Aufräumen",
+      "Abstauben",
+      "Staubsaugen",
+      "Boden wischen",
+      "Fenster putzen"
+    ]
+  },
+  {
+    "key": "clear_own_plate",
+    "area": "kitchen",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Eigenen Teller abräumen",
+    "type": "daily",
+    "difficulty": 0.1,
+    "category": "household",
+    "stars": 0,
+    "icon": "🍽️",
+    "steps": [],
+    "anchor": "wenn ich vom Essen aufstehe"
+  },
+  {
+    "key": "set_table",
+    "area": "kitchen",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Tisch decken",
+    "type": "daily",
+    "difficulty": 1,
+    "category": "household",
+    "stars": 1,
+    "icon": "🍴",
+    "steps": [
+      "Teller zählen",
+      "Besteck hinlegen",
+      "Gläser und Getränke holen"
+    ],
+    "anchor": "eine Viertelstunde vor dem Essen"
+  },
+  {
+    "key": "clear_table",
+    "area": "kitchen",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Tisch abräumen",
+    "type": "daily",
+    "difficulty": 1,
+    "category": "household",
+    "stars": 1,
+    "icon": "🧺",
+    "steps": [
+      "Teller stapeln",
+      "Reste in den Kühlschrank",
+      "Tisch abwischen"
+    ],
+    "anchor": "nach dem Abendessen"
+  },
+  {
+    "key": "load_dishwasher",
+    "area": "kitchen",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Spülmaschine einräumen",
+    "type": "daily",
+    "difficulty": 1,
+    "category": "household",
+    "stars": 1,
+    "icon": "🫧",
+    "steps": [
+      "Reste in den Müll kratzen",
+      "Teller unten einräumen",
+      "Gläser und Tassen oben",
+      "Besteck in den Korb"
+    ],
+    "anchor": "nach dem Abendessen"
+  },
+  {
+    "key": "empty_dishwasher",
+    "area": "kitchen",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Spülmaschine ausräumen",
+    "type": "daily",
+    "difficulty": 1,
+    "category": "household",
+    "stars": 2,
+    "icon": "🥣",
+    "steps": [
+      "Besteck einsortieren",
+      "Gläser und Tassen in den Schrank",
+      "Teller und Schüsseln wegräumen"
+    ],
+    "anchor": "nach dem Frühstück"
+  },
+  {
+    "key": "wipe_table",
+    "area": "kitchen",
+    "ages": [
+      "9-10",
+      "11-12"
+    ],
+    "title": "Tisch abwischen",
+    "type": "habit",
+    "difficulty": 0.1,
+    "category": "household",
+    "stars": 1,
+    "icon": "🧽",
+    "steps": [
+      "Lappen nass machen und auswringen",
+      "Krümel in die Hand wischen",
+      "Lappen ausspülen"
+    ],
+    "anchor": "nach jedem Essen"
+  },
+  {
+    "key": "pack_lunch",
+    "area": "kitchen",
+    "ages": [
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Pausenbrot selbst machen",
+    "type": "daily",
+    "difficulty": 1,
+    "category": "others",
+    "stars": 0,
+    "icon": "🥪",
+    "steps": [
+      "Brot schmieren",
+      "Obst oder Gemüse schneiden",
+      "Alles in die Dose packen"
+    ],
+    "anchor": "nach dem Zähneputzen am Morgen"
+  },
+  {
+    "key": "trash_out",
+    "area": "kitchen",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Müll rausbringen",
+    "type": "habit",
+    "difficulty": 1,
+    "category": "household",
+    "stars": 1,
+    "icon": "🗑️",
+    "steps": [
+      "Beutel zuknoten",
+      "In die richtige Tonne werfen",
+      "Neuen Beutel einlegen"
+    ],
+    "anchor": "wenn der Eimer voll ist"
+  },
+  {
+    "key": "sort_recycling",
+    "area": "kitchen",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Müll trennen",
+    "type": "habit",
+    "difficulty": 0.1,
+    "category": "household",
+    "stars": 1,
+    "icon": "♻️",
+    "steps": [],
+    "anchor": "wenn ich etwas wegwerfe"
+  },
+  {
+    "key": "wash_dishes_hand",
+    "area": "kitchen",
+    "ages": [
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Abwaschen von Hand",
+    "type": "todo",
+    "difficulty": 1.5,
+    "category": "household",
+    "stars": 2,
+    "icon": "🧼",
+    "steps": [
+      "Warmes Wasser und Spülmittel einlassen",
+      "Gläser zuerst, Töpfe zuletzt",
+      "Abtropfen lassen",
+      "Abtrocknen und wegräumen"
+    ]
+  },
+  {
+    "key": "help_cook",
+    "area": "kitchen",
+    "ages": [
+      "9-10",
+      "11-12"
+    ],
+    "title": "Beim Kochen helfen",
+    "type": "habit",
+    "difficulty": 1,
+    "category": "household",
+    "stars": 1,
+    "icon": "👩‍🍳",
+    "steps": [
+      "Hände waschen",
+      "Gemüse waschen",
+      "Mit Hilfe schneiden"
+    ],
+    "anchor": "wenn das Abendessen gekocht wird"
+  },
+  {
+    "key": "make_breakfast",
+    "area": "kitchen",
+    "ages": [
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Frühstück für die Familie machen",
+    "type": "todo",
+    "difficulty": 1.5,
+    "category": "household",
+    "stars": 3,
+    "icon": "🥐",
+    "steps": [
+      "Tisch decken",
+      "Brot und Aufstrich hinstellen",
+      "Tee oder Kakao kochen",
+      "Obst schneiden"
+    ]
+  },
+  {
+    "key": "cook_simple_meal",
+    "area": "kitchen",
+    "ages": [
+      "13-14",
+      "15-16"
+    ],
+    "title": "Ein einfaches Essen kochen",
+    "type": "todo",
+    "difficulty": 2,
+    "category": "household",
+    "stars": 4,
+    "icon": "🍝",
+    "steps": [
+      "Rezept aussuchen",
+      "Zutaten bereitlegen",
+      "Kochen",
+      "Abschmecken",
+      "Küche danach aufräumen"
+    ]
+  },
+  {
+    "key": "shopping_list",
+    "area": "kitchen",
+    "ages": [
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Einkaufsliste schreiben",
+    "type": "todo",
+    "difficulty": 1,
+    "category": "household",
+    "stars": 1,
+    "icon": "📝",
+    "steps": [
+      "In den Kühlschrank schauen",
+      "Vorräte prüfen",
+      "Liste schreiben und aufhängen"
+    ]
+  },
+  {
+    "key": "go_shopping",
+    "area": "kitchen",
+    "ages": [
+      "15-16"
+    ],
+    "title": "Wocheneinkauf erledigen",
+    "type": "todo",
+    "difficulty": 2,
+    "category": "household",
+    "stars": 5,
+    "icon": "🛒",
+    "steps": [
+      "Liste und Geld mitnehmen",
+      "Alles einkaufen",
+      "Kassenzettel prüfen",
+      "Einkauf zu Hause einräumen"
+    ]
+  },
+  {
+    "key": "clean_fridge",
+    "area": "kitchen",
+    "ages": [
+      "13-14",
+      "15-16"
+    ],
+    "title": "Kühlschrank auswischen",
+    "type": "todo",
+    "difficulty": 1.5,
+    "category": "household",
+    "stars": 3,
+    "icon": "🧊",
+    "steps": [
+      "Ein Fach ausräumen",
+      "Abgelaufenes wegwerfen",
+      "Fach auswischen",
+      "Alles zurückstellen"
+    ]
+  },
+  {
+    "key": "dirty_laundry_basket",
+    "area": "laundry",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Schmutzwäsche in den Korb",
+    "type": "daily",
+    "difficulty": 0.1,
+    "category": "household",
+    "stars": 0,
+    "icon": "🧺",
+    "steps": [],
+    "anchor": "beim Umziehen am Abend"
+  },
+  {
+    "key": "sort_laundry",
+    "area": "laundry",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Wäsche nach Farben sortieren",
+    "type": "todo",
+    "difficulty": 1,
+    "category": "household",
+    "stars": 1,
+    "icon": "🎨",
+    "steps": [
+      "Helle Sachen auf einen Haufen",
+      "Dunkle Sachen auf einen Haufen",
+      "Taschen leeren"
+    ]
+  },
+  {
+    "key": "match_socks",
+    "area": "laundry",
+    "ages": [
+      "9-10",
+      "11-12"
+    ],
+    "title": "Socken zusammensuchen",
+    "type": "todo",
+    "difficulty": 0.1,
+    "category": "household",
+    "stars": 1,
+    "icon": "🧦",
+    "steps": [
+      "Alle Socken auf den Tisch legen",
+      "Paare finden",
+      "Paare zusammenrollen"
+    ]
+  },
+  {
+    "key": "hang_laundry",
+    "area": "laundry",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Wäsche aufhängen",
+    "type": "todo",
+    "difficulty": 1,
+    "category": "household",
+    "stars": 2,
+    "icon": "👕",
+    "steps": [
+      "Wäschekorb zum Ständer tragen",
+      "Jedes Teil ausschütteln",
+      "Glatt aufhängen"
+    ]
+  },
+  {
+    "key": "take_down_laundry",
+    "area": "laundry",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Trockene Wäsche abnehmen",
+    "type": "todo",
+    "difficulty": 1,
+    "category": "household",
+    "stars": 1,
+    "icon": "🪢",
+    "steps": [
+      "Fühlen, ob alles trocken ist",
+      "Abnehmen und in den Korb legen",
+      "Klammern wegräumen"
+    ]
+  },
+  {
+    "key": "fold_laundry",
+    "area": "laundry",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Wäsche zusammenlegen",
+    "type": "todo",
+    "difficulty": 1,
+    "category": "household",
+    "stars": 2,
+    "icon": "🗃️",
+    "steps": [
+      "Für jede Person einen Stapel",
+      "Oberteile falten",
+      "Handtücher falten",
+      "Stapel verteilen"
+    ]
+  },
+  {
+    "key": "put_away_own_laundry",
+    "area": "laundry",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Eigene Wäsche einräumen",
+    "type": "habit",
+    "difficulty": 0.1,
+    "category": "household",
+    "stars": 0,
+    "icon": "🗄️",
+    "steps": [
+      "Stapel ins Zimmer tragen",
+      "In die richtigen Fächer legen"
+    ],
+    "anchor": "wenn mein Stapel bereitliegt"
+  },
+  {
+    "key": "wash_machine_load",
+    "area": "laundry",
+    "ages": [
+      "13-14",
+      "15-16"
+    ],
+    "title": "Waschmaschine anstellen",
+    "type": "todo",
+    "difficulty": 1.5,
+    "category": "household",
+    "stars": 3,
+    "icon": "🌀",
+    "steps": [
+      "Wäsche nach Farbe und Grad sortieren",
+      "Maschine befüllen",
+      "Waschmittel einfüllen",
+      "Programm wählen und starten"
+    ]
+  },
+  {
+    "key": "own_laundry_week",
+    "area": "laundry",
+    "ages": [
+      "15-16"
+    ],
+    "title": "Eigene Wäsche komplett waschen",
+    "type": "todo",
+    "difficulty": 2,
+    "category": "household",
+    "stars": 4,
+    "icon": "🧼",
+    "steps": [
+      "Sortieren",
+      "Waschen",
+      "Aufhängen",
+      "Zusammenlegen",
+      "Einräumen"
+    ]
+  },
+  {
+    "key": "towels_change",
+    "area": "laundry",
+    "ages": [
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Handtücher wechseln",
+    "type": "todo",
+    "difficulty": 0.1,
+    "category": "household",
+    "stars": 1,
+    "icon": "🛁",
+    "steps": [
+      "Alte Handtücher in die Wäsche",
+      "Frische Handtücher aufhängen"
+    ]
+  },
+  {
+    "key": "iron_simple",
+    "area": "laundry",
+    "ages": [
+      "15-16"
+    ],
+    "title": "Einfache Sachen bügeln",
+    "type": "todo",
+    "difficulty": 1.5,
+    "category": "household",
+    "stars": 3,
+    "icon": "♨️",
+    "steps": [
+      "Bügelbrett aufstellen",
+      "Richtige Stufe einstellen",
+      "Taschentücher und Kissenbezüge bügeln",
+      "Bügeleisen ausschalten und abkühlen lassen"
+    ]
+  },
+  {
+    "key": "shoes_clean",
+    "area": "laundry",
+    "ages": [
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Schuhe putzen",
+    "type": "todo",
+    "difficulty": 1,
+    "category": "household",
+    "stars": 2,
+    "icon": "👞",
+    "steps": [
+      "Groben Dreck abklopfen",
+      "Mit feuchtem Tuch abwischen",
+      "Zum Trocknen hinstellen"
+    ]
+  },
+  {
+    "key": "empty_pockets",
+    "area": "laundry",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Hosentaschen leeren",
+    "type": "habit",
+    "difficulty": 0.1,
+    "category": "household",
+    "stars": 0,
+    "icon": "👖",
+    "steps": [],
+    "anchor": "bevor die Hose in den Wäschekorb kommt"
+  },
+  {
+    "key": "sports_bag_laundry",
+    "area": "laundry",
+    "ages": [
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Sporttasche ausräumen",
+    "type": "habit",
+    "difficulty": 1,
+    "category": "household",
+    "stars": 0,
+    "icon": "🎽",
+    "steps": [
+      "Nasse Sachen in den Wäschekorb",
+      "Flasche ausspülen",
+      "Tasche lüften"
+    ],
+    "anchor": "wenn ich vom Sport komme"
+  },
+  {
+    "key": "feed_pet",
+    "area": "pets",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Haustier füttern",
+    "type": "daily",
+    "difficulty": 1,
+    "category": "nature",
+    "stars": 1,
+    "icon": "🐾",
+    "steps": [
+      "Napf ausspülen",
+      "Futter abmessen",
+      "Frisches Wasser geben"
+    ],
+    "anchor": "nach dem Frühstück"
+  },
+  {
+    "key": "fresh_water_pet",
+    "area": "pets",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Frisches Wasser für das Tier",
+    "type": "daily",
+    "difficulty": 0.1,
+    "category": "nature",
+    "stars": 1,
+    "icon": "💧",
+    "steps": [],
+    "anchor": "nach dem Aufstehen"
+  },
+  {
+    "key": "walk_dog",
+    "area": "pets",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Mit dem Hund Gassi gehen",
+    "type": "daily",
+    "difficulty": 1.5,
+    "category": "nature",
+    "stars": 2,
+    "icon": "🐕",
+    "steps": [
+      "Leine und Beutel mitnehmen",
+      "Eine Runde gehen",
+      "Pfoten abwischen"
+    ],
+    "anchor": "wenn ich von der Schule komme"
+  },
+  {
+    "key": "clean_cage",
+    "area": "pets",
+    "ages": [
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Käfig sauber machen",
+    "type": "todo",
+    "difficulty": 1.5,
+    "category": "nature",
+    "stars": 3,
+    "icon": "🐹",
+    "steps": [
+      "Tier sicher unterbringen",
+      "Altes Streu ausleeren",
+      "Käfig auswischen",
+      "Frisches Streu einfüllen"
+    ]
+  },
+  {
+    "key": "litter_box",
+    "area": "pets",
+    "ages": [
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Katzenklo sauber machen",
+    "type": "daily",
+    "difficulty": 1,
+    "category": "nature",
+    "stars": 2,
+    "icon": "🐈",
+    "steps": [
+      "Schaufel nehmen",
+      "Klumpen entfernen",
+      "Streu nachfüllen"
+    ],
+    "anchor": "nach dem Abendessen"
+  },
+  {
+    "key": "brush_pet",
+    "area": "pets",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Tier bürsten",
+    "type": "habit",
+    "difficulty": 1,
+    "category": "nature",
+    "stars": 1,
+    "icon": "🪮",
+    "steps": [
+      "Bürste holen",
+      "In Fellrichtung bürsten",
+      "Haare wegräumen"
+    ],
+    "anchor": "wenn wir zusammen auf dem Sofa sitzen"
+  },
+  {
+    "key": "play_with_pet",
+    "area": "pets",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Mit dem Tier spielen",
+    "type": "habit",
+    "difficulty": 0.1,
+    "category": "nature",
+    "stars": 0,
+    "icon": "🧶",
+    "steps": [],
+    "anchor": "nach den Hausaufgaben"
+  },
+  {
+    "key": "fish_tank_feed",
+    "area": "pets",
+    "ages": [
+      "9-10",
+      "11-12"
+    ],
+    "title": "Fische füttern",
+    "type": "daily",
+    "difficulty": 0.1,
+    "category": "nature",
+    "stars": 1,
+    "icon": "🐠",
+    "steps": [
+      "Eine Prise Futter nehmen",
+      "Ins Wasser streuen",
+      "Kurz zuschauen, ob alle fressen"
+    ],
+    "anchor": "nach dem Frühstück"
+  },
+  {
+    "key": "aquarium_water",
+    "area": "pets",
+    "ages": [
+      "13-14",
+      "15-16"
+    ],
+    "title": "Aquarium-Wasser wechseln",
+    "type": "todo",
+    "difficulty": 2,
+    "category": "nature",
+    "stars": 4,
+    "icon": "🐟",
+    "steps": [
+      "Eimer und Schlauch holen",
+      "Ein Viertel Wasser absaugen",
+      "Scheiben innen putzen",
+      "Frisches Wasser nachfüllen"
+    ]
+  },
+  {
+    "key": "pet_food_check",
+    "area": "pets",
+    "ages": [
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Futtervorrat prüfen",
+    "type": "todo",
+    "difficulty": 0.1,
+    "category": "nature",
+    "stars": 1,
+    "icon": "📋",
+    "steps": [
+      "Nachschauen, wie viel noch da ist",
+      "Auf die Einkaufsliste schreiben"
+    ]
+  },
+  {
+    "key": "bird_feeder",
+    "area": "pets",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Vogelhaus füllen",
+    "type": "todo",
+    "difficulty": 0.1,
+    "category": "nature",
+    "stars": 1,
+    "icon": "🐦",
+    "steps": [
+      "Futter holen",
+      "Vogelhaus füllen",
+      "Verschüttetes aufsammeln"
+    ]
+  },
+  {
+    "key": "water_plants",
+    "area": "pets",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Pflanzen gießen",
+    "type": "habit",
+    "difficulty": 0.1,
+    "category": "nature",
+    "stars": 1,
+    "icon": "🪴",
+    "steps": [
+      "Gießkanne füllen",
+      "Erde fühlen",
+      "Nur trockene Pflanzen gießen"
+    ],
+    "anchor": "am Samstagmorgen"
+  },
+  {
+    "key": "pet_vet_prep",
+    "area": "pets",
+    "ages": [
+      "13-14",
+      "15-16"
+    ],
+    "title": "Tierarzt-Besuch vorbereiten",
+    "type": "todo",
+    "difficulty": 1,
+    "category": "nature",
+    "stars": 2,
+    "icon": "🩺",
+    "steps": [
+      "Impfpass suchen",
+      "Transportbox bereitstellen",
+      "Fragen aufschreiben"
+    ]
+  },
+  {
+    "key": "garden_weed",
+    "area": "pets",
+    "ages": [
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Unkraut im Beet zupfen",
+    "type": "todo",
+    "difficulty": 1.5,
+    "category": "nature",
+    "stars": 2,
+    "icon": "🌿",
+    "steps": [
+      "Handschuhe anziehen",
+      "Ein kleines Stück Beet wählen",
+      "Unkraut mit Wurzel ziehen",
+      "In den Kompost bringen"
+    ]
+  },
+  {
+    "key": "pack_school_bag",
+    "area": "school",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Schulranzen packen",
+    "type": "daily",
+    "difficulty": 1,
+    "category": "school",
+    "stars": 0,
+    "icon": "🎒",
+    "steps": [
+      "Stundenplan anschauen",
+      "Bücher und Hefte einpacken",
+      "Mäppchen prüfen",
+      "Trinkflasche füllen"
+    ],
+    "anchor": "nach dem Abendessen"
+  },
+  {
+    "key": "homework",
+    "area": "school",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Hausaufgaben machen",
+    "type": "daily",
+    "difficulty": 1.5,
+    "category": "school",
+    "stars": 0,
+    "icon": "✏️",
+    "steps": [
+      "Hausaufgabenheft öffnen",
+      "Mit der leichtesten Aufgabe anfangen",
+      "Kurze Pause machen",
+      "Alles abhaken"
+    ],
+    "anchor": "nach dem Mittagessen"
+  },
+  {
+    "key": "read_20_minutes",
+    "area": "school",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "20 Minuten lesen",
+    "type": "daily",
+    "difficulty": 1,
+    "category": "school",
+    "stars": 0,
+    "icon": "📖",
+    "steps": [
+      "Buch aussuchen",
+      "Wecker stellen",
+      "Lesen"
+    ],
+    "anchor": "vor dem Schlafengehen"
+  },
+  {
+    "key": "vocab_10",
+    "area": "school",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Zehn Vokabeln üben",
+    "type": "daily",
+    "difficulty": 1,
+    "category": "school",
+    "stars": 0,
+    "icon": "🔤",
+    "steps": [
+      "Karteikarten holen",
+      "Laut sagen und umdrehen",
+      "Gewusste Karten nach hinten"
+    ],
+    "anchor": "nach den Hausaufgaben"
+  },
+  {
+    "key": "sign_notes",
+    "area": "school",
+    "ages": [
+      "9-10",
+      "11-12"
+    ],
+    "title": "Elternzettel abgeben",
+    "type": "habit",
+    "difficulty": 0.1,
+    "category": "school",
+    "stars": 0,
+    "icon": "📄",
+    "steps": [],
+    "anchor": "wenn ich von der Schule komme"
+  },
+  {
+    "key": "homework_planner",
+    "area": "school",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Hausaufgaben ins Heft schreiben",
+    "type": "habit",
+    "difficulty": 0.1,
+    "category": "school",
+    "stars": 0,
+    "icon": "📓",
+    "steps": [],
+    "anchor": "am Ende jeder Stunde"
+  },
+  {
+    "key": "test_prep",
+    "area": "school",
+    "ages": [
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Für eine Arbeit lernen",
+    "type": "todo",
+    "difficulty": 2,
+    "category": "school",
+    "stars": 0,
+    "icon": "📝",
+    "steps": [
+      "Themen aufschreiben",
+      "Jeden Tag ein Thema lernen",
+      "Probeaufgaben rechnen",
+      "Am Abend vorher kurz wiederholen"
+    ]
+  },
+  {
+    "key": "sharpen_pencils",
+    "area": "school",
+    "ages": [
+      "9-10",
+      "11-12"
+    ],
+    "title": "Mäppchen auffüllen",
+    "type": "todo",
+    "difficulty": 0.1,
+    "category": "school",
+    "stars": 0,
+    "icon": "🖍️",
+    "steps": [
+      "Stifte spitzen",
+      "Fehlendes auf die Liste",
+      "Radiergummi prüfen"
+    ]
+  },
+  {
+    "key": "school_project",
+    "area": "school",
+    "ages": [
+      "13-14",
+      "15-16"
+    ],
+    "title": "Referat vorbereiten",
+    "type": "todo",
+    "difficulty": 2,
+    "category": "school",
+    "stars": 0,
+    "icon": "📊",
+    "steps": [
+      "Thema in Teile gliedern",
+      "Infos sammeln",
+      "Plakat oder Folien machen",
+      "Vortrag zweimal üben"
+    ]
+  },
+  {
+    "key": "math_practice",
+    "area": "school",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Kopfrechnen üben",
+    "type": "habit",
+    "difficulty": 1,
+    "category": "school",
+    "stars": 0,
+    "icon": "➕",
+    "steps": [
+      "Fünf Aufgaben ausdenken",
+      "Im Kopf rechnen",
+      "Ergebnis prüfen"
+    ],
+    "anchor": "auf dem Weg zur Schule"
+  },
+  {
+    "key": "tidy_school_folder",
+    "area": "school",
+    "ages": [
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Schulordner sortieren",
+    "type": "todo",
+    "difficulty": 1,
+    "category": "school",
+    "stars": 0,
+    "icon": "🗂️",
+    "steps": [
+      "Lose Blätter einsammeln",
+      "Nach Fächern sortieren",
+      "Abheften"
+    ]
+  },
+  {
+    "key": "instrument_practice",
+    "area": "school",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Instrument üben",
+    "type": "daily",
+    "difficulty": 1,
+    "category": "creative",
+    "stars": 0,
+    "icon": "🎵",
+    "steps": [
+      "Noten aufschlagen",
+      "Einspielen",
+      "Schwierige Stelle dreimal üben",
+      "Ein Lied zum Spaß spielen"
+    ],
+    "anchor": "nach den Hausaufgaben"
+  },
+  {
+    "key": "ask_teacher",
+    "area": "school",
+    "ages": [
+      "13-14",
+      "15-16"
+    ],
+    "title": "Lehrer etwas fragen, was ich nicht verstanden habe",
+    "type": "todo",
+    "difficulty": 1,
+    "category": "school",
+    "stars": 0,
+    "icon": "🙋",
+    "steps": [
+      "Frage aufschreiben",
+      "Passenden Moment abwarten",
+      "Antwort notieren"
+    ]
+  },
+  {
+    "key": "plan_week",
+    "area": "school",
+    "ages": [
+      "13-14",
+      "15-16"
+    ],
+    "title": "Woche planen",
+    "type": "habit",
+    "difficulty": 1,
+    "category": "school",
+    "stars": 0,
+    "icon": "🗓️",
+    "steps": [
+      "Termine eintragen",
+      "Arbeiten und Abgaben markieren",
+      "Lernzeiten festlegen"
+    ],
+    "anchor": "am Sonntagabend"
+  },
+  {
+    "key": "brush_teeth_morning",
+    "area": "selfcare",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Morgens Zähne putzen",
+    "type": "daily",
+    "difficulty": 0.1,
+    "category": "others",
+    "stars": 0,
+    "icon": "🪥",
+    "steps": [],
+    "anchor": "nach dem Frühstück"
+  },
+  {
+    "key": "brush_teeth_evening",
+    "area": "selfcare",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Abends Zähne putzen",
+    "type": "daily",
+    "difficulty": 0.1,
+    "category": "others",
+    "stars": 0,
+    "icon": "🦷",
+    "steps": [],
+    "anchor": "nach dem Schlafanzug-Anziehen"
+  },
+  {
+    "key": "shower",
+    "area": "selfcare",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Duschen",
+    "type": "habit",
+    "difficulty": 1,
+    "category": "others",
+    "stars": 0,
+    "icon": "🚿",
+    "steps": [
+      "Handtuch bereitlegen",
+      "Duschen und Haare waschen",
+      "Abtrocknen und Handtuch aufhängen"
+    ],
+    "anchor": "nach dem Sport"
+  },
+  {
+    "key": "drink_water",
+    "area": "selfcare",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Ein Glas Wasser trinken",
+    "type": "habit",
+    "difficulty": 0.1,
+    "category": "sport",
+    "stars": 0,
+    "icon": "💧",
+    "steps": [],
+    "anchor": "zu jeder Mahlzeit"
+  },
+  {
+    "key": "get_dressed",
+    "area": "selfcare",
+    "ages": [
+      "9-10",
+      "11-12"
+    ],
+    "title": "Allein anziehen",
+    "type": "daily",
+    "difficulty": 0.1,
+    "category": "others",
+    "stars": 0,
+    "icon": "👕",
+    "steps": [
+      "Kleidung am Abend rauslegen",
+      "Morgens anziehen"
+    ],
+    "anchor": "nach dem Aufstehen"
+  },
+  {
+    "key": "bedtime",
+    "area": "selfcare",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Pünktlich ins Bett",
+    "type": "daily",
+    "difficulty": 1,
+    "category": "others",
+    "stars": 0,
+    "icon": "🌙",
+    "steps": [
+      "Bildschirm aus",
+      "Zähne putzen",
+      "Licht aus zur vereinbarten Zeit"
+    ],
+    "anchor": "wenn der Wecker für die Schlafenszeit klingelt"
+  },
+  {
+    "key": "move_outside",
+    "area": "selfcare",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Eine halbe Stunde draußen bewegen",
+    "type": "habit",
+    "difficulty": 1,
+    "category": "sport",
+    "stars": 0,
+    "icon": "🌳",
+    "steps": [],
+    "anchor": "wenn ich von der Schule komme"
+  },
+  {
+    "key": "stretch",
+    "area": "selfcare",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Fünf Minuten dehnen",
+    "type": "habit",
+    "difficulty": 0.1,
+    "category": "sport",
+    "stars": 0,
+    "icon": "🤸",
+    "steps": [
+      "Arme strecken",
+      "Zu den Zehen beugen",
+      "Tief atmen"
+    ],
+    "anchor": "nach dem Aufstehen"
+  },
+  {
+    "key": "fruit_snack",
+    "area": "selfcare",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Obst oder Gemüse essen",
+    "type": "habit",
+    "difficulty": 0.1,
+    "category": "sport",
+    "stars": 0,
+    "icon": "🍎",
+    "steps": [],
+    "anchor": "am Nachmittag"
+  },
+  {
+    "key": "screen_break",
+    "area": "selfcare",
+    "ages": [
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Bildschirmpause machen",
+    "type": "habit",
+    "difficulty": 0.1,
+    "category": "others",
+    "stars": 0,
+    "icon": "📵",
+    "steps": [
+      "Gerät weglegen",
+      "Aus dem Fenster schauen",
+      "Kurz bewegen"
+    ],
+    "anchor": "nach einer Stunde am Bildschirm"
+  },
+  {
+    "key": "calm_breathing",
+    "area": "selfcare",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Drei ruhige Atemzüge",
+    "type": "habit",
+    "difficulty": 0.1,
+    "category": "others",
+    "stars": 0,
+    "icon": "🫁",
+    "steps": [],
+    "anchor": "wenn ich mich ärgere"
+  },
+  {
+    "key": "cut_nails",
+    "area": "selfcare",
+    "ages": [
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Fingernägel schneiden",
+    "type": "todo",
+    "difficulty": 0.1,
+    "category": "others",
+    "stars": 0,
+    "icon": "💅",
+    "steps": []
+  },
+  {
+    "key": "journal",
+    "area": "selfcare",
+    "ages": [
+      "13-14",
+      "15-16"
+    ],
+    "title": "Tagebuch schreiben",
+    "type": "habit",
+    "difficulty": 0.1,
+    "category": "creative",
+    "stars": 0,
+    "icon": "📔",
+    "steps": [
+      "Drei gute Dinge des Tages aufschreiben"
+    ],
+    "anchor": "vor dem Schlafengehen"
+  },
+  {
+    "key": "sport_training",
+    "area": "selfcare",
+    "ages": [
+      "9-10",
+      "11-12",
+      "13-14",
+      "15-16"
+    ],
+    "title": "Zum Training gehen",
+    "type": "habit",
+    "difficulty": 1.5,
+    "category": "sport",
+    "stars": 0,
+    "icon": "⚽",
+    "steps": [
+      "Sporttasche packen",
+      "Pünktlich losgehen",
+      "Trinkflasche mitnehmen"
+    ],
+    "anchor": "wenn Trainingstag ist"
+  }
+]

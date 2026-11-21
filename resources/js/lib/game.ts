@@ -19,13 +19,14 @@ export const weekdays = [
 
 /** Farbe wie im Original: rot = vernachlässigt, blau = sehr oft erledigt. */
 export function valueColor(value: number): string {
-    if (value < -20) return 'border-l-red-800 bg-red-50 dark:bg-red-950/40';
-    if (value < -10) return 'border-l-red-500 bg-red-50 dark:bg-red-950/30';
-    if (value < -1) return 'border-l-orange-400 bg-orange-50 dark:bg-orange-950/30';
-    if (value < 1) return 'border-l-amber-300 bg-amber-50/60 dark:bg-amber-950/20';
-    if (value < 5) return 'border-l-emerald-400 bg-emerald-50/60 dark:bg-emerald-950/20';
-    if (value < 10) return 'border-l-sky-400 bg-sky-50/60 dark:bg-sky-950/20';
-    return 'border-l-blue-600 bg-blue-50/60 dark:bg-blue-950/30';
+    // Farbstufen über Variablen (--value-1 … 7), damit das Farbschema für Farbsehschwächen sie tauschen kann
+    if (value < -20) return 'border-l-value-1 bg-value-1/10 dark:bg-value-1/20';
+    if (value < -10) return 'border-l-value-2 bg-value-2/10 dark:bg-value-2/15';
+    if (value < -1) return 'border-l-value-3 bg-value-3/10 dark:bg-value-3/15';
+    if (value < 1) return 'border-l-value-4 bg-value-4/10 dark:bg-value-4/10';
+    if (value < 5) return 'border-l-value-5 bg-value-5/10 dark:bg-value-5/10';
+    if (value < 10) return 'border-l-value-6 bg-value-6/10 dark:bg-value-6/10';
+    return 'border-l-value-7 bg-value-7/10 dark:bg-value-7/15';
 }
 
 export function newUuid(): string {

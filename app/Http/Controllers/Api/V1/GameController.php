@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Domain\Achievements\AchievementService;
 use App\Domain\Art\SceneBackgrounds;
+use App\Domain\Council\ParentHelp;
 use App\Domain\Events\EventService;
 use App\Domain\Events\FunEventService;
 use App\Domain\Features\Features;
@@ -123,8 +124,10 @@ class GameController extends Controller
     public function storeTask(TaskRequest $request): JsonResponse
     {
         $task = $this->tasks->create($request->user(), $request->validated(), autoSuggestSteps: true);
+        // §14.9: Hinweis, wenn ein Kind mehr als eine neue Aufgabe pro Woche bekommt
+        $hints = $task->isFamilyTask() ? ParentHelp::loadHints($request->user()->family_id, $task->assignments()->pluck('user_id')->all()) : [];
 
-        return response()->json(GamePresenter::task($task->load('assignments')), 201);
+        return response()->json(GamePresenter::task($task->load('assignments')) + ($hints ? ['hints' => $hints] : []), 201);
     }
 
     public function updateTask(TaskRequest $request, Task $task): JsonResponse

@@ -6,6 +6,7 @@ use App\Domain\Achievements\AchievementService;
 use App\Domain\Crafting\Catalog;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\Progression;
+use App\Domain\Insights\Difficulty;
 use App\Domain\Integrations\HomeAssistant\HomeAssistantWebhooks;
 use App\Domain\Inventory\Stock;
 use App\Domain\Notifications\PushNotifier;
@@ -216,7 +217,8 @@ class EventEngine
 
             $progress = ['points' => 0, 'tiers' => []];
             if (! empty($def['goal']['points_per_member_day'])) {
-                $progress['goal'] = (float) round($def['goal']['points_per_member_day'] * max(1, $members->count()) * $days);
+                // Event-Ziel aus dem Aktivitätswert der Mitspieler (§14.6), nur beim Start berechnet
+                $progress['goal'] = app(Difficulty::class)->eventGoal((float) $def['goal']['points_per_member_day'], $members, $days);
             }
             if (isset($def['merchant'])) {
                 $progress['merchant'] = self::merchantOffers($def['merchant'], $event->seed);

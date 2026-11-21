@@ -24,6 +24,8 @@ const user = computed(() => page.props.auth.user);
 const stats = computed(() => page.props.auth.stats);
 const appearance = computed(() => page.props.auth.appearance);
 const className = computed(() => (stats.value?.class_key ? classNames[stats.value.class_key] : null));
+// Titel unter dem Namen (§14.7): beste Meisterschaft und Level-Titel
+const titleLine = computed(() => [page.props.auth.title?.mastery, page.props.auth.title?.level].filter(Boolean).join(' · '));
 const percent = (value: number, max: number) => `${Math.max(0, Math.min(100, (value / Math.max(1, max)) * 100))}%`;
 </script>
 
@@ -50,26 +52,30 @@ const percent = (value: number, max: number) => `${Math.max(0, Math.min(100, (va
                     Level {{ stats.level }}<template v-if="className"> · {{ className }}</template>
                     <Moon v-if="stats.sleeping" class="ml-1 inline size-3" />
                 </p>
+                <p v-if="titleLine" class="text-[var(--gold)]/90 truncate text-[11px] font-semibold italic" :title="titleLine">{{ titleLine }}</p>
             </div>
         </div>
         <template v-if="stats">
             <div class="mt-2 space-y-1">
                 <div class="flex items-center gap-1.5" :title="`Leben ${Math.floor(stats.hp)} / ${stats.max_hp}`">
-                    <Heart class="size-3 shrink-0 fill-rose-500 text-rose-500" />
+                    <Heart class="size-3 shrink-0 fill-stat-hp-to text-stat-hp-to" />
                     <div class="h-2 flex-1 overflow-hidden rounded-sm border border-black/60 bg-black/40">
-                        <div class="h-full bg-gradient-to-r from-rose-600 to-red-400" :style="{ width: percent(stats.hp, stats.max_hp) }" />
+                        <div class="h-full bg-gradient-to-r from-stat-hp-from to-stat-hp-to" :style="{ width: percent(stats.hp, stats.max_hp) }" />
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5" :title="`Erfahrung ${Math.floor(stats.xp)} / ${stats.xp_to_next}`">
                     <span class="w-3 shrink-0 text-center font-pixel text-[9px] leading-none text-amber-300">XP</span>
                     <div class="h-2 flex-1 overflow-hidden rounded-sm border border-black/60 bg-black/40">
-                        <div class="h-full bg-gradient-to-r from-amber-500 to-yellow-300" :style="{ width: percent(stats.xp, stats.xp_to_next) }" />
+                        <div
+                            class="h-full bg-gradient-to-r from-stat-xp-from to-stat-xp-to"
+                            :style="{ width: percent(stats.xp, stats.xp_to_next) }"
+                        />
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5" :title="`Mana ${Math.floor(stats.mp)} / ${stats.max_mp}`">
                     <span class="w-3 shrink-0 text-center font-pixel text-[9px] leading-none text-sky-300">MP</span>
                     <div class="h-2 flex-1 overflow-hidden rounded-sm border border-black/60 bg-black/40">
-                        <div class="h-full bg-gradient-to-r from-sky-500 to-indigo-400" :style="{ width: percent(stats.mp, stats.max_mp) }" />
+                        <div class="h-full bg-gradient-to-r from-stat-mp-from to-stat-mp-to" :style="{ width: percent(stats.mp, stats.max_mp) }" />
                     </div>
                 </div>
             </div>

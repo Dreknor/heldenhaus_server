@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { emojiUrl } from '@/lib/emoji';
 import HeroAvatar from '@/components/game/HeroAvatar.vue';
 import VisualTimer from '@/components/game/VisualTimer.vue';
 import { praise, useCelebrate } from '@/composables/useCelebrate';
+import { emojiUrl } from '@/lib/emoji';
 import { dueLabel, newUuid } from '@/lib/game';
 import type { AssignedTask, SharedData } from '@/types';
 import { router, usePage } from '@inertiajs/vue3';
@@ -306,10 +306,7 @@ const appearance = computed(() => page.props.auth.appearance);
                 <div class="grid items-center gap-6 md:grid-cols-[1fr_auto]">
                     <div class="min-w-0">
                         <p class="text-sm font-bold uppercase tracking-wider text-violet-600 dark:text-violet-300">Nur das hier</p>
-                        <h3
-                            class="mt-1 text-2xl font-black leading-tight sm:text-3xl"
-                            :class="selected.completed ? 'text-emerald-600 line-through' : ''"
-                        >
+                        <h3 class="mt-1 text-2xl font-black leading-tight sm:text-3xl" :class="selected.completed ? 'text-good line-through' : ''">
                             {{ nextStep ? nextStep.title : selected.title }}
                         </h3>
                         <p v-if="nextStep" class="mt-1 text-muted-foreground">gehört zu „{{ selected.title }}“</p>
@@ -322,7 +319,7 @@ const appearance = computed(() => page.props.auth.appearance);
                                 v-for="s in selected.steps"
                                 :key="s.index"
                                 class="h-2.5 flex-1 rounded-full transition-colors duration-500"
-                                :class="s.done ? 'bg-emerald-500' : s === nextStep ? 'bg-violet-300 dark:bg-violet-700' : 'bg-muted'"
+                                :class="s.done ? 'bg-good' : s === nextStep ? 'bg-violet-300 dark:bg-violet-700' : 'bg-muted'"
                             />
                         </div>
                         <p
@@ -380,11 +377,7 @@ const appearance = computed(() => page.props.auth.appearance);
                 </div>
             </div>
 
-            <div
-                v-else-if="suggestions.length"
-                key="pick"
-                class="hh-panel hh-parchment p-5"
-            >
+            <div v-else-if="suggestions.length" key="pick" class="hh-panel hh-parchment p-5">
                 <div class="mb-4 flex items-center justify-between gap-2">
                     <h3 class="font-pixel text-xl tracking-wide">Was machst du als Nächstes?</h3>
                     <button

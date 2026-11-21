@@ -7,7 +7,7 @@
 | Wer | Dailies | Aufgaben | Familienaufgaben | Sterne |
 |:----|:-------:|:--------:|:----------------:|:------:|
 @foreach ($report['members'] as $m)
-| {{ $m['name'] }} | {{ $m['dailies_done'] }} / {{ $m['dailies_due'] }} | {{ $m['tasks_done'] }} | {{ $m['family_tasks_done'] }} ({{ $m['family_share'] }} %) | {{ $m['stars'] }} |
+| {{ $m['name'] }} | {{ $m['dailies_done'] ?? '–' }} / {{ $m['dailies_due'] ?? '–' }} | {{ $m['tasks_done'] ?? '–' }} | {{ $m['family_tasks_done'] }} ({{ $m['family_share'] }} %) | {{ $m['stars'] }} |
 @endforeach
 </x-mail::table>
 

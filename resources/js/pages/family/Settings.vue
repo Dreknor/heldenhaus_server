@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
+import CouncilSettings from '@/components/council/CouncilSettings.vue';
+import CrestPicker from '@/components/family/CrestPicker.vue';
+import MemberFeatureSettings from '@/components/family/MemberFeatureSettings.vue';
 import MemberSupportSettings from '@/components/family/MemberSupportSettings.vue';
 import HeroAvatar from '@/components/game/HeroAvatar.vue';
 import StatBar from '@/components/game/StatBar.vue';
@@ -8,8 +11,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
-import type { Member } from '@/types';
-import { Head, router, useForm } from '@inertiajs/vue3';
+import type { Member, SharedData } from '@/types';
+import { Head, router, useForm, usePage } from '@inertiajs/vue3';
 import { Coins, Copy, Star, Trash2, UserPlus } from 'lucide-vue-next';
 import { ref } from 'vue';
 
@@ -56,7 +59,9 @@ const props = defineProps<{
     }[];
     apiUrl: string;
     weatherSetting: { source: 'none' | 'ha' | 'open_meteo'; lat: number | null; lon: number | null };
+    council?: { enabled: boolean; weekday: number; time: string; free_text: boolean; weekdays: Record<string, string> } | null;
 }>();
+const page = usePage<SharedData>();
 
 const haTokenApprove = ref(false);
 const webhook = useForm({
@@ -128,7 +133,12 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
 <template>
     <Head title="Familieneinstellungen" />
 
-    <AppLayout :breadcrumbs="[{ title: 'Familie', href: '/family' }, { title: 'Einstellungen', href: '/family/settings' }]">
+    <AppLayout
+        :breadcrumbs="[
+            { title: 'Familie', href: '/family' },
+            { title: 'Einstellungen', href: '/family/settings' },
+        ]"
+    >
         <div class="flex flex-1 flex-col gap-6 p-4 md:p-6">
             <h1 class="text-2xl font-extrabold tracking-tight">Einstellungen für {{ family.name }}</h1>
 
@@ -148,7 +158,10 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
                         <div class="min-w-0 flex-1 space-y-1.5">
                             <div class="flex items-baseline justify-between gap-2">
                                 <p class="truncate text-lg font-bold">{{ m.name }}</p>
-                                <span class="text-xs text-muted-foreground">{{ m.role_label }} · {{ ageLabel[m.age_group] }}</span>
+                                <span class="text-xs text-muted-foreground"
+                                    >{{ m.role_label }} · {{ ageLabel[m.age_group]
+                                    }}<template v-if="m.adult_profile"> · Erwachsenenprofil</template></span
+                                >
                             </div>
                             <template v-if="m.stats">
                                 <p class="text-xs font-bold text-orange-600">Level {{ m.stats.level }}</p>
@@ -191,6 +204,8 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
             </div>
 
             <div v-if="isParent" class="grid gap-6 lg:grid-cols-2">
+                <CouncilSettings v-if="council" :council="council" />
+
                 <Card class="lg:col-span-2">
                     <CardHeader>
                         <CardTitle>Wetter in der Heldenszene</CardTitle>
@@ -200,7 +215,10 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <form class="grid gap-4 sm:grid-cols-2" @submit.prevent="weather.put(route('family.weather.update'), { preserveScroll: true })">
+                        <form
+                            class="grid gap-4 sm:grid-cols-2"
+                            @submit.prevent="weather.put(route('family.weather.update'), { preserveScroll: true })"
+                        >
                             <label class="grid gap-1.5 text-sm sm:col-span-2">
                                 <span>Wetterquelle</span>
                                 <select v-model="weather.weather_source" class="h-9 rounded-md border border-input bg-background px-3">
@@ -277,6 +295,16 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
                         :member-id="m.id"
                         :member-name="m.name"
                         :support-settings="m.supportSettings"
+                    />
+                </template>
+
+                <!-- Freischaltungen nach Level (§13): je Mitglied früher/später, Schnellstart -->
+                <template v-for="m in members" :key="`features-${m.id}`">
+                    <MemberFeatureSettings
+                        v-if="m.featureSettings && m.role !== 'guest' && m.id !== page.props.auth.user.id"
+                        :member-id="m.id"
+                        :member-name="m.name"
+                        :settings="m.featureSettings"
                     />
                 </template>
 
@@ -515,6 +543,8 @@ const familyLoginUrl = () => `${window.location.origin}/family-login?code=${prop
                         </form>
                     </CardContent>
                 </Card>
+
+                <CrestPicker class="lg:col-span-2" />
             </div>
         </div>
     </AppLayout>

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { SharedData } from '@/types';
-import { Head, router, useForm, usePage } from '@inertiajs/vue3';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import { Pencil, Star } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
@@ -23,10 +23,12 @@ interface Item {
     active: boolean;
 }
 
-defineProps<{
+const props = defineProps<{
     items: Item[];
     history: { id: number; reward: string; user: string; stars: number; status: string; comment: string | null; created_at: string }[];
     isParent: boolean;
+    priceHelp?: { id: number; name: string; stars_per_day: number }[];
+    cushions?: { user_id: number; name: string; stars: number; text: string }[];
 }>();
 
 const page = usePage<SharedData>();
@@ -72,6 +74,18 @@ function redeem(item: Item) {
     router.post(route('shop.items.redeem', { item: item.id }), {}, { preserveScroll: true });
 }
 
+// Preis-Hilfe (§14.9): wie lange arbeitet jedes Kind für diesen Preis? Gleiche Regeln wie ParentHelp::duration
+function duration(stars: number, perDay: number): string {
+    if (perDay <= 0) return 'noch keine Sterne in den letzten 14 Tagen';
+    const days = stars / perDay;
+    if (days < 1) return 'weniger als 1 Tag Familienaufgaben';
+    if (days < 1.5) return 'etwa 1 Tag Familienaufgaben';
+    if (days < 10) return `etwa ${Math.round(days)} Tage Familienaufgaben`;
+    if (days < 63) return `etwa ${Math.round(days / 7)} Wochen Familienaufgaben`;
+    return 'mehr als 2 Monate Familienaufgaben';
+}
+const priceHints = computed(() => (props.priceHelp ?? []).map((c) => ({ ...c, text: duration(Number(form.star_cost) || 0, c.stars_per_day) })));
+
 const statusLabel: Record<string, string> = { pending: 'wartet', approved: 'eingelöst', rejected: 'abgelehnt' };
 
 // Symbol der Belohnung: eigenes Emoji, sonst passend zum Titel (ältere Einträge speichern nur „gift“)
@@ -99,12 +113,26 @@ function rewardIcon(item: { icon: string; title: string }) {
         <div class="flex flex-1 flex-col gap-6 p-4 md:p-6">
             <div class="flex flex-wrap items-center gap-3">
                 <h1 class="flex-1 text-2xl font-extrabold tracking-tight">Belohnungsshop</h1>
-                <span class="flex items-center gap-1.5 rounded-xl bg-violet-100 px-3 py-1.5 font-extrabold text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
+                <span
+                    class="flex items-center gap-1.5 rounded-xl bg-violet-100 px-3 py-1.5 font-extrabold text-violet-700 dark:bg-violet-900/40 dark:text-violet-300"
+                >
                     <Star class="size-5 fill-current" /> {{ stars }} Sterne
                 </span>
                 <Button v-if="isParent" @click="edit(null)">+ Belohnung</Button>
             </div>
-            <p class="-mt-4 text-sm text-muted-foreground">Sterne gibt es für Familienaufgaben. Hier tauschst du sie gegen echte Belohnungen.</p>
+            <p class="-mt-4 text-sm text-muted-foreground">
+                Sterne gibt es für Familienaufgaben. Hier tauschst du sie gegen echte Belohnungen.
+                <Link v-if="!isParent" :href="route('proposals.index')" class="font-semibold underline"
+                    >Idee für eine Belohnung? Schlag sie vor!</Link
+                >
+            </p>
+            <p
+                v-for="c in cushions ?? []"
+                :key="c.user_id"
+                class="rounded-xl bg-amber-100 px-4 py-2 text-sm font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
+            >
+                ⭐ {{ c.text }}
+            </p>
 
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 <div
@@ -113,8 +141,12 @@ function rewardIcon(item: { icon: string; title: string }) {
                     class="relative flex flex-col gap-3 rounded-2xl border bg-card p-5 shadow-sm"
                     :class="item.active ? '' : 'opacity-50'"
                 >
-                    <button v-if="isParent" class="absolute right-3 top-3 rounded-md p-1 hover:bg-muted" aria-label="Bearbeiten" @click="edit(item)"><Pencil class="size-4" /></button>
-                    <span class="flex size-16 items-center justify-center rounded-2xl bg-violet-50 text-4xl dark:bg-violet-950/40"><Emoji :glyph="rewardIcon(item)" /></span>
+                    <button v-if="isParent" class="absolute right-3 top-3 rounded-md p-1 hover:bg-muted" aria-label="Bearbeiten" @click="edit(item)">
+                        <Pencil class="size-4" />
+                    </button>
+                    <span class="flex size-16 items-center justify-center rounded-2xl bg-violet-50 text-4xl dark:bg-violet-950/40"
+                        ><Emoji :glyph="rewardIcon(item)"
+                    /></span>
                     <div class="flex-1">
                         <p class="text-lg font-extrabold">{{ item.title }}</p>
                         <p v-if="item.description" class="text-sm text-muted-foreground">{{ item.description }}</p>
@@ -176,6 +208,10 @@ function rewardIcon(item: { icon: string; title: string }) {
                             <Input id="r-cost" v-model.number="form.star_cost" type="number" min="1" />
                             <InputError :message="form.errors.star_cost" />
                         </div>
+                        <div v-if="priceHints.length" class="col-span-2 rounded-md bg-muted/60 p-2 text-xs">
+                            <p class="font-bold">So lange dauert das ungefähr:</p>
+                            <p v-for="h in priceHints" :key="h.id">{{ h.name }}: {{ h.text }}</p>
+                        </div>
                         <div class="grid gap-1.5">
                             <Label for="r-limit">Max. pro Woche</Label>
                             <Input id="r-limit" v-model.number="form.limit_per_week" type="number" min="1" placeholder="unbegrenzt" />
@@ -186,8 +222,12 @@ function rewardIcon(item: { icon: string; title: string }) {
                         <Input id="r-ha" v-model="form.ha_action_key" placeholder="z. B. screen_time_30" />
                         <InputError :message="form.errors.ha_action_key" />
                     </div>
-                    <label class="flex items-center gap-2 text-sm"><input v-model="form.requires_approval" type="checkbox" class="size-4" /> Eltern müssen bestätigen</label>
-                    <label class="flex items-center gap-2 text-sm"><input v-model="form.active" type="checkbox" class="size-4" /> Im Shop sichtbar</label>
+                    <label class="flex items-center gap-2 text-sm"
+                        ><input v-model="form.requires_approval" type="checkbox" class="size-4" /> Eltern müssen bestätigen</label
+                    >
+                    <label class="flex items-center gap-2 text-sm"
+                        ><input v-model="form.active" type="checkbox" class="size-4" /> Im Shop sichtbar</label
+                    >
                     <DialogFooter>
                         <Button type="submit" :disabled="form.processing">Speichern</Button>
                     </DialogFooter>

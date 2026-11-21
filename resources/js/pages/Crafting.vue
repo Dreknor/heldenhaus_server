@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { emojiUrl } from '@/lib/emoji';
 import InputError from '@/components/InputError.vue';
 import ItemIcon from '@/components/game/ItemIcon.vue';
 import RecipeCard, { type Recipe } from '@/components/game/RecipeCard.vue';
@@ -7,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCelebrate } from '@/composables/useCelebrate';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { emojiUrl } from '@/lib/emoji';
 import type { SharedData } from '@/types';
 import { Head, router, useForm, usePage } from '@inertiajs/vue3';
 import { Boxes, Clock3, Gift, Hammer, Handshake, Plus, ScrollText, Trash2 } from 'lucide-vue-next';
@@ -253,7 +253,7 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
                 </div>
             </div>
 
-            <nav class="flex gap-2 overflow-x-auto pb-1" aria-label="Handwerksbereiche">
+            <nav class="flex gap-2 overflow-x-auto pb-1" aria-label="Handwerksbereiche" data-tour="workshop">
                 <button
                     v-for="item in tabs"
                     :key="item.key"
@@ -266,7 +266,7 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
             </nav>
 
             <section v-if="tab === 'recipes'" class="grid gap-4">
-                <div class="flex flex-wrap items-center gap-3">
+                <div class="flex flex-wrap items-center gap-3" data-tour="materials">
                     <h2 class="text-lg font-extrabold">Rezeptbuch</h2>
                     <span
                         class="rounded-full px-2.5 py-1 text-xs font-black"
@@ -286,7 +286,10 @@ function itemOptions(rows: { item_id: number }[], currentIndex: number) {
                         Nur was ich bauen kann
                     </label>
                 </div>
-                <p v-if="!sortedRecipes.length" class="rounded-md border-2 border-dashed border-[var(--parchment-edge)] p-10 text-center text-muted-foreground">
+                <p
+                    v-if="!sortedRecipes.length"
+                    class="rounded-md border-2 border-dashed border-[var(--parchment-edge)] p-10 text-center text-muted-foreground"
+                >
                     {{
                         onlyReady
                             ? 'Gerade fehlt für jedes Rezept noch etwas. Erledige Aufgaben, dann findest du Materialien.'

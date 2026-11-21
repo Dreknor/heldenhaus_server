@@ -1,0 +1,19 @@
+{
+    "name": "Heldenhaus",
+    "short_name": "Heldenhaus",
+    "description": "Das Familien-Aufgabenspiel: Aufgaben erledigen, Helden stärken, gemeinsam Quests schaffen.",
+    "lang": "de",
+    "start_url": "/dashboard",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "any",
+    "background_color": "#f3e3c3",
+    "theme_color": "#3d2817",
+    "categories": ["education", "games", "lifestyle"],
+    "icons": [
+        { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+        { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+        { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+        { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    ]
+}

@@ -1,0 +1,823 @@
+[
+  {
+    "key": "bike_no_training_wheels",
+    "type": "milestone",
+    "title": "Fahrrad fahren ohne Stützräder",
+    "icon": "🚲",
+    "category": "sport",
+    "ages": [
+      "child"
+    ],
+    "why": [
+      "damit ich mit den anderen mitfahren kann",
+      "damit ich allein zur Schule fahren kann",
+      "weil ich mich frei fühlen will"
+    ],
+    "milestones": [
+      "Eine Runde mit dem Laufrad",
+      "Mit Hilfe 20 Meter fahren",
+      "Allein bis zur Ecke fahren",
+      "Allein um den Block fahren"
+    ]
+  },
+  {
+    "key": "swim_badge",
+    "type": "milestone",
+    "title": "Schwimmabzeichen schaffen",
+    "icon": "🏊",
+    "category": "sport",
+    "ages": [
+      "child"
+    ],
+    "why": [
+      "damit ich allein ins tiefe Becken darf",
+      "damit ich im Urlaub sicher baden kann",
+      "weil ich stolz auf mich sein will"
+    ],
+    "milestones": [
+      "Ohne Hilfe untertauchen",
+      "Vom Beckenrand springen",
+      "25 Meter am Stück schwimmen",
+      "Einen Ring aus dem Wasser holen",
+      "Prüfung beim Schwimmmeister machen"
+    ]
+  },
+  {
+    "key": "learn_instrument_song",
+    "type": "milestone",
+    "title": "Ein Lied auf dem Instrument spielen",
+    "icon": "🎹",
+    "category": "creative",
+    "ages": [
+      "child",
+      "teen"
+    ],
+    "why": [
+      "damit ich es der Familie vorspielen kann",
+      "weil Musik mich froh macht",
+      "damit ich in der Band mitspielen kann"
+    ],
+    "milestones": [
+      "Die Töne des Liedes finden",
+      "Die erste Hälfte langsam spielen",
+      "Das ganze Lied langsam spielen",
+      "Das Lied im richtigen Tempo spielen",
+      "Der Familie vorspielen"
+    ]
+  },
+  {
+    "key": "cook_meal_alone",
+    "type": "milestone",
+    "title": "Ein Essen allein kochen",
+    "icon": "🍝",
+    "category": "household",
+    "ages": [
+      "child",
+      "teen"
+    ],
+    "why": [
+      "damit ich für die Familie kochen kann",
+      "weil ich selbständig sein will",
+      "damit ich weiß, was in meinem Essen ist"
+    ],
+    "milestones": [
+      "Mit Hilfe ein Rezept aussuchen",
+      "Zutaten einkaufen oder heraussuchen",
+      "Mit Hilfe kochen",
+      "Allein kochen, ein Erwachsener schaut zu",
+      "Ganz allein für alle kochen"
+    ]
+  },
+  {
+    "key": "tie_shoes",
+    "type": "milestone",
+    "title": "Schuhe selbst binden",
+    "icon": "👟",
+    "category": "others",
+    "ages": [
+      "child"
+    ],
+    "why": [
+      "damit ich morgens schneller fertig bin",
+      "damit ich nicht immer fragen muss",
+      "weil ich das selbst können will"
+    ],
+    "milestones": [
+      "Eine Schleife am Übungsschuh",
+      "Einen Schuh langsam binden",
+      "Beide Schuhe allein binden",
+      "Schuhe binden, bevor die Sanduhr abläuft"
+    ]
+  },
+  {
+    "key": "school_way_alone",
+    "type": "milestone",
+    "title": "Den Schulweg allein gehen",
+    "icon": "🎒",
+    "category": "others",
+    "ages": [
+      "child"
+    ],
+    "why": [
+      "damit ich allein zur Schule kann",
+      "weil ich mich groß fühlen will",
+      "damit Mama und Papa mehr Zeit haben"
+    ],
+    "milestones": [
+      "Den Weg mit einem Erwachsenen anschauen",
+      "Den Weg vorne laufen, ein Erwachsener folgt",
+      "Mit einem Freund zusammen gehen",
+      "Den ganzen Weg allein gehen"
+    ]
+  },
+  {
+    "key": "plant_grow",
+    "type": "milestone",
+    "title": "Eine Pflanze aus einem Samen ziehen",
+    "icon": "🌱",
+    "category": "nature",
+    "ages": [
+      "child"
+    ],
+    "why": [
+      "weil ich sehen will, wie etwas wächst",
+      "damit wir eigene Kräuter haben",
+      "damit ich Oma eine Pflanze schenken kann"
+    ],
+    "milestones": [
+      "Samen in die Erde setzen",
+      "Erster grüner Keim ist da",
+      "Pflanze ist eine Hand hoch",
+      "In einen größeren Topf umsetzen"
+    ]
+  },
+  {
+    "key": "draw_comic",
+    "type": "milestone",
+    "title": "Einen eigenen Comic zeichnen",
+    "icon": "🖍️",
+    "category": "creative",
+    "ages": [
+      "child",
+      "teen"
+    ],
+    "why": [
+      "weil ich gern Geschichten erfinde",
+      "damit ich ihn meinen Freunden zeigen kann",
+      "weil ich besser zeichnen will"
+    ],
+    "milestones": [
+      "Eine Figur ausdenken und zeichnen",
+      "Die Geschichte in Stichpunkten aufschreiben",
+      "Die erste Seite zeichnen",
+      "Alle Seiten fertig zeichnen",
+      "Den Comic der Familie zeigen"
+    ]
+  },
+  {
+    "key": "multiplication_table",
+    "type": "milestone",
+    "title": "Das Einmaleins sicher können",
+    "icon": "✖️",
+    "category": "school",
+    "ages": [
+      "child"
+    ],
+    "why": [
+      "damit ich in Mathe schneller bin",
+      "damit ich keine Angst vor Tests habe",
+      "weil ich es einfach können will"
+    ],
+    "milestones": [
+      "Die Reihen 1, 2, 5 und 10",
+      "Die Reihen 3 und 4",
+      "Die Reihen 6 und 7",
+      "Die Reihen 8 und 9",
+      "Alles gemischt ohne Fehler"
+    ]
+  },
+  {
+    "key": "ride_bike_traffic",
+    "type": "milestone",
+    "title": "Fahrradprüfung bestehen",
+    "icon": "🚦",
+    "category": "sport",
+    "ages": [
+      "child"
+    ],
+    "why": [
+      "damit ich allein mit dem Rad fahren darf",
+      "damit ich sicher im Straßenverkehr bin",
+      "weil meine Freunde auch mitmachen"
+    ],
+    "milestones": [
+      "Verkehrszeichen lernen",
+      "Handzeichen beim Abbiegen üben",
+      "Mit einem Erwachsenen eine Runde im Ort fahren",
+      "Die Prüfung in der Schule bestehen"
+    ]
+  },
+  {
+    "key": "first_aid",
+    "type": "milestone",
+    "title": "Erste Hilfe lernen",
+    "icon": "🩹",
+    "category": "others",
+    "ages": [
+      "teen",
+      "adult"
+    ],
+    "why": [
+      "damit ich helfen kann, wenn etwas passiert",
+      "weil ich es für den Führerschein brauche",
+      "damit ich mich sicher fühle"
+    ],
+    "milestones": [
+      "Notruf-Nummern auswendig wissen",
+      "Ein Pflaster und einen Verband anlegen",
+      "Stabile Seitenlage üben",
+      "Einen Kurs besuchen"
+    ]
+  },
+  {
+    "key": "learn_language_basics",
+    "type": "milestone",
+    "title": "Grundlagen einer neuen Sprache lernen",
+    "icon": "🗣️",
+    "category": "school",
+    "ages": [
+      "teen",
+      "adult"
+    ],
+    "why": [
+      "damit ich im Urlaub mit Leuten reden kann",
+      "weil ich die Sprache schön finde",
+      "damit ich in der Schule besser werde"
+    ],
+    "milestones": [
+      "Begrüßen und sich vorstellen",
+      "Bis 100 zählen",
+      "Im Café etwas bestellen",
+      "Ein kurzes Gespräch führen"
+    ]
+  },
+  {
+    "key": "run_5k",
+    "type": "milestone",
+    "title": "5 Kilometer am Stück laufen",
+    "icon": "🏃",
+    "category": "sport",
+    "ages": [
+      "teen",
+      "adult"
+    ],
+    "why": [
+      "damit ich fitter werde",
+      "weil ich beim Stadtlauf mitmachen will",
+      "damit ich mich wohler fühle"
+    ],
+    "milestones": [
+      "10 Minuten locker laufen",
+      "2 Kilometer ohne Pause",
+      "3 Kilometer ohne Pause",
+      "5 Kilometer ohne Pause"
+    ]
+  },
+  {
+    "key": "room_redesign",
+    "type": "milestone",
+    "title": "Mein Zimmer neu gestalten",
+    "icon": "🛋️",
+    "category": "household",
+    "ages": [
+      "teen"
+    ],
+    "why": [
+      "damit ich mich in meinem Zimmer wohlfühle",
+      "weil ich älter geworden bin",
+      "damit ich einen guten Lernplatz habe"
+    ],
+    "milestones": [
+      "Ausmisten, was ich nicht mehr brauche",
+      "Einen Plan zeichnen",
+      "Möbel umstellen",
+      "Wände oder Regale schmücken"
+    ]
+  },
+  {
+    "key": "brush_teeth_evening",
+    "type": "weekly",
+    "title": "Abends Zähne putzen",
+    "icon": "🪥",
+    "category": "others",
+    "ages": [
+      "child"
+    ],
+    "why": [
+      "damit meine Zähne gesund bleiben",
+      "damit der Zahnarzt nicht bohren muss",
+      "weil ich ein frisches Gefühl mag"
+    ],
+    "target": 5
+  },
+  {
+    "key": "room_tidy_week",
+    "type": "weekly",
+    "title": "Zimmer eine Woche ordentlich halten",
+    "icon": "🧸",
+    "category": "household",
+    "ages": [
+      "child",
+      "teen"
+    ],
+    "why": [
+      "damit ich meine Sachen schneller finde",
+      "damit Freunde gern zu mir kommen",
+      "damit es weniger Streit gibt"
+    ],
+    "target": 6
+  },
+  {
+    "key": "practice_instrument",
+    "type": "weekly",
+    "title": "Instrument üben",
+    "icon": "🎻",
+    "category": "creative",
+    "ages": [
+      "child",
+      "teen",
+      "adult"
+    ],
+    "why": [
+      "damit ich in der Musikstunde gut vorbereitet bin",
+      "weil ich bald mein Lieblingslied spielen will",
+      "weil Üben mich ruhig macht"
+    ],
+    "target": 4
+  },
+  {
+    "key": "sport_three_times",
+    "type": "weekly",
+    "title": "Dreimal pro Woche Sport",
+    "icon": "⚽",
+    "category": "sport",
+    "ages": [
+      "child",
+      "teen",
+      "adult"
+    ],
+    "why": [
+      "damit ich fit und stark bleibe",
+      "weil Bewegung mir gute Laune macht",
+      "damit ich besser schlafe"
+    ],
+    "target": 3
+  },
+  {
+    "key": "read_daily",
+    "type": "weekly",
+    "title": "Jeden Tag lesen",
+    "icon": "📚",
+    "category": "school",
+    "ages": [
+      "child",
+      "teen"
+    ],
+    "why": [
+      "damit ich schneller lesen kann",
+      "weil Geschichten spannend sind",
+      "damit ich weniger am Bildschirm bin"
+    ],
+    "target": 5
+  },
+  {
+    "key": "homework_on_time",
+    "type": "weekly",
+    "title": "Hausaufgaben vor 17 Uhr fertig",
+    "icon": "✏️",
+    "category": "school",
+    "ages": [
+      "child",
+      "teen"
+    ],
+    "why": [
+      "damit ich danach frei habe",
+      "damit ich keinen Stress am Abend habe",
+      "damit ich in der Schule mitkomme"
+    ],
+    "target": 4
+  },
+  {
+    "key": "outside_every_day",
+    "type": "weekly",
+    "title": "Jeden Tag draußen sein",
+    "icon": "🌳",
+    "category": "nature",
+    "ages": [
+      "child",
+      "teen",
+      "adult"
+    ],
+    "why": [
+      "damit ich frische Luft bekomme",
+      "weil ich mich draußen besser fühle",
+      "damit ich die Jahreszeiten erlebe"
+    ],
+    "target": 5
+  },
+  {
+    "key": "pet_care_week",
+    "type": "weekly",
+    "title": "Haustier selbst versorgen",
+    "icon": "🐹",
+    "category": "nature",
+    "ages": [
+      "child",
+      "teen"
+    ],
+    "why": [
+      "damit es meinem Tier gut geht",
+      "weil ich zeigen will, dass ich das schaffe",
+      "damit Mama und Papa sich darauf verlassen können"
+    ],
+    "target": 7
+  },
+  {
+    "key": "screen_free_evening",
+    "type": "weekly",
+    "title": "Bildschirmfreier Abend",
+    "icon": "📵",
+    "category": "others",
+    "ages": [
+      "teen",
+      "adult"
+    ],
+    "why": [
+      "damit ich besser einschlafe",
+      "damit ich mehr Zeit für andere Dinge habe",
+      "damit wir als Familie mehr reden"
+    ],
+    "target": 3
+  },
+  {
+    "key": "help_kitchen",
+    "type": "weekly",
+    "title": "In der Küche mithelfen",
+    "icon": "🍳",
+    "category": "household",
+    "ages": [
+      "child",
+      "teen"
+    ],
+    "why": [
+      "damit ich kochen lerne",
+      "damit alle früher essen können",
+      "weil es zusammen mehr Spaß macht"
+    ],
+    "target": 3
+  },
+  {
+    "key": "bed_on_time",
+    "type": "weekly",
+    "title": "Pünktlich ins Bett gehen",
+    "icon": "🌙",
+    "category": "others",
+    "ages": [
+      "child",
+      "teen",
+      "adult"
+    ],
+    "why": [
+      "damit ich morgens nicht so müde bin",
+      "damit ich in der Schule gut aufpassen kann",
+      "weil Schlaf mir guttut"
+    ],
+    "target": 5
+  },
+  {
+    "key": "draw_or_craft",
+    "type": "weekly",
+    "title": "Etwas malen oder basteln",
+    "icon": "🎨",
+    "category": "creative",
+    "ages": [
+      "child"
+    ],
+    "why": [
+      "weil ich gern Neues erfinde",
+      "damit ich Geschenke selbst machen kann",
+      "weil es mich entspannt"
+    ],
+    "target": 3
+  },
+  {
+    "key": "vocab_practice",
+    "type": "weekly",
+    "title": "Vokabeln üben",
+    "icon": "🔤",
+    "category": "school",
+    "ages": [
+      "child",
+      "teen"
+    ],
+    "why": [
+      "damit ich im Test sicher bin",
+      "damit ich mich im Urlaub verständigen kann",
+      "damit ich nicht alles am letzten Tag lernen muss"
+    ],
+    "target": 4
+  },
+  {
+    "key": "walk_family",
+    "type": "weekly",
+    "title": "Spaziergang mit der Familie",
+    "icon": "🚶",
+    "category": "nature",
+    "ages": [
+      "child",
+      "teen",
+      "adult"
+    ],
+    "why": [
+      "damit wir Zeit zusammen haben",
+      "weil wir dabei gut reden können",
+      "damit wir mehr von unserer Gegend sehen"
+    ],
+    "target": 3
+  },
+  {
+    "key": "water_drink",
+    "type": "weekly",
+    "title": "Genug Wasser trinken",
+    "icon": "💧",
+    "category": "sport",
+    "ages": [
+      "child",
+      "teen",
+      "adult"
+    ],
+    "why": [
+      "damit ich keinen Kopfschmerz bekomme",
+      "damit ich beim Sport mehr Kraft habe",
+      "weil mein Körper das braucht"
+    ],
+    "target": 6
+  },
+  {
+    "key": "read_ten_books",
+    "type": "count",
+    "title": "10 Bücher bis zu den Sommerferien",
+    "icon": "📖",
+    "category": "school",
+    "ages": [
+      "child",
+      "teen"
+    ],
+    "why": [
+      "weil ich neue Geschichten entdecken will",
+      "damit ich ein Lese-Abzeichen bekomme",
+      "damit ich besser lesen kann"
+    ],
+    "target": 10,
+    "unit": "Bücher"
+  },
+  {
+    "key": "save_pocket_money",
+    "type": "count",
+    "title": "Taschengeld sparen",
+    "icon": "🐷",
+    "category": "others",
+    "ages": [
+      "child",
+      "teen"
+    ],
+    "why": [
+      "damit ich mir etwas Großes kaufen kann",
+      "weil ich lernen will, mit Geld umzugehen",
+      "damit ich für den Urlaub etwas habe"
+    ],
+    "target": 50,
+    "unit": "Euro"
+  },
+  {
+    "key": "homework_30_days",
+    "type": "count",
+    "title": "30 Tage Hausaufgaben vor 17 Uhr",
+    "icon": "📅",
+    "category": "school",
+    "ages": [
+      "child",
+      "teen"
+    ],
+    "why": [
+      "damit es zur Gewohnheit wird",
+      "damit ich danach entspannt spielen kann",
+      "damit ich bessere Noten bekomme"
+    ],
+    "target": 30,
+    "unit": "Tage"
+  },
+  {
+    "key": "bird_species",
+    "type": "count",
+    "title": "15 Vogelarten erkennen",
+    "icon": "🐦",
+    "category": "nature",
+    "ages": [
+      "child",
+      "teen",
+      "adult"
+    ],
+    "why": [
+      "weil ich wissen will, wer in unserem Garten singt",
+      "damit ich draußen mehr entdecke",
+      "weil Vögel spannend sind"
+    ],
+    "target": 15,
+    "unit": "Vogelarten"
+  },
+  {
+    "key": "trash_walks",
+    "type": "count",
+    "title": "Müll im Park sammeln",
+    "icon": "🧤",
+    "category": "nature",
+    "ages": [
+      "child",
+      "teen",
+      "adult"
+    ],
+    "why": [
+      "damit unser Park schön bleibt",
+      "weil Tiere sich an Müll verletzen können",
+      "weil ich etwas Gutes tun will"
+    ],
+    "target": 5,
+    "unit": "Sammelrunden"
+  },
+  {
+    "key": "drawings_sketchbook",
+    "type": "count",
+    "title": "Ein Skizzenbuch füllen",
+    "icon": "✏️",
+    "category": "creative",
+    "ages": [
+      "child",
+      "teen",
+      "adult"
+    ],
+    "why": [
+      "damit ich sehe, wie ich besser werde",
+      "weil Zeichnen mich ruhig macht",
+      "damit ich ein eigenes Buch habe"
+    ],
+    "target": 30,
+    "unit": "Bilder"
+  },
+  {
+    "key": "bake_recipes",
+    "type": "count",
+    "title": "Neue Rezepte backen",
+    "icon": "🧁",
+    "category": "household",
+    "ages": [
+      "child",
+      "teen"
+    ],
+    "why": [
+      "damit ich backen lerne",
+      "weil die Familie gern Kuchen isst",
+      "damit ich zum Geburtstag selbst backen kann"
+    ],
+    "target": 5,
+    "unit": "Rezepte"
+  },
+  {
+    "key": "swim_laps",
+    "type": "count",
+    "title": "Bahnen schwimmen",
+    "icon": "🌊",
+    "category": "sport",
+    "ages": [
+      "child",
+      "teen",
+      "adult"
+    ],
+    "why": [
+      "damit ich ausdauernder werde",
+      "weil ich mich im Wasser frei fühle",
+      "damit ich das nächste Abzeichen schaffe"
+    ],
+    "target": 100,
+    "unit": "Bahnen"
+  },
+  {
+    "key": "declutter_items",
+    "type": "count",
+    "title": "Dinge aussortieren",
+    "icon": "📦",
+    "category": "household",
+    "ages": [
+      "teen",
+      "adult"
+    ],
+    "why": [
+      "damit ich mehr Platz habe",
+      "damit andere sich über meine alten Sachen freuen",
+      "weil weniger Kram weniger Arbeit ist"
+    ],
+    "target": 50,
+    "unit": "Dinge"
+  },
+  {
+    "key": "help_neighbors",
+    "type": "count",
+    "title": "Nachbarn helfen",
+    "icon": "🤝",
+    "category": "others",
+    "ages": [
+      "child",
+      "teen",
+      "adult"
+    ],
+    "why": [
+      "weil Helfen sich gut anfühlt",
+      "damit wir uns in der Straße besser kennen",
+      "weil ich freundlich sein will"
+    ],
+    "target": 5,
+    "unit": "Hilfen"
+  },
+  {
+    "key": "stories_written",
+    "type": "count",
+    "title": "Eigene Geschichten schreiben",
+    "icon": "📝",
+    "category": "creative",
+    "ages": [
+      "child",
+      "teen"
+    ],
+    "why": [
+      "weil ich viele Ideen im Kopf habe",
+      "damit ich sie später vorlesen kann",
+      "damit ich besser schreiben lerne"
+    ],
+    "target": 5,
+    "unit": "Geschichten"
+  },
+  {
+    "key": "hikes",
+    "type": "count",
+    "title": "Wanderungen machen",
+    "icon": "🥾",
+    "category": "nature",
+    "ages": [
+      "child",
+      "teen",
+      "adult"
+    ],
+    "why": [
+      "damit wir gemeinsam unterwegs sind",
+      "weil ich neue Orte sehen will",
+      "damit ich ausdauernder werde"
+    ],
+    "target": 6,
+    "unit": "Wanderungen"
+  },
+  {
+    "key": "photos_nature",
+    "type": "count",
+    "title": "Naturfotos machen",
+    "icon": "📷",
+    "category": "creative",
+    "ages": [
+      "teen",
+      "adult"
+    ],
+    "why": [
+      "weil ich schöne Momente festhalten will",
+      "damit wir ein Familienalbum haben",
+      "damit ich genauer hinschaue"
+    ],
+    "target": 20,
+    "unit": "Fotos"
+  },
+  {
+    "key": "learn_poems",
+    "type": "count",
+    "title": "Gedichte auswendig lernen",
+    "icon": "🎭",
+    "category": "school",
+    "ages": [
+      "child"
+    ],
+    "why": [
+      "damit ich sie zu Festen aufsagen kann",
+      "weil ich mir Dinge besser merken will",
+      "weil Reime Spaß machen"
+    ],
+    "target": 3,
+    "unit": "Gedichte"
+  }
+]

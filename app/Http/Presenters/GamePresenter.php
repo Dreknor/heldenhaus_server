@@ -4,6 +4,7 @@ namespace App\Http\Presenters;
 
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\ScoreTask;
+use App\Domain\Goals\StarFadeService;
 use App\Domain\Support\StepService;
 use App\Enums\AgeGroup;
 use App\Enums\CompletionStatus;
@@ -47,6 +48,8 @@ class GamePresenter
             'avatar_color' => $user->avatar_color,
             'has_email' => $user->email !== null,
             'chat_allowed' => $user->ageGroup() === AgeGroup::Teen ? (bool) $user->chat_allowed : null,
+            // Erwachsenenprofil (§14.11): Eltern sehen nur noch Familienaufgaben und Sterne
+            'adult_profile' => $user->isIndependent() ? true : null,
             'stats' => $withStats && $user->stats ? self::stats($user->stats) : null,
             'appearance' => $withStats ? CharacterSheet::appearance($user) : null,
         ], fn ($v) => $v !== null);
@@ -78,6 +81,9 @@ class GamePresenter
                 ? ['done' => $task->assignments->where('completed', true)->count(), 'total' => $task->assignments->count()]
                 : null,
             'pending_approval' => $pending,
+            // Erinnerungen (§14.2): Snooze und Frage nach drei ignorierten Erinnerungen
+            'reminder_snoozed_until' => $a->reminder_snoozed_until?->toIso8601String(),
+            'reminder_question' => (bool) $a->reminder_question,
         ];
     }
 
@@ -116,6 +122,13 @@ class GamePresenter
             'star_reward' => $task->star_reward,
             'gold_cost' => $task->gold_cost,
             'ha_event_key' => $task->ha_event_key,
+            // Wenn-dann-Plan und Erinnerung (§14.2); die App plant daraus lokale Benachrichtigungen
+            'anchor' => $task->anchor,
+            'remind_at' => $task->remind_at ? substr((string) $task->remind_at, 0, 5) : null,
+            'remind_ha' => (bool) $task->remind_ha,
+            'paused_until' => $task->paused_until?->toDateString(),
+            'mastered' => $task->mastered_at !== null,
+            'star_fade' => StarFadeService::present($task),
             'assignees' => $task->relationLoaded('assignments') ? $task->assignments->pluck('user_id')->all() : [],
         ];
     }

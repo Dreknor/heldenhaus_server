@@ -2,6 +2,8 @@
 
 namespace App\Http\Presenters;
 
+use App\Domain\Achievements\MasteryService;
+use App\Domain\Achievements\TitleService;
 use App\Domain\Art\AvatarSvg;
 use App\Domain\Art\PetArt;
 use App\Domain\Classes\ClassCatalog;
@@ -51,6 +53,10 @@ class CharacterSheet
                     'armed' => $b->armed,
                     'expires_at' => $b->expires_at->toIso8601String(),
                 ])->values(),
+            // Langzeitziele (§14.7): Meisterschaften je Kategorie und Titel unter dem Namen
+            'masteries' => MasteryService::present($user),
+            'title' => TitleService::display($user, $stats->level),
+            'next_title' => TitleService::next($stats->level),
             'family_members' => $user->family?->members()->orderBy('name')->get(['id', 'name', 'avatar_color']) ?? [],
             'equipment' => UserEquipment::with('item')->where('user_id', $user->id)->get()
                 ->mapWithKeys(fn (UserEquipment $e) => [$e->slot => self::item($e->item)]),

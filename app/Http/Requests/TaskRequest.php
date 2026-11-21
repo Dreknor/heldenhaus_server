@@ -58,6 +58,10 @@ class TaskRequest extends FormRequest
             'assignees.*' => ['integer'],
             'star_reward' => ['nullable', 'integer', 'min:0', 'max:1000'],
             'ha_event_key' => ['nullable', 'string', 'max:64', 'regex:/^[a-z0-9_]+$/'],
+            // Erinnerungen und Wenn-dann-Pläne (§14.2)
+            'anchor' => ['nullable', 'string', 'max:80'],
+            'remind_at' => ['nullable', 'date_format:H:i'],
+            'remind_ha' => ['boolean'],
         ];
     }
 

@@ -388,4 +388,10 @@ const eyeXs = computed(() => (m.value.eyes === 1 ? [0] : m.value.eyes === 3 ? [-
         animation: none;
     }
 }
+/* Einstellung „Animationen aus“ (§11.4) wirkt wie die Systemeinstellung */
+:root.hh-reduce-motion .dust,
+:root.hh-reduce-motion .monster,
+:root.hh-reduce-motion .is-hit {
+    animation: none;
+}
 </style>

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Crafting\Catalog;
+use App\Domain\Events\EventService;
+use App\Domain\Events\FunEventService;
+use App\Domain\Features\Features;
 use App\Domain\Housing\BuildService;
 use App\Domain\Housing\GardenService;
 use App\Domain\Housing\GuestbookService;
@@ -29,8 +32,10 @@ class HousingController extends Controller
         private readonly GuestbookService $guestbook,
     ) {}
 
-    public function index(Request $request): Response
+    public function index(Request $request, FunEventService $fun): Response
     {
+        // Beim Betreten des Familienhauses kann ein Zufallsereignis auftauchen (§12.5, fester Seed je Stunde)
+        $fun->forContext($request->user(), 'home');
         $home = HomeService::home((int) $request->user()->family_id);
         $data = HomeService::present($home);
         $rooms = $home->rooms->keyBy('id');
@@ -54,16 +59,32 @@ class HousingController extends Controller
                 'master_quantity' => $row->master_quantity,
             ])->values();
 
+        // Teile, die erst später freigeschaltet werden (§13), bleiben leer – die Seite zeigt dort eine Vorschau
+        $user = $request->user();
+        if (! Features::has($user, 'building')) {
+            $data['projects'] = ['active' => [], 'available' => []];
+            $data['storage'] = [];
+        }
+        if (! Features::has($user, 'garden')) {
+            $data['garden'] = null;
+        }
+        if (! Features::has($user, 'alliances')) {
+            $data['guestbook'] = [];
+        }
+
         return Inertia::render('Housing', [
             'home' => $data + [
-                'can_start_projects' => $request->user()->isParent(),
+                'can_start_projects' => $user->isParent(),
                 'can_write_text' => true,
                 'presets' => MessageService::PRESETS,
                 'emojis' => MessageService::EMOJIS,
             ],
             'furniture' => $furniture,
             'visitor' => false,
-            'alliedFamilies' => $this->alliedFamilies((int) $request->user()->family_id),
+            'alliedFamilies' => Features::has($user, 'alliances') ? $this->alliedFamilies((int) $user->family_id) : [],
+            // Event-Deko im Haus und offene Zufallsereignisse
+            'events' => EventService::summary($request->user()),
+            'funEvents' => $fun->visible($request->user()),
         ]);
     }
 

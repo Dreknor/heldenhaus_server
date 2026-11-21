@@ -11,9 +11,10 @@ const props = defineProps<{
 const percent = computed(() => Math.max(0, Math.min(100, (props.value / Math.max(1, props.max)) * 100)));
 
 const colors = {
-    hp: 'from-rose-500 to-red-500',
-    xp: 'from-amber-400 to-yellow-400',
-    mp: 'from-sky-500 to-indigo-500',
+    // Variablen statt fester Farben: das Farbschema für Farbsehschwächen tauscht sie aus
+    hp: 'from-stat-hp-from to-stat-hp-to',
+    xp: 'from-stat-xp-from to-stat-xp-to',
+    mp: 'from-stat-mp-from to-stat-mp-to',
 };
 </script>
 
@@ -24,7 +25,11 @@ const colors = {
             <span class="tabular-nums">{{ Math.floor(value) }} / {{ Math.floor(max) }}</span>
         </div>
         <div class="h-2.5 overflow-hidden rounded-full bg-muted">
-            <div class="h-full rounded-full bg-gradient-to-r transition-all duration-700 ease-out" :class="colors[color]" :style="{ width: `${percent}%` }" />
+            <div
+                class="h-full rounded-full bg-gradient-to-r transition-all duration-700 ease-out"
+                :class="colors[color]"
+                :style="{ width: `${percent}%` }"
+            />
         </div>
     </div>
 </template>

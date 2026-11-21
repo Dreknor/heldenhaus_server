@@ -57,6 +57,11 @@ class User extends Authenticatable
             'chat_allowed' => 'boolean',
             'show_all_features' => 'boolean',
             'fast_start_at' => 'datetime',
+            'teen_card_seen_at' => 'datetime',
+            'adult_offer_dismissed_at' => 'datetime',
+            'adult_profile_at' => 'datetime',
+            'parent_guide_seen_at' => 'datetime',
+            'starter_tasks_at' => 'datetime',
         ];
     }
 
@@ -128,6 +133,26 @@ class User extends Authenticatable
     public function isChild(): bool
     {
         return $this->family_role === FamilyRole::Child;
+    }
+
+    /** Alter nach Jahreswechsel des Geburtsjahrs (wie die Altersgruppe), null ohne Geburtsjahr. */
+    public function age(): ?int
+    {
+        return $this->birth_year === null ? null : (int) now()->year - $this->birth_year;
+    }
+
+    /**
+     * Erwachsenenprofil ab 16 (§14.11): eigene Anmeldung, Eltern sehen nur noch Familienaufgaben und Sterne.
+     */
+    public function isIndependent(): bool
+    {
+        return $this->adult_profile_at !== null && ! $this->isParent();
+    }
+
+    /** Darf $this als Elternteil die persönlichen Daten (Aufgaben, Einstellungen, Statistik) von $member sehen? */
+    public function overseesPersonalDataOf(User $member): bool
+    {
+        return $this->isParent() && $this->sameFamilyAs($member) && ! $member->isIndependent();
     }
 
     public function sameFamilyAs(?User $other): bool

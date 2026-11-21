@@ -8,17 +8,25 @@ use App\Http\Controllers\Api\V1\CharacterController;
 use App\Http\Controllers\Api\V1\DeviceController;
 use App\Http\Controllers\Api\V1\FamilyController;
 use App\Http\Controllers\Api\V1\GameController;
+use App\Http\Controllers\Api\V1\GoalController;
 use App\Http\Controllers\Api\V1\HomeAssistantController;
+use App\Http\Controllers\CouncilController;
 use App\Http\Controllers\CraftingController;
 use App\Http\Controllers\DungeonController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\FamilyHubController;
 use App\Http\Controllers\FeatureController;
+use App\Http\Controllers\GrowingUpController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InsightsController;
+use App\Http\Controllers\LongTermController;
+use App\Http\Controllers\ParentHelpController;
+use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\QuestController;
 use App\Http\Controllers\SocialController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\SupportController;
+use App\Http\Controllers\VoteController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -56,6 +64,26 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
             Route::post('tasks/{task}/claim', [GameController::class, 'claim'])->name('tasks.claim');
             Route::post('tasks/{task}/buy', [GameController::class, 'buy'])->name('tasks.buy');
 
+            // Langzeitmotivation (§14.12): Ziele, Erinnerungen, Meistern, Ehrensache
+            Route::get('goals', [GoalController::class, 'index'])->name('goals.index');
+            Route::get('goals/templates', [GoalController::class, 'templates'])->name('goals.templates');
+            Route::post('goals', [GoalController::class, 'store'])->name('goals.store');
+            Route::put('goals/{goal}', [GoalController::class, 'update'])->name('goals.update');
+            Route::post('goals/{goal}/release', [GoalController::class, 'release'])->name('goals.release');
+            Route::post('goals/{goal}/count', [GoalController::class, 'count'])->name('goals.count');
+            Route::post('goals/{goal}/milestones/{milestone}/done', [GoalController::class, 'milestone'])->name('goals.milestone');
+            Route::post('goals/{goal}/milestones/{milestone}/decline', [GoalController::class, 'declineMilestone'])->name('goals.milestone.decline');
+            Route::post('goals/{goal}/support', [GoalController::class, 'support'])->name('goals.support');
+            Route::post('tasks/{task}/reminder/snooze', [GoalController::class, 'snooze'])->name('tasks.reminder.snooze');
+            Route::post('tasks/{task}/reminder/feedback', [GoalController::class, 'reminderFeedback'])->name('tasks.reminder.feedback');
+            Route::get('mastery', [GoalController::class, 'mastery'])->name('mastery');
+            Route::post('tasks/{task}/master', [GoalController::class, 'master'])->name('tasks.master');
+            Route::post('tasks/{task}/less-often', [GoalController::class, 'lessOften'])->name('tasks.less-often');
+            Route::post('tasks/{task}/keep', [GoalController::class, 'keep'])->name('tasks.keep');
+            Route::post('tasks/{task}/still-ok', [GoalController::class, 'stillOk'])->name('tasks.still-ok');
+            Route::post('tasks/{task}/fade-stars', [GoalController::class, 'fadeStars'])->name('tasks.fade-stars');
+            Route::get('fade-stars/suggestions', [GoalController::class, 'fadeSuggestions'])->name('fade-stars.suggestions');
+
             Route::get('family', [FamilyController::class, 'show'])->name('family');
             Route::get('approvals', [FamilyController::class, 'approvals'])->name('approvals');
             Route::post('completions/{completion}/{decision}', [FamilyController::class, 'reviewCompletion'])
@@ -83,6 +111,13 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
             Route::get('family/report', [FamilyHubController::class, 'report'])->name('family.report');
             Route::get('achievements', [AchievementController::class, 'index'])->name('achievements');
             Route::post('achievements/seen', [AchievementController::class, 'seen'])->name('achievements.seen');
+            // Langzeitziele (§14.7) und Chronik (§14.8)
+            Route::get('me/album', [LongTermController::class, 'album'])->name('me.album');
+            Route::get('me/masteries', [LongTermController::class, 'masteries'])->name('me.masteries');
+            Route::get('me/hero-year', [LongTermController::class, 'heroYear'])->name('me.hero-year');
+            Route::get('chronicle', [LongTermController::class, 'chronicle'])->name('chronicle');
+            Route::post('chronicle/{key}/read', [LongTermController::class, 'readChapter'])->where('key', '[a-z0-9_]+')->name('chronicle.read');
+            Route::put('family/crest', [LongTermController::class, 'crest'])->name('family.crest');
             Route::get('quests', [QuestController::class, 'index'])->name('quests');
             Route::post('quests', [QuestController::class, 'start'])->name('quests.start');
             Route::post('quests/{quest}/abandon', [QuestController::class, 'abandon'])->name('quests.abandon');
@@ -170,11 +205,41 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
             Route::get('members/{member}/features', [FeatureController::class, 'member'])->name('members.features');
             Route::put('members/{member}/features', [FeatureController::class, 'updateMember'])->name('members.features.update');
 
+            // Familienrat und Mitbestimmung (§14.4), Hilfen für Eltern (§14.9), Altersübergänge (§14.11)
+            Route::get('proposals', [ProposalController::class, 'index'])->name('proposals');
+            Route::post('proposals', [ProposalController::class, 'store'])->middleware('throttle:20,1')->name('proposals.store');
+            Route::post('proposals/{proposal}/accept', [ProposalController::class, 'accept'])->name('proposals.accept');
+            Route::post('proposals/{proposal}/decline', [ProposalController::class, 'decline'])->name('proposals.decline');
+            Route::post('votes', [VoteController::class, 'store'])->name('votes.store');
+            Route::get('votes/{vote}', [VoteController::class, 'show'])->name('votes.show');
+            Route::post('votes/{vote}', [VoteController::class, 'act'])->name('votes.act');
+            Route::get('family-council', [CouncilController::class, 'show'])->name('family-council');
+            Route::post('family-council', [CouncilController::class, 'act'])->name('family-council.act');
+            Route::put('family/council-settings', [CouncilController::class, 'updateSettings'])->name('family.council-settings');
+            Route::get('task-templates', [ParentHelpController::class, 'templates'])->name('task-templates');
+            Route::post('task-templates/{key}/adopt', [ParentHelpController::class, 'adopt'])->name('task-templates.adopt');
+            Route::post('members/{member}/starter-tasks', [ParentHelpController::class, 'storeStarter'])->name('members.starter-tasks');
+            Route::get('shop/price-help', [ParentHelpController::class, 'priceHelp'])->name('shop.price-help');
+            Route::get('help/parents', [ParentHelpController::class, 'guide'])->name('help.parents');
+            Route::get('me/age-transition', [GrowingUpController::class, 'show'])->name('age-transition');
+            Route::post('me/adult-profile', [GrowingUpController::class, 'adultProfile'])->middleware('throttle:10,1')->name('adult-profile');
+            Route::post('me/hints/{key}/dismiss', [GrowingUpController::class, 'dismiss'])->name('hints.dismiss');
+
             // Statistiken (Phase 8)
             Route::get('stats/me', [StatsController::class, 'me'])->name('stats.me');
             Route::get('stats/family', [StatsController::class, 'family'])->name('stats.family');
             Route::get('members/{member}/stats', [StatsController::class, 'member'])->name('members.stats');
             Route::get('monsters/{key}.svg', [DungeonController::class, 'monsterArt'])->name('monsters.art');
+
+            // Rückblick und Erfolgsmessung (Konzept §14.5, §14.10)
+            Route::get('me/review/{kind}', [InsightsController::class, 'review'])->whereIn('kind', ['week', 'month', 'year'])->name('review');
+            Route::post('me/review/{review}/seen', [InsightsController::class, 'seen'])->whereNumber('review')->name('review.seen');
+            Route::post('me/review/{review}/share', [InsightsController::class, 'share'])->whereNumber('review')->name('review.share');
+            Route::get('members/{member}/review/{kind}', [InsightsController::class, 'memberReview'])->whereIn('kind', ['week', 'month', 'year'])->name('members.review');
+            Route::get('surveys/due', [InsightsController::class, 'dueSurvey'])->name('surveys.due');
+            Route::post('surveys', [InsightsController::class, 'storeSurvey'])->name('surveys.store');
+            Route::get('family/metrics', [InsightsController::class, 'metrics'])->name('family.metrics');
+            Route::get('family/metrics/compare', [InsightsController::class, 'compare'])->name('family.metrics.compare');
 
             // Fokus & Alltagshilfen (Konzept §11)
             Route::get('me/support-settings', [SupportController::class, 'settings'])->name('support.settings');

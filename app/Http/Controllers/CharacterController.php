@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Domain\Classes\ClassCatalog;
 use App\Domain\Classes\ClassService;
+use App\Domain\Features\Features;
 use App\Domain\Inventory\InventoryService;
 use App\Http\Presenters\CharacterSheet;
 use App\Http\Requests\AvatarRules;
@@ -26,12 +27,29 @@ class CharacterController extends Controller
 
     public function hero(Request $request): Response
     {
-        return Inertia::render('Hero', CharacterSheet::hero($request->user()));
+        $user = $request->user();
+        $data = CharacterSheet::hero($user);
+        // Klassen kommen mit der Freischaltung (§13); vorher zeigt die Seite nur die Vorschau
+        if (! Features::has($user, 'classes')) {
+            $data['classes'] = [];
+        }
+
+        return Inertia::render('Hero', $data);
     }
 
     public function inventory(Request $request): Response
     {
-        return Inertia::render('Inventory', CharacterSheet::inventory($request->user()));
+        $user = $request->user();
+        $data = CharacterSheet::inventory($user);
+        // Gesperrtes (§13) bleibt unsichtbar: Gold-Shop, Materialtasche (Werkstatt) – gesammelt wird trotzdem
+        if (! Features::has($user, 'shop')) {
+            $data['shop'] = [];
+        }
+        if (! Features::has($user, 'crafting')) {
+            $data['items'] = collect($data['items'])->reject(fn ($item) => ($item['type'] ?? null) === 'material')->values();
+        }
+
+        return Inertia::render('Inventory', $data);
     }
 
     public function saveAvatar(Request $request): RedirectResponse

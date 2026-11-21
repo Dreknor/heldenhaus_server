@@ -17,8 +17,9 @@ class TaskPolicy
             return $task->family_id === $user->family_id;
         }
 
-        // Persönliche Aufgaben anderer: Eltern sehen sie, außer sie sind privat (Teens).
-        return $user->isParent() && $user->sameFamilyAs($task->owner) && ! $task->is_private;
+        // Persönliche Aufgaben anderer: Eltern sehen sie, außer sie sind privat (Teens) oder die Person
+        // hat ein Erwachsenenprofil (§14.11, dann nur noch Familienaufgaben und Sterne).
+        return $task->owner !== null && $user->overseesPersonalDataOf($task->owner) && ! $task->is_private;
     }
 
     public function createFamilyTask(User $user): bool

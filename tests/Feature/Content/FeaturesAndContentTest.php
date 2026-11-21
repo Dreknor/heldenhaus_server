@@ -32,7 +32,10 @@ it('meldet gesperrte Funktionen im Web freundlich statt mit JSON und zeigt die S
         ->assertRedirect('/crafting')
         ->assertSessionHasErrors(['game' => 'Das schaltest du mit Level '.Features::levelFor('crafting', $this->child).' frei.']);
 
-    $this->get('/crafting')->assertInertia(fn ($page) => $page->where('locks.crafting', Features::levelFor('crafting', $this->child)));
+    // Die Seite selbst zeigt vor der Freischaltung eine Vorschau statt der Werkstatt
+    $this->get('/crafting')->assertInertia(fn ($page) => $page->component('features/Locked')
+        ->where('feature.key', 'crafting')
+        ->where('feature.level', Features::levelFor('crafting', $this->child)));
 });
 
 it('schaltet mit dem Level frei und belohnt die erste Mini-Aufgabe genau einmal', function () {

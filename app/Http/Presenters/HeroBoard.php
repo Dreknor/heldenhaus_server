@@ -2,8 +2,15 @@
 
 namespace App\Http\Presenters;
 
+use App\Domain\Achievements\AlbumService;
+use App\Domain\Achievements\ChronicleService;
 use App\Domain\Art\PetArt;
+use App\Domain\Council\BoardHints;
 use App\Domain\Gameplay\RunDayCron;
+use App\Domain\Goals\GoalService;
+use App\Domain\Goals\MasteryService;
+use App\Domain\Goals\StarFadeService;
+use App\Domain\Insights\InsightsBoard;
 use App\Domain\Support\FocusService;
 use App\Domain\Support\SupportService;
 use App\Enums\CompletionStatus;
@@ -25,7 +32,8 @@ class HeroBoard
             'completions' => fn ($q) => $q->where('direction', 'up')->latest('id')->limit(1),
         ])
             ->where('user_id', $user->id)
-            ->whereHas('task', fn ($q) => $q->whereNull('archived_at'))
+            // Gemeisterte Gewohnheiten (§14.3) verlassen die tägliche Liste
+            ->whereHas('task', fn ($q) => $q->whereNull('archived_at')->whereNull('mastered_at'))
             ->get()
             ->sortBy(fn (TaskAssignment $a) => [$a->task->sort, $a->task->id])
             ->map(fn (TaskAssignment $a) => GamePresenter::assignment($a, $today))
@@ -62,7 +70,28 @@ class HeroBoard
             'support' => SupportService::present($user),
             'recoveries' => SupportService::presentRecoveries($user),
             'focus' => FocusService::present(FocusService::running($user)),
+            // Langzeitmotivation (§14.1–§14.3): eigene Ziele, Meister-Angebote, Ehrensache-Vorschläge für Eltern
+            'goals' => app(GoalService::class)->boardSummary($user),
+            'mastery' => app(MasteryService::class)->cards($user),
+            'star_fade' => $user->isParent() && $user->family_id ? app(StarFadeService::class)->suggestions($user->family_id) : [],
+            // Familienrat, Abstimmung, Vorschläge, Eltern-Anleitung, Altersübergänge (§14.4, §14.9, §14.11)
+            'councilHints' => BoardHints::for($user),
+            // Rückblick, Umfrage, Hinweise für Eltern (§14.5, §14.10)
+            'insights' => InsightsBoard::for($user),
+            // Knappe Hinweise auf Langzeitziele (§14.7, §14.8): neues Chronik-Kapitel, neue Album-Belohnung
+            'longTerm' => [
+                'chapter' => self::chapterHint($user),
+                'album_rewards' => AlbumService::unseenRewards($user),
+            ],
         ];
+    }
+
+    /** Erstes ungelesenes Chronik-Kapitel; vorher freischalten, was schon erreicht ist. */
+    private static function chapterHint(User $user): ?array
+    {
+        app(ChronicleService::class)->sync($user);
+
+        return ChronicleService::firstUnread($user);
     }
 
     public static function companion(User $user): ?UserPet

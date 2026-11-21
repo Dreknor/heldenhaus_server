@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import FeatureTour from '@/components/game/FeatureTour.vue';
+import FeatureUnlockCard from '@/components/game/FeatureUnlockCard.vue';
 import FlashMessages from '@/components/game/FlashMessages.vue';
 import AppLayout from '@/layouts/app/AppSidebarLayout.vue';
 import type { BreadcrumbItemType } from '@/types';
@@ -16,5 +18,7 @@ withDefaults(defineProps<Props>(), {
     <AppLayout :breadcrumbs="breadcrumbs">
         <slot />
         <FlashMessages />
+        <FeatureUnlockCard />
+        <FeatureTour />
     </AppLayout>
 </template>

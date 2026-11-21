@@ -4,6 +4,7 @@ use App\Domain\Inventory\InventoryService;
 use App\Domain\Quests\QuestService;
 use App\Models\Item;
 use App\Models\UserItem;
+use Illuminate\Support\Facades\File;
 use Laravel\Sanctum\Sanctum;
 
 beforeEach(function () {
@@ -63,6 +64,15 @@ it('zeigt die Credits der verwendeten Grafiken öffentlich an', function () {
         expect(file_exists(base_path($file)))->toBeTrue();
     }
     expect(collect(glob(public_path('images/scene/*.webp')))->map(fn ($f) => 'public/images/scene/'.basename($f))->diff(collect($credits)->pluck('files')->flatten()))->toBeEmpty();
+
+    // Rückwärts: jede ausgelieferte Grafik- und Klangdatei gehört zu einem Credit-Eintrag (Datei oder Ordner)
+    $covered = collect($credits)->pluck('files')->flatten()->map(fn ($f) => rtrim($f, '/'));
+    $missing = collect(['images', 'dungeon', 'sounds', 'icons', 'avatar'])
+        ->flatMap(fn ($dir) => is_dir(public_path($dir)) ? File::allFiles(public_path($dir)) : [])
+        ->map(fn ($f) => 'public/'.str_replace(DIRECTORY_SEPARATOR, '/', substr($f->getPathname(), strlen(public_path()) + 1)))
+        ->reject(fn ($p) => $covered->contains(fn ($c) => $p === $c || str_starts_with($p, $c.'/')))
+        ->values();
+    expect($missing->all())->toBe([]);
 
     // Jede Figuren-Ebene gehört zu einem Teil aus dem Manifest, dessen Quelle in lpc-credits.json steht
     $manifest = json_decode(file_get_contents(resource_path('avatars/lpc.json')), true);

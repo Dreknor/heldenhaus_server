@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import EventDecor from '@/components/game/EventDecor.vue';
 import HeroAvatar from '@/components/game/HeroAvatar.vue';
 import PetArt from '@/components/game/PetArt.vue';
 import PixelYard from '@/components/game/PixelYard.vue';
 import type { Appearance } from '@/types';
+import type { EventSummary } from '@/types/events';
 import { computed } from 'vue';
 
 /**
@@ -17,6 +19,8 @@ defineProps<{
     /** Gemalter Hintergrund des Tages, sonst die Fluent-Landschaft */
     background?: string | null;
     weather?: { type: 'clear' | 'cloudy' | 'fog' | 'rain' | 'snow' | 'storm'; label: string; is_day: boolean } | null;
+    /** Laufende Events: ihre Deko schmückt die Szene (§12.7) */
+    events?: Pick<EventSummary, 'key' | 'icon' | 'decor'>[];
 }>();
 
 const hour = new Date().getHours();
@@ -104,6 +108,8 @@ const snowflakes = Array.from({ length: 26 }, (_, i) => ({
                 />
             </div>
         </div>
+
+        <EventDecor v-if="events?.length" :events="events" class="z-[1]" />
 
         <div
             v-if="weather"
@@ -269,5 +275,14 @@ const snowflakes = Array.from({ length: 26 }, (_, i) => ({
     .snowflake {
         animation: none;
     }
+}
+/* Einstellung „Animationen aus“ (§11.4) wirkt wie die Systemeinstellung */
+:root.hh-reduce-motion .rider,
+:root.hh-reduce-motion .saddle,
+:root.hh-reduce-motion .twinkle,
+:root.hh-reduce-motion .clouds,
+:root.hh-reduce-motion .rain-drop,
+:root.hh-reduce-motion .snowflake {
+    animation: none;
 }
 </style>

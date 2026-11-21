@@ -1,12 +1,16 @@
+import { DEFAULT_FEEDBACK, playSound, type SoundName } from '@/composables/useSound';
 import type { Feedback, SharedData } from '@/types';
 import { usePage } from '@inertiajs/vue3';
 
 /**
  * Sofortige Rückmeldung beim Abhaken (Konzept §11.1, §11.4): Konfetti, ein kurzer Klang und Haptik.
  * Die Stärke folgt den Fokus-Einstellungen der Person (voll / dezent / nur Haptik, Animationen, Ton)
- * und der Systemeinstellung „Bewegung reduzieren“. Ohne Abhängigkeiten: Canvas und Web Audio.
+ * und der Systemeinstellung „Bewegung reduzieren“. Klänge: CC0-Dateien in public/sounds (useSound),
+ * die synthetische Glocke springt nur ein, wenn der Browser sie nicht abspielen kann.
  */
 export type CelebrateKind = 'step' | 'task' | 'big';
+
+const SOUND: Record<CelebrateKind, SoundName> = { step: 'step', task: 'task', big: 'levelup' };
 
 const COLORS = ['#f59e0b', '#ec4899', '#8b5cf6', '#10b981', '#38bdf8', '#f43f5e', '#facc15'];
 // Pentatonik klingt immer freundlich, egal in welcher Reihenfolge
@@ -158,7 +162,7 @@ export function useCelebrate() {
     const page = usePage<SharedData>();
 
     function settings(): Feedback {
-        return page.props.auth?.feedback ?? { level: 'full', reduce_motion: false, sound: true, haptics: true };
+        return page.props.auth?.feedback ?? DEFAULT_FEEDBACK;
     }
 
     /**
@@ -169,7 +173,7 @@ export function useCelebrate() {
         if (typeof window === 'undefined') return;
         const s = settings();
         const systemReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-        const still = s.reduce_motion || systemReduced;
+        const still = s.reduce_motion || systemReduced || document.documentElement.classList.contains('hh-reduce-motion');
 
         const rect = origin?.getBoundingClientRect();
         const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
@@ -178,7 +182,7 @@ export function useCelebrate() {
         if (s.haptics && 'vibrate' in navigator) navigator.vibrate(kind === 'step' ? 15 : kind === 'big' ? [20, 40, 20, 40, 60] : [20, 30, 40]);
         if (s.level === 'haptic') return;
 
-        if (s.sound) playChime(kind, s.level === 'subtle');
+        playSound(SOUND[kind], s, () => playChime(kind, s.level === 'subtle'));
         if (label) floatText(x, rect ? rect.top - 12 : y, label, still);
         if (still) return;
 

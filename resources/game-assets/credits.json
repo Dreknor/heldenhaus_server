@@ -109,5 +109,41 @@
         "files": [
             "public/images/monsters"
         ]
+    },
+    {
+        "title": "Klänge: Interface Sounds",
+        "author": "Kenney",
+        "author_url": "https://kenney.nl",
+        "source_url": "https://opengameart.org/content/interface-sounds",
+        "license": "CC0 1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "changes": "Sechs Klänge unverändert übernommen und umbenannt: confirmation_002 → task, pluck_001 → step, maximize_006 → levelup, glass_002 → drop, maximize_008 → unlock, back_002 → error.",
+        "files": [
+            "public/sounds"
+        ]
+    },
+    {
+        "title": "Lesefreundliche Schrift: Atkinson Hyperlegible",
+        "author": "Braille Institute of America",
+        "author_url": "https://www.brailleinstitute.org/freefont/",
+        "source_url": "https://fonts.google.com/specimen/Atkinson+Hyperlegible",
+        "license": "SIL Open Font License 1.1",
+        "license_url": "https://openfontlicense.org/open-font-license-official-text/",
+        "changes": "Unverändert, eingebunden über das npm-Paket @fontsource/atkinson-hyperlegible. Wird nur mit der Einstellung „Lesefreundliche Schrift“ genutzt.",
+        "files": [
+            "node_modules/@fontsource/atkinson-hyperlegible"
+        ]
+    },
+    {
+        "title": "App-Symbol: Heldenhaus-Wappen",
+        "author": "Heldenhaus",
+        "author_url": "https://github.com/Dreknor/heldenhaus_server",
+        "source_url": "https://github.com/Dreknor/heldenhaus_server",
+        "license": "Eigene Arbeit (wie der Quellcode des Projekts)",
+        "license_url": "https://github.com/Dreknor/heldenhaus_server",
+        "changes": "Eigene Zeichnung des Wappens aus AppLogoIcon.vue auf Holzgrund, als SVG und PNG für das PWA-Manifest.",
+        "files": [
+            "public/icons"
+        ]
     }
 ]

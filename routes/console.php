@@ -3,6 +3,8 @@
 use App\Domain\Achievements\AchievementService;
 use App\Domain\Art\SceneBackgrounds;
 use App\Domain\Classes\ClassService;
+use App\Domain\Council\CouncilService;
+use App\Domain\Council\VoteService;
 use App\Domain\Crafting\CraftingService;
 use App\Domain\Dungeons\DungeonService;
 use App\Domain\Events\EventEngine;
@@ -13,7 +15,12 @@ use App\Domain\Family\FamilyService;
 use App\Domain\Family\WeeklyReport;
 use App\Domain\Gameplay\Formulas;
 use App\Domain\Gameplay\RunDayCron;
+use App\Domain\Goals\GoalService;
+use App\Domain\Goals\MasteryService;
+use App\Domain\Goals\ReminderService;
+use App\Domain\Goals\StarFadeService;
 use App\Domain\Housing\BuildService;
+use App\Domain\Insights\NightlyInsights;
 use App\Domain\Notifications\PushNotifier;
 use App\Domain\Social\ChallengeService;
 use App\Domain\Tasks\ReviewCompletion;
@@ -108,6 +115,16 @@ Artisan::command('heldenhaus:weekly-reports', function (PushNotifier $push) {
     $this->info('Wochenberichte verschickt.');
 })->purpose('Wochenbericht an Eltern senden');
 
+/*
+ * Langzeitmotivation (§14.5, §14.6, §14.10): stündlich prüfen, wo es in der Zeitzone der Familie
+ * nach 02:00 ist (Aktivitätswerte, Kennzahlen) bzw. Montag/Monatserster/Neujahr nach 05:00 (Rückblicke).
+ * Alles ist idempotent, ein verpasster Lauf wird beim nächsten nachgeholt.
+ */
+Artisan::command('heldenhaus:insights', function (NightlyInsights $nightly) {
+    $c = $nightly->run();
+    $this->info("{$c['families']} Familien ausgewertet, {$c['reviews']} Rückblicke erzeugt.");
+})->purpose('Aktivitätswerte, Kennzahlen und Rückblicke in der Zeitzone der Familie erzeugen');
+
 Artisan::command('heldenhaus:challenges-close', function (ChallengeService $challenges) {
     $this->info($challenges->closeExpired().' Challenges abgeschlossen.');
 })->purpose('Abgelaufene Challenges schließen und ihre Aufgaben archivieren');
@@ -123,6 +140,15 @@ Artisan::command('heldenhaus:dungeons-close', function (DungeonService $dungeons
 Artisan::command('heldenhaus:auto-approve', function (ReviewCompletion $review) {
     $this->info($review->autoApproveExpired().' Freigaben automatisch bestätigt.');
 })->purpose('Offene Freigaben nach Ablauf der Frist bestätigen');
+
+/*
+ * Familienrat (§14.4): Erinnerung eine Stunde vorher, Abstimmungen schließen und gewählte Quests starten.
+ */
+Artisan::command('heldenhaus:council-tick', function (CouncilService $councils, VoteService $votes) {
+    $reminded = $councils->sendReminders();
+    $v = $votes->tick();
+    $this->info("{$reminded} Familien an den Familienrat erinnert, {$v['closed']} Abstimmungen beendet, {$v['started']} Quests gestartet.");
+})->purpose('Familienrat-Erinnerungen senden und Abstimmungen auswerten');
 
 /*
  * Events (§12.6): Kalender planen, Instanzen starten/beenden, Ferien laden.
@@ -268,6 +294,32 @@ Artisan::command('updater:run
 })->purpose('Aktualisiert Heldenhaus aus dem Git-Repository (Online-Updater)');
 
 /*
+ * Erinnerungen (§14.2): inhaltsleere Push-Nachricht und optional HA-Ereignis zur Erinnerungszeit.
+ */
+Artisan::command('heldenhaus:reminders', function (ReminderService $reminders) {
+    $this->info($reminders->dispatchDue().' Erinnerungen gesendet.');
+})->purpose('Fällige Erinnerungen senden');
+
+/*
+ * Ziele und Gewohnheiten (§14.1/§14.3): Wochenziele Sonntagabend auswerten, abgelaufene Ziele markieren,
+ * ignorierte Erinnerungen zählen, einmal täglich Meister-Angebote suchen und Sterne ausschleichen.
+ */
+Artisan::command('heldenhaus:goals-tick', function (GoalService $goals, ReminderService $reminders, MasteryService $mastery, StarFadeService $fade) {
+    $weeks = 0;
+    User::whereNotNull('family_id')->chunkById(200, function ($users) use ($goals, $reminders, $mastery, &$weeks) {
+        foreach ($users as $user) {
+            $weeks += $goals->evaluateWeeks($user);
+            $goals->expireDue($user);
+            $reminders->evaluatePast($user);
+            Cache::remember("mastery-scan:{$user->id}:".$user->gameDate()->toDateString(), now()->addDay(), fn () => $mastery->scan($user) + 1);
+        }
+    });
+    $faded = $fade->apply();
+
+    $this->info("{$weeks} Wochenziele ausgewertet, {$faded} Aufgaben beim Ausschleichen angepasst.");
+})->purpose('Wochenziele, Erinnerungs-Auswertung, Meistern und Ehrensache');
+
+/*
  * Scheduler – auf dem Hetzner-Webhosting per konsoleH-Cron jede Minute:
  *   php artisan schedule:run
  * Es gibt keine Dauerprozesse: die Queue wird hier kurz abgearbeitet.
@@ -277,15 +329,19 @@ Schedule::command('queue:work --stop-when-empty --max-time=50 --tries=3')
     ->withoutOverlapping(5);
 
 Schedule::command('heldenhaus:day-cron')->everyFifteenMinutes()->withoutOverlapping();
+Schedule::command('heldenhaus:reminders')->everyMinute()->withoutOverlapping();
+Schedule::command('heldenhaus:goals-tick')->everyFifteenMinutes()->withoutOverlapping();
 Schedule::command('heldenhaus:auto-approve')->everyFifteenMinutes()->withoutOverlapping();
 Schedule::command('heldenhaus:housing-tick')->everyFiveMinutes()->withoutOverlapping();
 Schedule::command('heldenhaus:dungeons-close')->hourly()->withoutOverlapping();
 Schedule::command('heldenhaus:community-rhythm')->hourly()->withoutOverlapping();
 Schedule::command('heldenhaus:weekly-reports')->weeklyOn(0, '18:00')->timezone('Europe/Berlin');
 Schedule::command('heldenhaus:events-plan')->dailyAt('00:10')->timezone('Europe/Berlin')->withoutOverlapping();
+Schedule::command('heldenhaus:council-tick')->everyFiveMinutes()->withoutOverlapping();
 Schedule::command('heldenhaus:events-tick')->everyFifteenMinutes()->withoutOverlapping();
 Schedule::command('heldenhaus:holidays-sync')->monthlyOn(1, '04:00')->withoutOverlapping();
 Schedule::command('heldenhaus:challenges-close')->dailyAt('03:30')->withoutOverlapping();
+Schedule::command('heldenhaus:insights')->hourlyAt(7)->withoutOverlapping();
 Schedule::command('model:prune')->daily();
 Schedule::command('queue:prune-failed --hours=168')->daily();
 

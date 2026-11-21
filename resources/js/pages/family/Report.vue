@@ -14,15 +14,16 @@ const props = defineProps<{
             id: number;
             name: string;
             avatar_color: string;
-            dailies_due: number;
-            dailies_done: number;
-            tasks_done: number;
+            adult_profile?: boolean;
+            dailies_due: number | null;
+            dailies_done: number | null;
+            tasks_done: number | null;
             family_tasks_done: number;
             family_share: number;
             stars: number;
-            xp: number;
-            quest_progress: number;
-            knocked_out: number;
+            xp: number | null;
+            quest_progress: number | null;
+            knocked_out: number | null;
         }[];
         quests: { name: string; icon: string; status: string; progress: number; goal: number }[];
         pending_approvals: number;
@@ -48,12 +49,20 @@ const statusLabel: Record<string, string> = { completed: '✅ geschafft', active
                 <h1 class="flex-1 text-2xl font-extrabold tracking-tight">Wochenbericht</h1>
                 <button class="rounded-md p-2 hover:bg-muted" aria-label="Vorige Woche" @click="shiftWeek(-7)"><ChevronLeft class="size-5" /></button>
                 <span class="font-semibold">{{ fmt(report.week_start) }} – {{ fmt(report.week_end) }}</span>
-                <button class="rounded-md p-2 hover:bg-muted disabled:opacity-30" aria-label="Nächste Woche" :disabled="isCurrentWeek" @click="shiftWeek(7)">
+                <button
+                    class="rounded-md p-2 hover:bg-muted disabled:opacity-30"
+                    aria-label="Nächste Woche"
+                    :disabled="isCurrentWeek"
+                    @click="shiftWeek(7)"
+                >
                     <ChevronRight class="size-5" />
                 </button>
             </div>
 
-            <p v-if="report.pending_approvals" class="rounded-xl bg-amber-100 px-4 py-2 text-sm font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
+            <p
+                v-if="report.pending_approvals"
+                class="rounded-xl bg-amber-100 px-4 py-2 text-sm font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
+            >
                 {{ report.pending_approvals }} Freigaben warten noch auf euch.
             </p>
 
@@ -92,9 +101,12 @@ const statusLabel: Record<string, string> = { completed: '✅ geschafft', active
                     <tbody class="divide-y">
                         <tr v-for="m in report.members" :key="m.id">
                             <td class="p-3 font-semibold">{{ m.name }}<span v-if="m.knocked_out" class="ml-1" title="K.O. diese Woche">💫</span></td>
-                            <td class="p-3 tabular-nums">
+                            <td v-if="m.adult_profile" class="p-3 text-xs text-muted-foreground">Erwachsenenprofil</td>
+                            <td v-else class="p-3 tabular-nums">
                                 {{ m.dailies_done }} / {{ m.dailies_due }}
-                                <span v-if="m.dailies_due" class="text-muted-foreground">({{ Math.round((m.dailies_done / m.dailies_due) * 100) }} %)</span>
+                                <span v-if="m.dailies_due" class="text-muted-foreground"
+                                    >({{ Math.round(((m.dailies_done ?? 0) / m.dailies_due) * 100) }} %)</span
+                                >
                             </td>
                             <td class="p-3 tabular-nums">{{ m.tasks_done }}</td>
                             <td class="p-3 tabular-nums">{{ m.family_tasks_done }}</td>
