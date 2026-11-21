@@ -53,9 +53,10 @@ class PushNotifier
 
     /**
      * Diese Arten kommen als reine Datennachricht (data.show = 1, Titel und Text in data), damit die App
-     * die Benachrichtigung selbst baut, z. B. mit einem Bestätigen-Knopf bei Freigaben.
+     * die Benachrichtigung selbst baut, z. B. mit einem Bestätigen-Knopf bei Freigaben. Erinnerungen ebenfalls:
+     * hat die App sie schon lokal geplant (§14.2), zeigt sie die Server-Nachricht nicht ein zweites Mal.
      */
-    public const DATA_ONLY = ['approval_pending'];
+    public const DATA_ONLY = ['approval_pending', 'reminder'];
 
     /** @param  User|iterable<User>  $users */
     public function notify(User|iterable $users, string $type, array $data = []): int

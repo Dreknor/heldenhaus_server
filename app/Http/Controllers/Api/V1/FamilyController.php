@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Presenters\GamePresenter;
 use App\Models\RewardItem;
 use App\Models\RewardRedemption;
+use App\Models\Task;
 use App\Models\TaskCompletion;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -18,6 +19,18 @@ use Illuminate\Http\Request;
 
 class FamilyController extends Controller
 {
+    /** Eltern: alle Familienaufgaben (wie die Web-Seite Familienaufgaben), u. a. mit Ehrensache-Stand (§14.3). */
+    public function tasks(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        abort_unless($user->isParent(), 403);
+
+        return response()->json([
+            'tasks' => Task::with('assignments')->where('family_id', $user->family_id)->where('scope', 'family')->active()->latest()->get()
+                ->map(fn (Task $t) => GamePresenter::task($t))->values(),
+        ]);
+    }
+
     public function show(Request $request): JsonResponse
     {
         $family = $request->user()->family;

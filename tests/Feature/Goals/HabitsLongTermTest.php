@@ -57,7 +57,9 @@ it('erinnert einmal pro Aufgabe und Tag, höchstens fünfmal pro Person, nie in 
     expect($reminders->dispatchDue())->toBe(5)
         ->and($reminders->dispatchDue())->toBe(0)
         ->and(ReminderLog::where('user_id', $this->child->id)->count())->toBe(5);
-    Queue::assertPushed(SendPushNotification::class, fn ($job) => $job->type === 'reminder' && ! isset($job->data['title']));
+    // Reine Datennachricht ohne Aufgabentitel: die App entscheidet, ob sie sie zeigt (lokal schon geplant?)
+    Queue::assertPushed(SendPushNotification::class, fn ($job) => $job->type === null && $job->data['type'] === 'reminder'
+        && ($job->data['show'] ?? null) === '1' && $job->data['title'] === 'Erinnerung' && ! str_contains(json_encode($job->data), 'Aufgabe'));
 
     // Nächster Tag: Ruhezeit hält zurück, danach Fokus-Zeit
     NotificationSetting::create(['user_id' => $this->child->id, 'push_enabled' => true, 'quiet_start' => '16:00', 'quiet_end' => '18:00']);
@@ -277,4 +279,17 @@ it('zeigt Abzeichen in der Trophäenhalle', function () {
 
     $trophies = HomeService::trophies($home);
     expect($trophies === null || $trophies['badges'][0]['name'] === 'Fahrrad')->toBeTrue();
+});
+
+it('liefert Eltern alle Familienaufgaben über die API, Kindern nicht', function () {
+    makeTask($this->parent, ['type' => 'todo', 'scope' => 'family', 'title' => 'Spülmaschine', 'assignees' => [$this->child->id],
+        'assignment_mode' => 'assigned', 'approval_mode' => 'none', 'star_reward' => 2]);
+    makeTask($this->child, ['type' => 'todo', 'title' => 'Eigenes']);
+
+    Sanctum::actingAs($this->parent, ['app']);
+    $this->getJson('/api/v1/family/tasks')->assertOk()->assertJsonCount(1, 'tasks')->assertJsonPath('tasks.0.title', 'Spülmaschine')
+        ->assertJsonPath('tasks.0.star_fade', null);
+
+    Sanctum::actingAs($this->child, ['app']);
+    $this->getJson('/api/v1/family/tasks')->assertForbidden();
 });

@@ -85,6 +85,7 @@ Route::prefix('v1')->name('api.v1.')->middleware('app-version')->group(function 
             Route::get('fade-stars/suggestions', [GoalController::class, 'fadeSuggestions'])->name('fade-stars.suggestions');
 
             Route::get('family', [FamilyController::class, 'show'])->name('family');
+            Route::get('family/tasks', [FamilyController::class, 'tasks'])->name('family.tasks');
             Route::get('approvals', [FamilyController::class, 'approvals'])->name('approvals');
             Route::post('completions/{completion}/{decision}', [FamilyController::class, 'reviewCompletion'])
                 ->whereIn('decision', ['approve', 'reject'])->name('completions.review');
