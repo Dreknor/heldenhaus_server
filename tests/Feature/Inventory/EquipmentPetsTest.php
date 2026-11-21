@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Art\PetArt;
 use App\Domain\Gameplay\Attributes;
 use App\Domain\Gameplay\GameException;
 use App\Domain\Gameplay\ScoreTask;
@@ -141,4 +142,18 @@ it('Begleiter bzw. Reittier im Stall wählen', function () {
     $this->getJson('/api/v1/board')->assertJsonPath('companion.name', 'Gold-Pony');
 
     expect(fn () => $this->inventory->chooseCompanion($other, $pony))->toThrow(GameException::class);
+});
+
+it('Kopf-Bilder wie der Fuchs werden als Reittier nicht geritten, Pferde schon', function () {
+    $fox = Item::create(['key' => 'egg_fox', 'name' => 'Fuchsei', 'type' => 'egg']);
+    $horse = Item::create(['key' => 'egg_horse', 'name' => 'Pferdeei', 'type' => 'egg']);
+    $gold = Item::create(['key' => 'potion_golden', 'name' => 'Gold-Schlüpfpulver', 'type' => 'hatching_potion']);
+    $foxMount = UserPet::create(['user_id' => $this->child->id, 'egg_item_id' => $fox->id, 'potion_item_id' => $gold->id, 'name' => 'Gold-Fuchs', 'is_mount' => true]);
+    UserPet::create(['user_id' => $this->child->id, 'egg_item_id' => $horse->id, 'potion_item_id' => $gold->id, 'name' => 'Gold-Pony', 'is_mount' => true]);
+
+    $this->actingAs($this->child)->post("/pets/{$foxMount->id}/companion");
+    $this->get('/dashboard')->assertInertia(fn ($page) => $page->where('companion.name', 'Gold-Fuchs')->where('companion.is_mount', true)->where('companion.rideable', false));
+
+    expect(PetArt::rideable('egg_horse'))->toBeTrue()
+        ->and(PetArt::rideable('egg_unicorn'))->toBeFalse();
 });

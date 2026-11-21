@@ -14,7 +14,7 @@ import { computed } from 'vue';
  */
 defineProps<{
     appearance: Appearance;
-    companion: { egg_key: string; potion_key: string; is_mount: boolean; name: string } | null;
+    companion: { egg_key: string; potion_key: string; is_mount: boolean; name: string; rideable?: boolean } | null;
     hurt?: boolean;
     /** Gemalter Hintergrund des Tages, sonst die Fluent-Landschaft */
     background?: string | null;
@@ -122,8 +122,13 @@ const snowflakes = Array.from({ length: 26 }, (_, i) => ({
         </div>
 
         <div class="relative z-[2] flex min-h-56 items-end gap-1 px-2 pt-4 sm:min-h-72 sm:px-6">
-            <!-- Reittier: der Held sitzt obendrauf (Beine verdeckt), sonst steht er mit Haustier daneben -->
-            <div v-if="companion?.is_mount" class="riding relative -mb-1 shrink-0" :aria-label="`${companion.name} als Reittier`">
+            <!-- Reittier: der Held sitzt obendrauf (Beine verdeckt), sonst steht er mit Haustier daneben.
+                 Tiere, die man nicht reiten kann (nur ein Kopf-Bild, Biene, Qualle …), stehen als Reittier groß daneben. -->
+            <div
+                v-if="companion?.is_mount && companion.rideable !== false"
+                class="riding relative -mb-1 shrink-0"
+                :aria-label="`${companion.name} als Reittier`"
+            >
                 <PetArt :egg="companion.egg_key" :potion="companion.potion_key" :size="150" class="relative z-0" />
                 <HeroAvatar
                     :avatar="appearance.avatar"
@@ -153,7 +158,16 @@ const snowflakes = Array.from({ length: 26 }, (_, i) => ({
                     :size="156"
                     class="-mb-1 drop-shadow-lg"
                 />
-                <PetArt v-if="companion" :egg="companion.egg_key" :potion="companion.potion_key" :size="64" class="mb-3 shrink-0" />
+                <PetArt
+                    v-if="companion"
+                    :egg="companion.egg_key"
+                    :potion="companion.potion_key"
+                    :mount="companion.is_mount"
+                    :size="companion.is_mount ? 100 : 64"
+                    class="shrink-0"
+                    :class="companion.is_mount ? 'mb-1' : 'mb-3'"
+                    :aria-label="companion.is_mount ? `${companion.name} als Reittier` : undefined"
+                />
             </template>
             <div class="absolute right-3 top-3 max-w-[78%] text-right sm:static sm:mb-4 sm:ml-auto sm:mr-36 sm:max-w-[55%]">
                 <slot />
